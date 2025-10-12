@@ -1,6 +1,8 @@
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="RamTech" />
+	<title>RamTech | Dashboard</title>
+	<meta name="description" content="RamTech Dashboard" />
 </svelte:head>
 
-<section></section>
+<section>
+	<h1>Dashboard</h1>
+</section>

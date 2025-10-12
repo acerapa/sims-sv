@@ -14,7 +14,7 @@
 	import Badge from '../ui/badge/badge.svelte';
 </script>
 
-<header class="border-b border-border bg-white">
+<header class="fixed top-0 left-0 w-full border-b border-border bg-white">
 	<div class="mx-auto flex max-w-7xl gap-8 px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 flex-1 items-center justify-between gap-6">
 			<div class="flex">
