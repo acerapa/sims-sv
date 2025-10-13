@@ -1,7 +1,12 @@
 <script lang="ts">
 	import StatCard from '$lib/components/common/StatCard.svelte';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
 	import { Package, TrendingDown, TriangleAlert } from '@lucide/svelte';
+	import { setContext } from 'svelte';
+
+	setContext('pageTitle', {
+		title: 'Inventory',
+		subTitle: 'Monitor your product stock levels and inventory status.'
+	});
 
 	const statCards = [
 		{
@@ -44,20 +49,15 @@
 	<meta name="description" content="RamTech Inventory Dashboard" />
 </svelte:head>
 
-<section class="flex flex-col gap-8">
-	<PageTitle title="Inventory" subTitle="Monitor your product stock levels and inventory status." />
-
-	<!-- Add sub header here -->
-	<div class="grid gap-6 lg:grid-cols-4">
-		{#each statCards as stat (stat.title)}
-			<StatCard
-				title={stat.title}
-				value={stat.value}
-				icon={stat.icon}
-				diff={stat.diff}
-				description={stat.description}
-				variant={stat.variant}
-			/>
-		{/each}
-	</div>
-</section>
+<div class="grid gap-6 lg:grid-cols-4">
+	{#each statCards as stat (stat.title)}
+		<StatCard
+			title={stat.title}
+			value={stat.value}
+			icon={stat.icon}
+			diff={stat.diff}
+			description={stat.description}
+			variant={stat.variant}
+		/>
+	{/each}
+</div>
