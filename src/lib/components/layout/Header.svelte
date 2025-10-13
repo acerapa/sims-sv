@@ -31,7 +31,7 @@
 				<a href={resolve('/inventory')}>
 					<Button variant="ghost">Inventory</Button>
 				</a>
-				<a href="#">
+				<a href={resolve('/reports')}>
 					<Button variant="ghost">Reports</Button>
 				</a>
 				<a href="#">
