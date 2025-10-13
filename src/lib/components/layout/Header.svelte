@@ -25,7 +25,7 @@
 				<a href={resolve('/')}>
 					<Button variant="ghost">Dashboard</Button>
 				</a>
-				<a href="#">
+				<a href={resolve('/sales')}>
 					<Button variant="ghost">Sales</Button>
 				</a>
 				<a href="#">
