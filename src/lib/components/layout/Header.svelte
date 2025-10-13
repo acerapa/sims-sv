@@ -12,6 +12,7 @@
 	import Input from '../ui/input/input.svelte';
 	import { Bell, ChevronDown, LogOut, Search, Settings, User } from '@lucide/svelte';
 	import Badge from '../ui/badge/badge.svelte';
+	import { resolve } from '$app/paths';
 </script>
 
 <header class="fixed top-0 left-0 w-full border-b border-border bg-white">
@@ -21,7 +22,7 @@
 				<p class="text-xl !font-bold">RamTech</p>
 			</div>
 			<nav class="flex gap-6">
-				<a href="#">
+				<a href={resolve('/')}>
 					<Button variant="ghost">Dashboard</Button>
 				</a>
 				<a href="#">
