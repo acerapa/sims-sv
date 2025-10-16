@@ -44,8 +44,6 @@
 	const removeItem = (index: number) => {
 		items.splice(index, 1);
 	};
-
-	$inspect(items).with(console.log);
 </script>
 
 <svelte:head>
@@ -112,7 +110,7 @@
 						{#each items as item, i (item)}
 							<TableRow>
 								<TableCell>
-									<Input type="text" bind:value={items[i].product_id} />
+									<Input type="number" bind:value={items[i].product_id} />
 								</TableCell>
 								<TableCell>
 									<Input type="number" bind:value={items[i].quantity} />
