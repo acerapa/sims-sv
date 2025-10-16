@@ -27,48 +27,40 @@
 			<nav class="flex gap-6">
 				<a href={resolve('/')}>
 					<Button
-						variant={isRouteActive('/', path) ? 'default' : 'ghost'}
-						class={isRouteActive('/', path)
-							? 'bg-blue-500 hover:bg-blue-500/90'
-							: 'text-muted-foreground'}
+						variant={isRouteActive('/', path) ? 'info' : 'ghost'}
+						class="text-muted-foreground"
 					>
 						Dashboard
 					</Button>
 				</a>
 				<a href={resolve('/sales')}>
 					<Button
-						variant={isRouteActive('/sales', path) ? 'default' : 'ghost'}
-						class={isRouteActive('/sales', path)
-							? 'bg-blue-500 hover:bg-blue-500/90'
-							: 'text-muted-foreground'}>Sales</Button
+						variant={isRouteActive('/sales', path) ? 'info' : 'ghost'}
+						class="text-muted-foreground">Sales</Button
 					>
 				</a>
 				<a href={resolve('/inventory')}>
 					<Button
-						variant={isRouteActive('/inventory', path) ? 'default' : 'ghost'}
-						class={isRouteActive('/inventory', path)
-							? 'bg-blue-500 hover:bg-blue-500/90'
-							: 'text-muted-foreground'}
+						variant={isRouteActive('/inventory', path) || path?.startsWith('/inventory')
+							? 'info'
+							: 'ghost'}
+						class="text-muted-foreground"
 					>
 						Inventory
 					</Button>
 				</a>
 				<a href={resolve('/reports')}>
 					<Button
-						variant={isRouteActive('/reports', path) ? 'default' : 'ghost'}
-						class={isRouteActive('/reports', path)
-							? 'bg-blue-500 hover:bg-blue-500/90'
-							: 'text-muted-foreground'}
+						variant={isRouteActive('/reports', path) ? 'info' : 'ghost'}
+						class="text-muted-foreground"
 					>
 						Reports
 					</Button>
 				</a>
 				<a href={resolve('/settings')}>
 					<Button
-						variant={isRouteActive('/settings', path) ? 'default' : 'ghost'}
-						class={isRouteActive('/settings', path)
-							? 'bg-blue-500 hover:bg-blue-500/90'
-							: 'text-muted-foreground'}
+						variant={isRouteActive('/settings', path) ? 'info' : 'ghost'}
+						class="text-muted-foreground"
 					>
 						Settings
 					</Button>
