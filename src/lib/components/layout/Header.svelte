@@ -13,6 +13,9 @@
 	import { Bell, ChevronDown, LogOut, Search, Settings, User } from '@lucide/svelte';
 	import Badge from '../ui/badge/badge.svelte';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { isRouteActive } from '$lib/utils/routes';
+	const path = $derived(page.route.id as string);
 </script>
 
 <header class="sticky top-0 left-0 z-50 flex w-full justify-center border-b border-border bg-white">
@@ -23,19 +26,52 @@
 			</div>
 			<nav class="flex gap-6">
 				<a href={resolve('/')}>
-					<Button variant="ghost">Dashboard</Button>
+					<Button
+						variant={isRouteActive('/', path) ? 'default' : 'ghost'}
+						class={isRouteActive('/', path)
+							? 'bg-blue-500 hover:bg-blue-500/90'
+							: 'text-muted-foreground'}
+					>
+						Dashboard
+					</Button>
 				</a>
 				<a href={resolve('/sales')}>
-					<Button variant="ghost">Sales</Button>
+					<Button
+						variant={isRouteActive('/sales', path) ? 'default' : 'ghost'}
+						class={isRouteActive('/sales', path)
+							? 'bg-blue-500 hover:bg-blue-500/90'
+							: 'text-muted-foreground'}>Sales</Button
+					>
 				</a>
 				<a href={resolve('/inventory')}>
-					<Button variant="ghost">Inventory</Button>
+					<Button
+						variant={isRouteActive('/inventory', path) ? 'default' : 'ghost'}
+						class={isRouteActive('/inventory', path)
+							? 'bg-blue-500 hover:bg-blue-500/90'
+							: 'text-muted-foreground'}
+					>
+						Inventory
+					</Button>
 				</a>
 				<a href={resolve('/reports')}>
-					<Button variant="ghost">Reports</Button>
+					<Button
+						variant={isRouteActive('/reports', path) ? 'default' : 'ghost'}
+						class={isRouteActive('/reports', path)
+							? 'bg-blue-500 hover:bg-blue-500/90'
+							: 'text-muted-foreground'}
+					>
+						Reports
+					</Button>
 				</a>
-				<a href="#">
-					<Button variant="ghost">Settings</Button>
+				<a href={resolve('/settings')}>
+					<Button
+						variant={isRouteActive('/settings', path) ? 'default' : 'ghost'}
+						class={isRouteActive('/settings', path)
+							? 'bg-blue-500 hover:bg-blue-500/90'
+							: 'text-muted-foreground'}
+					>
+						Settings
+					</Button>
 				</a>
 			</nav>
 		</div>
