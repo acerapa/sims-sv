@@ -46,18 +46,20 @@
 			</div>
 			<Button variant="ghost" class="relative">
 				<Bell class="size-4.5" />
-				<Badge variant="destructive" class="absolute -top-1.5 -right-1.5 px-1.5 ">3</Badge>
+				<Badge variant="destructive" class="absolute -top-1.5 -right-1.5 bg-red-500 px-1.5">
+					3
+				</Badge>
 			</Button>
 			<DropdownMenu>
-				<Trigger>
-					<Button class="flex items-center gap-3" variant="ghost">
-						<Avatar>
-							<Image src="/avatar.png" alt="Avatar" />
-							<Fallback>JD</Fallback>
-						</Avatar>
-						<p>John Doe</p>
-						<ChevronDown class="size-4" />
-					</Button>
+				<Trigger
+					class="flex cursor-pointer items-center gap-3 rounded-md px-3 py-1 text-sm font-medium hover:bg-slate-100"
+				>
+					<Avatar>
+						<Image src="/avatar.png" alt="Avatar" />
+						<Fallback>JD</Fallback>
+					</Avatar>
+					<p>John Doe</p>
+					<ChevronDown class="size-4" />
 				</Trigger>
 				<Content>
 					<Group>
