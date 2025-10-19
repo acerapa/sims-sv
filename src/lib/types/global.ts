@@ -34,3 +34,13 @@ export interface Category {
 	name: string;
 	sub_categories?: Category[];
 }
+
+export interface Supplier {
+	id: number;
+	name: string;
+	email?: string;
+	address: string;
+	phone_number?: string;
+	contact_person: string;
+	telephone_number?: string;
+}

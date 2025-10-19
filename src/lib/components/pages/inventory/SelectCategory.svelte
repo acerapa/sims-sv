@@ -97,7 +97,7 @@
 
 <Popover>
 	<PopoverTrigger class="w-full">
-		<Button variant="outline" class="flex w-full justify-between text-muted-foreground">
+		<Button variant="outline" class="flex w-full justify-between font-normal text-muted-foreground">
 			{selectedCategory || 'Select Category'}
 			<ChevronsUpDown class="opacity-50" />
 		</Button>
