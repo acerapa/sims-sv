@@ -1,5 +1,6 @@
 <script lang="ts">
 	import StatCard from '$lib/components/common/StatCard.svelte';
+	import ProductForm from '$lib/components/pages/inventory/ProductForm.svelte';
 	import ProductRow from '$lib/components/pages/inventory/ProductRow.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -52,6 +53,8 @@
 			variant: 'success'
 		}
 	];
+
+	let openProductForm = $state(false);
 </script>
 
 <svelte:head>
@@ -83,7 +86,10 @@
 					<Funnel />
 					<span>Filter</span>
 				</Button>
-				<Button class="space-x-2 bg-blue-500 hover:bg-blue-500/90">
+				<Button
+					onclick={() => (openProductForm = true)}
+					class="space-x-2 bg-blue-500 hover:bg-blue-500/90"
+				>
 					<Plus />
 					<span>Add Product</span>
 				</Button>
@@ -109,4 +115,5 @@
 			</div>
 		</CardContent>
 	</Card>
+	<ProductForm bind:open={openProductForm} />
 </div>

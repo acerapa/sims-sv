@@ -28,3 +28,9 @@ export interface Product {
 	stocks: number;
 	minimum_stock: number;
 }
+
+export interface Category {
+	id: number;
+	name: string;
+	sub_categories?: Category[];
+}
