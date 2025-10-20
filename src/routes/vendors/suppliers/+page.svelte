@@ -1,4 +1,5 @@
 <script lang="ts">
+	import SupplierForm from '$lib/components/pages/vendors/suppliers/SupplierForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -48,6 +49,8 @@
 			products: 12
 		}
 	];
+
+	let openSupplierForm = $state(false);
 </script>
 
 <Card>
@@ -57,7 +60,7 @@
 				<CardTitle>Suppliers</CardTitle>
 				<CardDescription>Manage your supplier relationships</CardDescription>
 			</div>
-			<Button class="flex items-center gap-3">
+			<Button class="flex items-center gap-3" onclick={() => (openSupplierForm = true)}>
 				<Plus />
 				<span>Add Supplier</span>
 			</Button>
@@ -99,3 +102,4 @@
 		</Table>
 	</CardContent>
 </Card>
+<SupplierForm bind:open={openSupplierForm} />

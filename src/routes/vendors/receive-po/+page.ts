@@ -5,7 +5,7 @@ export const load: PageLoad = () => {
 	pageContext.set({
 		pageTitle: {
 			title: 'Receive Purchase Order',
-			subTitle: 'Record items received from suppliers and update inventory.'
+			subTitle: 'Receive items from suppliers and update inventory.'
 		}
 	});
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import StatCard from '$lib/components/common/StatCard.svelte';
-	import ProductForm from '$lib/components/pages/inventory/ProductForm.svelte';
-	import ProductRow from '$lib/components/pages/inventory/ProductRow.svelte';
+	import ProductForm from '$lib/components/pages/vendors/ProductForm.svelte';
+	import ProductRow from '$lib/components/pages/vendors/ProductRow.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -58,7 +58,7 @@
 </script>
 
 <svelte:head>
-	<title>RamTech | Inventory</title>
+	<title>RamTech | Item list</title>
 	<meta name="description" content="RamTech Inventory Dashboard" />
 </svelte:head>
 
