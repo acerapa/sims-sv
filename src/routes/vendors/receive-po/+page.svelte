@@ -10,6 +10,13 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import {
+		Select,
+		SelectContent,
+		SelectGroup,
+		SelectItem,
+		SelectTrigger
+	} from '$lib/components/ui/select';
+	import {
 		Table,
 		TableBody,
 		TableCell,
@@ -69,9 +76,23 @@
 						<Input class="h-10" placeholder="Enter supplier name" />
 					</div>
 				</div>
-				<div class="flex w-[calc(50%_-_0.75rem)] flex-1 flex-col gap-2">
-					<Label>Date Received</Label>
-					<Input class="h-10" placeholder="e.g, PO-2024-0001" />
+				<div class="flex flex-wrap gap-6">
+					<div class="flex flex-1 flex-col gap-2">
+						<Label>Date Received</Label>
+						<Input class="h-10" placeholder="e.g, PO-2024-0001" />
+					</div>
+					<div class="flex flex-1 flex-col gap-2">
+						<Label>Received Type</Label>
+						<Select type="single">
+							<SelectTrigger class="w-full">Select Type</SelectTrigger>
+							<SelectContent>
+								<SelectGroup>
+									<SelectItem value="with_pay">With Pay</SelectItem>
+									<SelectItem value="without_pay">Without Pay</SelectItem>
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+					</div>
 				</div>
 				<div class="flex flex-1 flex-col gap-2">
 					<Label>Notes</Label>

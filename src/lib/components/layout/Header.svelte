@@ -33,21 +33,19 @@
 						Dashboard
 					</Button>
 				</a>
-				<a href={resolve('/sales')}>
+				<a href={resolve('/customers')}>
 					<Button
-						variant={isRouteActive('/sales', path) ? 'info' : 'ghost'}
-						class="text-muted-foreground">Sales</Button
+						variant={isRouteActive('/customers', path) ? 'info' : 'ghost'}
+						class="text-muted-foreground">Customers</Button
 					>
 				</a>
-				<a href={resolve('/inventory')}>
+				<a href={resolve('/vendors/inventory')}>
 					<Button
-						variant={isRouteActive('/inventory', path) || path?.startsWith('/inventory')
+						variant={isRouteActive('/vendors', path) || path?.startsWith('/vendors')
 							? 'info'
 							: 'ghost'}
-						class="text-muted-foreground"
+						class="text-muted-foreground">Vendors</Button
 					>
-						Inventory
-					</Button>
 				</a>
 				<a href={resolve('/reports')}>
 					<Button

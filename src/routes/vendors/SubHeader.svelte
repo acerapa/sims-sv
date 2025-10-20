@@ -7,24 +7,16 @@
 
 	const inventoryNavs = [
 		{
-			name: 'Overview',
-			path: '/inventory'
+			name: 'Item List',
+			path: '/vendors/inventory'
 		},
 		{
-			name: 'Transfers',
-			path: '/inventory/transfers'
+			name: 'Receive PO',
+			path: '/vendors/receive-po'
 		},
 		{
-			name: 'Returns',
-			path: '/inventory/returns'
-		},
-		{
-			name: 'Adjustments',
-			path: '/inventory/adjustments'
-		},
-		{
-			name: 'Categories',
-			path: '/inventory/categories'
+			name: 'Suppliers',
+			path: '/vendors/suppliers'
 		}
 	] as const;
 </script>
