@@ -75,7 +75,7 @@
 			</div>
 			<DrawerFooter class="flex flex-row justify-end">
 				<Button type="button" variant="outline">Cancel</Button>
-				<Button type="button" variant="default">Add Product</Button>
+				<Button type="button" variant="default">Add Supplier</Button>
 			</DrawerFooter>
 		</form>
 	</DrawerContent>

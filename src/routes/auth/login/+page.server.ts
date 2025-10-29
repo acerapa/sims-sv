@@ -1,5 +1,8 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { db } from '$lib/server/db';
+import { users } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 
 export type LoginResponse = {
 	success: boolean;
@@ -16,6 +19,18 @@ export const actions = {
 			return fail(400, {
 				success: false,
 				error: 'Email and password are required'
+			} satisfies LoginResponse);
+		}
+
+		const user = await db.query.users.findFirst({
+			where: eq(users.email, email as string)
+		});
+
+		console.log(user);
+		if (!user) {
+			return fail(400, {
+				success: false,
+				error: 'Invalid email or password'
 			} satisfies LoginResponse);
 		}
 	}

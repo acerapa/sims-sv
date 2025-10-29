@@ -44,3 +44,13 @@ export interface Supplier {
 	contact_person: string;
 	telephone_number?: string;
 }
+
+export interface User {
+	id: number;
+	name: string;
+	email: string;
+	role: string;
+	status: string;
+	password: string;
+	created_at: Date;
+}

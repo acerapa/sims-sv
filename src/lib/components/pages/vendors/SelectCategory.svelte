@@ -91,8 +91,6 @@
 			]
 		}
 	];
-
-	$inspect(categories).with(console.log);
 </script>
 
 <Popover>
