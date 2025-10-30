@@ -50,7 +50,8 @@ export interface User {
 	name: string;
 	email: string;
 	role: string;
-	status: string;
+	is_active: boolean;
 	password: string;
 	created_at: Date;
+	updated_at: Date;
 }

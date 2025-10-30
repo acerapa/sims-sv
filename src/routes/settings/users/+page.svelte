@@ -28,36 +28,40 @@
 			name: 'John Doe',
 			email: 'john.doe@example.com',
 			role: 'Admin',
-			status: 'active',
+			is_active: true,
 			password: 'password',
-			created_at: new Date('2023-01-01')
+			created_at: new Date('2023-01-01'),
+			updated_at: new Date('2023-01-01')
 		},
 		{
 			id: 2,
 			name: 'Jane Doe',
 			email: 'jane.doe@example.com',
 			role: 'Cashier',
-			status: 'inactive',
+			is_active: false,
 			password: 'password',
-			created_at: new Date('2023-02-01')
+			created_at: new Date('2023-02-01'),
+			updated_at: new Date('2023-02-01')
 		},
 		{
 			id: 3,
 			name: 'Alice Smith',
 			email: 'alice.smith@example.com',
 			role: 'Inventory Manager',
-			status: 'active',
+			is_active: true,
 			password: 'password',
-			created_at: new Date('2023-03-01')
+			created_at: new Date('2023-03-01'),
+			updated_at: new Date('2023-03-01')
 		},
 		{
 			id: 4,
 			name: 'Bob Johnson',
 			email: 'bob.johnson@example.com',
 			role: 'Cashier',
-			status: 'active',
+			is_active: true,
 			password: 'password',
-			created_at: new Date('2023-04-01')
+			created_at: new Date('2023-04-01'),
+			updated_at: new Date('2023-04-01')
 		}
 	];
 </script>
@@ -104,7 +108,7 @@
 							<TableCell>{user.email}</TableCell>
 							<TableCell>{user.role}</TableCell>
 							<TableCell>
-								<Badge variant="outline">{user.status}</Badge>
+								<Badge variant="outline">{user.is_active ? 'Active' : 'Inactive'}</Badge>
 							</TableCell>
 							<TableCell>{user.created_at.toLocaleDateString()}</TableCell>
 							<TableCell>

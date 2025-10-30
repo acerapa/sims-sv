@@ -8,6 +8,20 @@
       "when": 1761042909449,
       "tag": "0000_fearless_jack_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761762641169,
+      "tag": "0001_aspiring_kingpin",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761763513067,
+      "tag": "0002_brief_ultimates",
+      "breakpoints": true
     }
   ]
 }
