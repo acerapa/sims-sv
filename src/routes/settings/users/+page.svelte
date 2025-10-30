@@ -21,49 +21,11 @@
 	} from '$lib/components/ui/table';
 	import type { User } from '$lib/types/global';
 	import { Ellipsis, Search } from '@lucide/svelte';
+	import type { PageProps } from './$types';
 
-	const users: User[] = [
-		{
-			id: 1,
-			name: 'John Doe',
-			email: 'john.doe@example.com',
-			role: 'Admin',
-			is_active: true,
-			password: 'password',
-			created_at: new Date('2023-01-01'),
-			updated_at: new Date('2023-01-01')
-		},
-		{
-			id: 2,
-			name: 'Jane Doe',
-			email: 'jane.doe@example.com',
-			role: 'Cashier',
-			is_active: false,
-			password: 'password',
-			created_at: new Date('2023-02-01'),
-			updated_at: new Date('2023-02-01')
-		},
-		{
-			id: 3,
-			name: 'Alice Smith',
-			email: 'alice.smith@example.com',
-			role: 'Inventory Manager',
-			is_active: true,
-			password: 'password',
-			created_at: new Date('2023-03-01'),
-			updated_at: new Date('2023-03-01')
-		},
-		{
-			id: 4,
-			name: 'Bob Johnson',
-			email: 'bob.johnson@example.com',
-			role: 'Cashier',
-			is_active: true,
-			password: 'password',
-			created_at: new Date('2023-04-01'),
-			updated_at: new Date('2023-04-01')
-		}
-	];
+	let { form, data }: PageProps = $props();
+
+	let users = $derived<User[]>(data.users);
 </script>
 
 <svelte:head>
@@ -80,7 +42,7 @@
 				<CardTitle>Users</CardTitle>
 				<CardDescription>Manage system users and access permissions</CardDescription>
 			</div>
-			<UserFormSheet />
+			<UserFormSheet {form} />
 		</CardHeader>
 		<CardContent class="space-y-4">
 			<div class="relative">
