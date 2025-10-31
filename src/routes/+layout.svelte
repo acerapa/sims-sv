@@ -3,10 +3,12 @@
 	import Header from '$lib/components/layout/Header.svelte';
 	import '../app.css';
 	import { page } from '$app/state';
+	import { Toaster } from 'svelte-sonner';
 
 	const route = $derived(page.route.id as string);
 </script>
 
+<Toaster />
 <div class="flex min-h-screen flex-col">
 	{#if route && !route.startsWith('/auth')}
 		<Header />

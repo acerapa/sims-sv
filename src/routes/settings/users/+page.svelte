@@ -22,6 +22,7 @@
 	import type { User } from '$lib/types/global';
 	import { Ellipsis, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
+	import { getRoleLabel } from '$lib/utils/common';
 
 	let { form, data }: PageProps = $props();
 
@@ -68,7 +69,9 @@
 								<p class="font-medium">{user.name}</p>
 							</TableCell>
 							<TableCell>{user.email}</TableCell>
-							<TableCell>{user.role}</TableCell>
+							<TableCell>
+								<Badge variant="secondary">{getRoleLabel(user.role)}</Badge>
+							</TableCell>
 							<TableCell>
 								<Badge variant="outline">{user.is_active ? 'Active' : 'Inactive'}</Badge>
 							</TableCell>

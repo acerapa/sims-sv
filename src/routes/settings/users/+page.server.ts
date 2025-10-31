@@ -5,6 +5,7 @@ import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { hash } from 'bcrypt';
+import { desc } from 'drizzle-orm';
 
 export const actions: Actions = {
 	default: async ({ request }) => {
@@ -61,6 +62,7 @@ export const load: PageServerLoad = async ({ depends }) => {
 				created_at: users.created_at
 			})
 			.from(users)
+			.orderBy(desc(users.created_at))
 			.execute()
 	};
 };

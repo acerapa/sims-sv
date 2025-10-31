@@ -20,6 +20,7 @@
 	import { getRoleLabel } from '$lib/utils/common';
 	import { Plus } from '@lucide/svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
 
 	let { form } = $props();
 
@@ -32,8 +33,11 @@
 	const formEnhance: SubmitFunction = async () => {
 		return async ({ result }) => {
 			if (result.type === 'success') {
+				toast.success('User added successfully');
 				await invalidate('settings:users');
 				sheetState = false;
+			} else {
+				toast.error('Failed to add user');
 			}
 
 			await applyAction(result);
@@ -43,7 +47,6 @@
 	$effect(() => {
 		if (!sheetState) {
 			form = null;
-			console.log('Here');
 		}
 	});
 </script>
