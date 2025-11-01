@@ -16,7 +16,7 @@
 	import { page } from '$app/state';
 	import { isRouteActive } from '$lib/utils/routes';
 	import type { SafeUser } from '$lib/types/global';
-	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 	const path = $derived(page.route.id as string);
 
 	let { auth_user } = $props<{ auth_user: SafeUser | null }>();
@@ -32,6 +32,15 @@
 
 		return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 	});
+
+	const handleLogout = async () => {
+		const res = await fetch('/api/logout', { method: 'POST' });
+		const body = await res.json();
+
+		if (body.success) {
+			await goto(resolve('/auth/login'));
+		}
+	};
 </script>
 
 <header class="sticky top-0 left-0 z-50 flex w-full justify-center border-b border-border bg-white">
@@ -116,14 +125,10 @@
 					</Group>
 					<Separator />
 					<Group>
-						<form action="/api/logout" method="post" use:enhance>
-							<button type="submit" class="w-full">
-								<Item class="flex items-center gap-1">
-									<LogOut />
-									<p>Log Out</p>
-								</Item>
-							</button>
-						</form>
+						<Item class="flex items-center gap-1" onclick={handleLogout}>
+							<LogOut />
+							<p>Log Out</p>
+						</Item>
 					</Group>
 				</Content>
 			</DropdownMenu>
