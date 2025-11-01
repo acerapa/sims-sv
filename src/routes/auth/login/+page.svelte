@@ -31,6 +31,11 @@
 	};
 </script>
 
+<svelte:head>
+	<title>RamTech | Login</title>
+	<meta name="description" content="RamTech Login" />
+</svelte:head>
+
 <div class="flex h-full items-center justify-center">
 	<Card class="w-full max-w-md">
 		<CardHeader>
