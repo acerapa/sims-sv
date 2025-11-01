@@ -1,4 +1,4 @@
-import { SafeUser } from '$lib/types/global';
+import type { SafeUser } from '$lib/types/global';
 import type { LayoutServerLoad } from './$types';
 
 export interface LayoutData {

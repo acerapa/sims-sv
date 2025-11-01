@@ -56,7 +56,6 @@ export const actions = {
 			})
 			.execute();
 
-		console.log(env.NODE_ENV);
 		cookies.set('session', token, {
 			path: '/',
 			httpOnly: true,

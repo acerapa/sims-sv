@@ -14,7 +14,7 @@
 	import type { PageProps } from './$types';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
 	let { form }: PageProps = $props();
@@ -22,6 +22,7 @@
 	const formEnhance: SubmitFunction = async () => {
 		return async ({ result }) => {
 			await applyAction(result);
+			await invalidateAll();
 			if (result.type === 'success') {
 				setTimeout(() => {
 					goto(resolve('/'));
