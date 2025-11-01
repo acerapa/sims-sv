@@ -10,12 +10,25 @@
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { CircleAlert } from '@lucide/svelte';
-	import type { PageProps } from '../$types';
-	import type { LoginResponse } from './+page.server';
+	import { CircleAlert, CircleCheck } from '@lucide/svelte';
+	import type { PageProps } from './$types';
+	import { applyAction, enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let { form }: PageProps = $props();
-	const typedForm = form as LoginResponse | null;
+
+	const formEnhance: SubmitFunction = async () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				setTimeout(() => {
+					goto(resolve('/'));
+				}, 1000);
+			}
+		};
+	};
 </script>
 
 <div class="flex h-full items-center justify-center">
@@ -25,18 +38,23 @@
 			<CardDescription>Access your Ramtech system</CardDescription>
 		</CardHeader>
 		<CardContent class="space-y-6">
-			{#if typedForm && !typedForm?.success}
+			{#if form && !form?.success}
 				<Alert variant="destructive">
 					<CircleAlert />
 					<AlertTitle>Login failed.</AlertTitle>
-					{#if typedForm?.error}
+					{#if form?.error}
 						<AlertDescription>
-							{typedForm.error}
+							{form.error}
 						</AlertDescription>
 					{/if}
 				</Alert>
+			{:else if form && form?.success}
+				<Alert variant="default" class="text-green-500">
+					<CircleCheck />
+					<AlertTitle>Successfully login.</AlertTitle>
+				</Alert>
 			{/if}
-			<form class="space-y-6" method="post">
+			<form class="space-y-6" method="post" use:enhance={formEnhance}>
 				<div class="space-y-2">
 					<Label for="email">Email</Label>
 					<Input id="email" name="email" type="email" placeholder="Enter Email" />

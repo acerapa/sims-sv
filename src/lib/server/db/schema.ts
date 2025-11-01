@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import { boolean, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
@@ -6,10 +6,10 @@ export const users = pgTable('users', {
 	id: serial().primaryKey(),
 	email: text().notNull().unique(),
 	name: text().notNull(),
-	role: roles().default('cashier'),
+	role: roles().default('cashier').notNull(),
 	password: text().notNull(),
-	is_active: boolean().default(true),
-	created_at: timestamp().defaultNow(),
+	is_active: boolean().default(true).notNull(),
+	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()
 		.$onUpdate(() => sql`NOW()`)
@@ -24,3 +24,11 @@ export const sessions = pgTable('sessions', {
 	expires_at: timestamp().notNull(),
 	created_at: timestamp().notNull().defaultNow()
 });
+
+// sessions and user relationship
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+	user: one(users, {
+		fields: [sessions.user_id],
+		references: [users.id]
+	})
+}));

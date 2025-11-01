@@ -45,13 +45,23 @@ export interface Supplier {
 	telephone_number?: string;
 }
 
+export type role = 'admin' | 'cashier' | 'inventory-manager';
 export interface User {
 	id: number;
 	name: string;
 	email: string;
-	role: string;
+	role: role;
 	is_active: boolean;
 	password: string;
 	created_at: Date;
 	updated_at: Date;
+}
+
+export interface SafeUser {
+	id: number;
+	name: string;
+	email: string;
+	role: role;
+	is_active: boolean;
+	created_at: Date;
 }
