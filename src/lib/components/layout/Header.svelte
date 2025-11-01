@@ -15,7 +15,23 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { isRouteActive } from '$lib/utils/routes';
+	import type { SafeUser } from '$lib/types/global';
+	import { enhance } from '$app/forms';
 	const path = $derived(page.route.id as string);
+
+	let { auth_user } = $props<{ auth_user: SafeUser | null }>();
+
+	const nameInitials = $derived.by(() => {
+		if (!auth_user) return 'GU';
+
+		const parts = auth_user.name.trim().split(/\s+/);
+
+		if (parts.length === 1) {
+			return parts[0].slice(0, 2).toUpperCase();
+		}
+
+		return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+	});
 </script>
 
 <header class="sticky top-0 left-0 z-50 flex w-full justify-center border-b border-border bg-white">
@@ -82,9 +98,9 @@
 				>
 					<Avatar>
 						<Image src="/avatar.png" alt="Avatar" />
-						<Fallback>JD</Fallback>
+						<Fallback>{nameInitials}</Fallback>
 					</Avatar>
-					<p>John Doe</p>
+					<p>{auth_user?.name}</p>
 					<ChevronDown class="size-4" />
 				</Trigger>
 				<Content>
@@ -100,10 +116,14 @@
 					</Group>
 					<Separator />
 					<Group>
-						<Item class="flex items-center gap-1">
-							<LogOut />
-							<p>Log Out</p>
-						</Item>
+						<form action="/api/logout" method="post" use:enhance>
+							<button type="submit" class="w-full">
+								<Item class="flex items-center gap-1">
+									<LogOut />
+									<p>Log Out</p>
+								</Item>
+							</button>
+						</form>
 					</Group>
 				</Content>
 			</DropdownMenu>
