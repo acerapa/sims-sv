@@ -86,10 +86,7 @@
 					<Funnel />
 					<span>Filter</span>
 				</Button>
-				<Button
-					onclick={() => (openProductForm = true)}
-					class="space-x-2 bg-blue-500 hover:bg-blue-500/90"
-				>
+				<Button onclick={() => (openProductForm = true)} class="space-x-2">
 					<Plus />
 					<span>Add Product</span>
 				</Button>

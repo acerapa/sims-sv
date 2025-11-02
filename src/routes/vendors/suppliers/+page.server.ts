@@ -1,5 +1,4 @@
 import type { Actions, PageServerLoad } from './$types';
-import { pageContext } from '$lib/stores/pageContext';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
@@ -8,13 +7,6 @@ import { desc } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('vendor:suppliers');
-
-	pageContext.set({
-		pageTitle: {
-			title: 'Suppliers',
-			subTitle: 'Manage Suppliers'
-		}
-	});
 
 	return {
 		suppliers: await db
