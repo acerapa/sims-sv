@@ -1,5 +1,16 @@
 import { relations, sql } from 'drizzle-orm';
-import { boolean, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+	boolean,
+	integer,
+	pgEnum,
+	pgTable,
+	serial,
+	text,
+	timestamp,
+	varchar,
+	type AnyPgColumn,
+	type PgTableWithColumns
+} from 'drizzle-orm/pg-core';
 
 export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
 export const users = pgTable('users', {
@@ -42,6 +53,17 @@ export const suppliers = pgTable('suppliers', {
 	phone_number: text(),
 	telephone_number: text(),
 	notes: text(),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => sql`NOW()`)
+});
+
+export const categories = pgTable('categories', {
+	id: serial().primaryKey(),
+	parent_id: integer().references((): AnyPgColumn => categories.id),
+	name: varchar().notNull(),
+	description: text(),
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()
