@@ -12,78 +12,25 @@
 	import type { Category } from '$lib/types/global';
 	import { Button } from '$lib/components/ui/button';
 	import CategoryForm from '$lib/components/pages/vendors/categories/CategoryForm.svelte';
+	import type { PageProps } from './$types';
+	import { writable } from 'svelte/store';
+	import { setContext } from 'svelte';
 
-	const categories: Category[] = [
-		{
-			id: 1,
-			name: 'Mobile',
-			sub_categories: [
-				{
-					id: 1,
-					name: 'Smartphones',
-					sub_categories: []
-				},
-				{
-					id: 2,
-					name: 'Tablets',
-					sub_categories: []
-				}
-			]
-		},
-		{
-			id: 2,
-			name: 'Laptops',
-			sub_categories: [
-				{
-					id: 3,
-					name: 'Desktops',
-					sub_categories: []
-				},
-				{
-					id: 4,
-					name: 'Notebooks',
-					sub_categories: []
-				}
-			]
-		},
-		{
-			id: 3,
-			name: 'Computers',
-			sub_categories: [
-				{
-					id: 5,
-					name: 'Monitors',
-					sub_categories: []
-				},
-				{
-					id: 6,
-					name: 'Keyboards',
-					sub_categories: []
-				}
-			]
-		},
-		{
-			id: 4,
-			name: 'Accessories',
-			sub_categories: [
-				{
-					id: 7,
-					name: 'Headphones',
-					sub_categories: []
-				},
-				{
-					id: 8,
-					name: 'Cables',
-					sub_categories: []
-				}
-			]
-		}
-	];
+	const { form, data }: PageProps = $props();
+
+	const categoryFormStore = writable({ form });
+	setContext('category_form', categoryFormStore);
+
+	const categories = $derived<Category[]>(data.categories);
 
 	let openForm = $state(false);
 	const handleOpenForm = () => {
 		openForm = true;
 	};
+
+	$effect(() => {
+		categoryFormStore.set({ form });
+	});
 </script>
 
 <Card>

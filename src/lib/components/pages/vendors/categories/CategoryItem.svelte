@@ -65,12 +65,12 @@
 	</div>
 	{#if open}
 		<div class="flex flex-col gap-1 pl-5" transition:slide>
-			{#each category.sub_categories as sub_category (sub_category.id)}
+			{#if openForm}
+				<CategoryForm parent_id={category.id} bind:open={openForm} />
+			{/if}
+			{#each category.sub_categories || [] as sub_category (sub_category.id)}
 				<CategoryItem category={sub_category} />
 			{/each}
-			{#if openForm}
-				<CategoryForm bind:open={openForm} />
-			{/if}
 		</div>
 	{/if}
 </div>

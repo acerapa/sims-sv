@@ -1,20 +1,32 @@
 import { db } from '$lib/server/db';
-import { sql } from 'drizzle-orm';
+import { desc, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
 import { categories } from '$lib/server/db/schema';
+import type { Category } from '$lib/types/global';
 
 export const load: PageServerLoad = async () => {
+	const allCategories = await db.select().from(categories).orderBy(desc(categories.id));
+
+	const categoryTree = () => {
+		const tree: Category[] = [...allCategories.filter((category) => category.parent_id === null)];
+
+		const buildTree = (parent: Category) => {
+			const children: Category[] = allCategories.filter(
+				(category) => category.parent_id === parent.id
+			);
+
+			parent.sub_categories = children.map((child) => buildTree(child));
+			return parent;
+		};
+
+		const root = tree.map((category) => buildTree(category));
+		return root;
+	};
+
 	return {
-		categories: await db.execute(sql`
-        WITH RECURSIVE category_tree AS (
-          SELECT id, name, parent_id FROM categories WHERE parent_id IS NULL
-          UNION ALL
-          SELECT c.id, c.name, c.parent_id FROM categories c JOIN category_tree ct ON c.parent_id = ct.id
-        )
-        SELECT * FROM category_tree
-    `)
+		categories: categoryTree()
 	};
 };
 
@@ -33,7 +45,7 @@ export const actions: Actions = {
 			});
 
 			const categorySchema = z.object({
-				name: z.string().min(2).max(100),
+				name: z.string().min(1, 'Name is required').max(100),
 				parent_id: z.number().optional().nullable()
 			});
 

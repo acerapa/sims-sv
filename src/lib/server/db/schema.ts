@@ -8,8 +8,7 @@ import {
 	text,
 	timestamp,
 	varchar,
-	type AnyPgColumn,
-	type PgTableWithColumns
+	type AnyPgColumn
 } from 'drizzle-orm/pg-core';
 
 export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
@@ -63,7 +62,6 @@ export const categories = pgTable('categories', {
 	id: serial().primaryKey(),
 	parent_id: integer().references((): AnyPgColumn => categories.id),
 	name: varchar().notNull(),
-	description: text(),
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()
