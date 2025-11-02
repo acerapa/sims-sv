@@ -19,14 +19,14 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import type { User } from '$lib/types/global';
+	import type { SafeUser } from '$lib/types/global';
 	import { Ellipsis, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { getRoleLabel } from '$lib/utils/common';
 
 	let { form, data }: PageProps = $props();
 
-	let users = $derived<User[]>(data.users);
+	let users = $derived<SafeUser[]>(data.users);
 </script>
 
 <svelte:head>

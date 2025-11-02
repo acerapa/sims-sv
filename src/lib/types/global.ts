@@ -38,11 +38,12 @@ export interface Category {
 export interface Supplier {
 	id: number;
 	name: string;
-	email?: string;
+	email: string | null;
+	notes: string | null;
 	address: string;
-	phone_number?: string;
+	phone_number: string | null;
 	contact_person: string;
-	telephone_number?: string;
+	telephone_number: string | null;
 }
 
 export type role = 'admin' | 'cashier' | 'inventory-manager';

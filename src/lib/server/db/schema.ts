@@ -32,3 +32,18 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 		references: [users.id]
 	})
 }));
+
+export const suppliers = pgTable('suppliers', {
+	id: serial().primaryKey(),
+	name: text().notNull(),
+	address: text().notNull(),
+	contact_person: text().notNull(),
+	email: text(),
+	phone_number: text(),
+	telephone_number: text(),
+	notes: text(),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => sql`NOW()`)
+});

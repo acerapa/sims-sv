@@ -17,40 +17,12 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, Plus, Search } from '@lucide/svelte';
+	import { Ellipsis, Search } from '@lucide/svelte';
+	import type { PageProps } from './$types';
+	import type { Supplier } from '$lib/types/global';
 
-	const suppliers = [
-		{
-			name: 'Supplier A',
-			contact: 'John Doe',
-			email: 'john@example.com',
-			phone: '123-456-7890',
-			products: 10
-		},
-		{
-			name: 'Supplier B',
-			contact: 'Jane Smith',
-			email: 'jane@example.com',
-			phone: '987-654-3210',
-			products: 5
-		},
-		{
-			name: 'Supplier C',
-			contact: 'Bob Johnson',
-			email: 'bob@example.com',
-			phone: '555-555-5555',
-			products: 8
-		},
-		{
-			name: 'Supplier D',
-			contact: 'Alice Brown',
-			email: 'alice@example.com',
-			phone: '111-222-3333',
-			products: 12
-		}
-	];
-
-	let openSupplierForm = $state(false);
+	let { form, data }: PageProps = $props();
+	const suppliers = $derived<Supplier[]>(data.suppliers);
 </script>
 
 <Card>
@@ -60,10 +32,7 @@
 				<CardTitle>Suppliers</CardTitle>
 				<CardDescription>Manage your supplier relationships</CardDescription>
 			</div>
-			<Button class="flex items-center gap-3" onclick={() => (openSupplierForm = true)}>
-				<Plus />
-				<span>Add Supplier</span>
-			</Button>
+			<SupplierForm {form} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -79,18 +48,20 @@
 					<TableHead>Contact</TableHead>
 					<TableHead>Email</TableHead>
 					<TableHead>Phone</TableHead>
+					<TableHead>Telephone</TableHead>
 					<TableHead class="text-center"># of Products</TableHead>
 					<TableHead>Actions</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#each suppliers as supplier, ndx (ndx)}
+				{#each suppliers as supplier (supplier.id)}
 					<TableRow>
 						<TableCell>{supplier.name}</TableCell>
-						<TableCell>{supplier.contact}</TableCell>
-						<TableCell>{supplier.email}</TableCell>
-						<TableCell>{supplier.phone}</TableCell>
-						<TableCell class="text-center">{supplier.products}</TableCell>
+						<TableCell>{supplier.contact_person}</TableCell>
+						<TableCell>{supplier.email || '-'}</TableCell>
+						<TableCell>{supplier.phone_number || '-'}</TableCell>
+						<TableCell>{supplier.telephone_number || '-'}</TableCell>
+						<TableCell class="text-center">{0}</TableCell>
 						<TableCell>
 							<Button variant="ghost" size="sm">
 								<Ellipsis />
@@ -102,4 +73,3 @@
 		</Table>
 	</CardContent>
 </Card>
-<SupplierForm bind:open={openSupplierForm} />

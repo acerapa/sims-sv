@@ -29,6 +29,20 @@
       "when": 1761969479424,
       "tag": "0003_cool_terror",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762005937876,
+      "tag": "0004_dizzy_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1762058729084,
+      "tag": "0005_old_puck",
+      "breakpoints": true
     }
   ]
 }
