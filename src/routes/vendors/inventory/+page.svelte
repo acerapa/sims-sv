@@ -11,8 +11,14 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import { Funnel, Package, Plus, Search, TrendingDown, TriangleAlert } from '@lucide/svelte';
+	import { Funnel, Package, Search, TrendingDown, TriangleAlert } from '@lucide/svelte';
 	import { setContext } from 'svelte';
+	import type { PageProps } from './$types';
+	import type { Category, Supplier } from '$lib/types/global';
+
+	let { data }: PageProps = $props();
+	let categories = $derived<Category[]>(data.categories);
+	let suppliers = $derived<Supplier[]>(data.suppliers);
 
 	setContext('pageTitle', {
 		title: 'Inventory',
@@ -53,8 +59,6 @@
 			variant: 'success'
 		}
 	];
-
-	let openProductForm = $state(false);
 </script>
 
 <svelte:head>
@@ -81,15 +85,12 @@
 				<CardTitle class="text-lg">Inventory Management</CardTitle>
 				<CardDescription>Track and manage your product inventory</CardDescription>
 			</div>
-			<div class="space-x-3">
+			<div class="flex space-x-3">
 				<Button variant="outline" class="space-x-2">
 					<Funnel />
 					<span>Filter</span>
 				</Button>
-				<Button onclick={() => (openProductForm = true)} class="space-x-2">
-					<Plus />
-					<span>Add Product</span>
-				</Button>
+				<ProductForm {suppliers} {categories} />
 			</div>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4">
@@ -112,5 +113,4 @@
 			</div>
 		</CardContent>
 	</Card>
-	<ProductForm bind:open={openProductForm} />
 </div>

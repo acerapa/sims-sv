@@ -8,5 +8,4 @@ export const load: PageLoad = () => {
 			subTitle: 'Record items received from suppliers and update inventory.'
 		}
 	});
-	return {};
 };

@@ -3,25 +3,13 @@ import z from 'zod';
 import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { suppliers } from '$lib/server/db/schema';
-import { desc } from 'drizzle-orm';
+import { getSuppliers } from '$lib/server/db/queries/suppliers';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('vendor:suppliers');
 
 	return {
-		suppliers: await db
-			.select({
-				id: suppliers.id,
-				name: suppliers.name,
-				email: suppliers.email,
-				address: suppliers.address,
-				phone_number: suppliers.phone_number,
-				contact_person: suppliers.contact_person,
-				telephone_number: suppliers.telephone_number
-			})
-			.from(suppliers)
-			.orderBy(desc(suppliers.created_at))
-			.execute()
+		suppliers: await getSuppliers()
 	};
 };
 

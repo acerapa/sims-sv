@@ -1,14 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import {
-		Drawer,
-		DrawerContent,
-		DrawerDescription,
-		DrawerFooter,
-		DrawerHeader,
-		DrawerTitle
-	} from '$lib/components/ui/drawer';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import {
@@ -19,35 +11,42 @@
 		SelectTrigger
 	} from '$lib/components/ui/select';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import {
+		Sheet,
+		SheetContent,
+		SheetDescription,
+		SheetFooter,
+		SheetHeader,
+		SheetTitle,
+		SheetTrigger
+	} from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { Plus } from '@lucide/svelte';
 	import CostPerSupplier from './CostPerSupplier.svelte';
 	import SelectCategory from './SelectCategory.svelte';
+	import { enhance } from '$app/forms';
 
-	let { open = $bindable() } = $props();
-
-	let suppliers = [
-		{ id: 1, name: 'Supplier A' },
-		{ id: 2, name: 'Supplier B' },
-		{ id: 3, name: 'Supplier C' }
-	];
+	let { open = $bindable(), categories, suppliers } = $props();
 
 	let selectedSupplier = $state([]);
 	let preferredSupplier = $state('');
 </script>
 
-<Drawer direction="right" bind:open>
-	<DrawerContent
-		class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl"
-		draggable={false}
-		data-vaul-no-drag
+<Sheet>
+	<SheetTrigger
+		class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
 	>
-		<DrawerHeader class="px-6">
-			<DrawerTitle class="text-xl">Add New Product</DrawerTitle>
-			<DrawerDescription>
+		<Plus class="size-4" />
+		Add Product
+	</SheetTrigger>
+	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
+		<SheetHeader>
+			<SheetTitle>Add New Product</SheetTitle>
+			<SheetDescription>
 				Fill in the details to add a new product to your inventory
-			</DrawerDescription>
-		</DrawerHeader>
-		<form>
+			</SheetDescription>
+		</SheetHeader>
+		<form method="post" use:enhance>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
@@ -57,15 +56,19 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Item Code / SKU</Label>
-								<Input type="text" placeholder="e,.g,, WH-2025-0001" />
+								<Input type="text" name="sku" placeholder="e,.g,, WH-2025-0001" />
 							</div>
 							<div class="space-y-2">
 								<Label>Category</Label>
-								<SelectCategory />
+								<SelectCategory {categories} />
 							</div>
 							<div class="space-y-2">
 								<Label>Quantity</Label>
 								<Input type="number" placeholder="Enter quantity" />
+							</div>
+							<div class="space-y-2">
+								<Label>Sale Price</Label>
+								<Input type="number" placeholder="Sale price" />
 							</div>
 						</div>
 					</CardContent>
@@ -146,10 +149,10 @@
 				</Card>
 				<Separator />
 			</div>
-			<DrawerFooter class="flex flex-row justify-end">
+			<SheetFooter class="flex flex-row justify-end">
 				<Button type="button" variant="outline">Cancel</Button>
-				<Button type="button" variant="default">Add Product</Button>
-			</DrawerFooter>
+				<Button type="submit" variant="default">Add Product</Button>
+			</SheetFooter>
 		</form>
-	</DrawerContent>
-</Drawer>
+	</SheetContent>
+</Sheet>

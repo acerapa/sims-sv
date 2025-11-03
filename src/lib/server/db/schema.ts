@@ -1,6 +1,7 @@
 import { relations, sql } from 'drizzle-orm';
 import {
 	boolean,
+	decimal,
 	integer,
 	pgEnum,
 	pgTable,
@@ -67,3 +68,76 @@ export const categories = pgTable('categories', {
 		.defaultNow()
 		.$onUpdate(() => sql`NOW()`)
 });
+
+export const products = pgTable('products', {
+	id: serial().primaryKey(),
+	sku: varchar().notNull().unique(),
+	category_id: serial()
+		.notNull()
+		.references(() => categories.id),
+	preferred_supplier_id: serial()
+		.notNull()
+		.references(() => suppliers.id),
+	purchase_description: text().notNull(),
+	sales_description: text().notNull(),
+	sale_price: decimal().notNull(),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => sql`NOW()`)
+});
+
+export const productsToSupplier = pgTable('products_to_suppliers', {
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	supplier_id: integer()
+		.notNull()
+		.references(() => suppliers.id),
+	cost: decimal().notNull()
+});
+
+export const productsToCategory = pgTable('products_to_categories', {
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	category_id: integer()
+		.notNull()
+		.references(() => categories.id)
+});
+
+// relations
+export const productToSupplierRelations = relations(productsToSupplier, ({ one }) => ({
+	product: one(products, {
+		fields: [productsToSupplier.product_id],
+		references: [products.id]
+	}),
+	supplier: one(suppliers, {
+		fields: [productsToSupplier.supplier_id],
+		references: [suppliers.id]
+	})
+}));
+
+export const productToCategoryRelations = relations(productsToCategory, ({ one }) => ({
+	product: one(products, {
+		fields: [productsToCategory.product_id],
+		references: [products.id]
+	}),
+	category: one(categories, {
+		fields: [productsToCategory.category_id],
+		references: [categories.id]
+	})
+}));
+
+export const productRelations = relations(products, ({ many }) => ({
+	suppliers: many(productsToSupplier),
+	categories: many(productsToCategory)
+}));
+
+export const supplierRelations = relations(suppliers, ({ many }) => ({
+	products: many(productsToSupplier)
+}));
+
+export const categoryRelations = relations(categories, ({ many }) => ({
+	products: many(productsToCategory)
+}));
