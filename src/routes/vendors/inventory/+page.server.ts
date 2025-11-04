@@ -3,8 +3,9 @@ import { getSuppliers } from '$lib/server/db/queries/suppliers';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
+	const categories = await getCategories();
 	return {
-		categories: await getCategories(),
+		categories: categories,
 		suppliers: await getSuppliers()
 	};
 };

@@ -4,10 +4,12 @@ import { fail } from '@sveltejs/kit';
 import z from 'zod';
 import { categories } from '$lib/server/db/schema';
 import { getCategories } from '$lib/server/db/queries/categories';
+import { groupedCategories } from '$lib/utils/categories';
 
 export const load: PageServerLoad = async () => {
+	const categories = await getCategories();
 	return {
-		categories: await getCategories()
+		categories: groupedCategories(categories)
 	};
 };
 

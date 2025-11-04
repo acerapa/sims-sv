@@ -23,7 +23,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Plus } from '@lucide/svelte';
 	import CostPerSupplier from './CostPerSupplier.svelte';
-	import SelectCategory from './SelectCategory.svelte';
+	import SelectCategory from './categories/SelectCategory.svelte';
 	import { enhance } from '$app/forms';
 
 	let { open = $bindable(), categories, suppliers } = $props();

@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import type { Category } from '$lib/types/global';
-	import { Check, ChevronRight, Folder, FolderOpen, Plus, X } from '@lucide/svelte';
+	import { ChevronRight, Folder, FolderOpen, Plus } from '@lucide/svelte';
 	import CategoryItem from './CategoryItem.svelte';
 	import { slide } from 'svelte/transition';
-	import { Input } from '$lib/components/ui/input';
-	import { enhance } from '$app/forms';
 	import CategoryForm from './CategoryForm.svelte';
 
 	interface Props {
