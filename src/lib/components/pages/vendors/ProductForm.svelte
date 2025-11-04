@@ -22,14 +22,19 @@
 	} from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Plus } from '@lucide/svelte';
-	import CostPerSupplier from './CostPerSupplier.svelte';
 	import SelectCategory from './categories/SelectCategory.svelte';
 	import { enhance } from '$app/forms';
+	import SupplierAndCost from './SupplierAndCost.svelte';
 
 	let { open = $bindable(), categories, suppliers } = $props();
 
-	let selectedSupplier = $state([]);
 	let preferredSupplier = $state('');
+
+	let selectSupplierAndCostRef: SupplierAndCost;
+
+	const handleAddSupplier = () => {
+		selectSupplierAndCostRef.addSupplierCost();
+	};
 </script>
 
 <Sheet>
@@ -75,30 +80,20 @@
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardTitle>Suppliers</CardTitle>
+						<div class="flex items-center justify-between">
+							<CardTitle>Suppliers and Costs</CardTitle>
+							<Button variant="outline" type="button" onclick={handleAddSupplier}>
+								<Plus />
+								Add Supplier
+							</Button>
+						</div>
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-col gap-6">
-							<div class="space-y-2">
-								<Label>Item Code / SKU</Label>
-								<Select type="multiple" bind:value={selectedSupplier}>
-									<SelectTrigger class="w-full">
-										{selectedSupplier.length ? selectedSupplier : 'Select Supplier'}
-									</SelectTrigger>
-									<SelectContent>
-										<SelectGroup>
-											{#each suppliers as supplier (supplier.id)}
-												<SelectItem value={supplier.id.toString()} label={supplier.name}>
-													{supplier.name}
-												</SelectItem>
-											{/each}
-										</SelectGroup>
-									</SelectContent>
-								</Select>
-							</div>
+							<SupplierAndCost bind:this={selectSupplierAndCostRef} {suppliers} />
 							<div class="space-y-2">
 								<Label>Preferred Supplier</Label>
-								<Select type="single" bind:value={preferredSupplier}>
+								<Select type="single" name="preferred_supplier_id" bind:value={preferredSupplier}>
 									<SelectTrigger class="w-full">
 										{preferredSupplier ? preferredSupplier : 'Select Preferred Supplier'}
 									</SelectTrigger>
@@ -143,7 +138,6 @@
 								<Label>Sale Price</Label>
 								<Input type="number" placeholder="Purchase price" />
 							</div>
-							<CostPerSupplier />
 						</div>
 					</CardContent>
 				</Card>
