@@ -8,6 +8,7 @@ export const getSuppliers = async () => {
 			id: suppliers.id,
 			name: suppliers.name,
 			email: suppliers.email,
+			notes: suppliers.notes,
 			address: suppliers.address,
 			phone_number: suppliers.phone_number,
 			contact_person: suppliers.contact_person,

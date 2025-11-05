@@ -25,16 +25,27 @@
 	import SelectCategory from './categories/SelectCategory.svelte';
 	import { enhance } from '$app/forms';
 	import SupplierAndCost from './SupplierAndCost.svelte';
+	import type { ActionData } from '../../../../routes/vendors/inventory/$types';
+	import type { Category, Supplier } from '$lib/types/global';
 
-	let { open = $bindable(), categories, suppliers } = $props();
+	interface Props {
+		open?: boolean;
+		categories: Category[];
+		suppliers: Supplier[];
+		form: ActionData | null;
+	}
+	let { open = $bindable(), categories, suppliers, form }: Props = $props();
 
 	let preferredSupplier = $state('');
+	const errors = $derived(form?.errors);
 
 	let selectSupplierAndCostRef: SupplierAndCost;
 
 	const handleAddSupplier = () => {
 		selectSupplierAndCostRef.addSupplierCost();
 	};
+
+	$inspect(form).with(console.log);
 </script>
 
 <Sheet>
@@ -61,24 +72,57 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Item Code / SKU</Label>
-								<Input type="text" name="sku" placeholder="e,.g,, WH-2025-0001" />
+								<div>
+									<Input
+										class={errors?.properties?.sku ? 'border-red-500' : ''}
+										type="text"
+										name="sku"
+										placeholder="e,.g,, WH-2025-0001"
+									/>
+									{#if errors?.properties?.sku}
+										<small class="text-red-500">{errors.properties.sku.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Category</Label>
-								<SelectCategory {categories} />
+								<div>
+									<SelectCategory error={errors?.properties?.category_id?.errors} {categories} />
+									{#if errors?.properties?.category_id}
+										<small class="text-red-500">{errors.properties.category_id.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Quantity</Label>
-								<Input type="number" value="0" name="quantity" placeholder="Enter quantity" />
+								<div>
+									<Input
+										class={errors?.properties?.quantity ? 'border-red-500' : ''}
+										type="number"
+										name="quantity"
+										placeholder="Enter quantity"
+									/>
+									{#if errors?.properties?.quantity}
+										<small class="text-red-500">{errors.properties.quantity.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Minimum Quantity</Label>
-								<Input
-									type="number"
-									value="0"
-									name="minimum_quantity"
-									placeholder="Enter minimum quantity"
-								/>
+								<div>
+									<Input
+										class={errors?.properties?.minimum_quantity ? 'border-red-500' : ''}
+										type="number"
+										value="0"
+										name="minimum_quantity"
+										placeholder="Enter minimum quantity"
+									/>
+									{#if errors?.properties?.minimum_quantity}
+										<small class="text-red-500"
+											>{errors.properties.minimum_quantity.errors[0]}</small
+										>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Sale Price (₱)</Label>

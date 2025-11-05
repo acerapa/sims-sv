@@ -71,6 +71,13 @@
       "when": 1762341896573,
       "tag": "0009_tranquil_mordo",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1762366145698,
+      "tag": "0010_blushing_living_mummy",
+      "breakpoints": true
     }
   ]
 }

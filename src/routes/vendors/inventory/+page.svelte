@@ -90,7 +90,7 @@
 					<Funnel />
 					<span>Filter</span>
 				</Button>
-				<ProductForm {suppliers} {categories} />
+				<ProductForm {form} {suppliers} {categories} />
 			</div>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4">

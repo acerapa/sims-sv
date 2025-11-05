@@ -4,6 +4,7 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
+import { createProduct, type CreateProductData } from '$lib/server/db/queries/products';
 
 export const load: PageServerLoad = async () => {
 	const categories = await getCategories();
@@ -28,7 +29,7 @@ export const actions: Actions = {
 					'suppliers.$.supplier_id',
 					'suppliers.$.cost'
 				]
-			});
+			}) as CreateProductData;
 
 			const productSchema = z.object({
 				sku: z.string('Invalid SKU').min(1, 'SKU is required').max(1000),
@@ -57,7 +58,7 @@ export const actions: Actions = {
 				});
 			}
 
-			console.log(formvalues);
+			return await createProduct(formvalues);
 		} catch (error) {
 			return fail(500, {
 				message: 'An error occurred while processing the form',

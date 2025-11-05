@@ -9,7 +9,7 @@
 	import { Input } from '$lib/components/ui/input';
 
 	let selectedCategory = $state<Category | null>(null);
-	let { categories }: { categories: Category[] } = $props();
+	let { categories, error }: { categories: Category[]; error: string[] | undefined } = $props();
 	let treeCategories: Category[] = $derived.by(() => {
 		return groupedCategories(categories);
 	});
@@ -35,7 +35,13 @@
 
 <Popover bind:open>
 	<PopoverTrigger class="w-full">
-		<Button variant="outline" class="flex w-full justify-between font-normal text-muted-foreground">
+		<Button
+			variant="outline"
+			class={[
+				'flex w-full justify-between font-normal text-muted-foreground',
+				error ? 'border !border-solid !border-red-500' : ''
+			]}
+		>
 			{selectedCategoryNameWithParents || 'Select Category'}
 			<ChevronsUpDown class="opacity-50" />
 			<input type="hidden" name="category_id" value={selectedCategory?.id} />

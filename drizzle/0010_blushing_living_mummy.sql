@@ -1,0 +1,1 @@
+DROP TABLE "products_to_categories" CASCADE;

@@ -99,15 +99,6 @@ export const productsToSupplier = pgTable('products_to_suppliers', {
 	cost: decimal().notNull()
 });
 
-export const productsToCategory = pgTable('products_to_categories', {
-	product_id: integer()
-		.notNull()
-		.references(() => products.id),
-	category_id: integer()
-		.notNull()
-		.references(() => categories.id)
-});
-
 // relations
 export const productToSupplierRelations = relations(productsToSupplier, ({ one }) => ({
 	product: one(products, {
@@ -120,26 +111,26 @@ export const productToSupplierRelations = relations(productsToSupplier, ({ one }
 	})
 }));
 
-export const productToCategoryRelations = relations(productsToCategory, ({ one }) => ({
-	product: one(products, {
-		fields: [productsToCategory.product_id],
-		references: [products.id]
-	}),
+export const productRelations = relations(products, ({ many, one }) => ({
+	productToSuppliers: many(productsToSupplier),
 	category: one(categories, {
-		fields: [productsToCategory.category_id],
+		fields: [products.category_id],
 		references: [categories.id]
+	}),
+	preferred_supplier: one(suppliers, {
+		fields: [products.preferred_supplier_id],
+		references: [suppliers.id]
 	})
-}));
-
-export const productRelations = relations(products, ({ many }) => ({
-	suppliers: many(productsToSupplier),
-	categories: many(productsToCategory)
 }));
 
 export const supplierRelations = relations(suppliers, ({ many }) => ({
 	products: many(productsToSupplier)
 }));
 
-export const categoryRelations = relations(categories, ({ many }) => ({
-	products: many(productsToCategory)
+export const categoryRelations = relations(categories, ({ many, one }) => ({
+	products: many(products),
+	parent_category: one(categories, {
+		fields: [categories.parent_id],
+		references: [categories.id]
+	})
 }));
