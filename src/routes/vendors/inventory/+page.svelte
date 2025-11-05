@@ -16,7 +16,7 @@
 	import type { PageProps } from './$types';
 	import type { Category, Supplier } from '$lib/types/global';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
 

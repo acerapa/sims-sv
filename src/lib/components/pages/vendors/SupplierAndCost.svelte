@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
 	import {
 		Select,
 		SelectContent,
@@ -12,7 +11,7 @@
 	import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
 	import Table from '$lib/components/ui/table/table.svelte';
 	import type { Supplier } from '$lib/types/global';
-	import { Plus, Trash } from '@lucide/svelte';
+	import { Trash } from '@lucide/svelte';
 
 	interface Props {
 		suppliers: Supplier[];
@@ -27,7 +26,13 @@
 		}
 	]);
 
-	const getSupplierName = (id: number): string | null => {
+	let selectedSuppliers = $derived.by(() => {
+		return costPerSuppliers
+			.map((supplier) => suppliers.find((s) => s.id === parseInt(supplier.supplierId)))
+			.filter(Boolean);
+	});
+
+	const getSupplierName = (id: number | null): string | null => {
 		const supplier = suppliers.find((s) => s.id === id);
 		return supplier ? supplier.name : null;
 	};
@@ -38,6 +43,10 @@
 			cost: 0
 		});
 	};
+
+	const removeSupplierCost = (ndx: number) => {
+		costPerSuppliers.splice(ndx, 1);
+	};
 </script>
 
 <div class="space-x-2">
@@ -45,7 +54,7 @@
 		<TableHeader>
 			<TableRow>
 				<TableHead>Supplier</TableHead>
-				<TableHead>Cost</TableHead>
+				<TableHead>Cost (₱)</TableHead>
 				<TableHead></TableHead>
 			</TableRow>
 		</TableHeader>
@@ -84,7 +93,7 @@
 							type="button"
 							disabled={costPerSuppliers.length === 1}
 							variant="ghost"
-							onclick={() => costPerSuppliers.splice(ndx, 1)}
+							onclick={() => removeSupplierCost(ndx)}
 						>
 							<Trash class="text-red-500" />
 						</Button>

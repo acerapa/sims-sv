@@ -69,11 +69,20 @@
 							</div>
 							<div class="space-y-2">
 								<Label>Quantity</Label>
-								<Input type="number" placeholder="Enter quantity" />
+								<Input type="number" value="0" name="quantity" placeholder="Enter quantity" />
 							</div>
 							<div class="space-y-2">
-								<Label>Sale Price</Label>
-								<Input type="number" placeholder="Sale price" />
+								<Label>Minimum Quantity</Label>
+								<Input
+									type="number"
+									value="0"
+									name="minimum_quantity"
+									placeholder="Enter minimum quantity"
+								/>
+							</div>
+							<div class="space-y-2">
+								<Label>Sale Price (₱)</Label>
+								<Input type="number" value="0" name="sale_price" placeholder="e,.g,. 1000" />
 							</div>
 						</div>
 					</CardContent>
@@ -119,24 +128,17 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Item Description - Purchase</Label>
-								<Textarea placeholder="Description for purchase orders and receiving..." />
+								<Textarea
+									name="purchase_description"
+									placeholder="Description for purchase orders and receiving..."
+								/>
 							</div>
 							<div class="space-y-2">
 								<Label>Item Description - Sales</Label>
-								<Textarea placeholder="Description for sales and customer-facing documents..." />
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Pricing</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div class="flex flex-col gap-6">
-							<div class="space-y-2">
-								<Label>Sale Price</Label>
-								<Input type="number" placeholder="Purchase price" />
+								<Textarea
+									name="sales_description"
+									placeholder="Description for sales and customer-facing documents..."
+								/>
 							</div>
 						</div>
 					</CardContent>
