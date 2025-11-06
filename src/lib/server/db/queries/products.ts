@@ -1,3 +1,4 @@
+import { desc } from 'drizzle-orm';
 import { db } from '..';
 import { products, productsToSupplier } from '../schema';
 
@@ -43,5 +44,33 @@ export const createProduct = async (data: CreateProductData) => {
 				});
 			})
 		);
+	});
+};
+
+export const getProducts = async () => {
+	return await db.query.products.findMany({
+		orderBy: [desc(products.created_at)],
+		columns: {
+			id: true,
+			sku: true,
+			quantity: true,
+			minimum_quantity: true,
+			purchase_description: true,
+			preferred_supplier_id: true
+		},
+		with: {
+			category: {
+				columns: {
+					id: true,
+					name: true
+				}
+			},
+			productToSuppliers: {
+				columns: {
+					supplier_id: true,
+					cost: true
+				}
+			}
+		}
 	});
 };

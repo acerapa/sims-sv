@@ -25,8 +25,8 @@ export interface Product {
 	price: number;
 	item_code: string;
 	category_id: number;
-	stocks: number;
-	minimum_stock: number;
+	quantity: number;
+	minimum_quantity: number;
 }
 
 export interface Category {

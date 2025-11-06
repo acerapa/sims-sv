@@ -19,6 +19,7 @@
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
+	let products = $derived(data.products);
 
 	setContext('pageTitle', {
 		title: 'Inventory',
@@ -100,16 +101,9 @@
 			</div>
 
 			<div class="flex flex-col gap-3">
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
-				<ProductRow />
+				{#each products as product (product.id)}
+					<ProductRow {product} />
+				{/each}
 			</div>
 		</CardContent>
 	</Card>

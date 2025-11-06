@@ -31,6 +31,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 	import { findErrorByKey } from '$lib/utils/common';
+	import { invalidate } from '$app/navigation';
 
 	interface Props {
 		categories: Category[];
@@ -72,6 +73,7 @@
 			if (result.type === 'success') {
 				toast.success('Product added successfully');
 				open = false;
+				await invalidate('vendors:products');
 			} else {
 				toast.error('Failed to add product');
 			}
@@ -275,7 +277,7 @@
 								>
 								<div>
 									<Textarea
-										disabled={isSameDescription}
+										readonly={isSameDescription}
 										name="sales_description"
 										class={!isSameDescription && errors?.properties?.sales_description
 											? 'border-red-500'

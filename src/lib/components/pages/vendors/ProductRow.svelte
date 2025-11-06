@@ -1,7 +1,15 @@
-<script>
+<script lang="ts">
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Ellipsis } from '@lucide/svelte';
+	import type { PageData } from '../../../../routes/vendors/inventory/$types';
+
+	type Product = PageData['products'][number];
+	let { product }: { product: Product } = $props();
+	let cost = $derived.by(
+		() =>
+			product.productToSuppliers.find((s) => s.supplier_id === product.preferred_supplier_id)?.cost
+	);
 </script>
 
 <div
@@ -9,14 +17,14 @@
 >
 	<div class="grid w-full grid-cols-11 items-center gap-3">
 		<div class="col-span-3 space-x-2">
-			<p class="text-sm font-medium">Wireless Headphones</p>
-			<p class="text-xs text-muted-foreground">SKU: 24635-GSF</p>
+			<p class="text-sm font-medium">{product.purchase_description}</p>
+			<p class="text-xs text-muted-foreground">SKU: {product.sku}</p>
 		</div>
-		<p class="col-span-2 text-sm text-muted-foreground">Electronics</p>
-		<p class="col-span-2 font-semibold">₱540.00</p>
+		<p class="col-span-2 text-sm text-muted-foreground">{product.category.name}</p>
+		<p class="col-span-2 font-semibold">₱{parseFloat(cost as string).toFixed(2)}</p>
 		<div class="col-span-2 space-y-1">
 			<p class="text-sm text-muted-foreground">
-				<span>5</span>/10
+				<span>{product.quantity}</span>/{product.minimum_quantity}
 			</p>
 			<p class="text-xs text-muted-foreground">Current/Min</p>
 		</div>

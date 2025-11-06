@@ -4,11 +4,19 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
-import { createProduct, type CreateProductData } from '$lib/server/db/queries/products';
+import {
+	createProduct,
+	getProducts,
+	type CreateProductData
+} from '$lib/server/db/queries/products';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ depends }) => {
+	depends('vendors:products');
 	const categories = await getCategories();
+	const products = await getProducts();
+
 	return {
+		products: products,
 		categories: categories,
 		suppliers: await getSuppliers()
 	};
