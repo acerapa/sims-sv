@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Ellipsis } from '@lucide/svelte';
 	import type { PageData } from '../../../../routes/vendors/inventory/$types';
+	import ProductBadge from './ProductBadge.svelte';
 
 	type Product = PageData['products'][number];
 	let { product }: { product: Product } = $props();
@@ -28,7 +28,7 @@
 			</p>
 			<p class="text-xs text-muted-foreground">Current/Min</p>
 		</div>
-		<Badge variant="destructive" class="col-span-1 rounded-full px-3 py-1">Critical</Badge>
+		<ProductBadge quantity={product.quantity} minimum_quantity={product.minimum_quantity} />
 		<div class="col-span-1 text-end">
 			<Button variant="ghost">
 				<Ellipsis />
