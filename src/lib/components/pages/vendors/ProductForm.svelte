@@ -23,19 +23,21 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Plus } from '@lucide/svelte';
 	import SelectCategory from './categories/SelectCategory.svelte';
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
 	import SupplierAndCost from './SupplierAndCost.svelte';
 	import type { ActionData } from '../../../../routes/vendors/inventory/$types';
 	import type { Category, Supplier } from '$lib/types/global';
 	import { Checkbox } from '$lib/components/ui/checkbox';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
-		open?: boolean;
 		categories: Category[];
 		suppliers: Supplier[];
 		form: ActionData | null;
 	}
-	let { open = $bindable(), categories, suppliers, form }: Props = $props();
+	let { categories, suppliers, form }: Props = $props();
+	let open = $state(false);
 
 	let preferredSupplier = $state('');
 	const errors = $derived(form?.errors);
@@ -62,10 +64,33 @@
 		}
 	};
 
-	$inspect(form).with(console.log);
+	const formEnchance: SubmitFunction = async () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				toast.success('Product added successfully');
+				open = false;
+			} else {
+				toast.error('Failed to add product');
+			}
+		};
+	};
+
+	$effect(() => {
+		if (!open) {
+			preferredSupplier = '';
+			purchase_description = '';
+			sales_description = '';
+			isSameDescription = false;
+
+			if (form) {
+				form = null;
+			}
+		}
+	});
 </script>
 
-<Sheet>
+<Sheet bind:open>
 	<SheetTrigger
 		class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
 	>
@@ -79,7 +104,7 @@
 				Fill in the details to add a new product to your inventory
 			</SheetDescription>
 		</SheetHeader>
-		<form method="post" use:enhance>
+		<form method="post" use:enhance={formEnchance}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
