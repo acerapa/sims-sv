@@ -40,7 +40,7 @@ export const actions: Actions = {
 				suppliers: z
 					.array(
 						z.object({
-							supplier_id: z.number('Cost is required').min(1),
+							supplier_id: z.number('Supplier is required').min(1),
 							cost: z.number('Cost is required').min(0)
 						})
 					)
@@ -60,6 +60,7 @@ export const actions: Actions = {
 			if (!success) {
 				return fail(400, {
 					errors: z.treeifyError(error),
+					issues: error.issues,
 					message: 'Invalid input'
 				});
 			}

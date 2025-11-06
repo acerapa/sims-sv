@@ -1,3 +1,5 @@
+import z from 'zod';
+
 export function getRoleLabel(role: string) {
 	switch (role) {
 		case 'admin':
@@ -9,4 +11,12 @@ export function getRoleLabel(role: string) {
 		default:
 			return 'Unknown';
 	}
+}
+
+export function findErrorByKey(
+	issues: z.core.$ZodIssue[] | undefined,
+	key: string
+): z.core.$ZodIssue[] | undefined {
+	if (!issues) return undefined;
+	return issues.filter((issue) => issue.path[0] === key);
 }

@@ -30,6 +30,7 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
+	import { findErrorByKey } from '$lib/utils/common';
 
 	interface Props {
 		categories: Category[];
@@ -41,6 +42,7 @@
 
 	let preferredSupplier = $state('');
 	const errors = $derived(form?.errors);
+	const issues = $derived(form?.issues);
 
 	let selectSupplierAndCostRef: SupplierAndCost;
 
@@ -76,6 +78,8 @@
 		};
 	};
 
+	let selectedSuppliers = $state<Supplier[]>([]);
+
 	$effect(() => {
 		if (!open) {
 			preferredSupplier = '';
@@ -97,7 +101,11 @@
 		<Plus class="size-4" />
 		Add Product
 	</SheetTrigger>
-	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
+	<SheetContent
+		trapFocus={false}
+		side="right"
+		class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl"
+	>
 		<SheetHeader>
 			<SheetTitle>Add New Product</SheetTitle>
 			<SheetDescription>
@@ -195,11 +203,21 @@
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-col gap-6">
-							<SupplierAndCost bind:this={selectSupplierAndCostRef} {suppliers} />
+							<SupplierAndCost
+								bind:selectedSuppliers
+								bind:this={selectSupplierAndCostRef}
+								{suppliers}
+								issues={findErrorByKey(issues, 'suppliers')}
+							/>
 							<div class="space-y-2">
 								<Label>Preferred Supplier</Label>
 								<div>
-									<Select type="single" name="preferred_supplier_id" bind:value={preferredSupplier}>
+									<Select
+										disabled={!selectedSuppliers.length}
+										type="single"
+										name="preferred_supplier_id"
+										bind:value={preferredSupplier}
+									>
 										<SelectTrigger
 											class={[errors?.properties?.sale_price ? 'border-red-500' : '', 'w-full']}
 										>
@@ -207,7 +225,7 @@
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup>
-												{#each suppliers as supplier (supplier.id)}
+												{#each selectedSuppliers as supplier (supplier.id)}
 													<SelectItem value={supplier.id.toString()} label={supplier.name}>
 														{supplier.name}
 													</SelectItem>
