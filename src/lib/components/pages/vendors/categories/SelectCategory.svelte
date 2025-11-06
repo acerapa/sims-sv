@@ -38,8 +38,9 @@
 		<Button
 			variant="outline"
 			class={[
-				'flex w-full justify-between font-normal text-muted-foreground',
-				error ? 'border !border-solid !border-red-500' : ''
+				'flex w-full justify-between font-normal',
+				error ? 'border !border-solid !border-red-500' : '',
+				selectedCategoryNameWithParents ? '' : 'text-muted-foreground'
 			]}
 		>
 			{selectedCategoryNameWithParents || 'Select Category'}

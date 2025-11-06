@@ -27,6 +27,7 @@
 	import SupplierAndCost from './SupplierAndCost.svelte';
 	import type { ActionData } from '../../../../routes/vendors/inventory/$types';
 	import type { Category, Supplier } from '$lib/types/global';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 
 	interface Props {
 		open?: boolean;
@@ -43,6 +44,22 @@
 
 	const handleAddSupplier = () => {
 		selectSupplierAndCostRef.addSupplierCost();
+	};
+
+	let isSameDescription = $state(false);
+	let purchase_description = $state('');
+	let sales_description = $state('');
+
+	const handlePurchaseDescriptionInput = () => {
+		if (isSameDescription) {
+			sales_description = purchase_description;
+		}
+	};
+
+	const handleSalesDescriptionInput = () => {
+		if (isSameDescription) {
+			purchase_description = sales_description;
+		}
 	};
 
 	$inspect(form).with(console.log);
@@ -126,7 +143,17 @@
 							</div>
 							<div class="space-y-2">
 								<Label>Sale Price (₱)</Label>
-								<Input type="number" value="0" name="sale_price" placeholder="e,.g,. 1000" />
+								<div>
+									<Input
+										class={errors?.properties?.sale_price ? 'border-red-500' : ''}
+										type="number"
+										name="sale_price"
+										placeholder="e,.g,. 1000"
+									/>
+									{#if errors?.properties?.sale_price}
+										<small class="text-red-500">{errors.properties.sale_price.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 						</div>
 					</CardContent>
@@ -146,20 +173,29 @@
 							<SupplierAndCost bind:this={selectSupplierAndCostRef} {suppliers} />
 							<div class="space-y-2">
 								<Label>Preferred Supplier</Label>
-								<Select type="single" name="preferred_supplier_id" bind:value={preferredSupplier}>
-									<SelectTrigger class="w-full">
-										{preferredSupplier ? preferredSupplier : 'Select Preferred Supplier'}
-									</SelectTrigger>
-									<SelectContent>
-										<SelectGroup>
-											{#each suppliers as supplier (supplier.id)}
-												<SelectItem value={supplier.id.toString()} label={supplier.name}>
-													{supplier.name}
-												</SelectItem>
-											{/each}
-										</SelectGroup>
-									</SelectContent>
-								</Select>
+								<div>
+									<Select type="single" name="preferred_supplier_id" bind:value={preferredSupplier}>
+										<SelectTrigger
+											class={[errors?.properties?.sale_price ? 'border-red-500' : '', 'w-full']}
+										>
+											{preferredSupplier ? preferredSupplier : 'Select Preferred Supplier'}
+										</SelectTrigger>
+										<SelectContent>
+											<SelectGroup>
+												{#each suppliers as supplier (supplier.id)}
+													<SelectItem value={supplier.id.toString()} label={supplier.name}>
+														{supplier.name}
+													</SelectItem>
+												{/each}
+											</SelectGroup>
+										</SelectContent>
+									</Select>
+									{#if errors?.properties?.preferred_supplier_id}
+										<small class="text-red-500">
+											{errors.properties.preferred_supplier_id.errors[0]}
+										</small>
+									{/if}
+								</div>
 							</div>
 						</div>
 					</CardContent>
@@ -170,19 +206,47 @@
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-col gap-6">
-							<div class="space-y-2">
-								<Label>Item Description - Purchase</Label>
-								<Textarea
-									name="purchase_description"
-									placeholder="Description for purchase orders and receiving..."
-								/>
+							<div class="flex items-center gap-1">
+								<Checkbox id="same-value" bind:checked={isSameDescription} />
+								<Label for="same-value">Is same value?</Label>
 							</div>
 							<div class="space-y-2">
-								<Label>Item Description - Sales</Label>
-								<Textarea
-									name="sales_description"
-									placeholder="Description for sales and customer-facing documents..."
-								/>
+								<Label>Item Description - Purchase</Label>
+								<div>
+									<Textarea
+										name="purchase_description"
+										class={errors?.properties?.purchase_description ? 'border-red-500' : ''}
+										bind:value={purchase_description}
+										oninput={handlePurchaseDescriptionInput}
+										placeholder="Description for purchase orders and receiving..."
+									/>
+									{#if errors?.properties?.purchase_description && !isSameDescription}
+										<small class="text-red-500">
+											{errors.properties.purchase_description.errors[0]}
+										</small>
+									{/if}
+								</div>
+							</div>
+							<div class="space-y-2">
+								<Label class={isSameDescription ? 'opacity-50' : ''}>Item Description - Sales</Label
+								>
+								<div>
+									<Textarea
+										disabled={isSameDescription}
+										name="sales_description"
+										class={!isSameDescription && errors?.properties?.sales_description
+											? 'border-red-500'
+											: ''}
+										bind:value={sales_description}
+										oninput={handleSalesDescriptionInput}
+										placeholder="Description for sales and customer-facing documents..."
+									/>
+									{#if errors?.properties?.sales_description && !isSameDescription}
+										<small class="text-red-500">
+											{errors.properties.sales_description.errors[0]}
+										</small>
+									{/if}
+								</div>
 							</div>
 						</div>
 					</CardContent>

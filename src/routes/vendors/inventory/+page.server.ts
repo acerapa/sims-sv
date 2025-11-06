@@ -45,9 +45,15 @@ export const actions: Actions = {
 						})
 					)
 					.min(1),
-				preferred_supplier_id: z.number().min(1),
-				purchase_description: z.string().min(2).max(1000),
-				sales_description: z.string().min(2).max(1000)
+				preferred_supplier_id: z.number('Preferred supplier is required').min(1),
+				purchase_description: z
+					.string('Purchase description is required')
+					.min(1, 'Purchase description is required')
+					.max(1000),
+				sales_description: z
+					.string('Sales description is required')
+					.min(1, 'Sales description is required')
+					.max(1000)
 			});
 
 			const { success, error } = productSchema.safeParse(formvalues);
