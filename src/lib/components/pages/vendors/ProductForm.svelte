@@ -41,19 +41,23 @@
 	let { categories, suppliers, form }: Props = $props();
 	let open = $state(false);
 
-	let preferredSupplier = $state('');
+	let preferredSupplierId = $state('');
+	let selectedSuppliers = $state<Supplier[]>([]);
+	let isSameDescription = $state(false);
+	let purchase_description = $state('');
+	let sales_description = $state('');
+
 	const errors = $derived(form?.errors);
 	const issues = $derived(form?.issues);
+	const preferredSupplier = $derived.by(() =>
+		suppliers.find((s) => s.id.toString() === preferredSupplierId)
+	);
 
 	let selectSupplierAndCostRef: SupplierAndCost;
 
 	const handleAddSupplier = () => {
 		selectSupplierAndCostRef.addSupplierCost();
 	};
-
-	let isSameDescription = $state(false);
-	let purchase_description = $state('');
-	let sales_description = $state('');
 
 	const handlePurchaseDescriptionInput = () => {
 		if (isSameDescription) {
@@ -80,11 +84,9 @@
 		};
 	};
 
-	let selectedSuppliers = $state<Supplier[]>([]);
-
 	$effect(() => {
 		if (!open) {
-			preferredSupplier = '';
+			preferredSupplierId = '';
 			purchase_description = '';
 			sales_description = '';
 			isSameDescription = false;
@@ -92,6 +94,10 @@
 			if (form) {
 				form = null;
 			}
+		}
+
+		if (selectedSuppliers.length === 0) {
+			preferredSupplierId = '';
 		}
 	});
 </script>
@@ -218,12 +224,12 @@
 										disabled={!selectedSuppliers.length}
 										type="single"
 										name="preferred_supplier_id"
-										bind:value={preferredSupplier}
+										bind:value={preferredSupplierId}
 									>
 										<SelectTrigger
 											class={[errors?.properties?.sale_price ? 'border-red-500' : '', 'w-full']}
 										>
-											{preferredSupplier ? preferredSupplier : 'Select Preferred Supplier'}
+											{preferredSupplier ? preferredSupplier.name : 'Select Preferred Supplier'}
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup>
