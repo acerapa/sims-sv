@@ -18,3 +18,9 @@ export const getSuppliers = async () => {
 		.orderBy(desc(suppliers.created_at))
 		.execute();
 };
+
+// export const getProductSuppliers = async () => {
+//   return await db.query.products.findMany({
+//     where
+//   })
+// }

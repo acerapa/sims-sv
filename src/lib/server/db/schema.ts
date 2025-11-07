@@ -13,6 +13,8 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
+export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
+
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
 	email: text().notNull().unique(),
@@ -99,6 +101,33 @@ export const productsToSupplier = pgTable('products_to_suppliers', {
 	cost: decimal().notNull()
 });
 
+export const purchaseOrders = pgTable('purhase_order', {
+	id: serial().primaryKey(),
+	reference: varchar().notNull().unique(),
+	supplier_id: integer()
+		.notNull()
+		.references(() => suppliers.id),
+	receive_date: timestamp().notNull(),
+	receive_type: receiveType().notNull(),
+	notes: text(),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => sql`NOW()`)
+});
+
+export const purchaseOrderItems = pgTable('purchase_order_items', {
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	quantity: integer().notNull(),
+	cost: decimal().notNull(),
+	total_cost: decimal().notNull(),
+	purchase_order_id: integer()
+		.notNull()
+		.references(() => purchaseOrders.id)
+});
+
 // relations
 export const productToSupplierRelations = relations(productsToSupplier, ({ one }) => ({
 	product: one(products, {
@@ -123,8 +152,16 @@ export const productRelations = relations(products, ({ many, one }) => ({
 	})
 }));
 
+export const purchaseOrderRelations = relations(purchaseOrders, ({ one }) => ({
+	supplier: one(suppliers, {
+		fields: [purchaseOrders.supplier_id],
+		references: [suppliers.id]
+	})
+}));
+
 export const supplierRelations = relations(suppliers, ({ many }) => ({
-	products: many(productsToSupplier)
+	products: many(productsToSupplier),
+	purchaseOrders: many(purchaseOrders)
 }));
 
 export const categoryRelations = relations(categories, ({ many, one }) => ({

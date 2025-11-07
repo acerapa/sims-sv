@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DatePicker from '$lib/components/common/DatePicker.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -25,8 +26,28 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import type { PurchaseOrderItem } from '$lib/types/global';
+	import type { PurchaseOrderItem, Supplier } from '$lib/types/global';
 	import { Plus, Trash2 } from '@lucide/svelte';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+
+	let suppliers = $derived<Supplier[]>(data.suppliers);
+	let selectedSupplierId = $state<string>('');
+	let selectedSupplier = $derived(
+		suppliers.find((supplier) => supplier.id === parseInt(selectedSupplierId))
+	);
+	let selectedReceiveType = $state<string>('');
+	let selectedReceiveTypelabel = $derived.by(() => {
+		switch (selectedReceiveType) {
+			case 'with_pay':
+				return 'With Pay';
+			case 'without_pay':
+				return 'Without Pay';
+			default:
+				return null;
+		}
+	});
 
 	const items = $state<PurchaseOrderItem[]>([
 		{
@@ -51,6 +72,10 @@
 	const removeItem = (index: number) => {
 		items.splice(index, 1);
 	};
+
+	$effect(() => {
+		console.log(suppliers);
+	});
 </script>
 
 <svelte:head>
@@ -69,22 +94,33 @@
 				<div class="flex flex-wrap gap-6">
 					<div class="flex flex-1 flex-col gap-2">
 						<Label>PO Reference</Label>
-						<Input class="h-10" placeholder="e.g, PO-2024-0001" />
+						<Input class="h-10" name="reference" placeholder="e.g, PO-2024-0001" />
 					</div>
 					<div class="flex flex-1 flex-col gap-2">
-						<Label>Supplier Name</Label>
-						<Input class="h-10" placeholder="Enter supplier name" />
+						<Label>Supplier</Label>
+						<Select type="single" name="supplier_id" bind:value={selectedSupplierId}>
+							<SelectTrigger class="h-10 w-full">
+								{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
+							</SelectTrigger>
+							<SelectContent>
+								{#each suppliers as supplier (supplier.id)}
+									<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
+								{/each}
+							</SelectContent>
+						</Select>
 					</div>
 				</div>
 				<div class="flex flex-wrap gap-6">
 					<div class="flex flex-1 flex-col gap-2">
 						<Label>Date Received</Label>
-						<Input class="h-10" placeholder="e.g, PO-2024-0001" />
+						<DatePicker name="receive_date" />
 					</div>
 					<div class="flex flex-1 flex-col gap-2">
 						<Label>Received Type</Label>
-						<Select type="single">
-							<SelectTrigger class="w-full">Select Type</SelectTrigger>
+						<Select type="single" name="receive_type" bind:value={selectedReceiveType}>
+							<SelectTrigger class="h-10 w-full">
+								{selectedReceiveTypelabel ? selectedReceiveTypelabel : 'Select Type'}
+							</SelectTrigger>
 							<SelectContent>
 								<SelectGroup>
 									<SelectItem value="with_pay">With Pay</SelectItem>

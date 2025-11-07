@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
 import { pageContext } from '$lib/stores/pageContext';
 
-export const load: PageLoad = () => {
+export const load: PageLoad = ({ data }) => {
 	pageContext.set({
 		pageTitle: {
 			title: 'Receive Purchase Order',
@@ -9,5 +9,5 @@ export const load: PageLoad = () => {
 		}
 	});
 
-	return {};
+	return { ...data };
 };
