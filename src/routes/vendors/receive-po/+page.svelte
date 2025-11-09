@@ -26,13 +26,16 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import type { PurchaseOrderItem, Supplier } from '$lib/types/global';
+	import type { Product, Supplier } from '$lib/types/global';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import type { PageProps } from './$types';
+	import { enhance } from '$app/forms';
 
 	let { data }: PageProps = $props();
 
 	let suppliers = $derived<Supplier[]>(data.suppliers);
+	let products = $derived<Product[]>([]);
+	let fetchProductsForm: HTMLFormElement;
 	let selectedSupplierId = $state<string>('');
 	let selectedSupplier = $derived(
 		suppliers.find((supplier) => supplier.id === parseInt(selectedSupplierId))
@@ -49,12 +52,12 @@
 		}
 	});
 
-	const items = $state<PurchaseOrderItem[]>([
+	const items = $state([
 		{
 			id: 0,
-			product_id: 0,
+			product_id: '',
 			quantity: 0,
-			unit_cost: 0,
+			cost: 0,
 			total_cost: 0
 		}
 	]);
@@ -62,9 +65,9 @@
 	const addItem = () => {
 		items.push({
 			id: items.length + 1,
-			product_id: 0,
+			product_id: '',
 			quantity: 0,
-			unit_cost: 0,
+			cost: 0,
 			total_cost: 0
 		});
 	};
@@ -74,7 +77,9 @@
 	};
 
 	$effect(() => {
-		console.log(suppliers);
+		if (selectedSupplierId && fetchProductsForm) {
+			fetchProductsForm.requestSubmit();
+		}
 	});
 </script>
 
@@ -84,6 +89,21 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6">
+	<form
+		bind:this={fetchProductsForm}
+		method="post"
+		action="?/getProductBySupplier"
+		use:enhance={() => {
+			return async ({ result }) => {
+				if (result.type === 'success') {
+					products = result.data?.products as Product[];
+				}
+			};
+		}}
+		class="hidden"
+	>
+		<input type="hidden" name="supplier_id" value={selectedSupplierId} />
+	</form>
 	<Card class="rounded-lg">
 		<CardHeader>
 			<CardTitle>Purchase Order Details</CardTitle>
@@ -138,7 +158,7 @@
 		</CardContent>
 	</Card>
 
-	<Card class="rounded-lg">
+	<Card class="relative rounded-lg">
 		<CardHeader>
 			<div class="flex items-center justify-between">
 				<div class="space-y-1.5">
@@ -167,13 +187,29 @@
 						{#each items as item, i (item)}
 							<TableRow>
 								<TableCell>
-									<Input type="number" bind:value={items[i].product_id} />
+									<Select type="single" bind:value={items[i].product_id}>
+										<SelectTrigger class="w-full">Select Product</SelectTrigger>
+										<SelectContent>
+											{#if !selectedSupplierId}
+												<SelectItem value="" disabled>Please select supplier first</SelectItem>
+											{:else}
+												{#if !products.length}
+													<SelectItem value="" disabled>No Products available</SelectItem>
+												{/if}
+												{#each products as product (product.id)}
+													<SelectItem value={product.id.toString()}>
+														{product.purchase_description}
+													</SelectItem>
+												{/each}
+											{/if}
+										</SelectContent>
+									</Select>
 								</TableCell>
 								<TableCell>
 									<Input type="number" bind:value={items[i].quantity} />
 								</TableCell>
 								<TableCell>
-									<Input type="number" bind:value={items[i].unit_cost} />
+									<Input type="number" bind:value={items[i].cost} />
 								</TableCell>
 								<TableCell>
 									<p class="font-semibold">₱0.00</p>

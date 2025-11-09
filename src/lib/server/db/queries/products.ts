@@ -1,4 +1,4 @@
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db } from '..';
 import { products, productsToSupplier } from '../schema';
 
@@ -73,4 +73,21 @@ export const getProducts = async () => {
 			}
 		}
 	});
+};
+
+export const getProductsBySupplier = async (supplierId: number) => {
+	const supplierProducts = await db
+		.select({
+			id: products.id,
+			sku: products.sku,
+			quantity: products.quantity,
+			minimum_quantity: products.minimum_quantity,
+			purchase_description: products.purchase_description,
+			preferred_supplier_id: products.preferred_supplier_id
+		})
+		.from(products)
+		.leftJoin(productsToSupplier, eq(productsToSupplier.product_id, products.id))
+		.where(eq(productsToSupplier.supplier_id, supplierId));
+
+	return supplierProducts;
 };

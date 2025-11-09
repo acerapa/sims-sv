@@ -14,14 +14,14 @@ export interface PurchaseOrderItem {
 	id: number;
 	product_id: number;
 	quantity: number;
-	unit_cost: number;
+	cost: number;
 	total_cost: number;
 }
 
 export interface Product {
 	id: number;
-	purchase_item_description: string;
-	sales_item_description: string;
+	purchase_description: string;
+	sales_description: string;
 	price: number;
 	item_code: string;
 	category_id: number;
