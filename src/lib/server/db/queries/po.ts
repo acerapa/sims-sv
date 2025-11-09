@@ -44,5 +44,7 @@ export const createReceivePO = async (data: CreatePO) => {
 				});
 			})
 		);
+
+		// TODO: Update the product/s quantity
 	});
 };

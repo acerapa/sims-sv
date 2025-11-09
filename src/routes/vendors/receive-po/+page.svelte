@@ -25,6 +25,8 @@
 	import SelectProduct from '$lib/components/pages/vendors/receive-po/SelectProduct.svelte';
 	import { findErrorByKey } from '$lib/utils/common';
 	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let { data, form }: PageProps = $props();
 
@@ -65,6 +67,7 @@
 			await applyAction(result);
 			if (result.type === 'success') {
 				toast.success('Purchase order received successfully');
+				goto(resolve('/vendors/inventory'));
 			} else {
 				toast.error('Failed to receive purchase order');
 			}
