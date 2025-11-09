@@ -17,24 +17,20 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select';
-	import {
-		Table,
-		TableBody,
-		TableCell,
-		TableHead,
-		TableHeader,
-		TableRow
-	} from '$lib/components/ui/table';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { Product, Supplier } from '$lib/types/global';
-	import { Plus, Trash2 } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import SelectProduct from '$lib/components/pages/vendors/receive-po/SelectProduct.svelte';
+	import { findErrorByKey } from '$lib/utils/common';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 
+	let errors = $derived(form?.errors);
+	let issues = $derived(form?.issues);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
-	let products = $derived<Product[]>([]);
+	let products = $state<Product[]>([]);
 	let fetchProductsForm: HTMLFormElement;
 	let selectedSupplierId = $state<string>('');
 	let selectedSupplier = $derived(
@@ -51,6 +47,8 @@
 				return null;
 		}
 	});
+
+	let selectProductRef: SelectProduct;
 	let items = $state([
 		{
 			id: 0,
@@ -61,51 +59,10 @@
 		}
 	]);
 
-	let subTotal = $derived.by(() => {
-		return items
-			.map((item) => item.total_cost)
-			.filter(Boolean)
-			.reduce((acc, curr) => acc + curr, 0)
-			.toFixed(2);
-	});
-
-	let orderDiscount = $state<number>(0);
-
-	let overAllTotal = $derived.by(() => {
-		return (parseFloat(subTotal) - orderDiscount).toFixed(2);
-	});
-
-	const addItem = () => {
-		items.push({
-			id: items.length + 1,
-			product_id: '',
-			quantity: 1,
-			cost: 0,
-			total_cost: 0
-		});
-	};
-
-	const removeItem = (index: number) => {
-		items.splice(index, 1);
-	};
-
-	const getProduct = (productId: number): Product | undefined => {
-		return products.find((product) => product.id === productId);
-	};
-
-	const onSelectProduct = (ndx: number) => {
-		const item = items[ndx];
-		const product = getProduct(parseInt(item.product_id));
-
-		if (product) {
-			item.cost = product.cost || 0;
-			item.total_cost = item.quantity * item.cost;
-		}
-	};
-
-	const onQuantityChange = (ndx: number) => {
-		const item = items[ndx];
-		item.total_cost = item.quantity * item.cost;
+	const submitForm: SubmitFunction = async () => {
+		return async ({ result }) => {
+			await applyAction(result);
+		};
 	};
 
 	$effect(() => {
@@ -113,6 +70,8 @@
 			fetchProductsForm.requestSubmit();
 		}
 	});
+
+	$inspect(form).with(console.log);
 </script>
 
 <svelte:head>
@@ -120,7 +79,7 @@
 	<meta name="description" content="Receive Purchase Order Page" />
 </svelte:head>
 
-<div class="flex flex-col gap-6">
+<div class="mb-6 flex flex-col gap-6">
 	<form
 		bind:this={fetchProductsForm}
 		method="post"
@@ -135,7 +94,7 @@
 					});
 
 					if (items.length === 0) {
-						addItem();
+						selectProductRef.addItem();
 					}
 				}
 			};
@@ -144,186 +103,112 @@
 	>
 		<input type="hidden" name="supplier_id" value={selectedSupplierId} />
 	</form>
-	<Card class="rounded-lg">
-		<CardHeader>
-			<CardTitle>Purchase Order Details</CardTitle>
-			<CardDescription>Enter the details of the received shipment</CardDescription>
-		</CardHeader>
-		<CardContent>
-			<form class="flex flex-col gap-6">
-				<div class="flex flex-wrap gap-6">
-					<div class="flex flex-1 flex-col gap-2">
-						<Label>PO Reference</Label>
-						<Input class="h-10" name="reference" placeholder="e.g, PO-2024-0001" />
-					</div>
-					<div class="flex flex-1 flex-col gap-2">
-						<Label>Supplier</Label>
-						<Select type="single" name="supplier_id" bind:value={selectedSupplierId}>
-							<SelectTrigger class="h-10 w-full">
-								{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
-							</SelectTrigger>
-							<SelectContent>
-								{#each suppliers as supplier (supplier.id)}
-									<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
-								{/each}
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-				<div class="flex flex-wrap gap-6">
-					<div class="flex flex-1 flex-col gap-2">
-						<Label>Date Received</Label>
-						<DatePicker name="receive_date" />
-					</div>
-					<div class="flex flex-1 flex-col gap-2">
-						<Label>Received Type</Label>
-						<Select type="single" name="receive_type" bind:value={selectedReceiveType}>
-							<SelectTrigger class="h-10 w-full">
-								{selectedReceiveTypelabel ? selectedReceiveTypelabel : 'Select Type'}
-							</SelectTrigger>
-							<SelectContent>
-								<SelectGroup>
-									<SelectItem value="with_pay">With Pay</SelectItem>
-									<SelectItem value="without_pay">Without Pay</SelectItem>
-								</SelectGroup>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-				<div class="flex flex-1 flex-col gap-2">
-					<Label>Notes</Label>
-					<Textarea class="h-10" placeholder="Add any additional notes about this shipment..." />
-				</div>
-			</form>
-		</CardContent>
-	</Card>
-
-	<Card class="relative rounded-lg">
-		<CardHeader>
-			<div class="flex items-center justify-between">
-				<div class="space-y-1.5">
-					<CardTitle>Items Received</CardTitle>
-					<CardDescription>Add products and quantities received</CardDescription>
-				</div>
-				<Button onclick={addItem}>
-					<Plus />
-					Add Item
-				</Button>
-			</div>
-		</CardHeader>
-		<CardContent>
-			<div class="flex flex-col gap-6">
-				<Table class="border-b">
-					<TableHeader>
-						<TableRow>
-							<TableHead>Product</TableHead>
-							<TableHead>Quantity Received</TableHead>
-							<TableHead>Unit Cost (₱)</TableHead>
-							<TableHead>Total (₱)</TableHead>
-							<TableHead></TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{#each items as item, i (item)}
-							<TableRow>
-								<TableCell class="w-96">
-									<Select
-										onValueChange={() => onSelectProduct(i)}
-										type="single"
-										bind:value={items[i].product_id}
+	<form class="flex flex-col gap-6" method="post" action="?/receivePo" use:enhance={submitForm}>
+		<Card class="rounded-lg">
+			<CardHeader>
+				<CardTitle>Purchase Order Details</CardTitle>
+				<CardDescription>Enter the details of the received shipment</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<div class="flex flex-col gap-6">
+					<div class="flex flex-wrap gap-6">
+						<div class="flex flex-1 flex-col gap-2">
+							<Label>PO Reference</Label>
+							<div>
+								<Input
+									class={[errors?.properties?.reference ? 'border-red-500' : '', 'h-10']}
+									name="reference"
+									placeholder="e.g, PO-2024-0001"
+								/>
+								{#if errors?.properties?.reference}
+									<small class="text-red-500">{errors.properties.reference.errors[0]}</small>
+								{/if}
+							</div>
+						</div>
+						<div class="flex flex-1 flex-col gap-2">
+							<Label>Supplier</Label>
+							<div>
+								<Select type="single" name="supplier_id" bind:value={selectedSupplierId}>
+									<SelectTrigger
+										class={['h-10 w-full', errors?.properties?.supplier_id ? 'border-red-500' : '']}
 									>
-										<SelectTrigger class="w-full">
-											{getProduct(parseInt(items[i].product_id))
-												? getProduct(parseInt(items[i].product_id))?.purchase_description
-												: 'Select Product'}
-										</SelectTrigger>
-										<SelectContent>
-											{#if !selectedSupplierId}
-												<SelectItem value="" disabled>Please select supplier first</SelectItem>
-											{:else}
-												{#if !products.length}
-													<SelectItem value="" disabled>No Products available</SelectItem>
-												{/if}
-												{#each products as product (product.id)}
-													<SelectItem
-														disabled={items.some(
-															(item) => parseInt(item.product_id) === product.id
-														)}
-														value={product.id.toString()}
-													>
-														{product.purchase_description}
-													</SelectItem>
-												{/each}
-											{/if}
-										</SelectContent>
-									</Select>
-								</TableCell>
-								<TableCell>
-									<Input
-										oninput={() => onQuantityChange(i)}
-										type="number"
-										bind:value={items[i].quantity}
-									/>
-								</TableCell>
-								<TableCell>
-									<Input
-										disabled
-										class="disabled:text-primary disabled:!opacity-100"
-										type="number"
-										bind:value={items[i].cost}
-									/>
-								</TableCell>
-								<TableCell>
-									<Input
-										disabled
-										class="disabled:text-primary disabled:!opacity-100"
-										type="number"
-										bind:value={items[i].total_cost}
-									/>
-								</TableCell>
-								<TableCell>
-									<Button
-										disabled={items.length === 1}
-										variant="ghost"
-										onclick={() => removeItem(i)}
-										class="cursor-pointer text-red-500"
-									>
-										<Trash2 />
-									</Button>
-								</TableCell>
-							</TableRow>
-						{/each}
-					</TableBody>
-				</Table>
-
-				<div class="w-1/2 space-y-3 self-end">
-					<div class="flex items-center justify-between">
-						<span class="text-muted-foreground">Subtotal</span>
-						<span class="font-medium">₱{subTotal}</span>
-					</div>
-					<div class="flex items-center justify-between">
-						<span class="text-muted-foreground">Discount (₱)</span>
-						<div class="flex items-center gap-4">
-							<Input
-								type="number"
-								bind:value={orderDiscount}
-								class="max-w-[120px] text-right"
-								placeholder="0.00"
-							/>
+										{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
+									</SelectTrigger>
+									<SelectContent>
+										{#each suppliers as supplier (supplier.id)}
+											<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
+										{/each}
+									</SelectContent>
+								</Select>
+								{#if errors?.properties?.supplier_id}
+									<small class="text-red-500">
+										{errors.properties.supplier_id.errors[0]}
+									</small>
+								{/if}
+							</div>
 						</div>
 					</div>
-					<hr />
-					<div class="flex items-center justify-between">
-						<span class="font-bold">Total value:</span>
-						<span class="font-bold">₱{overAllTotal}</span>
+					<div class="flex flex-wrap gap-6">
+						<div class="flex flex-1 flex-col gap-2">
+							<Label>Date Received</Label>
+							<div class="flex flex-col gap-1">
+								<DatePicker error={errors?.properties?.receive_date} name="receive_date" />
+								{#if errors?.properties?.receive_date}
+									<small class="text-red-500">
+										{errors.properties.receive_date.errors[0]}
+									</small>
+								{/if}
+							</div>
+						</div>
+						<div class="flex flex-1 flex-col gap-2">
+							<Label>Received Type</Label>
+							<div>
+								<Select type="single" name="receive_type" bind:value={selectedReceiveType}>
+									<SelectTrigger
+										class={[
+											'h-10 w-full',
+											errors?.properties?.receive_type ? 'border-red-500' : ''
+										]}
+									>
+										{selectedReceiveTypelabel ? selectedReceiveTypelabel : 'Select Type'}
+									</SelectTrigger>
+									<SelectContent>
+										<SelectGroup>
+											<SelectItem value="with_pay">With Pay</SelectItem>
+											<SelectItem value="without_pay">Without Pay</SelectItem>
+										</SelectGroup>
+									</SelectContent>
+								</Select>
+								{#if errors?.properties?.receive_type}
+									<small class="text-red-500">
+										{errors.properties.receive_type.errors[0]}
+									</small>
+								{/if}
+							</div>
+						</div>
+					</div>
+					<div class="flex flex-1 flex-col gap-2">
+						<Label>Notes</Label>
+						<Textarea
+							name="notes"
+							class="h-10"
+							placeholder="Add any additional notes about this shipment..."
+						/>
 					</div>
 				</div>
-			</div>
-		</CardContent>
-	</Card>
+			</CardContent>
+		</Card>
 
-	<div class="flex gap-3 self-end">
-		<Button variant="outline">Cancel</Button>
-		<Button>Receive Items</Button>
-	</div>
+		<SelectProduct
+			bind:items
+			{products}
+			bind:this={selectProductRef}
+			{selectedSupplierId}
+			issues={findErrorByKey(issues, 'products')}
+		/>
+		<div class="flex gap-3 self-end">
+			<Button variant="outline">Cancel</Button>
+			<Button type="submit">Receive Items</Button>
+		</div>
+	</form>
 </div>

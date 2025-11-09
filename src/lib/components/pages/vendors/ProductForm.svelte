@@ -305,7 +305,13 @@
 				<Separator />
 			</div>
 			<SheetFooter class="flex flex-row justify-end">
-				<Button type="button" variant="outline">Cancel</Button>
+				<Button
+					type="button"
+					onclick={() => {
+						open = false;
+					}}
+					variant="outline">Cancel</Button
+				>
 				<Button type="submit" variant="default">Add Product</Button>
 			</SheetFooter>
 		</form>

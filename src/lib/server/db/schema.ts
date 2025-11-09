@@ -110,6 +110,9 @@ export const purchaseOrders = pgTable('purhase_order', {
 	receive_date: timestamp().notNull(),
 	receive_type: receiveType().notNull(),
 	notes: text(),
+	sub_total: decimal().notNull(),
+	discount: decimal().notNull(),
+	total: decimal().notNull(),
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()

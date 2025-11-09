@@ -5,7 +5,7 @@
 	import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 	import { CalendarIcon } from '@lucide/svelte';
 
-	let { value = $bindable<Date>(), name = $bindable<string>() } = $props();
+	let { value = $bindable<Date>(), name = $bindable<string>(), error = false } = $props();
 	let selectedDate = $state<DateValue>();
 
 	$effect(() => {
@@ -20,7 +20,8 @@
 		class={[
 			'flex items-center !justify-start !font-normal',
 			buttonVariants({ variant: 'outline' }),
-			value ? 'text-primary' : 'text-muted-foreground'
+			value ? 'text-primary' : 'text-muted-foreground',
+			error ? 'border-red-500' : ''
 		]}
 	>
 		<CalendarIcon />
@@ -34,6 +35,6 @@
 	</PopoverTrigger>
 	<PopoverContent>
 		<Calendar bind:value={selectedDate} type="single" captionLayout="dropdown" />
-		<input type="hidden" {name} {value} />
 	</PopoverContent>
+	<input type="hidden" {name} {value} />
 </Popover>
