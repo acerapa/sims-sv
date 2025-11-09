@@ -83,7 +83,8 @@ export const getProductsBySupplier = async (supplierId: number) => {
 			quantity: products.quantity,
 			minimum_quantity: products.minimum_quantity,
 			purchase_description: products.purchase_description,
-			preferred_supplier_id: products.preferred_supplier_id
+			preferred_supplier_id: products.preferred_supplier_id,
+			cost: productsToSupplier.cost
 		})
 		.from(products)
 		.leftJoin(productsToSupplier, eq(productsToSupplier.product_id, products.id))

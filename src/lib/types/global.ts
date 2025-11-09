@@ -27,6 +27,7 @@ export interface Product {
 	category_id: number;
 	quantity: number;
 	minimum_quantity: number;
+	cost?: number;
 }
 
 export interface Category {

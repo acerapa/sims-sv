@@ -52,11 +52,11 @@
 		}
 	});
 
-	const items = $state([
+	let items = $state([
 		{
 			id: 0,
 			product_id: '',
-			quantity: 0,
+			quantity: 1,
 			cost: 0,
 			total_cost: 0
 		}
@@ -66,7 +66,7 @@
 		items.push({
 			id: items.length + 1,
 			product_id: '',
-			quantity: 0,
+			quantity: 1,
 			cost: 0,
 			total_cost: 0
 		});
@@ -74,6 +74,25 @@
 
 	const removeItem = (index: number) => {
 		items.splice(index, 1);
+	};
+
+	const getProduct = (productId: number): Product | undefined => {
+		return products.find((product) => product.id === productId);
+	};
+
+	const onSelectProduct = (ndx: number) => {
+		const item = items[ndx];
+		const product = getProduct(parseInt(item.product_id));
+
+		if (product) {
+			item.cost = product.cost || 0;
+			item.total_cost = item.quantity * item.cost;
+		}
+	};
+
+	const onQuantityChange = (ndx: number) => {
+		const item = items[ndx];
+		item.total_cost = item.quantity * item.cost;
 	};
 
 	$effect(() => {
@@ -97,6 +116,14 @@
 			return async ({ result }) => {
 				if (result.type === 'success') {
 					products = result.data?.products as Product[];
+
+					items = items.filter((item) => {
+						return products.some((product) => product.id === parseInt(item.product_id));
+					});
+
+					if (items.length === 0) {
+						addItem();
+					}
 				}
 			};
 		}}
@@ -178,17 +205,25 @@
 						<TableRow>
 							<TableHead>Product</TableHead>
 							<TableHead>Quantity Received</TableHead>
-							<TableHead>Unit Cost</TableHead>
-							<TableHead>Total</TableHead>
+							<TableHead>Unit Cost (₱)</TableHead>
+							<TableHead>Total (₱)</TableHead>
 							<TableHead></TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{#each items as item, i (item)}
 							<TableRow>
-								<TableCell>
-									<Select type="single" bind:value={items[i].product_id}>
-										<SelectTrigger class="w-full">Select Product</SelectTrigger>
+								<TableCell class="w-96">
+									<Select
+										onValueChange={() => onSelectProduct(i)}
+										type="single"
+										bind:value={items[i].product_id}
+									>
+										<SelectTrigger class="w-full">
+											{getProduct(parseInt(items[i].product_id))
+												? getProduct(parseInt(items[i].product_id))?.purchase_description
+												: 'Select Product'}
+										</SelectTrigger>
 										<SelectContent>
 											{#if !selectedSupplierId}
 												<SelectItem value="" disabled>Please select supplier first</SelectItem>
@@ -206,13 +241,27 @@
 									</Select>
 								</TableCell>
 								<TableCell>
-									<Input type="number" bind:value={items[i].quantity} />
+									<Input
+										oninput={() => onQuantityChange(i)}
+										type="number"
+										bind:value={items[i].quantity}
+									/>
 								</TableCell>
 								<TableCell>
-									<Input type="number" bind:value={items[i].cost} />
+									<Input
+										disabled
+										class="disabled:text-primary disabled:!opacity-100"
+										type="number"
+										bind:value={items[i].cost}
+									/>
 								</TableCell>
 								<TableCell>
-									<p class="font-semibold">₱0.00</p>
+									<Input
+										disabled
+										class="disabled:text-primary disabled:!opacity-100"
+										type="number"
+										bind:value={items[i].total_cost}
+									/>
 								</TableCell>
 								<TableCell>
 									<Button
