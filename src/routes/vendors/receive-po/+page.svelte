@@ -24,6 +24,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import SelectProduct from '$lib/components/pages/vendors/receive-po/SelectProduct.svelte';
 	import { findErrorByKey } from '$lib/utils/common';
+	import { toast } from 'svelte-sonner';
 
 	let { data, form }: PageProps = $props();
 
@@ -62,6 +63,11 @@
 	const submitForm: SubmitFunction = async () => {
 		return async ({ result }) => {
 			await applyAction(result);
+			if (result.type === 'success') {
+				toast.success('Purchase order received successfully');
+			} else {
+				toast.error('Failed to receive purchase order');
+			}
 		};
 	};
 
@@ -70,8 +76,6 @@
 			fetchProductsForm.requestSubmit();
 		}
 	});
-
-	$inspect(form).with(console.log);
 </script>
 
 <svelte:head>

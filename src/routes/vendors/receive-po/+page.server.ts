@@ -4,6 +4,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { getProductsBySupplier } from '$lib/server/db/queries/products';
 import { decode } from 'decode-formdata';
 import z from 'zod';
+import { createReceivePO, type CreatePO } from '$lib/server/db/queries/po';
 
 export const load: PageServerLoad = async () => {
 	const suppliers = await getSuppliers();
@@ -39,7 +40,7 @@ export const actions: Actions = {
 				'products.$.total_cost'
 			],
 			dates: ['receive_date']
-		});
+		}) as CreatePO;
 
 		const purchaseOrderSchema = z.object({
 			reference: z.string('Reference is required').min(1, 'Reference is required'),
@@ -72,6 +73,6 @@ export const actions: Actions = {
 			});
 		}
 
-		return { success: true };
+		return await createReceivePO(formValues);
 	}
 };
