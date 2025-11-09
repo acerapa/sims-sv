@@ -21,5 +21,6 @@ export const actions: Actions = {
 
 		const products = await getProductsBySupplier(parseInt(supplierId as string));
 		return { products };
-	}
+	},
+	receivePo: async () => {}
 };

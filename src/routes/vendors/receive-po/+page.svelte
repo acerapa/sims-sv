@@ -51,7 +51,6 @@
 				return null;
 		}
 	});
-
 	let items = $state([
 		{
 			id: 0,
@@ -61,6 +60,20 @@
 			total_cost: 0
 		}
 	]);
+
+	let subTotal = $derived.by(() => {
+		return items
+			.map((item) => item.total_cost)
+			.filter(Boolean)
+			.reduce((acc, curr) => acc + curr, 0)
+			.toFixed(2);
+	});
+
+	let orderDiscount = $state<number>(0);
+
+	let overAllTotal = $derived.by(() => {
+		return (parseFloat(subTotal) - orderDiscount).toFixed(2);
+	});
 
 	const addItem = () => {
 		items.push({
@@ -232,7 +245,12 @@
 													<SelectItem value="" disabled>No Products available</SelectItem>
 												{/if}
 												{#each products as product (product.id)}
-													<SelectItem value={product.id.toString()}>
+													<SelectItem
+														disabled={items.some(
+															(item) => parseInt(item.product_id) === product.id
+														)}
+														value={product.id.toString()}
+													>
 														{product.purchase_description}
 													</SelectItem>
 												{/each}
@@ -281,19 +299,23 @@
 				<div class="w-1/2 space-y-3 self-end">
 					<div class="flex items-center justify-between">
 						<span class="text-muted-foreground">Subtotal</span>
-						<span class="font-medium">₱0.00</span>
+						<span class="font-medium">₱{subTotal}</span>
 					</div>
 					<div class="flex items-center justify-between">
-						<span class="text-muted-foreground">Discount</span>
+						<span class="text-muted-foreground">Discount (₱)</span>
 						<div class="flex items-center gap-4">
-							<Input type="number" class="max-w-[120px] text-right" placeholder="0.00" />
-							<span class="font-medium">₱0.00</span>
+							<Input
+								type="number"
+								bind:value={orderDiscount}
+								class="max-w-[120px] text-right"
+								placeholder="0.00"
+							/>
 						</div>
 					</div>
 					<hr />
 					<div class="flex items-center justify-between">
 						<span class="font-bold">Total value:</span>
-						<span class="font-bold">₱0.00</span>
+						<span class="font-bold">₱{overAllTotal}</span>
 					</div>
 				</div>
 			</div>
