@@ -41,38 +41,45 @@ export const actions: Actions = {
 			],
 			dates: ['receive_date']
 		}) as CreatePO;
+		console.log(formValues);
+		try {
+			const purchaseOrderSchema = z.object({
+				reference: z.string('Reference is required').min(1, 'Reference is required'),
+				supplier_id: z.number('Supplier is required'),
+				receive_date: z.date('Receive date is required'),
+				receive_type: z.enum(
+					['with_pay', 'without_pay'],
+					'Must be either "with_pay" or "without_pay"'
+				),
+				notes: z.string().optional(),
+				products: z
+					.array(
+						z.object({
+							product_id: z.number('Product is required'),
+							quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
+							cost: z.number('Cost is required'),
+							total_cost: z.number('Total cost is required')
+						})
+					)
+					.min(1, 'At least one product is required')
+			});
 
-		const purchaseOrderSchema = z.object({
-			reference: z.string('Reference is required').min(1, 'Reference is required'),
-			supplier_id: z.number('Supplier is required'),
-			receive_date: z.date('Receive date is required'),
-			receive_type: z.enum(
-				['with_pay', 'without_pay'],
-				'Must be either "with_pay" or "without_pay"'
-			),
-			notes: z.string().optional(),
-			products: z
-				.array(
-					z.object({
-						product_id: z.number('Product is required'),
-						quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
-						cost: z.number('Cost is required'),
-						total_cost: z.number('Total cost is required')
-					})
-				)
-				.min(1, 'At least one product is required')
-		});
+			const { success, error } = purchaseOrderSchema.safeParse(formValues);
 
-		const { success, error } = purchaseOrderSchema.safeParse(formValues);
+			if (!success) {
+				return fail(400, {
+					message: 'Invalid data!',
+					errors: z.treeifyError(error),
+					issues: error.issues
+				});
+			}
 
-		if (!success) {
-			return fail(400, {
-				message: 'Invalid data!',
-				errors: z.treeifyError(error),
-				issues: error.issues
+			return await createReceivePO(formValues);
+		} catch (error) {
+			return fail(500, {
+				message: 'An error occurred while processing the form',
+				error: (error as Error).message
 			});
 		}
-
-		return await createReceivePO(formValues);
 	}
 };

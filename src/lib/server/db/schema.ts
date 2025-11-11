@@ -88,7 +88,7 @@ export const products = pgTable('products', {
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()
-		.$onUpdate(() => sql`NOW()`)
+		.$onUpdate(() => new Date())
 });
 
 export const productsToSupplier = pgTable('products_to_suppliers', {

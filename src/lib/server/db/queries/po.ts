@@ -1,5 +1,6 @@
+import { eq } from 'drizzle-orm';
 import { db } from '..';
-import { purchaseOrderItems, purchaseOrders } from '../schema';
+import { products, purchaseOrderItems, purchaseOrders } from '../schema';
 
 export interface CreatePO {
 	reference: string;
@@ -19,7 +20,7 @@ export interface CreatePO {
 }
 
 export const createReceivePO = async (data: CreatePO) => {
-	await db.transaction(async (tx) => {
+	return await db.transaction(async (tx) => {
 		const [po] = await tx
 			.insert(purchaseOrders)
 			.values(
@@ -45,6 +46,15 @@ export const createReceivePO = async (data: CreatePO) => {
 			})
 		);
 
-		// TODO: Update the product/s quantity
+		await Promise.all(
+			data.products.map(async (product) => {
+				return await tx
+					.update(products)
+					.set({ quantity: product.quantity })
+					.where(eq(products.id, product.product_id));
+			})
+		);
+
+		return po;
 	});
 };
