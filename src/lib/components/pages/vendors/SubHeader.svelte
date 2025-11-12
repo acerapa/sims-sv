@@ -15,6 +15,10 @@
 			path: '/vendors/receive-po'
 		},
 		{
+			name: 'Bills',
+			path: '/vendors/bills'
+		},
+		{
 			name: 'Suppliers',
 			path: '/vendors/suppliers'
 		},

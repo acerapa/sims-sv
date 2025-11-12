@@ -53,7 +53,7 @@
 		<Plus class="size-4" />
 		Add Supplier
 	</SheetTrigger>
-	<SheetContent side="right" class="sm:!max-w-2xl">
+	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
 		<SheetHeader>
 			<SheetTitle>Add New Supplier</SheetTitle>
 			<SheetDescription>Fill in the details to add a new supplier</SheetDescription>
