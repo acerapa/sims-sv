@@ -26,23 +26,23 @@ export const actions: Actions = {
 		return { products };
 	},
 	receivePo: async ({ request }) => {
-		const body = await request.formData();
-		const formValues = decode(body, {
-			arrays: ['products'],
-			numbers: [
-				'sub_total',
-				'total',
-				'discount',
-				'supplier_id',
-				'products.$.quantity',
-				'products.$.product_id',
-				'products.$.cost',
-				'products.$.total_cost'
-			],
-			dates: ['receive_date']
-		}) as CreatePO;
-		console.log(formValues);
 		try {
+			const body = await request.formData();
+			const formValues = decode(body, {
+				arrays: ['products'],
+				numbers: [
+					'sub_total',
+					'total',
+					'discount',
+					'supplier_id',
+					'products.$.quantity',
+					'products.$.product_id',
+					'products.$.cost',
+					'products.$.total_cost'
+				],
+				dates: ['receive_date']
+			}) as CreatePO;
+
 			const purchaseOrderSchema = z.object({
 				reference: z.string('Reference is required').min(1, 'Reference is required'),
 				supplier_id: z.number('Supplier is required'),

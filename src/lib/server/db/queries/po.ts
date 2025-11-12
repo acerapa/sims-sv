@@ -46,11 +46,17 @@ export const createReceivePO = async (data: CreatePO) => {
 			})
 		);
 
+		const pds = await tx.select({ id: products.id, quantity: products.quantity }).from(products);
+
 		await Promise.all(
 			data.products.map(async (product) => {
+				const p = pds.find((prod) => prod.id === product.product_id);
+				if (!p) {
+					throw new Error(`Product with ID ${product.product_id} not found`);
+				}
 				return await tx
 					.update(products)
-					.set({ quantity: product.quantity })
+					.set({ quantity: product.quantity + (p.quantity ? p.quantity : 0) })
 					.where(eq(products.id, product.product_id));
 			})
 		);
@@ -58,3 +64,8 @@ export const createReceivePO = async (data: CreatePO) => {
 		return po;
 	});
 };
+
+// Purchase Order list
+// Bill Section should be under inventory and beside the receive po
+// If Check: Check number, Amount payment date
+// If Cash: Date ug Amount
