@@ -51,6 +51,12 @@
 		return supplierPOs.find((po) => po.reference === selectedPORef);
 	});
 	let selectedPaymentMethod = $state('');
+	let paidAmount = $state(0);
+	let billStatus = $derived.by(() => {
+		if (!selectedPO && !paidAmount) return '';
+
+		return selectedPO?.total == paidAmount ? 'paid' : 'partial';
+	});
 
 	$effect(() => {
 		if (selectedSupplierId) {
@@ -91,7 +97,7 @@
 			<SheetTitle>Add New Bill</SheetTitle>
 			<SheetDescription>Fill in the details to add a new bill</SheetDescription>
 		</SheetHeader>
-		<form action="" method="post">
+		<form action="?/createBill" method="post" use:enhance>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
@@ -102,7 +108,7 @@
 							<div class="space-y-2">
 								<Label>Supplier</Label>
 								<div>
-									<Select type="single" bind:value={selectedSupplierId}>
+									<Select name="supplier_id" type="single" bind:value={selectedSupplierId}>
 										<SelectTrigger class="w-full">
 											{selectedSupplier ? selectedSupplier.name : 'Select supplier'}
 										</SelectTrigger>
@@ -119,7 +125,7 @@
 							<div class="space-y-2">
 								<Label>Linked PO</Label>
 								<div>
-									<Select type="single" bind:value={selectedPORef}>
+									<Select name="purchase_order_id" type="single" bind:value={selectedPORef}>
 										<SelectTrigger class="w-full">
 											{selectedPO ? selectedPO.reference : 'Select supplier'}
 										</SelectTrigger>
@@ -219,8 +225,10 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Payment Method</Label>
-								<Select type="single" bind:value={selectedPaymentMethod}>
-									<SelectTrigger class="w-full">Select Payment Method</SelectTrigger>
+								<Select name="payment_type" type="single" bind:value={selectedPaymentMethod}>
+									<SelectTrigger class="w-full capitalize">
+										{selectedPaymentMethod || 'Select Payment Method'}
+									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="cash">Cash</SelectItem>
 										<SelectItem value="check">Check</SelectItem>
@@ -230,19 +238,29 @@
 							{#if selectedPaymentMethod === 'check'}
 								<div class="space-y-2">
 									<Label>Check Number</Label>
-									<Input type="texxt" name="check_number" placeholder="Enter Check number" />
+									<Input type="text" name="check_number" placeholder="Enter Check number" />
 								</div>
 							{/if}
 							<div class="space-y-2">
 								<Label>Amount</Label>
-								<Input type="number" name="amount" placeholder="Enter amount" />
+								<Input
+									type="number"
+									bind:value={paidAmount}
+									name="paid_amount"
+									max={selectedPO?.total}
+									placeholder="Enter amount"
+								/>
+								<input type="hidden" name="bill_status" value={billStatus} />
+								<input type="hidden" name="total_amount" value={selectedPO?.total} />
 							</div>
 						</div>
 					</CardContent>
 				</Card>
 				<SheetFooter class="flex-row justify-end">
-					<SheetClose class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
-					<Button variant="default">Add Bill</Button>
+					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
+						Cancel
+					</SheetClose>
+					<Button type="submit" variant="default">Add Bill</Button>
 				</SheetFooter>
 			</div>
 		</form>

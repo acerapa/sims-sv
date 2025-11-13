@@ -15,6 +15,7 @@ import {
 export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
 export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
 export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
+export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
 
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
@@ -140,8 +141,11 @@ export const bills = pgTable('bills', {
 	purchase_order_id: integer()
 		.notNull()
 		.references(() => purchaseOrders.id),
+	notes: text(),
 	bill_date: timestamp().notNull(),
 	bill_status: billStatus().notNull(),
+	payment_type: billPaymentType().notNull(),
+	check_number: varchar(),
 	due_date: timestamp().notNull(),
 	total_amount: decimal().notNull(),
 	paid_amount: decimal().notNull(),

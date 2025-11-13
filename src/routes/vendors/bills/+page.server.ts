@@ -1,5 +1,6 @@
 import { getPOBySupplierId } from '$lib/server/db/queries/po';
 import { getSuppliers } from '$lib/server/db/queries/suppliers';
+import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -10,6 +11,13 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
+	createBill: async ({ request }) => {
+		const formData = await request.formData();
+		const formValues = decode(formData);
+
+		console.log(formValues);
+		return { success: true };
+	},
 	getSupplierRelatedPO: async ({ request }) => {
 		const formData = await request.formData();
 		const supplierId = formData.get('supplier_id') as string;
