@@ -1,6 +1,7 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '..';
 import { products, purchaseOrderItems, purchaseOrders } from '../schema';
+import type { SupplierPO } from '$lib/types/global';
 
 export interface CreatePO {
 	reference: string;
@@ -63,6 +64,63 @@ export const createReceivePO = async (data: CreatePO) => {
 
 		return po;
 	});
+};
+
+export const getPOBySupplierId = async (supplierId: number) => {
+	const result = await db
+		.select({
+			id: purchaseOrders.id,
+			reference: purchaseOrders.reference,
+			po_items: {
+				id: products.id,
+				name: products.purchase_description,
+				quantity: purchaseOrderItems.quantity,
+				cost: purchaseOrderItems.cost,
+				total_cost: purchaseOrderItems.total_cost
+			},
+			sub_total: purchaseOrders.sub_total,
+			total: purchaseOrders.total,
+			discount: purchaseOrders.discount
+		})
+		.from(purchaseOrders)
+		.leftJoin(purchaseOrderItems, eq(purchaseOrders.id, purchaseOrderItems.purchase_order_id))
+		.leftJoin(products, eq(purchaseOrderItems.product_id, products.id))
+		.where(eq(purchaseOrders.supplier_id, supplierId));
+
+	const supplierPos: SupplierPO[] = [];
+
+	for (const po of result) {
+		// check if po already exists in supplierPos
+		const existingPo = supplierPos.find((p) => p.id === po.id);
+		if (!existingPo) {
+			supplierPos.push({
+				id: po.id,
+				reference: po.reference,
+				po_items: [
+					{
+						id: po.po_items.id!,
+						name: po.po_items.name!,
+						quantity: po.po_items.quantity!,
+						cost: parseFloat(po.po_items.cost!),
+						total_cost: parseFloat(po.po_items.total_cost!)
+					}
+				],
+				sub_total: parseFloat(po.sub_total),
+				total: parseFloat(po.total),
+				discount: parseFloat(po.discount)
+			});
+		} else {
+			existingPo.po_items.push({
+				id: po.po_items.id!,
+				name: po.po_items.name!,
+				quantity: po.po_items.quantity!,
+				cost: parseFloat(po.po_items.cost!),
+				total_cost: parseFloat(po.po_items.total_cost!)
+			});
+		}
+	}
+
+	return supplierPos;
 };
 
 // Purchase Order list

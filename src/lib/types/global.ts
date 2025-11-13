@@ -68,3 +68,18 @@ export interface SafeUser {
 	is_active: boolean;
 	created_at: Date;
 }
+
+export interface SupplierPO {
+	id: number;
+	reference: string;
+	po_items: {
+		id: number;
+		name: string;
+		quantity: number;
+		cost: number;
+		total_cost: number;
+	}[];
+	sub_total: number;
+	total: number;
+	discount: number;
+}

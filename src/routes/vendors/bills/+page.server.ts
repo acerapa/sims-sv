@@ -1,3 +1,4 @@
+import { getPOBySupplierId } from '$lib/server/db/queries/po';
 import { getSuppliers } from '$lib/server/db/queries/suppliers';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -9,5 +10,10 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	getSupplierRelatedPO: async () => {}
+	getSupplierRelatedPO: async ({ request }) => {
+		const formData = await request.formData();
+		const supplierId = formData.get('supplier_id') as string;
+
+		return await getPOBySupplierId(parseInt(supplierId));
+	}
 };
