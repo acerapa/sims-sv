@@ -18,7 +18,7 @@
 <Popover>
 	<PopoverTrigger
 		class={[
-			'flex items-center !justify-start !font-normal',
+			'flex w-full items-center !justify-start !font-normal',
 			buttonVariants({ variant: 'outline' }),
 			value ? 'text-primary' : 'text-muted-foreground',
 			error ? 'border-red-500' : ''
