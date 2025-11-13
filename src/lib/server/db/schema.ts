@@ -14,6 +14,7 @@ import {
 
 export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
 export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
+export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
@@ -131,7 +132,37 @@ export const purchaseOrderItems = pgTable('purchase_order_items', {
 		.references(() => purchaseOrders.id)
 });
 
+export const bills = pgTable('bills', {
+	id: serial().primaryKey(),
+	supplier_id: integer()
+		.notNull()
+		.references(() => suppliers.id),
+	purchase_order_id: integer()
+		.notNull()
+		.references(() => purchaseOrders.id),
+	bill_date: timestamp().notNull(),
+	bill_status: billStatus().notNull(),
+	due_date: timestamp().notNull(),
+	total_amount: decimal().notNull(),
+	paid_amount: decimal().notNull(),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => new Date())
+});
+
 // relations
+export const billRelations = relations(bills, ({ one }) => ({
+	supplier: one(suppliers, {
+		fields: [bills.supplier_id],
+		references: [suppliers.id]
+	}),
+	purchaseOrder: one(purchaseOrders, {
+		fields: [bills.purchase_order_id],
+		references: [purchaseOrders.id]
+	})
+}));
+
 export const productToSupplierRelations = relations(productsToSupplier, ({ one }) => ({
 	product: one(products, {
 		fields: [productsToSupplier.product_id],
@@ -155,16 +186,18 @@ export const productRelations = relations(products, ({ many, one }) => ({
 	})
 }));
 
-export const purchaseOrderRelations = relations(purchaseOrders, ({ one }) => ({
+export const purchaseOrderRelations = relations(purchaseOrders, ({ one, many }) => ({
 	supplier: one(suppliers, {
 		fields: [purchaseOrders.supplier_id],
 		references: [suppliers.id]
-	})
+	}),
+	bills: many(bills)
 }));
 
 export const supplierRelations = relations(suppliers, ({ many }) => ({
 	products: many(productsToSupplier),
-	purchaseOrders: many(purchaseOrders)
+	purchaseOrders: many(purchaseOrders),
+	bills: many(bills)
 }));
 
 export const categoryRelations = relations(categories, ({ many, one }) => ({
