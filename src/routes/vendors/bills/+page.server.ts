@@ -4,11 +4,15 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
+import { createBill, getBills, type CreateBillData } from '$lib/server/db/queries/bills';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ depends }) => {
+	depends('vendors:bills');
 	const suppliers = await getSuppliers();
+	const bills = await getBills();
 	return {
-		suppliers
+		suppliers,
+		bills
 	};
 };
 
@@ -19,7 +23,7 @@ export const actions: Actions = {
 			const formValues = decode(formData, {
 				numbers: ['supplier_id', 'purchase_order_id', 'paid_amount', 'total_amount'],
 				dates: ['bill_date', 'due_date']
-			});
+			}) as CreateBillData;
 
 			const billSchema = z
 				.object({
@@ -54,10 +58,10 @@ export const actions: Actions = {
 				});
 			}
 
-			return { success: true };
+			return await createBill(formValues);
 		} catch (error) {
 			console.error(error);
-			return { error: 'Failed to create bill' };
+			return fail(500, { error: 'Failed to create bill' });
 		}
 	},
 	getSupplierRelatedPO: async ({ request }) => {

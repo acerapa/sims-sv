@@ -8,10 +8,18 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import { Table, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
-	import { Search } from '@lucide/svelte';
+	import {
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow
+	} from '$lib/components/ui/table';
+	import { Ellipsis, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import type { Supplier } from '$lib/types/global';
+	import { Button } from '$lib/components/ui/button';
 
 	let { data, form }: PageProps = $props();
 	const suppliers = $derived<Supplier[]>(data?.suppliers);
@@ -47,6 +55,47 @@
 					<TableHead>Actions</TableHead>
 				</TableRow>
 			</TableHeader>
+			<TableBody>
+				{#if data.bills.length}
+					{#each data.bills as bill (bill.id)}
+						<TableRow>
+							<TableCell>BILL-00{bill.id}</TableCell>
+							<TableCell>{bill.supplier_name}</TableCell>
+							<TableCell>{bill.po_reference}</TableCell>
+							<TableCell>
+								{bill.bill_date.toLocaleString('default', {
+									day: 'numeric',
+									month: 'long',
+									year: 'numeric'
+								})}
+							</TableCell>
+							<TableCell>
+								{bill.due_date.toLocaleString('default', {
+									day: 'numeric',
+									month: 'long',
+									year: 'numeric'
+								})}
+							</TableCell>
+							<TableCell>₱{parseFloat(bill.total_amount).toFixed(2)}</TableCell>
+							<TableCell>₱{parseFloat(bill.paid_amount).toFixed(2)}</TableCell>
+							<TableCell class="capitalize">
+								{bill.bill_status}
+							</TableCell>
+							<TableCell>
+								<Button variant="ghost" size="sm">
+									<Ellipsis />
+								</Button>
+							</TableCell>
+						</TableRow>
+					{/each}
+				{:else}
+					<TableRow>
+						<TableCell colspan={9} class="text-center text-muted-foreground">
+							No bills found!
+						</TableCell>
+					</TableRow>
+				{/if}
+			</TableBody>
 		</Table>
 	</CardContent>
 </Card>

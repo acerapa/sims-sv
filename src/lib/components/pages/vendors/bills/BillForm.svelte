@@ -36,6 +36,7 @@
 	import type { ActionData } from '../../../../../routes/vendors/bills/$types';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
+	import { invalidate } from '$app/navigation';
 
 	interface Props {
 		suppliers: Supplier[];
@@ -50,10 +51,10 @@
 	let selectedSupplier = $derived.by(() => {
 		return suppliers.find((supplier) => supplier.id === parseInt(selectedSupplierId));
 	});
-	let selectedPORef = $state('');
+	let selectedPOId = $state('');
 	let supplierPOs = $state<SupplierPO[]>([]);
 	let selectedPO = $derived.by(() => {
-		return supplierPOs.find((po) => po.reference === selectedPORef);
+		return supplierPOs.find((po) => po.id === parseInt(selectedPOId));
 	});
 	let selectedPaymentMethod = $state('');
 	let paidAmount = $state(0);
@@ -68,12 +69,13 @@
 			applyAction(result);
 
 			if (result.type === 'success') {
+				await invalidate('vendors:bills');
 				toast.success('Bill created successfully');
 				open = false;
 
 				// clear all saved states exclude the deriveds
 				selectedSupplierId = '';
-				selectedPORef = '';
+				selectedPOId = '';
 				supplierPOs = [];
 				selectedPaymentMethod = '';
 				paidAmount = 0;
@@ -161,7 +163,7 @@
 							<div class="space-y-2">
 								<Label>Linked PO</Label>
 								<div>
-									<Select name="purchase_order_id" type="single" bind:value={selectedPORef}>
+									<Select name="purchase_order_id" type="single" bind:value={selectedPOId}>
 										<SelectTrigger
 											class={[
 												errors?.properties?.purchase_order_id ? 'border-red-500' : '',
@@ -182,7 +184,7 @@
 											{:else}
 												<SelectGroup>
 													{#each supplierPOs as po, ndx (ndx)}
-														<SelectItem value={po.reference}>{po.reference}</SelectItem>
+														<SelectItem value={po.id.toString()}>{po.reference}</SelectItem>
 													{/each}
 												</SelectGroup>
 											{/if}
