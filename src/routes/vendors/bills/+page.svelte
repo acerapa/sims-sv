@@ -13,7 +13,7 @@
 	import type { PageProps } from './$types';
 	import type { Supplier } from '$lib/types/global';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 	const suppliers = $derived<Supplier[]>(data?.suppliers);
 </script>
 
@@ -24,7 +24,7 @@
 				<CardTitle>Bills</CardTitle>
 				<CardDescription>Manage bills</CardDescription>
 			</div>
-			<BillForm {suppliers} />
+			<BillForm {form} {suppliers} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">

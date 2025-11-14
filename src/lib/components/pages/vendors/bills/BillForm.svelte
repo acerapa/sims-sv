@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
 	import DatePicker from '$lib/components/common/DatePicker.svelte';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -33,13 +33,18 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { Supplier, SupplierPO } from '$lib/types/global';
 	import { Plus } from '@lucide/svelte';
+	import type { ActionData } from '../../../../../routes/vendors/bills/$types';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		suppliers: Supplier[];
+		form?: ActionData;
 	}
-	let { suppliers = [] }: Props = $props();
+	let { suppliers = [], form }: Props = $props();
 
 	let open = $state(false);
+	let errors = $derived(form?.error);
 	let selectedSupplierId = $state('');
 	let fetchPOBySupplier: HTMLFormElement;
 	let selectedSupplier = $derived.by(() => {
@@ -58,10 +63,36 @@
 		return selectedPO?.total == paidAmount ? 'paid' : 'partial';
 	});
 
+	const enhanceForm: SubmitFunction = async () => {
+		return async ({ result }) => {
+			applyAction(result);
+
+			if (result.type === 'success') {
+				toast.success('Bill created successfully');
+				open = false;
+
+				// clear all saved states exclude the deriveds
+				selectedSupplierId = '';
+				selectedPORef = '';
+				supplierPOs = [];
+				selectedPaymentMethod = '';
+				paidAmount = 0;
+			} else {
+				toast.error('Failed to create bill');
+			}
+		};
+	};
+
 	$effect(() => {
 		if (selectedSupplierId) {
 			supplierPOs = [];
 			fetchPOBySupplier.requestSubmit();
+		}
+
+		if (!open) {
+			if (form) {
+				form = null;
+			}
 		}
 	});
 </script>
@@ -97,7 +128,7 @@
 			<SheetTitle>Add New Bill</SheetTitle>
 			<SheetDescription>Fill in the details to add a new bill</SheetDescription>
 		</SheetHeader>
-		<form action="?/createBill" method="post" use:enhance>
+		<form action="?/createBill" method="post" use:enhance={enhanceForm}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
@@ -109,7 +140,9 @@
 								<Label>Supplier</Label>
 								<div>
 									<Select name="supplier_id" type="single" bind:value={selectedSupplierId}>
-										<SelectTrigger class="w-full">
+										<SelectTrigger
+											class={[errors?.properties?.supplier_id ? 'border-red-500' : '', 'w-full']}
+										>
 											{selectedSupplier ? selectedSupplier.name : 'Select supplier'}
 										</SelectTrigger>
 										<SelectContent>
@@ -120,13 +153,21 @@
 											</SelectGroup>
 										</SelectContent>
 									</Select>
+									{#if errors?.properties?.supplier_id}
+										<small class="text-red-500">{errors.properties.supplier_id.errors[0]}</small>
+									{/if}
 								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Linked PO</Label>
 								<div>
 									<Select name="purchase_order_id" type="single" bind:value={selectedPORef}>
-										<SelectTrigger class="w-full">
+										<SelectTrigger
+											class={[
+												errors?.properties?.purchase_order_id ? 'border-red-500' : '',
+												'w-full'
+											]}
+										>
 											{selectedPO ? selectedPO.reference : 'Select supplier'}
 										</SelectTrigger>
 										<SelectContent>
@@ -147,15 +188,33 @@
 											{/if}
 										</SelectContent>
 									</Select>
+									{#if errors?.properties?.purchase_order_id}
+										<small class="text-red-500"
+											>{errors.properties.purchase_order_id.errors[0]}</small
+										>
+									{/if}
 								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Bill Date</Label>
-								<DatePicker name="bill_date" />
+								<div>
+									<DatePicker
+										error={errors?.properties?.bill_date ? true : false}
+										name="bill_date"
+									/>
+									{#if errors?.properties?.bill_date}
+										<small class="text-red-500">{errors.properties.bill_date.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Due Date</Label>
-								<DatePicker name="due_date" />
+								<div>
+									<DatePicker error={errors?.properties?.due_date ? true : false} name="due_date" />
+									{#if errors?.properties?.due_date}
+										<small class="text-red-500">{errors.properties.due_date.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Notes</Label>
@@ -225,15 +284,25 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Payment Method</Label>
-								<Select name="payment_type" type="single" bind:value={selectedPaymentMethod}>
-									<SelectTrigger class="w-full capitalize">
-										{selectedPaymentMethod || 'Select Payment Method'}
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="cash">Cash</SelectItem>
-										<SelectItem value="check">Check</SelectItem>
-									</SelectContent>
-								</Select>
+								<div>
+									<Select name="payment_type" type="single" bind:value={selectedPaymentMethod}>
+										<SelectTrigger
+											class={[
+												errors?.properties?.payment_type ? 'border-red-500' : '',
+												'w-full capitalize'
+											]}
+										>
+											{selectedPaymentMethod || 'Select Payment Method'}
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="cash">Cash</SelectItem>
+											<SelectItem value="check">Check</SelectItem>
+										</SelectContent>
+									</Select>
+									{#if errors?.properties?.payment_type}
+										<small class="text-red-500">{errors.properties.payment_type.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 							{#if selectedPaymentMethod === 'check'}
 								<div class="space-y-2">
@@ -243,13 +312,19 @@
 							{/if}
 							<div class="space-y-2">
 								<Label>Amount</Label>
-								<Input
-									type="number"
-									bind:value={paidAmount}
-									name="paid_amount"
-									max={selectedPO?.total}
-									placeholder="Enter amount"
-								/>
+								<div>
+									<Input
+										type="number"
+										bind:value={paidAmount}
+										name="paid_amount"
+										class={errors?.properties?.paid_amount ? 'border-red-500' : ''}
+										max={selectedPO?.total}
+										placeholder="Enter amount"
+									/>
+									{#if errors?.properties?.paid_amount}
+										<small class="text-red-500">{errors.properties.paid_amount.errors[0]}</small>
+									{/if}
+								</div>
 								<input type="hidden" name="bill_status" value={billStatus} />
 								<input type="hidden" name="total_amount" value={selectedPO?.total} />
 							</div>

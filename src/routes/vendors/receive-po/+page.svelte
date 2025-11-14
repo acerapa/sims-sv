@@ -159,7 +159,10 @@
 						<div class="flex flex-1 flex-col gap-2">
 							<Label>Date Received</Label>
 							<div class="flex flex-col gap-1">
-								<DatePicker error={errors?.properties?.receive_date} name="receive_date" />
+								<DatePicker
+									error={errors?.properties?.receive_date ? true : false}
+									name="receive_date"
+								/>
 								{#if errors?.properties?.receive_date}
 									<small class="text-red-500">
 										{errors.properties.receive_date.errors[0]}
