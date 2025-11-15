@@ -1,4 +1,5 @@
 <script lang="ts">
+	import StartInventory from '$lib/components/pages/vendors/phyiscal-inventory/StartInventory.svelte';
 	import {
 		Card,
 		CardContent,
@@ -9,6 +10,9 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Table, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
 	import { Search } from '@lucide/svelte';
+	import type { PageProps } from './$types';
+
+	let { data, form }: PageProps = $props();
 </script>
 
 <Card>
@@ -17,6 +21,7 @@
 			<CardTitle>Physical Inventory</CardTitle>
 			<CardDescription>Physical Inventory</CardDescription>
 		</div>
+		<StartInventory {data} {form} />
 	</CardHeader>
 	<CardContent class="space-y-4">
 		<div class="relative">

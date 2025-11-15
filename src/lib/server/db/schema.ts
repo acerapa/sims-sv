@@ -160,7 +160,7 @@ export const physicalInventories = pgTable('physical_inventory', {
 	id: serial().primaryKey(),
 	title: varchar().notNull(),
 	notes: text(),
-	status: physicalInventoryStatus().notNull(),
+	status: physicalInventoryStatus(),
 	date_finalized: timestamp(),
 	created_by: integer()
 		.notNull()
