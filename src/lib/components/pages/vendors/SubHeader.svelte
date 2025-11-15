@@ -19,6 +19,10 @@
 			path: '/vendors/bills'
 		},
 		{
+			name: 'Physical Inventory',
+			path: '/vendors/physical-inventory'
+		},
+		{
 			name: 'Suppliers',
 			path: '/vendors/suppliers'
 		},

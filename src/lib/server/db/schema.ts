@@ -16,6 +16,7 @@ export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
 export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
 export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
+export const physicalInventoryStatus = pgEnum('physical_inventory_status', ['draft', 'finalized']);
 
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
@@ -149,6 +150,38 @@ export const bills = pgTable('bills', {
 	due_date: timestamp().notNull(),
 	total_amount: decimal().notNull(),
 	paid_amount: decimal().notNull(),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => new Date())
+});
+
+export const physicalInventories = pgTable('physical_inventory', {
+	id: serial().primaryKey(),
+	title: varchar().notNull(),
+	notes: text(),
+	status: physicalInventoryStatus().notNull(),
+	date_finalized: timestamp(),
+	created_by: integer()
+		.notNull()
+		.references(() => users.id),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => new Date())
+});
+
+export const physicalInventoryItems = pgTable('physical_inventory_items', {
+	id: serial().primaryKey(),
+	physical_inventory_id: integer()
+		.notNull()
+		.references(() => physicalInventories.id),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	system_count: integer().notNull(),
+	actual_count: integer().notNull(),
+	difference: integer().notNull(),
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()
