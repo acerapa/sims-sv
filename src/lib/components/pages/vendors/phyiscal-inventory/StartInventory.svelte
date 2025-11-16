@@ -18,6 +18,11 @@
 		ActionData,
 		PageData
 	} from '../../../../../routes/vendors/physical-inventory/$types';
+	import { applyAction, enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	interface Props {
 		data: PageData;
@@ -25,9 +30,28 @@
 	}
 	let { data, form }: Props = $props();
 	let errors = $derived(form?.errors);
+	let open = $state(false);
+
+	const enhanceForm: SubmitFunction = async () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				open = false;
+				const lastInsertedId = result.data ? result.data[0].lastInsertedId : null;
+				console.log(lastInsertedId);
+				goto(
+					resolve('/vendors/physical-inventory/[physical_inventory_id]', {
+						physical_inventory_id: lastInsertedId.toString()
+					})
+				);
+			} else {
+				toast.error('Failed to start inventory count!');
+			}
+		};
+	};
 </script>
 
-<Sheet>
+<Sheet bind:open>
 	<SheetTrigger class={buttonVariants({ variant: 'default' })}>
 		<Plus class="size-4" />
 		Start Inventory
@@ -37,7 +61,7 @@
 			<SheetTitle>Start Physical Inventory</SheetTitle>
 			<SheetDescription>Create a new physical inventory count</SheetDescription>
 		</SheetHeader>
-		<form action="" method="post">
+		<form action="" method="post" use:enhance={enhanceForm}>
 			<div class="flex flex-col gap-6 px-6">
 				<div class="space-y-2">
 					<Label>Physical Inventory Title</Label>

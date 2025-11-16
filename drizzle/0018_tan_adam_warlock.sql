@@ -1,0 +1,1 @@
+ALTER TABLE "physical_inventory" ALTER COLUMN "status" SET DEFAULT 'draft';

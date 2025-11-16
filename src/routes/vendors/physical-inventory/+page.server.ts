@@ -2,6 +2,7 @@ import { decode } from 'decode-formdata';
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
+import { startInventory, type StartInventory } from '$lib/server/db/queries/physical-inventory';
 
 export const actions: Actions = {
 	default: async ({ request }) => {
@@ -9,7 +10,7 @@ export const actions: Actions = {
 			const formData = await request.formData();
 			const formValues = decode(formData, {
 				numbers: ['created_by']
-			});
+			}) as StartInventory;
 
 			const physicalInventorySchema = z.object({
 				title: z.string('Title is required!').min(1, 'Title must be at least 1 character long'),
@@ -25,7 +26,7 @@ export const actions: Actions = {
 					errors: z.treeifyError(error)
 				});
 			}
-			console.log(formValues);
+			return startInventory(formValues);
 		} catch (error) {
 			console.error(error);
 			return fail(500, {

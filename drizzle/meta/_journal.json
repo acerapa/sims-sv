@@ -127,6 +127,13 @@
       "when": 1763175211772,
       "tag": "0017_left_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1763297226696,
+      "tag": "0018_tan_adam_warlock",
+      "breakpoints": true
     }
   ]
 }

@@ -160,7 +160,7 @@ export const physicalInventories = pgTable('physical_inventory', {
 	id: serial().primaryKey(),
 	title: varchar().notNull(),
 	notes: text(),
-	status: physicalInventoryStatus(),
+	status: physicalInventoryStatus().default('draft'),
 	date_finalized: timestamp(),
 	created_by: integer()
 		.notNull()
@@ -189,6 +189,25 @@ export const physicalInventoryItems = pgTable('physical_inventory_items', {
 });
 
 // relations
+export const physicalInventoryItemsRelations = relations(physicalInventoryItems, ({ one }) => ({
+	physicalInventory: one(physicalInventories, {
+		fields: [physicalInventoryItems.physical_inventory_id],
+		references: [physicalInventories.id]
+	}),
+	product: one(products, {
+		fields: [physicalInventoryItems.product_id],
+		references: [products.id]
+	})
+}));
+
+export const physicalInventoriesRelations = relations(physicalInventories, ({ many, one }) => ({
+	physicalInventoryItems: many(physicalInventoryItems),
+	created_by: one(users, {
+		fields: [physicalInventories.created_by],
+		references: [users.id]
+	})
+}));
+
 export const billRelations = relations(bills, ({ one }) => ({
 	supplier: one(suppliers, {
 		fields: [bills.supplier_id],
