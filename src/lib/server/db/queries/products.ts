@@ -54,6 +54,7 @@ export const getProducts = async () => {
 			id: true,
 			sku: true,
 			quantity: true,
+			sale_price: true,
 			minimum_quantity: true,
 			purchase_description: true,
 			preferred_supplier_id: true

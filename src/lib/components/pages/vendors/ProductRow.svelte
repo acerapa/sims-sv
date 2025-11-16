@@ -6,10 +6,16 @@
 
 	type Product = PageData['products'][number];
 	let { product }: { product: Product } = $props();
-	let cost = $derived.by(
-		() =>
-			product.productToSuppliers.find((s) => s.supplier_id === product.preferred_supplier_id)?.cost
-	);
+
+	let textColor = $derived.by(() => {
+		if (product.quantity > product.minimum_quantity!) {
+			return 'text-green-500';
+		} else if (product.quantity <= product.minimum_quantity! && product.quantity != 0) {
+			return 'text-yellow-500';
+		} else {
+			return 'text-red-500';
+		}
+	});
 </script>
 
 <div
@@ -21,10 +27,10 @@
 			<p class="text-xs text-muted-foreground">SKU: {product.sku}</p>
 		</div>
 		<p class="col-span-2 text-sm text-muted-foreground">{product.category.name}</p>
-		<p class="col-span-2 font-semibold">₱{parseFloat(cost as string).toFixed(2)}</p>
+		<p class="col-span-2 font-semibold">₱{parseFloat(product.sale_price).toFixed(2)}</p>
 		<div class="col-span-2 space-y-1">
 			<p class="text-sm text-muted-foreground">
-				<span>{product.quantity}</span>/{product.minimum_quantity}
+				<span class={[textColor, 'font-bold']}>{product.quantity}</span>/{product.minimum_quantity}
 			</p>
 			<p class="text-xs text-muted-foreground">Current/Min</p>
 		</div>
