@@ -8,9 +8,17 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import { Table, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
-	import { Search } from '@lucide/svelte';
+	import {
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow
+	} from '$lib/components/ui/table';
+	import { Ellipsis, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
+	import { Button } from '$lib/components/ui/button';
 
 	let { data, form }: PageProps = $props();
 </script>
@@ -19,7 +27,7 @@
 	<CardHeader class="flex items-center justify-between">
 		<div class="space-y-1">
 			<CardTitle>Physical Inventory</CardTitle>
-			<CardDescription>Physical Inventory</CardDescription>
+			<CardDescription>Physical Inventory information list</CardDescription>
 		</div>
 		<StartInventory {data} {form} />
 	</CardHeader>
@@ -39,6 +47,27 @@
 					<TableHead>Actions</TableHead>
 				</TableRow>
 			</TableHeader>
+			<TableBody>
+				{#each data.physicalInventories as inventory (inventory.id)}
+					<TableRow>
+						<TableCell>{inventory.title}</TableCell>
+						<TableCell>
+							{inventory.created_at.toLocaleString('default', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							})}
+						</TableCell>
+						<TableCell>{inventory.status}</TableCell>
+						<TableCell>{inventory.items_counted}</TableCell>
+						<TableCell>
+							<Button variant="ghost" size="sm">
+								<Ellipsis />
+							</Button>
+						</TableCell>
+					</TableRow>
+				{/each}
+			</TableBody>
 		</Table>
 	</CardContent>
 </Card>

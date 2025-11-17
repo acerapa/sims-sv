@@ -1,8 +1,18 @@
 import { decode } from 'decode-formdata';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
-import { startInventory, type StartInventory } from '$lib/server/db/queries/physical-inventory';
+import {
+	getInventories,
+	startInventory,
+	type StartInventory
+} from '$lib/server/db/queries/physical-inventory';
+
+export const load: PageServerLoad = async () => {
+	const physicalInventories = await getInventories();
+
+	return { physicalInventories };
+};
 
 export const actions: Actions = {
 	default: async ({ request }) => {

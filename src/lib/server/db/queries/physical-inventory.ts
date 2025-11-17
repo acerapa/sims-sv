@@ -41,3 +41,18 @@ export const getInventoryById = async (id: number) => {
 
 	return result[0];
 };
+
+export const getInventories = async () => {
+	return await db
+		.select({
+			id: physicalInventories.id,
+			title: physicalInventories.title,
+			created_at: physicalInventories.created_at,
+			status: physicalInventories.status,
+			items_counted: db.$count(
+				physicalInventoryItems,
+				eq(physicalInventoryItems.physical_inventory_id, physicalInventories.id)
+			)
+		})
+		.from(physicalInventories);
+};
