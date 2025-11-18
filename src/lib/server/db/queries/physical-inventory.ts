@@ -20,6 +20,7 @@ export const getInventoryById = async (id: number) => {
 		.select({
 			id: physicalInventories.id,
 			title: physicalInventories.title,
+			status: physicalInventories.status,
 			item: {
 				id: physicalInventoryItems.id,
 				product_id: physicalInventoryItems.product_id,
