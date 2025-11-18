@@ -19,6 +19,7 @@
 	import { Ellipsis, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { Button } from '$lib/components/ui/button';
+	import { Badge } from '$lib/components/ui/badge';
 
 	let { data, form }: PageProps = $props();
 </script>
@@ -43,14 +44,17 @@
 					<TableHead>Count Name</TableHead>
 					<TableHead>Date Started</TableHead>
 					<TableHead>Status</TableHead>
-					<TableHead>Items Counted</TableHead>
+					<TableHead class="text-center">Items Counted</TableHead>
 					<TableHead>Actions</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
 				{#each data.physicalInventories as inventory (inventory.id)}
 					<TableRow>
-						<TableCell>{inventory.title}</TableCell>
+						<TableCell>
+							<p class="font-medium">{inventory.title}</p>
+							<small class="text-muted-foreground">PC-00{inventory.id}</small>
+						</TableCell>
 						<TableCell>
 							{inventory.created_at.toLocaleString('default', {
 								day: 'numeric',
@@ -58,8 +62,18 @@
 								year: 'numeric'
 							})}
 						</TableCell>
-						<TableCell>{inventory.status}</TableCell>
-						<TableCell>{inventory.items_counted}</TableCell>
+						<TableCell>
+							<Badge
+								variant="default"
+								class={[
+									'rounded-full px-3 py-1',
+									inventory.status === 'finalized' ? 'bg-green-500' : 'bg-orange-300'
+								]}
+							>
+								{inventory.status}
+							</Badge>
+						</TableCell>
+						<TableCell class="text-center">{inventory.items_counted}</TableCell>
 						<TableCell>
 							<Button variant="ghost" size="sm">
 								<Ellipsis />

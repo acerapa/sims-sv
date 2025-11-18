@@ -11,6 +11,7 @@
 	} from '$lib/components/ui/card';
 	import { Table, TableBody, TableCell, TableHeader, TableRow } from '$lib/components/ui/table';
 	import TableHead from '$lib/components/ui/table/table-head.svelte';
+	import { Input } from '$lib/components/ui/input';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
@@ -60,30 +61,35 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent>
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead>Item</TableHead>
-						<TableHead>SKU/Item code</TableHead>
-						<TableHead>Category</TableHead>
-						<TableHead>Sys count</TableHead>
-						<TableHead>Counted</TableHead>
-						<TableHead>Difference</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{#each items as item (item.product_id)}
+			<form action="" method="post">
+				<Table>
+					<TableHeader>
 						<TableRow>
-							<TableCell>{item.purchase_description}</TableCell>
-							<TableCell>{item.sku}</TableCell>
-							<TableCell>{item.category}</TableCell>
-							<TableCell>{item.system_count}</TableCell>
-							<TableCell>{item.actual_count}</TableCell>
-							<TableCell>{item.difference}</TableCell>
+							<TableHead>Item</TableHead>
+							<TableHead>SKU/Item code</TableHead>
+							<TableHead>Category</TableHead>
+							<TableHead>Sys count</TableHead>
+							<TableHead>Counted</TableHead>
+							<TableHead>Difference</TableHead>
 						</TableRow>
-					{/each}
-				</TableBody>
-			</Table>
+					</TableHeader>
+					<TableBody>
+						{#each items as item, ndx (item.product_id)}
+							<TableRow>
+								<input type="hidden" name={`items.${ndx}.product_id`} />
+								<TableCell>{item.purchase_description}</TableCell>
+								<TableCell>{item.sku}</TableCell>
+								<TableCell>{item.category}</TableCell>
+								<TableCell class="px-5">{item.system_count}</TableCell>
+								<TableCell>
+									<Input type="number" class="max-w-32" placeholder="0" />
+								</TableCell>
+								<TableCell class="px-5">{item.difference}</TableCell>
+							</TableRow>
+						{/each}
+					</TableBody>
+				</Table>
+			</form>
 		</CardContent>
 	</Card>
 </div>
