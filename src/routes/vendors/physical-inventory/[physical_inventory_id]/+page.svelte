@@ -12,25 +12,33 @@
 	import { Table, TableBody, TableCell, TableHeader, TableRow } from '$lib/components/ui/table';
 	import TableHead from '$lib/components/ui/table/table-head.svelte';
 	import { Input } from '$lib/components/ui/input';
+	import { enhance } from '$app/forms';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
 	let products = $derived(data.products);
+	let physicalInventorySheetForm: HTMLFormElement;
+	// let status = $state((() => physicalInventory.status)());
 
 	let items = $state(
-		products.map((product) => ({
-			product_id: product.id,
-			sku: product.sku,
-			purchase_description: product.purchase_description,
-			category: product.category.name,
-			system_count: product.quantity,
-			actual_count: 0,
-			difference: 0 - parseInt(product.quantity)
-		}))
+		(() =>
+			products.map((product) => ({
+				product_id: product.id,
+				sku: product.sku,
+				purchase_description: product.purchase_description,
+				category: product.category.name,
+				system_count: product.quantity,
+				actual_count: 0,
+				difference: 0 - parseInt(product.quantity.toString())
+			})))()
 	);
 
 	const handleInputChange = (ndx: number) => {
 		items[ndx].difference = items[ndx].actual_count - items[ndx].system_count;
+	};
+
+	const handleFormSubmit = async () => {
+		physicalInventorySheetForm.requestSubmit();
 	};
 </script>
 
@@ -50,7 +58,7 @@
 				<Save />
 				Save as Draft
 			</Button>
-			<Button>
+			<Button onclick={handleFormSubmit}>
 				<CircleCheck />
 				Finalized
 			</Button>
@@ -65,7 +73,7 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent>
-			<form action="" method="post">
+			<form method="post" bind:this={physicalInventorySheetForm} use:enhance>
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -80,21 +88,23 @@
 					<TableBody>
 						{#each items as item, ndx (item.product_id)}
 							<TableRow>
-								{#if physicalInventory.status === 'draft'}
-									<input
-										type="hidden"
-										value={physicalInventory.id}
-										name={`items.${ndx}.physical_inventory_id`}
-									/>
-									<input type="hidden" value={item.product_id} name={`items.${ndx}.product_id`} />
-									<input
-										type="hidden"
-										value={item.system_count}
-										name={`items.${ndx}.system_count`}
-									/>
-									<input type="hidden" value={item.difference} name={`items.${ndx}.difference`} />
-								{/if}
-								<TableCell>{item.purchase_description}</TableCell>
+								<TableCell>
+									{#if physicalInventory.status === 'draft'}
+										<input
+											type="hidden"
+											value={physicalInventory.id}
+											name={`items.${ndx}.physical_inventory_id`}
+										/>
+										<input type="hidden" value={item.product_id} name={`items.${ndx}.product_id`} />
+										<input
+											type="hidden"
+											value={item.system_count}
+											name={`items.${ndx}.system_count`}
+										/>
+										<input type="hidden" value={item.difference} name={`items.${ndx}.difference`} />
+									{/if}
+									{item.purchase_description}
+								</TableCell>
 								<TableCell>{item.sku}</TableCell>
 								<TableCell>{item.category}</TableCell>
 								<TableCell class="px-5">{item.system_count}</TableCell>
@@ -115,7 +125,7 @@
 								<TableCell
 									class={[
 										'px-5',
-										parseInt(item.difference) > 0 ? 'text-green-500' : 'text-red-500'
+										parseInt(item.difference.toString()) > 0 ? 'text-green-500' : 'text-red-500'
 									]}
 								>
 									{item.difference > 0 ? `+${item.difference}` : item.difference}
