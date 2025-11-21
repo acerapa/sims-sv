@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, CircleCheck, Save } from '@lucide/svelte';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { ArrowLeft, CircleCheck, Printer, Save } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import {
 		Card,
@@ -14,6 +14,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
+	import { resolve } from '$app/paths';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
@@ -23,16 +24,18 @@
 
 	let items = $state(
 		(() =>
-			products.map((product) => ({
-				id: null,
-				product_id: product.id,
-				sku: product.sku,
-				purchase_description: product.purchase_description,
-				category: product.category.name,
-				system_count: product.quantity,
-				actual_count: 0,
-				difference: 0 - parseInt(product.quantity.toString())
-			})))()
+			physicalInventory.items.length > 0
+				? physicalInventory.items
+				: products.map((product) => ({
+						id: null,
+						product_id: product.id,
+						sku: product.sku,
+						purchase_description: product.purchase_description,
+						category: product.category.name,
+						system_count: product.quantity,
+						actual_count: 0,
+						difference: 0 - parseInt(product.quantity.toString())
+					})))()
 	);
 
 	const handleInputChange = (ndx: number) => {
@@ -41,7 +44,17 @@
 
 	const handleFormSubmit = async (stat: 'draft' | 'finalized') => {
 		status = stat;
-		physicalInventorySheetForm.requestSubmit();
+		setTimeout(() => physicalInventorySheetForm.requestSubmit(), 300);
+	};
+
+	const getDiffTextColor = (difference: number) => {
+		if (difference === 0) {
+			return 'text-gray-500';
+		} else if (difference > 0) {
+			return 'text-green-500';
+		} else {
+			return 'text-red-500';
+		}
 	};
 
 	const enhanceForm: SubmitFunction = () => {
@@ -55,24 +68,31 @@
 <div class="flex flex-col gap-6">
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<Button variant="ghost">
+			<a href={resolve('/vendors/physical-inventory')} class={buttonVariants({ variant: 'ghost' })}>
 				<ArrowLeft />
-			</Button>
+			</a>
 			<div class="space-y-1">
 				<h1 class="text-xl font-bold">{physicalInventory.title}</h1>
 				<p class="text-sm text-muted-foreground">PC-00{physicalInventory.id}</p>
 			</div>
 		</div>
-		<div class="flex items-center gap-3">
+		{#if physicalInventory.status === 'draft'}
+			<div class="flex items-center gap-3">
+				<Button variant="outline">
+					<Save />
+					Save as Draft
+				</Button>
+				<Button onclick={() => handleFormSubmit('finalized')}>
+					<CircleCheck />
+					Finalized
+				</Button>
+			</div>
+		{:else}
 			<Button variant="outline">
-				<Save />
-				Save as Draft
+				<Printer />
+				Print
 			</Button>
-			<Button onclick={() => handleFormSubmit('finalized')}>
-				<CircleCheck />
-				Finalized
-			</Button>
-		</div>
+		{/if}
 	</div>
 
 	<Card>
@@ -122,7 +142,7 @@
 								<TableCell>{item.sku}</TableCell>
 								<TableCell>{item.category}</TableCell>
 								<TableCell class="px-5">{item.system_count}</TableCell>
-								<TableCell>
+								<TableCell class={[physicalInventory.status === 'finalized' ? 'px-5 !py-3' : '']}>
 									{#if physicalInventory.status === 'draft'}
 										<Input
 											type="number"
@@ -135,12 +155,7 @@
 										{item.actual_count}
 									{/if}
 								</TableCell>
-								<TableCell
-									class={[
-										'px-5',
-										parseInt(item.difference.toString()) > 0 ? 'text-green-500' : 'text-red-500'
-									]}
-								>
+								<TableCell class={['px-5', getDiffTextColor(item.difference)]}>
 									{item.difference > 0 ? `+${item.difference}` : item.difference}
 								</TableCell>
 							</TableRow>

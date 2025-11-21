@@ -53,10 +53,28 @@ export const getInventoryById = async (id: number) => {
 		)
 		.leftJoin(products, eq(products.id, physicalInventoryItems.product_id))
 		.leftJoin(categories, eq(categories.id, products.category_id))
-		.where(eq(physicalInventories.id, id))
-		.limit(1);
+		.where(eq(physicalInventories.id, id));
 
-	return result[0];
+	const physicalInventory = {
+		id: result[0].id,
+		title: result[0].title,
+		status: result[0].status,
+		items: result.map((inventory) => ({
+			id: inventory.item.id as number,
+			product_id: inventory.item.product_id as number,
+			sku: inventory.item.sku as string,
+			purchase_description: inventory.item.purchase_description as string,
+			category: inventory.item.category as string,
+			system_count: inventory.item.system_count as number,
+			actual_count: inventory.item.actual_count as number,
+			difference: inventory.item.difference as number
+		}))
+	};
+
+	// remove items with no id
+	physicalInventory.items = physicalInventory.items.filter((item) => item.id);
+
+	return physicalInventory;
 };
 
 export const getInventories = async () => {

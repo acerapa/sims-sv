@@ -10,7 +10,8 @@ import { decode } from 'decode-formdata';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const physicalInventory = await getInventoryById(parseInt(params.physical_inventory_id));
-	const products = await getProducts();
+	const products = physicalInventory.items.length ? [] : await getProducts();
+
 	return { physicalInventory, products };
 };
 
@@ -30,6 +31,7 @@ export const actions: Actions = {
 				]
 			}) as CreateInventoryItems;
 
+			console.log(formValues);
 			await upsertInventoryItems(formValues);
 			return { success: true };
 		} catch (error) {
