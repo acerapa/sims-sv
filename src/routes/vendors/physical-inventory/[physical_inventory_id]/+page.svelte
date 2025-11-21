@@ -12,17 +12,19 @@
 	import { Table, TableBody, TableCell, TableHeader, TableRow } from '$lib/components/ui/table';
 	import TableHead from '$lib/components/ui/table/table-head.svelte';
 	import { Input } from '$lib/components/ui/input';
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
 	let products = $derived(data.products);
 	let physicalInventorySheetForm: HTMLFormElement;
-	// let status = $state((() => physicalInventory.status)());
+	let status = $state((() => physicalInventory.status)());
 
 	let items = $state(
 		(() =>
 			products.map((product) => ({
+				id: null,
 				product_id: product.id,
 				sku: product.sku,
 				purchase_description: product.purchase_description,
@@ -37,8 +39,16 @@
 		items[ndx].difference = items[ndx].actual_count - items[ndx].system_count;
 	};
 
-	const handleFormSubmit = async () => {
+	const handleFormSubmit = async (stat: 'draft' | 'finalized') => {
+		status = stat;
 		physicalInventorySheetForm.requestSubmit();
+	};
+
+	const enhanceForm: SubmitFunction = () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			console.log(result);
+		};
 	};
 </script>
 
@@ -58,7 +68,7 @@
 				<Save />
 				Save as Draft
 			</Button>
-			<Button onclick={handleFormSubmit}>
+			<Button onclick={() => handleFormSubmit('finalized')}>
 				<CircleCheck />
 				Finalized
 			</Button>
@@ -73,7 +83,8 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent>
-			<form method="post" bind:this={physicalInventorySheetForm} use:enhance>
+			<form method="post" bind:this={physicalInventorySheetForm} use:enhance={enhanceForm}>
+				<input type="hidden" name="status" value={status} />
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -90,6 +101,9 @@
 							<TableRow>
 								<TableCell>
 									{#if physicalInventory.status === 'draft'}
+										{#if item.id}
+											<input type="hidden" name={`items.${ndx}.id`} value={item.id} />
+										{/if}
 										<input
 											type="hidden"
 											value={physicalInventory.id}
@@ -115,7 +129,6 @@
 											class="max-w-32"
 											name={`items.${ndx}.actual_count`}
 											bind:value={item.actual_count}
-											placeholder="0"
 											onchange={() => handleInputChange(ndx)}
 										/>
 									{:else}

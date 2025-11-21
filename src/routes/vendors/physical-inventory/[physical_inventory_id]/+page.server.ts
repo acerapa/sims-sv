@@ -1,5 +1,10 @@
-import { getInventoryById } from '$lib/server/db/queries/physical-inventory';
+import {
+	getInventoryById,
+	upsertInventoryItems,
+	type CreateInventoryItems
+} from '$lib/server/db/queries/physical-inventory';
 import { getProducts } from '$lib/server/db/queries/products';
+import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { decode } from 'decode-formdata';
 
@@ -11,11 +16,25 @@ export const load: PageServerLoad = async ({ params }) => {
 
 export const actions: Actions = {
 	default: async ({ request }) => {
-		const formData = await request.formData();
-		const formValues = decode(formData, {
-			arrays: ['items']
-		});
+		try {
+			const formData = await request.formData();
+			const formValues = decode(formData, {
+				arrays: ['items'],
+				numbers: [
+					'items.$.id',
+					'items.$.physical_inventory_id',
+					'items.$.product_id',
+					'items.$.system_count',
+					'items.$.difference',
+					'items.$.actual_count'
+				]
+			}) as CreateInventoryItems;
 
-		console.log(formValues);
+			await upsertInventoryItems(formValues);
+			return { success: true };
+		} catch (error) {
+			console.error(error);
+			return fail(500, { error: 'Internal Server Error' });
+		}
 	}
 };

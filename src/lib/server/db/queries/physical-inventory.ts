@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '..';
 import { categories, physicalInventories, physicalInventoryItems, products } from '../schema';
 
@@ -6,6 +6,20 @@ export interface StartInventory {
 	title: string;
 	notes?: string | null;
 	created_by: number;
+}
+
+export interface InventoryItem {
+	id: number | null;
+	physical_inventory_id: number;
+	product_id: number;
+	system_count: number;
+	difference: number;
+	actual_count: number;
+}
+
+export interface CreateInventoryItems {
+	items: InventoryItem[];
+	status: 'draft' | 'finalized';
 }
 
 export const startInventory = async (data: StartInventory) => {
@@ -24,7 +38,9 @@ export const getInventoryById = async (id: number) => {
 			item: {
 				id: physicalInventoryItems.id,
 				product_id: physicalInventoryItems.product_id,
+				sku: products.sku,
 				purchase_description: products.purchase_description,
+				category: categories.name,
 				system_count: physicalInventoryItems.system_count,
 				actual_count: physicalInventoryItems.actual_count,
 				difference: physicalInventoryItems.difference
@@ -56,4 +72,28 @@ export const getInventories = async () => {
 			)
 		})
 		.from(physicalInventories);
+};
+
+export const upsertInventoryItems = async (data: CreateInventoryItems) => {
+	const physicalInventoryId = data.items[0].physical_inventory_id;
+
+	await db.transaction(async (tx) => {
+		await tx
+			.update(physicalInventories)
+			.set({ status: data.status })
+			.where(eq(physicalInventories.id, physicalInventoryId));
+
+		await tx
+			.insert(physicalInventoryItems)
+			.values(Object(data.items))
+			.onConflictDoUpdate({
+				target: physicalInventoryItems.id,
+				set: {
+					product_id: sql`excluded.product_id`,
+					system_count: sql`excluded.system_count`,
+					actual_count: sql`excluded.actual_count`,
+					difference: sql`excluded.difference`
+				}
+			});
+	});
 };
