@@ -15,6 +15,7 @@
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { resolve } from '$app/paths';
+	import { toast } from 'svelte-sonner';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
@@ -60,7 +61,11 @@
 	const enhanceForm: SubmitFunction = () => {
 		return async ({ result }) => {
 			await applyAction(result);
-			console.log(result);
+			if (result.type === 'success') {
+				toast.success('Physical Inventory Updated Successfully');
+			} else {
+				toast.error('Failed to update Physical Inventory');
+			}
 		};
 	};
 </script>
