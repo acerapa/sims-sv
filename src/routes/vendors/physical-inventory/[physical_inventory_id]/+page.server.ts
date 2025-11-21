@@ -8,7 +8,8 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { decode } from 'decode-formdata';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, depends }) => {
+	depends('vendors:physical-inventory-sheet');
 	const physicalInventory = await getInventoryById(parseInt(params.physical_inventory_id));
 	const products = physicalInventory.items.length ? [] : await getProducts();
 

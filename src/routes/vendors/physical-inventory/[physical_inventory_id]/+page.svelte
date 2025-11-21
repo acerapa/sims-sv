@@ -16,6 +16,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { resolve } from '$app/paths';
 	import { toast } from 'svelte-sonner';
+	import { invalidate } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
@@ -63,6 +64,7 @@
 			await applyAction(result);
 			if (result.type === 'success') {
 				toast.success('Physical Inventory Updated Successfully');
+				await invalidate('vendors:physical-inventory-sheet');
 			} else {
 				toast.error('Failed to update Physical Inventory');
 			}
