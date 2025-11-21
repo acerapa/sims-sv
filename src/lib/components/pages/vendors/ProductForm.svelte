@@ -37,9 +37,16 @@
 		categories: Category[];
 		suppliers: Supplier[];
 		form: ActionData | null;
+		hasTrigger: boolean;
+		open: boolean;
 	}
-	let { categories, suppliers, form }: Props = $props();
-	let open = $state(false);
+	let {
+		categories,
+		suppliers,
+		form,
+		hasTrigger = true,
+		open = $bindable<boolean>(false)
+	}: Props = $props();
 
 	let preferredSupplierId = $state('');
 	let selectedSuppliers = $state<Supplier[]>([]);
@@ -103,12 +110,15 @@
 </script>
 
 <Sheet bind:open>
-	<SheetTrigger
-		class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
-	>
-		<Plus class="size-4" />
-		Add Product
-	</SheetTrigger>
+	{#if hasTrigger}
+		<SheetTrigger
+			class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
+		>
+			<Plus class="size-4" />
+			Add Product
+		</SheetTrigger>
+	{/if}
+
 	<SheetContent
 		trapFocus={false}
 		side="right"
@@ -120,7 +130,7 @@
 				Fill in the details to add a new product to your inventory
 			</SheetDescription>
 		</SheetHeader>
-		<form method="post" use:enhance={formEnchance}>
+		<form action="/vendors/inventory" method="post" use:enhance={formEnchance}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>

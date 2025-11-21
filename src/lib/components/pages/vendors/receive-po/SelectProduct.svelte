@@ -20,6 +20,7 @@
 	import type { Product } from '$lib/types/global';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
+	import ProductForm from '../ProductForm.svelte';
 
 	interface Props {
 		issues: z.core.$ZodIssue[] | undefined;
@@ -36,6 +37,7 @@
 
 	let { products, items = $bindable(), selectedSupplierId, issues }: Props = $props();
 
+	let openProductForm = $state(false);
 	let subTotal = $derived.by(() => {
 		return items
 			.map((item) => item.total_cost)
@@ -98,8 +100,6 @@
 		const item = items[ndx];
 		item.total_cost = item.quantity * item.cost;
 	};
-
-	$inspect(groupedIssues).with(console.log);
 </script>
 
 <Card class="relative rounded-lg">
@@ -116,6 +116,7 @@
 		</div>
 	</CardHeader>
 	<CardContent>
+		<ProductForm bind:open={openProductForm} hasTrigger={false} />
 		<div class="flex flex-col gap-6">
 			<Table class="border-b">
 				<TableHeader>
@@ -149,6 +150,9 @@
 											{#if !selectedSupplierId}
 												<SelectItem value="" disabled>Please select supplier first</SelectItem>
 											{:else}
+												<SelectItem onclick={() => (openProductForm = true)} value="0">
+													Add product
+												</SelectItem>
 												{#if !products.length}
 													<SelectItem value="" disabled>No Products available</SelectItem>
 												{/if}
