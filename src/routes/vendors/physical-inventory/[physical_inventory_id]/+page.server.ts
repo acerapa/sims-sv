@@ -32,7 +32,6 @@ export const actions: Actions = {
 				]
 			}) as CreateInventoryItems;
 
-			console.log(formValues);
 			await upsertInventoryItems(formValues);
 			return { success: true };
 		} catch (error) {

@@ -27,11 +27,14 @@
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import SupplierForm from '$lib/components/pages/vendors/suppliers/SupplierForm.svelte';
 
 	let { data, form }: PageProps = $props();
 
 	let errors = $derived(form?.errors);
 	let issues = $derived(form?.issues);
+	let openSupplierForm = $state(false);
+	let insertedSupplier = $state<Supplier | null>(null);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
 	let products = $state<Product[]>([]);
 	let fetchProductsForm: HTMLFormElement;
@@ -75,8 +78,14 @@
 	};
 
 	$effect(() => {
-		if (selectedSupplierId && fetchProductsForm) {
+		if (selectedSupplierId && selectedSupplierId !== '-' && fetchProductsForm) {
 			fetchProductsForm.requestSubmit();
+		}
+
+		if (insertedSupplier) {
+			selectedSupplierId = insertedSupplier.id.toString();
+			suppliers.unshift(insertedSupplier);
+			insertedSupplier = null;
 		}
 	});
 </script>
@@ -87,6 +96,7 @@
 </svelte:head>
 
 <div class="mb-6 flex flex-col gap-6">
+	<SupplierForm bind:open={openSupplierForm} {form} bind:insertedSupplier hasTrigger={false} />
 	<form
 		bind:this={fetchProductsForm}
 		method="post"
@@ -142,9 +152,16 @@
 										{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
 									</SelectTrigger>
 									<SelectContent>
-										{#each suppliers as supplier (supplier.id)}
-											<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
-										{/each}
+										<SelectGroup>
+											<SelectItem onclick={() => (openSupplierForm = true)} value="-">
+												Add new supplier
+											</SelectItem>
+										</SelectGroup>
+										<SelectGroup>
+											{#each suppliers as supplier (supplier.id)}
+												<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
+											{/each}
+										</SelectGroup>
 									</SelectContent>
 								</Select>
 								{#if errors?.properties?.supplier_id}

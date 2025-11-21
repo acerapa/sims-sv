@@ -16,15 +16,25 @@
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import type { Supplier } from '$lib/types/global';
 	import { Plus } from '@lucide/svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
+
+	let {
+		form,
+		insertedSupplier = $bindable<Supplier | null>(null),
+		hasTrigger = $bindable<boolean>(true),
+		open = $bindable<boolean>(false)
+	} = $props();
+	const errors = $derived(form?.errors);
 
 	const formEnhance: SubmitFunction = async () => {
 		return async ({ result }) => {
 			await applyAction(result);
 			if (result.type === 'success') {
 				open = false;
+				insertedSupplier = result.data ? result.data[0] : null;
 				await invalidate('vendor:suppliers');
 				toast.success('Supplier added successfully');
 			} else {
@@ -32,10 +42,6 @@
 			}
 		};
 	};
-
-	let open = $state(false);
-	let { form } = $props();
-	const errors = $derived(form?.errors);
 
 	$effect(() => {
 		if (!open) {
@@ -47,18 +53,20 @@
 </script>
 
 <Sheet bind:open>
-	<SheetTrigger
-		class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
-	>
-		<Plus class="size-4" />
-		Add Supplier
-	</SheetTrigger>
+	{#if hasTrigger}
+		<SheetTrigger
+			class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
+		>
+			<Plus class="size-4" />
+			Add Supplier
+		</SheetTrigger>
+	{/if}
 	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
 		<SheetHeader>
 			<SheetTitle>Add New Supplier</SheetTitle>
 			<SheetDescription>Fill in the details to add a new supplier</SheetDescription>
 		</SheetHeader>
-		<form method="post" use:enhance={formEnhance}>
+		<form method="post" action="/vendors/suppliers" use:enhance={formEnhance}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>

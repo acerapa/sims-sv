@@ -38,7 +38,6 @@
 			if (result.type === 'success') {
 				open = false;
 				const lastInsertedId = result.data ? result.data[0].lastInsertedId : null;
-				console.log(lastInsertedId);
 				goto(
 					resolve('/vendors/physical-inventory/[physical_inventory_id]', {
 						physical_inventory_id: lastInsertedId.toString()

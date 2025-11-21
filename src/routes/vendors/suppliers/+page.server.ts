@@ -46,10 +46,16 @@ export const actions: Actions = {
 				});
 			}
 
-			return await db
-				.insert(suppliers)
-				.values(Object(data))
-				.returning({ lastInsertedId: suppliers.id });
+			return await db.insert(suppliers).values(Object(data)).returning({
+				id: suppliers.id,
+				name: suppliers.name,
+				email: suppliers.email,
+				notes: suppliers.notes,
+				address: suppliers.address,
+				phone_number: suppliers.phone_number,
+				contact_person: suppliers.contact_person,
+				telephone_number: suppliers.telephone_number
+			});
 		} catch (error) {
 			return fail(500, {
 				message: 'Internal Server Error',
