@@ -37,6 +37,7 @@
 		}[];
 		selectedSupplierId: string;
 		form: ActionData;
+		triggerRefetchProducts: () => void;
 	}
 
 	let {
@@ -46,11 +47,14 @@
 		issues,
 		suppliers,
 		categories,
-		form
+		form,
+		triggerRefetchProducts = () => {}
 	}: Props = $props();
 
 	let openProductForm = $state(false);
 	let insertedProduct = $state<Product | null>(null);
+	let lastInsertedProductId = $state<number | null>(null);
+	let activeItemIndex = $state<number | null>(null);
 	let subTotal = $derived.by(() => {
 		return items
 			.map((item) => item.total_cost)
@@ -120,10 +124,45 @@
 		item.total_cost = item.quantity * item.cost;
 	};
 
+	const onOpenProductForm = (ndx: number) => {
+		activeItemIndex = ndx;
+		openProductForm = true;
+	};
+
 	$effect(() => {
 		if (insertedProduct) {
-			console.log(products);
-		} // Perform any necessary side effects here
+			triggerRefetchProducts();
+			lastInsertedProductId = insertedProduct.id;
+			insertedProduct = null;
+		}
+
+		if (products && lastInsertedProductId && lastInsertedProductId !== null) {
+			const product = products.find((p) => p.id === lastInsertedProductId);
+
+			if (product) {
+				const cost = parseInt(product?.cost?.toString() || '0');
+
+				if (activeItemIndex !== null) {
+					items[activeItemIndex] = {
+						id: items.length + 1,
+						product_id: product?.id.toString() || '',
+						quantity: 1,
+						cost: cost,
+						total_cost: cost * 1
+					};
+				} else {
+					items.push({
+						id: items.length + 1,
+						product_id: product?.id.toString() || '',
+						quantity: 1,
+						cost: cost,
+						total_cost: cost * 1
+					});
+				}
+				activeItemIndex = null;
+				lastInsertedProductId = null;
+			}
+		}
 	});
 </script>
 
@@ -183,7 +222,7 @@
 											{#if !selectedSupplierId}
 												<SelectItem value="" disabled>Please select supplier first</SelectItem>
 											{:else}
-												<SelectItem onclick={() => (openProductForm = true)} value="0">
+												<SelectItem onclick={() => onOpenProductForm(i)} value="0">
 													Add product
 												</SelectItem>
 												{#if !products.length}

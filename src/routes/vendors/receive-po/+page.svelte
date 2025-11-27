@@ -233,6 +233,9 @@
 			{suppliers}
 			{categories}
 			{form}
+			triggerRefetchProducts={() => {
+				fetchProductsForm.requestSubmit();
+			}}
 			bind:this={selectProductRef}
 			{selectedSupplierId}
 			issues={findErrorByKey(issues, 'products')}
