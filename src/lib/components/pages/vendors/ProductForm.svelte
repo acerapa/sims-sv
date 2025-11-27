@@ -38,7 +38,8 @@
 		form,
 		hasTrigger = true,
 		open = $bindable<boolean>(false),
-		insertedProduct = $bindable<Product | undefined>(undefined)
+		insertedProduct = $bindable<Product | undefined>(undefined),
+		preSelectedSuppliers = $bindable([])
 	} = $props();
 
 	let preferredSupplierId = $state('');
@@ -216,6 +217,7 @@
 					<CardContent>
 						<div class="flex flex-col gap-6">
 							<SupplierAndCost
+								bind:preSelectedSuppliers
 								bind:selectedSuppliers
 								bind:this={selectSupplierAndCostRef}
 								{suppliers}

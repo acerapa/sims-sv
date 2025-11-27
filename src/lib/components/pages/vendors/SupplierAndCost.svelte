@@ -28,7 +28,7 @@
 		issues,
 		suppliers,
 		selectedSuppliers = $bindable(),
-		preSelectedSuppliers = $bindable()
+		preSelectedSuppliers = $bindable([])
 	}: Props = $props();
 	let groupedIssues = $derived.by(() => {
 		let grouped: Record<string, string>[] = [];
@@ -47,11 +47,11 @@
 	});
 
 	let costPerSuppliers = $state([
+		...preSelectedSuppliers,
 		{
 			supplierId: '',
 			cost: null
-		},
-		...preSelectedSuppliers
+		}
 	]);
 
 	let suppliersSelected = $derived.by(() => {
@@ -150,7 +150,10 @@
 					<TableCell class="align-top">
 						<Button
 							type="button"
-							disabled={costPerSuppliers.length === 1}
+							disabled={costPerSuppliers.length === 1 ||
+								preSelectedSuppliers
+									.map((s) => s.supplierId)
+									.includes(costPerSuppliers[ndx].supplierId)}
 							variant="ghost"
 							onclick={(e) => {
 								e.preventDefault();

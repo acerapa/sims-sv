@@ -62,6 +62,12 @@
 	let overAllTotal = $derived.by(() => {
 		return (parseFloat(subTotal) - orderDiscount).toFixed(2);
 	});
+	let preSelectedSuppliers = $derived([
+		{
+			supplierId: selectedSupplierId,
+			cost: 0
+		}
+	]);
 
 	let groupedIssues = $derived.by(() => {
 		let grouped: Record<string, string>[] = [];
@@ -139,6 +145,7 @@
 			{form}
 			{categories}
 			{suppliers}
+			bind:preSelectedSuppliers
 			bind:insertedProduct
 			bind:open={openProductForm}
 			hasTrigger={false}
