@@ -17,14 +17,17 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import type { Product } from '$lib/types/global';
+	import type { Category, Product, Supplier } from '$lib/types/global';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
 	import ProductForm from '../ProductForm.svelte';
+	import type { ActionData } from '../../../../../routes/vendors/receive-po/$types';
 
 	interface Props {
 		issues: z.core.$ZodIssue[] | undefined;
 		products: Product[];
+		categories: Category[];
+		suppliers: Supplier[];
 		items: {
 			id: number;
 			product_id: string;
@@ -33,11 +36,21 @@
 			total_cost: number;
 		}[];
 		selectedSupplierId: string;
+		form: ActionData;
 	}
 
-	let { products, items = $bindable(), selectedSupplierId, issues }: Props = $props();
+	let {
+		products,
+		items = $bindable(),
+		selectedSupplierId,
+		issues,
+		suppliers,
+		categories,
+		form
+	}: Props = $props();
 
 	let openProductForm = $state(false);
+	let insertedProduct = $state<Product | null>(null);
 	let subTotal = $derived.by(() => {
 		return items
 			.map((item) => item.total_cost)
@@ -100,6 +113,12 @@
 		const item = items[ndx];
 		item.total_cost = item.quantity * item.cost;
 	};
+
+	$effect(() => {
+		if (insertedProduct) {
+			console.log(products);
+		} // Perform any necessary side effects here
+	});
 </script>
 
 <Card class="relative rounded-lg">
@@ -116,7 +135,14 @@
 		</div>
 	</CardHeader>
 	<CardContent>
-		<ProductForm bind:open={openProductForm} hasTrigger={false} />
+		<ProductForm
+			{form}
+			{categories}
+			{suppliers}
+			bind:insertedProduct
+			bind:open={openProductForm}
+			hasTrigger={false}
+		/>
 		<div class="flex flex-col gap-6">
 			<Table class="border-b">
 				<TableHeader>

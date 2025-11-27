@@ -18,8 +18,8 @@ export interface CreateProductData {
 }
 
 export const createProduct = async (data: CreateProductData) => {
-	await db.transaction(async (tx) => {
-		const [productId] = await tx
+	return await db.transaction(async (tx) => {
+		const [product] = await tx
 			.insert(products)
 			.values(
 				Object({
@@ -33,17 +33,27 @@ export const createProduct = async (data: CreateProductData) => {
 					purchase_description: data.purchase_description
 				})
 			)
-			.returning({ lastInsertedId: products.id });
+			.returning({
+				id: products.id,
+				sku: products.sku,
+				quantity: products.quantity,
+				sale_price: products.sale_price,
+				minimum_quantity: products.minimum_quantity,
+				purchase_description: products.purchase_description,
+				preferred_supplier_id: products.preferred_supplier_id
+			});
 
 		await tx.insert(productsToSupplier).values(
 			data.suppliers.map((supplier) => {
 				return Object({
-					product_id: productId.lastInsertedId,
+					product_id: product.id,
 					supplier_id: supplier.supplier_id,
 					cost: supplier.cost
 				});
 			})
 		);
+
+		return product;
 	});
 };
 

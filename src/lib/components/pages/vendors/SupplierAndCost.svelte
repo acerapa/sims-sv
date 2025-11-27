@@ -18,9 +18,18 @@
 		issues: z.core.$ZodIssue[] | undefined;
 		suppliers: Supplier[];
 		selectedSuppliers: Supplier[];
+		preSelectedSuppliers: {
+			supplierId: string;
+			cost: number;
+		}[];
 	}
 
-	let { suppliers, selectedSuppliers = $bindable(), issues }: Props = $props();
+	let {
+		issues,
+		suppliers,
+		selectedSuppliers = $bindable(),
+		preSelectedSuppliers = $bindable()
+	}: Props = $props();
 	let groupedIssues = $derived.by(() => {
 		let grouped: Record<string, string>[] = [];
 
@@ -41,7 +50,8 @@
 		{
 			supplierId: '',
 			cost: null
-		}
+		},
+		...preSelectedSuppliers
 	]);
 
 	let suppliersSelected = $derived.by(() => {

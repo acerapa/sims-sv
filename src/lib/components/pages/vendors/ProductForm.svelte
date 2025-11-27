@@ -25,28 +25,21 @@
 	import SelectCategory from './categories/SelectCategory.svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import SupplierAndCost from './SupplierAndCost.svelte';
-	import type { ActionData } from '../../../../routes/vendors/inventory/$types';
-	import type { Category, Supplier } from '$lib/types/global';
+	import type { Product, Supplier } from '$lib/types/global';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 	import { findErrorByKey } from '$lib/utils/common';
 	import { invalidate } from '$app/navigation';
 
-	interface Props {
-		categories: Category[];
-		suppliers: Supplier[];
-		form: ActionData | null;
-		hasTrigger: boolean;
-		open: boolean;
-	}
 	let {
 		categories,
 		suppliers,
 		form,
 		hasTrigger = true,
-		open = $bindable<boolean>(false)
-	}: Props = $props();
+		open = $bindable<boolean>(false),
+		insertedProduct = $bindable<Product | undefined>(undefined)
+	} = $props();
 
 	let preferredSupplierId = $state('');
 	let selectedSuppliers = $state<Supplier[]>([]);
@@ -57,7 +50,7 @@
 	const errors = $derived(form?.errors);
 	const issues = $derived(form?.issues);
 	const preferredSupplier = $derived.by(() =>
-		suppliers.find((s) => s.id.toString() === preferredSupplierId)
+		suppliers.find((s: Supplier) => s.id.toString() === preferredSupplierId)
 	);
 
 	let selectSupplierAndCostRef: SupplierAndCost;
@@ -82,6 +75,7 @@
 		return async ({ result }) => {
 			await applyAction(result);
 			if (result.type === 'success') {
+				insertedProduct = result.data;
 				toast.success('Product added successfully');
 				open = false;
 				await invalidate('vendors');

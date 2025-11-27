@@ -18,7 +18,7 @@
 		SelectTrigger
 	} from '$lib/components/ui/select';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import type { Product, Supplier } from '$lib/types/global';
+	import type { Category, Product, Supplier } from '$lib/types/global';
 	import type { PageProps } from './$types';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -36,6 +36,7 @@
 	let openSupplierForm = $state(false);
 	let insertedSupplier = $state<Supplier | null>(null);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
+	let categories = $derived<Category[]>(data.categories);
 	let products = $state<Product[]>([]);
 	let fetchProductsForm: HTMLFormElement;
 	let selectedSupplierId = $state<string>('');
@@ -229,6 +230,9 @@
 		<SelectProduct
 			bind:items
 			{products}
+			{suppliers}
+			{categories}
+			{form}
 			bind:this={selectProductRef}
 			{selectedSupplierId}
 			issues={findErrorByKey(issues, 'products')}
