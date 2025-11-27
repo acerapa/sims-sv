@@ -1,17 +1,8 @@
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { suppliers } from '$lib/server/db/schema';
-import { getSuppliers } from '$lib/server/db/queries/suppliers';
-
-export const load: PageServerLoad = async ({ depends }) => {
-	depends('vendor:suppliers');
-
-	return {
-		suppliers: await getSuppliers()
-	};
-};
 
 export const actions: Actions = {
 	default: async ({ request }) => {

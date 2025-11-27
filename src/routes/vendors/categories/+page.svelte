@@ -13,24 +13,16 @@
 	import { Button } from '$lib/components/ui/button';
 	import CategoryForm from '$lib/components/pages/vendors/categories/CategoryForm.svelte';
 	import type { PageProps } from './$types';
-	import { writable } from 'svelte/store';
-	import { setContext } from 'svelte';
+	import { groupedCategories } from '$lib/utils/categories';
 
 	const { form, data }: PageProps = $props();
 
-	const categoryFormStore = writable({ form });
-	setContext('category_form', categoryFormStore);
-
-	const categories = $derived<Category[]>(data.categories);
+	const categories = $derived<Category[]>(groupedCategories(data.categories));
 
 	let openForm = $state(false);
 	const handleOpenForm = () => {
 		openForm = true;
 	};
-
-	$effect(() => {
-		categoryFormStore.set({ form });
-	});
 </script>
 
 <Card>
@@ -53,7 +45,7 @@
 		</div>
 		<div class="flex flex-col gap-1">
 			{#if openForm}
-				<CategoryForm bind:open={openForm} />
+				<CategoryForm {form} bind:open={openForm} />
 			{/if}
 			{#each categories as category (category.id)}
 				<CategoryItem {category} />

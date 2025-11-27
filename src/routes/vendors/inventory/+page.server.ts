@@ -1,26 +1,8 @@
-import { getCategories } from '$lib/server/db/queries/categories';
-import { getSuppliers } from '$lib/server/db/queries/suppliers';
 import { decode } from 'decode-formdata';
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
-import {
-	createProduct,
-	getProducts,
-	type CreateProductData
-} from '$lib/server/db/queries/products';
-
-export const load: PageServerLoad = async ({ depends }) => {
-	depends('vendors:products');
-	const categories = await getCategories();
-	const products = await getProducts();
-
-	return {
-		products: products,
-		categories: categories,
-		suppliers: await getSuppliers()
-	};
-};
+import { createProduct, type CreateProductData } from '$lib/server/db/queries/products';
 
 export const actions: Actions = {
 	default: async ({ request }) => {

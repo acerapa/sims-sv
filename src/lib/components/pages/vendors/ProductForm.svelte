@@ -84,7 +84,7 @@
 			if (result.type === 'success') {
 				toast.success('Product added successfully');
 				open = false;
-				await invalidate('vendors:products');
+				await invalidate('vendors');
 			} else {
 				toast.error('Failed to add product');
 			}

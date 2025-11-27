@@ -35,7 +35,7 @@
 			if (result.type === 'success') {
 				open = false;
 				insertedSupplier = result.data ? result.data[0] : null;
-				await invalidate('vendor:suppliers');
+				await invalidate('vendors');
 				toast.success('Supplier added successfully');
 			} else {
 				toast.error('Failed to add supplier');

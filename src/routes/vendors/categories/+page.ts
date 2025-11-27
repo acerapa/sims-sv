@@ -2,7 +2,7 @@ import { browser } from '$app/environment';
 import { pageContext } from '$lib/stores/pageContext';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = () => {
+export const load: PageLoad = async ({ data }) => {
 	if (browser) {
 		pageContext.set({
 			pageTitle: {
@@ -11,4 +11,6 @@ export const load: PageLoad = () => {
 			}
 		});
 	}
+
+	return data;
 };

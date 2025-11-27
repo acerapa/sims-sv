@@ -3,25 +3,17 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { Check, Folder, X } from '@lucide/svelte';
-	import { getContext } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import type { ActionData } from '../../../../../routes/vendors/categories/$types';
-	import type { Writable } from 'svelte/store';
 
 	interface Props {
 		parent_id?: number | null;
 		open?: boolean;
+		form: ActionData;
 	}
 
-	let form = $state<ActionData>();
+	let { parent_id = null, open = $bindable(false), form }: Props = $props();
 	let errors = $derived(form?.errors);
-	let { parent_id = null, open = $bindable(false) }: Props = $props();
-
-	const categoryFormStore = getContext<Writable<{ form: ActionData }>>('category_form');
-
-	categoryFormStore.subscribe((value) => {
-		form = value.form;
-	});
 
 	const handleCloseForm = () => {
 		open = false;
