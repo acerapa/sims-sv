@@ -36,30 +36,60 @@
 	import type { ActionData } from '../../../../../routes/vendors/bills/$types';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
-	import { invalidate } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
+	import { resolve } from '$app/paths';
+
+	interface Bill {
+		id: number;
+		supplier_id: number;
+		purchase_order_id: number;
+		bill_date: Date;
+		due_date: Date;
+		notes: string | null;
+		payment_type: 'check' | 'cash';
+		check_number: string | null;
+		bill_status: string;
+		total_amount: string;
+		paid_amount: string;
+		supplier_name: string | null;
+		po_reference: string | null;
+	}
 
 	interface Props {
 		suppliers: Supplier[];
 		form?: ActionData;
+		bill?: Bill | null;
+		hasTrigger?: boolean;
+		open?: boolean;
 	}
-	let { suppliers = [], form }: Props = $props();
+	let {
+		suppliers = [],
+		form,
+		bill = null,
+		hasTrigger = true,
+		open = $bindable(false)
+	}: Props = $props();
 
-	let open = $state(false);
+	let edit = $state(false);
 	let errors = $derived(form?.error);
-	let selectedSupplierId = $state('');
+	let selectedSupplierId = $derived(bill?.supplier_id?.toString() || '');
 	let fetchPOBySupplier: HTMLFormElement;
 	let selectedSupplier = $derived.by(() => {
 		return suppliers.find((supplier) => supplier.id === parseInt(selectedSupplierId));
 	});
-	let selectedPOId = $state('');
+	let selectedPOId = $derived(bill?.purchase_order_id?.toString() || '');
 	let supplierPOs = $state<SupplierPO[]>([]);
 	let selectedPO = $derived.by(() => {
 		return supplierPOs.find((po) => po.id === parseInt(selectedPOId));
 	});
-	let selectedPaymentMethod = $state('');
-	let paidAmount = $state(0);
+	let selectedPaymentMethod = $derived(bill?.payment_type || '');
+	let paidAmount = $derived(bill?.paid_amount ? parseFloat(bill.paid_amount) : 0);
+	let checkNumber = $derived(bill?.check_number || '');
+	let notes = $derived(bill?.notes || '');
+	let billDate = $derived(bill?.bill_date);
+	let dueDate = $derived(bill?.due_date);
 	let billStatus = $derived.by(() => {
-		if (!selectedPO && !paidAmount) return '';
+		if (!selectedPO && !paidAmount) return bill?.bill_status || '';
 
 		return selectedPO?.total == paidAmount ? 'paid' : 'partial';
 	});
@@ -70,19 +100,19 @@
 
 			if (result.type === 'success') {
 				await invalidate('vendors:bills');
-				toast.success('Bill created successfully');
+				toast.success(edit ? 'Bill updated successfully' : 'Bill created successfully');
 				open = false;
-
-				// clear all saved states exclude the deriveds
-				selectedSupplierId = '';
-				selectedPOId = '';
-				supplierPOs = [];
-				selectedPaymentMethod = '';
-				paidAmount = 0;
+				edit = false;
 			} else {
-				toast.error('Failed to create bill');
+				toast.error(edit ? 'Failed to update bill' : 'Failed to create bill');
 			}
 		};
+	};
+
+	const handleFormClose = (status: boolean) => {
+		if (!status) {
+			goto(resolve('/vendors/bills'));
+		}
 	};
 
 	$effect(() => {
@@ -92,6 +122,10 @@
 		}
 
 		if (!open) {
+			edit = false;
+			bill = null;
+			edit = false;
+
 			if (form) {
 				form = null;
 			}
@@ -116,21 +150,45 @@
 	<input type="hidden" name="supplier_id" value={selectedSupplierId} />
 </form>
 
-<Sheet bind:open>
-	<SheetTrigger class={buttonVariants({ variant: 'default' })}>
-		<Plus class="size-4" />
-		Add Bill
-	</SheetTrigger>
+<Sheet bind:open onOpenChangeComplete={(e) => handleFormClose(e)}>
+	{#if hasTrigger}
+		<SheetTrigger class={buttonVariants({ variant: 'default' })}>
+			<Plus class="size-4" />
+			Add Bill
+		</SheetTrigger>
+	{/if}
 	<SheetContent
 		trapFocus={false}
 		side="right"
 		class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl"
 	>
-		<SheetHeader>
-			<SheetTitle>Add New Bill</SheetTitle>
-			<SheetDescription>Fill in the details to add a new bill</SheetDescription>
+		<SheetHeader class="mt-5 flex-row items-center justify-between">
+			<div class="space-y-1">
+				<SheetTitle>{bill ? (edit ? 'Edit Bill' : 'View Bill') : 'Add New Bill'}</SheetTitle>
+				<SheetDescription>
+					{bill
+						? edit
+							? 'Update the bill details'
+							: 'View the bill details'
+						: 'Fill in the details to add a new bill'}
+				</SheetDescription>
+			</div>
+			{#if bill}
+				{#if edit}
+					<Button onclick={() => (edit = false)} variant="outline">Cancel</Button>
+				{:else}
+					<Button onclick={() => (edit = true)}>Edit Bill</Button>
+				{/if}
+			{/if}
 		</SheetHeader>
-		<form action="?/createBill" method="post" use:enhance={enhanceForm}>
+		<form
+			action={`?/${edit ? 'updateBill' : 'createBill'}`}
+			method="post"
+			use:enhance={enhanceForm}
+		>
+			{#if bill}
+				<input type="hidden" name="id" value={bill.id} />
+			{/if}
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
@@ -141,11 +199,22 @@
 							<div class="space-y-2">
 								<Label>Supplier</Label>
 								<div>
-									<Select name="supplier_id" type="single" bind:value={selectedSupplierId}>
+									<Select
+										name="supplier_id"
+										type="single"
+										bind:value={selectedSupplierId}
+										disabled={!!bill && !edit}
+									>
 										<SelectTrigger
-											class={[errors?.properties?.supplier_id ? 'border-red-500' : '', 'w-full']}
+											class={[
+												'disabled:opacity-100',
+												errors?.properties?.supplier_id ? 'border-red-500' : '',
+												'w-full'
+											]}
 										>
-											{selectedSupplier ? selectedSupplier.name : 'Select supplier'}
+											{selectedSupplier
+												? selectedSupplier.name
+												: bill?.supplier_name || 'Select supplier'}
 										</SelectTrigger>
 										<SelectContent>
 											<SelectGroup>
@@ -163,14 +232,20 @@
 							<div class="space-y-2">
 								<Label>Linked PO</Label>
 								<div>
-									<Select name="purchase_order_id" type="single" bind:value={selectedPOId}>
+									<Select
+										name="purchase_order_id"
+										type="single"
+										bind:value={selectedPOId}
+										disabled={!!bill && !edit}
+									>
 										<SelectTrigger
 											class={[
+												'disabled:opacity-100',
 												errors?.properties?.purchase_order_id ? 'border-red-500' : '',
 												'w-full'
 											]}
 										>
-											{selectedPO ? selectedPO.reference : 'Select supplier'}
+											{selectedPO ? selectedPO.reference : bill?.po_reference || 'Select PO'}
 										</SelectTrigger>
 										<SelectContent>
 											{#if supplierPOs.length === 0 && !selectedSupplierId}
@@ -203,6 +278,7 @@
 									<DatePicker
 										error={errors?.properties?.bill_date ? true : false}
 										name="bill_date"
+										bind:value={billDate}
 									/>
 									{#if errors?.properties?.bill_date}
 										<small class="text-red-500">{errors.properties.bill_date.errors[0]}</small>
@@ -212,7 +288,11 @@
 							<div class="space-y-2">
 								<Label>Due Date</Label>
 								<div>
-									<DatePicker error={errors?.properties?.due_date ? true : false} name="due_date" />
+									<DatePicker
+										error={errors?.properties?.due_date ? true : false}
+										name="due_date"
+										bind:value={dueDate}
+									/>
 									{#if errors?.properties?.due_date}
 										<small class="text-red-500">{errors.properties.due_date.errors[0]}</small>
 									{/if}
@@ -220,7 +300,13 @@
 							</div>
 							<div class="space-y-2">
 								<Label>Notes</Label>
-								<Textarea name="notes" placeholder="Add any notes about this bill..." />
+								<Textarea
+									name="notes"
+									placeholder="Add any notes about this bill..."
+									bind:value={notes}
+									disabled={!!bill && !edit}
+									class="disabled:opacity-100"
+								/>
 							</div>
 						</div>
 					</CardContent>
@@ -287,9 +373,15 @@
 							<div class="space-y-2">
 								<Label>Payment Method</Label>
 								<div>
-									<Select name="payment_type" type="single" bind:value={selectedPaymentMethod}>
+									<Select
+										name="payment_type"
+										type="single"
+										bind:value={selectedPaymentMethod}
+										disabled={!!bill && !edit}
+									>
 										<SelectTrigger
 											class={[
+												'disabled:opacity-100',
 												errors?.properties?.payment_type ? 'border-red-500' : '',
 												'w-full capitalize'
 											]}
@@ -309,7 +401,14 @@
 							{#if selectedPaymentMethod === 'check'}
 								<div class="space-y-2">
 									<Label>Check Number</Label>
-									<Input type="text" name="check_number" placeholder="Enter Check number" />
+									<Input
+										type="text"
+										name="check_number"
+										placeholder="Enter Check number"
+										bind:value={checkNumber}
+										disabled={!!bill && !edit}
+										class="disabled:opacity-100"
+									/>
 								</div>
 							{/if}
 							<div class="space-y-2">
@@ -319,26 +418,37 @@
 										type="number"
 										bind:value={paidAmount}
 										name="paid_amount"
-										class={errors?.properties?.paid_amount ? 'border-red-500' : ''}
-										max={selectedPO?.total}
+										class={[
+											'disabled:opacity-100',
+											errors?.properties?.paid_amount ? 'border-red-500' : ''
+										]}
+										max={selectedPO?.total ||
+											(bill?.total_amount ? parseFloat(bill.total_amount) : undefined)}
 										placeholder="Enter amount"
+										disabled={!!bill && !edit}
 									/>
 									{#if errors?.properties?.paid_amount}
 										<small class="text-red-500">{errors.properties.paid_amount.errors[0]}</small>
 									{/if}
 								</div>
 								<input type="hidden" name="bill_status" value={billStatus} />
-								<input type="hidden" name="total_amount" value={selectedPO?.total} />
+								<input
+									type="hidden"
+									name="total_amount"
+									value={selectedPO?.total || bill?.total_amount}
+								/>
 							</div>
 						</div>
 					</CardContent>
 				</Card>
-				<SheetFooter class="flex-row justify-end">
-					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
-						Cancel
-					</SheetClose>
-					<Button type="submit" variant="default">Add Bill</Button>
-				</SheetFooter>
+				{#if !bill || edit}
+					<SheetFooter class="flex-row justify-end">
+						<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
+							Cancel
+						</SheetClose>
+						<Button type="submit" variant="default">{edit ? 'Update Bill' : 'Add Bill'}</Button>
+					</SheetFooter>
+				{/if}
 			</div>
 		</form>
 	</SheetContent>

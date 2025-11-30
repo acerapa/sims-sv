@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { getLocalTimeZone, type DateValue } from '@internationalized/date';
+	import { fromDate, getLocalTimeZone, type DateValue } from '@internationalized/date';
 	import { buttonVariants } from '../ui/button';
 	import { Calendar } from '../ui/calendar';
 	import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 	import { CalendarIcon } from '@lucide/svelte';
 
 	let { value = $bindable<Date>(), name = $bindable<string>(), error = false } = $props();
-	let selectedDate = $state<DateValue>();
+	let selectedDate = $state<DateValue | undefined>(
+		value ? fromDate(value, getLocalTimeZone()) : undefined
+	);
 
 	$effect(() => {
 		if (selectedDate) {
+			console.log(selectedDate);
 			value = selectedDate.toDate(getLocalTimeZone());
 		}
 	});

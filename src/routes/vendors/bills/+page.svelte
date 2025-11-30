@@ -16,13 +16,29 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, Search } from '@lucide/svelte';
+	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import type { Supplier } from '$lib/types/global';
-	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let { data, form }: PageProps = $props();
+	let bill = $derived(data?.bill);
+
 	const suppliers = $derived<Supplier[]>(data?.suppliers);
+	let openBillForm = $state(false);
+
+	const onViewBill = async (billId: number) => {
+		openBillForm = true;
+		await goto(resolve(`/vendors/bills?id=${billId}` as '/vendors/bills'));
+	};
 </script>
 
 <Card>
@@ -32,7 +48,7 @@
 				<CardTitle>Bills</CardTitle>
 				<CardDescription>Manage bills</CardDescription>
 			</div>
-			<BillForm {form} {suppliers} />
+			<BillForm bind:open={openBillForm} {bill} {form} {suppliers} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -82,9 +98,17 @@
 								{bill.bill_status}
 							</TableCell>
 							<TableCell>
-								<Button variant="ghost" size="sm">
-									<Ellipsis />
-								</Button>
+								<DropdownMenu>
+									<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+										<Ellipsis />
+									</DropdownMenuTrigger>
+									<DropdownMenuContent>
+										<DropdownMenuItem onSelect={() => onViewBill(bill.id)} class="space-x-2">
+											<Eye />
+											<span>View</span>
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</TableCell>
 						</TableRow>
 					{/each}
