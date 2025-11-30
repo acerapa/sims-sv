@@ -17,6 +17,10 @@ export interface CreateProductData {
 	}[];
 }
 
+export interface UpdateProductData extends CreateProductData {
+	id: number;
+}
+
 export const createProduct = async (data: CreateProductData) => {
 	return await db.transaction(async (tx) => {
 		const [product] = await tx
@@ -47,6 +51,51 @@ export const createProduct = async (data: CreateProductData) => {
 			data.suppliers.map((supplier) => {
 				return Object({
 					product_id: product.id,
+					supplier_id: supplier.supplier_id,
+					cost: supplier.cost
+				});
+			})
+		);
+
+		return product;
+	});
+};
+
+export const updateProduct = async (data: UpdateProductData) => {
+	return await db.transaction(async (tx) => {
+		const [product] = await tx
+			.update(products)
+			.set(
+				Object({
+					sku: data.sku,
+					quantity: data.quantity,
+					sale_price: data.sale_price,
+					category_id: data.category_id,
+					preferred_supplier_id: data.preferred_supplier_id,
+					minimum_quantity: data.minimum_quantity,
+					sales_description: data.sales_description,
+					purchase_description: data.purchase_description
+				})
+			)
+			.where(eq(products.id, data.id))
+			.returning({
+				id: products.id,
+				sku: products.sku,
+				quantity: products.quantity,
+				sale_price: products.sale_price,
+				minimum_quantity: products.minimum_quantity,
+				purchase_description: products.purchase_description,
+				preferred_supplier_id: products.preferred_supplier_id
+			});
+
+		// Delete existing supplier associations
+		await tx.delete(productsToSupplier).where(eq(productsToSupplier.product_id, data.id));
+
+		// Insert new supplier associations
+		await tx.insert(productsToSupplier).values(
+			data.suppliers.map((supplier) => {
+				return Object({
+					product_id: data.id,
 					supplier_id: supplier.supplier_id,
 					cost: supplier.cost
 				});

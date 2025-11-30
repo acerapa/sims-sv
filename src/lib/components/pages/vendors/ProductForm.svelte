@@ -32,6 +32,7 @@
 	import { findErrorByKey } from '$lib/utils/common';
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 
 	let {
 		form,
@@ -44,6 +45,7 @@
 		insertedProduct = $bindable<Product | undefined>(undefined)
 	} = $props();
 
+	let edit = $state(false);
 	let selectedSuppliers = $state<Supplier[]>([]);
 	let categoryId = $derived.by(() => product?.category_id || '');
 	let preferredSupplierId = $derived.by(() => product?.preferred_supplier_id?.toString() || '');
@@ -77,7 +79,9 @@
 
 	const clearProductId = async () => {
 		preSelectedSuppliers = [];
-		await goto(resolve('/vendors/inventory'));
+		if (page.url.pathname === '/vendors/inventory') {
+			await goto(resolve('/vendors/inventory'));
+		}
 	};
 
 	const formEnchance: SubmitFunction = async () => {
@@ -85,13 +89,19 @@
 			await applyAction(result);
 			if (result.type === 'success') {
 				insertedProduct = result.data;
-				toast.success('Product added successfully');
+				toast.success(edit ? 'Product updated successfully' : 'Product added successfully');
 				open = false;
 				await invalidate('vendors');
 			} else {
-				toast.error('Failed to add product');
+				toast.error(edit ? 'Failed to update product' : 'Failed to add product');
 			}
 		};
+	};
+
+	const handleFormClose = (state: boolean) => {
+		if (page.url.pathname === '/vendors/inventory' && !state) {
+			clearProductId();
+		}
 	};
 
 	$effect(() => {
@@ -100,8 +110,6 @@
 			purchase_description = '';
 			sales_description = '';
 			isSameDescription = false;
-
-			clearProductId();
 
 			if (form) {
 				form = null;
@@ -114,7 +122,7 @@
 	});
 </script>
 
-<Sheet bind:open>
+<Sheet bind:open onOpenChangeComplete={(e) => handleFormClose(e)}>
 	{#if hasTrigger}
 		<SheetTrigger
 			onclick={clearProductId}
@@ -130,13 +138,29 @@
 		side="right"
 		class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl"
 	>
-		<SheetHeader>
-			<SheetTitle>Add New Product</SheetTitle>
-			<SheetDescription>
-				Fill in the details to add a new product to your inventory
-			</SheetDescription>
+		<SheetHeader class="mt-5 flex-row items-center justify-between">
+			<div class="space-y-1">
+				<SheetTitle>Add New Product</SheetTitle>
+				<SheetDescription>
+					Fill in the details to add a new product to your inventory
+				</SheetDescription>
+			</div>
+			{#if product}
+				{#if edit}
+					<Button onclick={() => (edit = false)} variant="outline">Cancel</Button>
+				{:else}
+					<Button onclick={() => (edit = true)}>Edit Product</Button>
+				{/if}
+			{/if}
 		</SheetHeader>
-		<form action="/vendors/inventory" method="post" use:enhance={formEnchance}>
+		<form
+			action={`/vendors/inventory?/${edit ? 'updateProduct' : 'addProduct'}`}
+			method="post"
+			use:enhance={formEnchance}
+		>
+			{#if product}
+				<input type="hidden" name="id" value={product.id} />
+			{/if}
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
@@ -148,7 +172,7 @@
 								<Label>Item Code / SKU</Label>
 								<div>
 									<Input
-										disabled={product ? true : false}
+										disabled={!!product && !edit}
 										value={product?.sku}
 										class={[
 											'disabled:opacity-100',
@@ -168,7 +192,7 @@
 								<div>
 									<SelectCategory
 										bind:categoryId
-										disabled={!!product}
+										disabled={!!product && !edit}
 										error={errors?.properties?.category_id?.errors}
 										{categories}
 									/>
@@ -181,7 +205,7 @@
 								<Label>Quantity</Label>
 								<div>
 									<Input
-										disabled={product ? true : false}
+										disabled={!!product && !edit}
 										type="number"
 										name="quantity"
 										placeholder="Enter quantity"
@@ -206,7 +230,7 @@
 										]}
 										type="number"
 										name="minimum_quantity"
-										disabled={product ? true : false}
+										disabled={!!product && !edit}
 										value={product?.minimum_quantity}
 										placeholder="Enter minimum quantity"
 									/>
@@ -228,7 +252,7 @@
 										type="number"
 										name="sale_price"
 										value={product?.sale_price}
-										disabled={product ? true : false}
+										disabled={!!product && !edit}
 										placeholder="e,.g,. 1000"
 									/>
 									{#if errors?.properties?.sale_price}
@@ -254,7 +278,7 @@
 					<CardContent>
 						<div class="flex flex-col gap-6">
 							<SupplierAndCost
-								disabled={!!product}
+								disabled={!!product && !edit}
 								bind:preSelectedSuppliers
 								bind:selectedSuppliers
 								bind:this={selectSupplierAndCostRef}
@@ -265,7 +289,7 @@
 								<Label>Preferred Supplier</Label>
 								<div>
 									<Select
-										disabled={!selectedSuppliers.length}
+										disabled={!selectedSuppliers.length || (!!product && !edit)}
 										type="single"
 										name="preferred_supplier_id"
 										bind:value={preferredSupplierId}
@@ -313,7 +337,7 @@
 								<Label>Item Description - Purchase</Label>
 								<div>
 									<Textarea
-										disabled={!!product}
+										disabled={!!product && !edit}
 										name="purchase_description"
 										class={[
 											'disabled:opacity-100',
@@ -335,7 +359,7 @@
 								>
 								<div>
 									<Textarea
-										disabled={!!product}
+										disabled={!!product && !edit}
 										readonly={isSameDescription}
 										name="sales_description"
 										class={[
@@ -360,16 +384,18 @@
 				</Card>
 				<Separator />
 			</div>
-			<SheetFooter class="flex flex-row justify-end">
-				<Button
-					type="button"
-					onclick={() => {
-						open = false;
-					}}
-					variant="outline">Cancel</Button
-				>
-				<Button type="submit" variant="default">Add Product</Button>
-			</SheetFooter>
+			{#if !product || edit}
+				<SheetFooter class="flex flex-row justify-end">
+					<Button
+						type="button"
+						onclick={() => {
+							open = false;
+						}}
+						variant="outline">Cancel</Button
+					>
+					<Button type="submit" variant="default">{edit ? 'Update Product' : 'Add Product'}</Button>
+				</SheetFooter>
+			{/if}
 		</form>
 	</SheetContent>
 </Sheet>

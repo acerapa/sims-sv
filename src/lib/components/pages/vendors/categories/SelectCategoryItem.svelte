@@ -18,7 +18,6 @@
 
 <div>
 	<Item
-		{disabled}
 		class={['flex items-center gap-2 disabled:opacity-100', isSelected ? 'bg-slate-100' : '']}
 		onclick={() => itemHandler(category)}
 		style={{ paddingLeft: `${1.25 * level + 0.5}rem` }}
