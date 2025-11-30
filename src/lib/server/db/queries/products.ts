@@ -86,6 +86,50 @@ export const getProducts = async () => {
 	});
 };
 
+export const getProduct = async (productId: number) => {
+	const result = await db
+		.select({
+			id: products.id,
+			sku: products.sku,
+			quantity: products.quantity,
+			cost: productsToSupplier.cost,
+			sale_price: products.sale_price,
+			category_id: products.category_id,
+			minimum_quantity: products.minimum_quantity,
+			supplier_id: productsToSupplier.supplier_id,
+			sales_description: products.sales_description,
+			purchase_description: products.purchase_description,
+			preferred_supplier_id: products.preferred_supplier_id
+		})
+		.from(products)
+		.leftJoin(productsToSupplier, eq(productsToSupplier.product_id, products.id))
+		.where(eq(products.id, productId));
+
+	if (result.length === 0) {
+		throw new Error(`Product with ID ${productId} not found`);
+	}
+
+	const product = {
+		id: result[0].id,
+		sku: result[0].sku,
+		quantity: result[0].quantity,
+		sale_price: result[0].sale_price,
+		category_id: result[0].category_id,
+		minimum_quantity: result[0].minimum_quantity,
+		sales_description: result[0].sales_description,
+		purchase_description: result[0].purchase_description,
+		preferred_supplier_id: result[0].preferred_supplier_id,
+		suppliers: result.map((r) => {
+			return {
+				supplierId: r.supplier_id,
+				cost: r.cost
+			};
+		})
+	};
+
+	return product;
+};
+
 export const getProductsBySupplier = async (supplierId: number) => {
 	const supplierProducts = await db
 		.select({

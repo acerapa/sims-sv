@@ -1,8 +1,19 @@
 import { decode } from 'decode-formdata';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
-import { createProduct, type CreateProductData } from '$lib/server/db/queries/products';
+import { createProduct, getProduct, type CreateProductData } from '$lib/server/db/queries/products';
+
+export const load: PageServerLoad = async ({ url, depends }) => {
+	depends('vendors:inventory');
+	const productId = url.searchParams.get('id');
+	let product = null;
+
+	if (productId) {
+		product = await getProduct(parseInt(productId));
+	}
+	return { product };
+};
 
 export const actions: Actions = {
 	default: async ({ request }) => {

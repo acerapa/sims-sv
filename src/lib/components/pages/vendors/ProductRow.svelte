@@ -1,11 +1,21 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Ellipsis } from '@lucide/svelte';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { CirclePause, Ellipsis, Eye, SquarePen } from '@lucide/svelte';
 	import type { PageData } from '../../../../routes/vendors/inventory/$types';
 	import ProductBadge from './ProductBadge.svelte';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger,
+		Separator
+	} from '$lib/components/ui/dropdown-menu';
 
 	type Product = PageData['products'][number];
-	let { product }: { product: Product } = $props();
+	let {
+		product,
+		oneditorview
+	}: { product: Product; oneditorview: (productId: number) => Promise<void> } = $props();
 
 	let textColor = $derived.by(() => {
 		if (product.quantity > product.minimum_quantity!) {
@@ -36,9 +46,26 @@
 		</div>
 		<ProductBadge quantity={product.quantity} minimum_quantity={product.minimum_quantity} />
 		<div class="col-span-1 text-end">
-			<Button variant="ghost">
-				<Ellipsis />
-			</Button>
+			<DropdownMenu>
+				<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost' })}>
+					<Ellipsis />
+				</DropdownMenuTrigger>
+				<DropdownMenuContent>
+					<DropdownMenuItem onSelect={() => oneditorview(product.id)} class="space-x-2">
+						<Eye />
+						<span>View</span>
+					</DropdownMenuItem>
+					<DropdownMenuItem onSelect={() => oneditorview(product.id)} class="space-x-2">
+						<SquarePen />
+						<span>Edit</span>
+					</DropdownMenuItem>
+					<Separator />
+					<DropdownMenuItem class="space-x-2 text-muted-foreground">
+						<CirclePause />
+						<span>Mark as Inactive</span>
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
 		</div>
 	</div>
 </div>

@@ -15,11 +15,18 @@
 	import { setContext } from 'svelte';
 	import type { PageProps } from './$types';
 	import type { Category, Supplier } from '$lib/types/global';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
 	let products = $derived(data.products);
+	let product = $derived(data.product);
+
+	let onEditOrView = async (productId: number) => {
+		goto(resolve(`/vendors/inventory?id=${productId}` as '/vendors/inventory'));
+	};
 
 	setContext('pageTitle', {
 		title: 'Inventory',
@@ -60,6 +67,8 @@
 			variant: 'success'
 		}
 	];
+
+	$inspect(data).with(console.log);
 </script>
 
 <svelte:head>
@@ -91,7 +100,7 @@
 					<Funnel />
 					<span>Filter</span>
 				</Button>
-				<ProductForm {form} {suppliers} {categories} />
+				<ProductForm {product} {form} {suppliers} {categories} />
 			</div>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4">
@@ -102,7 +111,7 @@
 
 			<div class="flex flex-col gap-3">
 				{#each products as product (product.id)}
-					<ProductRow {product} />
+					<ProductRow oneditorview={onEditOrView} {product} />
 				{/each}
 			</div>
 		</CardContent>

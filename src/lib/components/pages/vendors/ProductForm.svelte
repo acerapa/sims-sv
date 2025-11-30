@@ -31,15 +31,18 @@
 	import { toast } from 'svelte-sonner';
 	import { findErrorByKey } from '$lib/utils/common';
 	import { invalidate } from '$app/navigation';
+	import Page from '../../../../routes/vendors/physical-inventory/[physical_inventory_id]/+page.svelte';
 
 	let {
-		categories,
-		suppliers,
 		form,
+		suppliers,
+		categories,
+		isEdit = false,
+		product = null,
 		hasTrigger = true,
 		open = $bindable<boolean>(false),
-		insertedProduct = $bindable<Product | undefined>(undefined),
-		preSelectedSuppliers = $bindable([])
+		preSelectedSuppliers = $bindable([]),
+		insertedProduct = $bindable<Product | undefined>(undefined)
 	} = $props();
 
 	let preferredSupplierId = $state('');
@@ -101,6 +104,11 @@
 		if (selectedSuppliers.length === 0) {
 			preferredSupplierId = '';
 		}
+
+		// if (product) {
+		// 	console.log('test');
+		// 	preSelectedSuppliers = [...preSelectedSuppliers, product.suppliers];
+		// }
 	});
 </script>
 
@@ -137,7 +145,12 @@
 								<Label>Item Code / SKU</Label>
 								<div>
 									<Input
-										class={errors?.properties?.sku ? 'border-red-500' : ''}
+										disabled={product ? true : false}
+										value={product?.sku}
+										class={[
+											'disabled:opacity-100',
+											errors?.properties?.sku ? 'border-red-500' : ''
+										]}
 										type="text"
 										name="sku"
 										placeholder="e,.g,, WH-2025-0001"
@@ -160,10 +173,15 @@
 								<Label>Quantity</Label>
 								<div>
 									<Input
-										class={errors?.properties?.quantity ? 'border-red-500' : ''}
+										disabled={product ? true : false}
 										type="number"
 										name="quantity"
 										placeholder="Enter quantity"
+										value={product?.quantity}
+										class={[
+											'disabled:opacity-100',
+											errors?.properties?.quantity ? 'border-red-500' : ''
+										]}
 									/>
 									{#if errors?.properties?.quantity}
 										<small class="text-red-500">{errors.properties.quantity.errors[0]}</small>
@@ -174,10 +192,14 @@
 								<Label>Minimum Quantity</Label>
 								<div>
 									<Input
-										class={errors?.properties?.minimum_quantity ? 'border-red-500' : ''}
+										class={[
+											'disabled:opacity-100',
+											errors?.properties?.minimum_quantity ? 'border-red-500' : ''
+										]}
 										type="number"
-										value="0"
 										name="minimum_quantity"
+										disabled={product ? true : false}
+										value={product?.minimum_quantity}
 										placeholder="Enter minimum quantity"
 									/>
 									{#if errors?.properties?.minimum_quantity}
@@ -191,9 +213,14 @@
 								<Label>Sale Price (₱)</Label>
 								<div>
 									<Input
-										class={errors?.properties?.sale_price ? 'border-red-500' : ''}
+										class={[
+											'disabled:opacity-100',
+											errors?.properties?.sale_price ? 'border-red-500' : ''
+										]}
 										type="number"
 										name="sale_price"
+										value={product?.sale_price}
+										disabled={product ? true : false}
 										placeholder="e,.g,. 1000"
 									/>
 									{#if errors?.properties?.sale_price}
@@ -208,10 +235,12 @@
 					<CardHeader>
 						<div class="flex items-center justify-between">
 							<CardTitle>Suppliers and Costs</CardTitle>
-							<Button variant="outline" type="button" onclick={handleAddSupplier}>
-								<Plus />
-								Add Supplier
-							</Button>
+							{#if !product}
+								<Button variant="outline" type="button" onclick={handleAddSupplier}>
+									<Plus />
+									Add Supplier
+								</Button>
+							{/if}
 						</div>
 					</CardHeader>
 					<CardContent>
