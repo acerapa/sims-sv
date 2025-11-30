@@ -46,13 +46,16 @@
 		return grouped;
 	});
 
-	let costPerSuppliers = $state([
-		...preSelectedSuppliers,
-		{
-			supplierId: '',
-			cost: null
-		}
-	]);
+	let costPerSuppliers = $state(
+		preSelectedSuppliers.length
+			? preSelectedSuppliers
+			: [
+					{
+						supplierId: '',
+						cost: null
+					}
+				]
+	);
 
 	let suppliersSelected = $derived.by(() => {
 		return costPerSuppliers
