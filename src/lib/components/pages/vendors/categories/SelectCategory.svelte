@@ -8,16 +8,29 @@
 	import { groupedCategories } from '$lib/utils/categories';
 	import { Input } from '$lib/components/ui/input';
 
-	let selectedCategory = $state<Category | null>(null);
-	let { categories, error }: { categories: Category[]; error: string[] | undefined } = $props();
+	let {
+		error,
+		categories,
+		disabled = $bindable(false),
+		categoryId = $bindable(null)
+	}: {
+		categories: Category[];
+		error: string[] | undefined;
+		disabled?: boolean;
+		categoryId?: number | null;
+	} = $props();
 	let treeCategories: Category[] = $derived.by(() => {
 		return groupedCategories(categories);
 	});
 
 	let open = $state(false);
+	let selectedCategory = $derived.by(
+		() => categories.find((category) => category.id === categoryId) || null
+	);
 
 	const itemHandler = (category: Category) => {
 		selectedCategory = category;
+		categoryId = category.id;
 		open = false;
 	};
 
@@ -36,9 +49,10 @@
 <Popover bind:open>
 	<PopoverTrigger class="w-full">
 		<Button
+			{disabled}
 			variant="outline"
 			class={[
-				'flex w-full justify-between font-normal',
+				'flex w-full justify-between font-normal disabled:opacity-100',
 				error ? 'border !border-solid !border-red-500' : '',
 				selectedCategoryNameWithParents ? '' : 'text-muted-foreground'
 			]}

@@ -15,6 +15,7 @@
 	import z from 'zod';
 
 	interface Props {
+		disabled: boolean;
 		issues: z.core.$ZodIssue[] | undefined;
 		suppliers: Supplier[];
 		selectedSuppliers: Supplier[];
@@ -27,6 +28,7 @@
 	let {
 		issues,
 		suppliers,
+		disabled = $bindable(false),
 		selectedSuppliers = $bindable(),
 		preSelectedSuppliers = $bindable([])
 	}: Props = $props();
@@ -46,9 +48,9 @@
 		return grouped;
 	});
 
-	let costPerSuppliers = $state(
+	let costPerSuppliers = $state<{ supplierId: string; cost: number | null }[]>(
 		preSelectedSuppliers.length
-			? preSelectedSuppliers
+			? (preSelectedSuppliers as { supplierId: string; cost: number }[])
 			: [
 					{
 						supplierId: '',
@@ -101,13 +103,14 @@
 					<TableCell class="align-top">
 						<div>
 							<Select
+								{disabled}
 								name={`suppliers.${ndx}.supplier_id`}
 								type="single"
 								bind:value={costPerSuppliers[ndx].supplierId}
 							>
 								<SelectTrigger
 									class={[
-										'w-full min-w-xs',
+										'w-full min-w-xs disabled:opacity-100',
 										groupedIssues[ndx]?.supplier_id ? 'border-red-500' : ''
 									]}
 								>
@@ -138,10 +141,11 @@
 						<div>
 							<Input
 								type="number"
-								class={groupedIssues[ndx]?.cost ? 'border-red-500' : ''}
+								class={['disabled:opacity-100', groupedIssues[ndx]?.cost ? 'border-red-500' : '']}
 								name={`suppliers.${ndx}.cost`}
 								bind:value={costPerSuppliers[ndx].cost}
 								placeholder="Enter cost"
+								{disabled}
 							/>
 							{#if groupedIssues[ndx]?.cost}
 								<small class="text-red-500">

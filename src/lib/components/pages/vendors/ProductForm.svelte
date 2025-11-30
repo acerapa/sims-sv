@@ -44,11 +44,12 @@
 		insertedProduct = $bindable<Product | undefined>(undefined)
 	} = $props();
 
-	let preferredSupplierId = $state(product?.preferred_supplier_id || '');
 	let selectedSuppliers = $state<Supplier[]>([]);
-	let isSameDescription = $state(false);
-	let purchase_description = $state('');
-	let sales_description = $state('');
+	let categoryId = $derived.by(() => product?.category_id || '');
+	let preferredSupplierId = $derived.by(() => product?.preferred_supplier_id?.toString() || '');
+	let purchase_description = $derived.by(() => product?.purchase_description || '');
+	let sales_description = $derived.by(() => product?.sales_description || '');
+	let isSameDescription = $derived.by(() => purchase_description === sales_description);
 
 	const errors = $derived(form?.errors);
 	const issues = $derived(form?.issues);
@@ -99,6 +100,8 @@
 			purchase_description = '';
 			sales_description = '';
 			isSameDescription = false;
+
+			clearProductId();
 
 			if (form) {
 				form = null;
@@ -163,7 +166,12 @@
 							<div class="space-y-2">
 								<Label>Category</Label>
 								<div>
-									<SelectCategory error={errors?.properties?.category_id?.errors} {categories} />
+									<SelectCategory
+										bind:categoryId
+										disabled={!!product}
+										error={errors?.properties?.category_id?.errors}
+										{categories}
+									/>
 									{#if errors?.properties?.category_id}
 										<small class="text-red-500">{errors.properties.category_id.errors[0]}</small>
 									{/if}
@@ -246,6 +254,7 @@
 					<CardContent>
 						<div class="flex flex-col gap-6">
 							<SupplierAndCost
+								disabled={!!product}
 								bind:preSelectedSuppliers
 								bind:selectedSuppliers
 								bind:this={selectSupplierAndCostRef}
@@ -262,7 +271,11 @@
 										bind:value={preferredSupplierId}
 									>
 										<SelectTrigger
-											class={[errors?.properties?.sale_price ? 'border-red-500' : '', 'w-full']}
+											class={[
+												'disabled:opacity-100',
+												errors?.properties?.sale_price ? 'border-red-500' : '',
+												'w-full'
+											]}
 										>
 											{preferredSupplier ? preferredSupplier.name : 'Select Preferred Supplier'}
 										</SelectTrigger>
@@ -300,8 +313,12 @@
 								<Label>Item Description - Purchase</Label>
 								<div>
 									<Textarea
+										disabled={!!product}
 										name="purchase_description"
-										class={errors?.properties?.purchase_description ? 'border-red-500' : ''}
+										class={[
+											'disabled:opacity-100',
+											errors?.properties?.purchase_description ? 'border-red-500' : ''
+										]}
 										bind:value={purchase_description}
 										oninput={handlePurchaseDescriptionInput}
 										placeholder="Description for purchase orders and receiving..."
@@ -318,11 +335,15 @@
 								>
 								<div>
 									<Textarea
+										disabled={!!product}
 										readonly={isSameDescription}
 										name="sales_description"
-										class={!isSameDescription && errors?.properties?.sales_description
-											? 'border-red-500'
-											: ''}
+										class={[
+											'disabled:opacity-100',
+											!isSameDescription && errors?.properties?.sales_description
+												? 'border-red-500'
+												: ''
+										]}
 										bind:value={sales_description}
 										oninput={handleSalesDescriptionInput}
 										placeholder="Description for sales and customer-facing documents..."
