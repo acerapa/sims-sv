@@ -279,6 +279,7 @@
 										error={errors?.properties?.bill_date ? true : false}
 										name="bill_date"
 										bind:value={billDate}
+										disabled={!!bill && !edit}
 									/>
 									{#if errors?.properties?.bill_date}
 										<small class="text-red-500">{errors.properties.bill_date.errors[0]}</small>
@@ -292,6 +293,7 @@
 										error={errors?.properties?.due_date ? true : false}
 										name="due_date"
 										bind:value={dueDate}
+										disabled={!!bill && !edit}
 									/>
 									{#if errors?.properties?.due_date}
 										<small class="text-red-500">{errors.properties.due_date.errors[0]}</small>

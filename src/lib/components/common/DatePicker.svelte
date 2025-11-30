@@ -5,14 +5,18 @@
 	import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 	import { CalendarIcon } from '@lucide/svelte';
 
-	let { value = $bindable<Date>(), name = $bindable<string>(), error = false } = $props();
+	let {
+		value = $bindable<Date>(),
+		name = $bindable<string>(),
+		error = false,
+		disabled = $bindable<boolean>(false)
+	} = $props();
 	let selectedDate = $state<DateValue | undefined>(
 		value ? fromDate(value, getLocalTimeZone()) : undefined
 	);
 
 	$effect(() => {
 		if (selectedDate) {
-			console.log(selectedDate);
 			value = selectedDate.toDate(getLocalTimeZone());
 		}
 	});
@@ -20,8 +24,9 @@
 
 <Popover>
 	<PopoverTrigger
+		{disabled}
 		class={[
-			'flex w-full items-center !justify-start !font-normal',
+			'flex w-full items-center !justify-start !font-normal disabled:!opacity-100',
 			buttonVariants({ variant: 'outline' }),
 			value ? 'text-primary' : 'text-muted-foreground',
 			error ? 'border-red-500' : ''
