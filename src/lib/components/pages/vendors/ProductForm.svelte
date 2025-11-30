@@ -30,14 +30,13 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 	import { findErrorByKey } from '$lib/utils/common';
-	import { invalidate } from '$app/navigation';
-	import Page from '../../../../routes/vendors/physical-inventory/[physical_inventory_id]/+page.svelte';
+	import { goto, invalidate } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let {
 		form,
 		suppliers,
 		categories,
-		isEdit = false,
 		product = null,
 		hasTrigger = true,
 		open = $bindable<boolean>(false),
@@ -45,7 +44,7 @@
 		insertedProduct = $bindable<Product | undefined>(undefined)
 	} = $props();
 
-	let preferredSupplierId = $state('');
+	let preferredSupplierId = $state(product?.preferred_supplier_id || '');
 	let selectedSuppliers = $state<Supplier[]>([]);
 	let isSameDescription = $state(false);
 	let purchase_description = $state('');
@@ -73,6 +72,11 @@
 		if (isSameDescription) {
 			purchase_description = sales_description;
 		}
+	};
+
+	const clearProductId = async () => {
+		preSelectedSuppliers = [];
+		await goto(resolve('/vendors/inventory'));
 	};
 
 	const formEnchance: SubmitFunction = async () => {
@@ -104,17 +108,13 @@
 		if (selectedSuppliers.length === 0) {
 			preferredSupplierId = '';
 		}
-
-		// if (product) {
-		// 	console.log('test');
-		// 	preSelectedSuppliers = [...preSelectedSuppliers, product.suppliers];
-		// }
 	});
 </script>
 
 <Sheet bind:open>
 	{#if hasTrigger}
 		<SheetTrigger
+			onclick={clearProductId}
 			class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
 		>
 			<Plus class="size-4" />

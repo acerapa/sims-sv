@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { buttonVariants } from '$lib/components/ui/button';
-	import { CirclePause, Ellipsis, Eye, SquarePen } from '@lucide/svelte';
+	import { CirclePause, Ellipsis, Eye } from '@lucide/svelte';
 	import type { PageData } from '../../../../routes/vendors/inventory/$types';
 	import ProductBadge from './ProductBadge.svelte';
 	import {
@@ -54,10 +54,6 @@
 					<DropdownMenuItem onSelect={() => oneditorview(product.id)} class="space-x-2">
 						<Eye />
 						<span>View</span>
-					</DropdownMenuItem>
-					<DropdownMenuItem onSelect={() => oneditorview(product.id)} class="space-x-2">
-						<SquarePen />
-						<span>Edit</span>
 					</DropdownMenuItem>
 					<Separator />
 					<DropdownMenuItem class="space-x-2 text-muted-foreground">

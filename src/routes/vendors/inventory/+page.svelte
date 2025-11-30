@@ -23,9 +23,13 @@
 	let suppliers = $derived<Supplier[]>(data.suppliers);
 	let products = $derived(data.products);
 	let product = $derived(data.product);
+	let openProductForm = $state(false);
+	let preSelectedSuppliers = $state<{ supplierId: number | null; cost: string | null }[]>([]);
 
 	let onEditOrView = async (productId: number) => {
-		goto(resolve(`/vendors/inventory?id=${productId}` as '/vendors/inventory'));
+		await goto(resolve(`/vendors/inventory?id=${productId}` as '/vendors/inventory'));
+		preSelectedSuppliers = product?.suppliers || [];
+		openProductForm = true;
 	};
 
 	setContext('pageTitle', {
@@ -67,8 +71,6 @@
 			variant: 'success'
 		}
 	];
-
-	$inspect(data).with(console.log);
 </script>
 
 <svelte:head>
@@ -100,7 +102,14 @@
 					<Funnel />
 					<span>Filter</span>
 				</Button>
-				<ProductForm {product} {form} {suppliers} {categories} />
+				<ProductForm
+					bind:open={openProductForm}
+					bind:preSelectedSuppliers
+					{product}
+					{form}
+					{suppliers}
+					{categories}
+				/>
 			</div>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4">
