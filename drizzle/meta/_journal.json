@@ -141,6 +141,13 @@
       "when": 1764571489764,
       "tag": "0019_sparkling_norman_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1764613866127,
+      "tag": "0020_flowery_karma",
+      "breakpoints": true
     }
   ]
 }

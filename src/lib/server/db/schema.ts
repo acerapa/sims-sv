@@ -196,6 +196,7 @@ export const stores = pgTable('stores', {
 		.notNull()
 		.references(() => users.id),
 	address: varchar().notNull(),
+	phone_number: varchar().notNull(),
 	status: storeStatus().default('active'),
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
