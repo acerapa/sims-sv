@@ -82,7 +82,7 @@
 				</a>
 				<a href={resolve('/settings')}>
 					<Button
-						variant={isRouteActive('/settings', path) ? 'info' : 'ghost'}
+						variant={isRouteActive('/settings', path, true) ? 'info' : 'ghost'}
 						class="text-muted-foreground"
 					>
 						Settings

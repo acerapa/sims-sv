@@ -39,10 +39,8 @@
 			<TableHeader>
 				<TableRow>
 					<TableHead>STR No.</TableHead>
-					<TableHead>Source</TableHead>
 					<TableHead>Destination</TableHead>
 					<TableHead>Transfer Date</TableHead>
-					<TableHead>Status</TableHead>
 					<TableHead class="text-center"># of Items</TableHead>
 					<TableHead>Actions</TableHead>
 				</TableRow>
@@ -50,10 +48,8 @@
 			<TableBody>
 				<TableRow>
 					<TableCell>STR-001</TableCell>
-					<TableCell>Warehouse A</TableCell>
 					<TableCell>Warehouse B</TableCell>
 					<TableCell>2023-09-15</TableCell>
-					<TableCell>Pending</TableCell>
 					<TableCell class="text-center">10</TableCell>
 					<TableCell>
 						<Button variant="ghost">
@@ -63,10 +59,8 @@
 				</TableRow>
 				<TableRow>
 					<TableCell>STR-002</TableCell>
-					<TableCell>Warehouse B</TableCell>
 					<TableCell>Warehouse C</TableCell>
 					<TableCell>2023-09-16</TableCell>
-					<TableCell>Approved</TableCell>
 					<TableCell class="text-center">5</TableCell>
 					<TableCell>
 						<Button variant="ghost">
@@ -76,10 +70,8 @@
 				</TableRow>
 				<TableRow>
 					<TableCell>STR-003</TableCell>
-					<TableCell>Warehouse C</TableCell>
 					<TableCell>Warehouse D</TableCell>
 					<TableCell>2023-09-17</TableCell>
-					<TableCell>Rejected</TableCell>
 					<TableCell class="text-center">3</TableCell>
 					<TableCell>
 						<Button variant="ghost">
@@ -89,10 +81,8 @@
 				</TableRow>
 				<TableRow>
 					<TableCell>STR-004</TableCell>
-					<TableCell>Warehouse D</TableCell>
 					<TableCell>Warehouse E</TableCell>
 					<TableCell>2023-09-18</TableCell>
-					<TableCell>Pending</TableCell>
 					<TableCell class="text-center">8</TableCell>
 					<TableCell>
 						<Button variant="ghost">

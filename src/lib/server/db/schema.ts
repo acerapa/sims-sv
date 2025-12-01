@@ -17,6 +17,7 @@ export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
 export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
 export const physicalInventoryStatus = pgEnum('physical_inventory_status', ['draft', 'finalized']);
+export const storeStatus = pgEnum('store_status', ['active', 'inactive']);
 
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
@@ -188,7 +189,28 @@ export const physicalInventoryItems = pgTable('physical_inventory_items', {
 		.$onUpdate(() => new Date())
 });
 
+export const stores = pgTable('stores', {
+	id: serial().primaryKey(),
+	name: varchar().notNull(),
+	manager: integer()
+		.notNull()
+		.references(() => users.id),
+	address: varchar().notNull(),
+	status: storeStatus().default('active'),
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => new Date())
+});
+
 // relations
+export const storeRelations = relations(stores, ({ one }) => ({
+	manager: one(users, {
+		fields: [stores.manager],
+		references: [users.id]
+	})
+}));
+
 export const physicalInventoryItemsRelations = relations(physicalInventoryItems, ({ one }) => ({
 	physicalInventory: one(physicalInventories, {
 		fields: [physicalInventoryItems.physical_inventory_id],

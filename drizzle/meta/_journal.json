@@ -134,6 +134,13 @@
       "when": 1763297226696,
       "tag": "0018_tan_adam_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1764571489764,
+      "tag": "0019_sparkling_norman_osborn",
+      "breakpoints": true
     }
   ]
 }
