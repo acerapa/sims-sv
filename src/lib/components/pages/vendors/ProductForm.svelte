@@ -51,7 +51,9 @@
 	let preferredSupplierId = $derived.by(() => product?.preferred_supplier_id?.toString() || '');
 	let purchase_description = $derived.by(() => product?.purchase_description || '');
 	let sales_description = $derived.by(() => product?.sales_description || '');
-	let isSameDescription = $derived.by(() => purchase_description === sales_description);
+	let isSameDescription = $derived.by(
+		() => product && product?.purchase_description === product?.sales_description
+	);
 
 	const errors = $derived(form?.errors);
 	const issues = $derived(form?.issues);
