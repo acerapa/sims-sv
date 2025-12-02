@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DatePicker from '$lib/components/common/DatePicker.svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import Label from '$lib/components/ui/label/label.svelte';
@@ -12,6 +13,7 @@
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Plus } from '@lucide/svelte';
+	import STRItems from './STRItems.svelte';
 
 	let { stores } = $props();
 	let storeId = $state('');
@@ -50,9 +52,14 @@
 									</SelectContent>
 								</Select>
 							</div>
+							<div class="space-y-2">
+								<Label>Transfer date</Label>
+								<DatePicker />
+							</div>
 						</div>
 					</CardContent>
 				</Card>
+				<STRItems />
 			</div>
 		</form>
 	</SheetContent>

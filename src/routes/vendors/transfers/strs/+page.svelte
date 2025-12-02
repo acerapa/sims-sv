@@ -1,5 +1,5 @@
 <script lang="ts">
-	import STRForm from '$lib/components/pages/vendors/transfers/STRForm.svelte';
+	import STRForm from '$lib/components/pages/vendors/transfers/strs/STRForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -21,7 +21,7 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-	const stores = $derived(data.stores);
+	const stores = $derived(data?.stores || []);
 </script>
 
 <Card>
