@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
+	import { invalidate } from '$app/navigation';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
@@ -16,13 +17,34 @@
 	} from '$lib/components/ui/sheet';
 	import Switch from '$lib/components/ui/switch/switch.svelte';
 	import { Plus } from '@lucide/svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
 
-	const { form } = $props();
+	let { form, open = $bindable(false) } = $props();
 	const errors = $derived(form?.errors);
 	let isActive = $state(false);
+
+	const enhanceForm: SubmitFunction = async () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				open = false;
+				toast.success('Store added successfully');
+				await invalidate('settings:stores');
+			} else {
+				toast.error('Failed to add store');
+			}
+		};
+	};
+
+	const onOpenChangeComplete = (open: boolean) => {
+		if (!open) {
+			form = null;
+		}
+	};
 </script>
 
-<Sheet>
+<Sheet bind:open {onOpenChangeComplete}>
 	<SheetTrigger class={buttonVariants({ variant: 'default' })}>
 		<Plus />
 		Add Store
@@ -32,7 +54,12 @@
 			<SheetTitle>Add Store</SheetTitle>
 			<SheetDescription>Fill out the form below to add a new store.</SheetDescription>
 		</SheetHeader>
-		<form method="post" action="/settings/stores?/createStore" id="store-form" use:enhance>
+		<form
+			method="post"
+			action="/settings/stores?/createStore"
+			id="store-form"
+			use:enhance={enhanceForm}
+		>
 			<div class="space-y-4 px-4">
 				<div class="space-y-2">
 					<Label for="name">Store Name</Label>

@@ -19,6 +19,10 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Ellipsis, Search } from '@lucide/svelte';
+	import type { PageProps } from './$types';
+
+	let { form, data }: PageProps = $props();
+	const stores = $derived(data.stores);
 </script>
 
 <svelte:head>
@@ -36,7 +40,7 @@
 					<CardTitle>Stores</CardTitle>
 					<CardDescription>Manage your store branches records</CardDescription>
 				</div>
-				<StoresForm form={null} />
+				<StoresForm {form} />
 			</div>
 		</CardHeader>
 		<CardContent class="space-y-4">
@@ -57,55 +61,20 @@
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					<!-- We need sample data -->
-					<TableRow>
-						<TableCell>Store A</TableCell>
-						<TableCell>123 Main St</TableCell>
-						<TableCell>John Doe</TableCell>
-						<TableCell>123-456-7890</TableCell>
-						<TableCell>Active</TableCell>
-						<TableCell>
-							<Button variant="ghost" size="sm">
-								<Ellipsis />
-							</Button>
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell>Store B</TableCell>
-						<TableCell>456 Elm St</TableCell>
-						<TableCell>Jane Smith</TableCell>
-						<TableCell>987-654-3210</TableCell>
-						<TableCell>Inactive</TableCell>
-						<TableCell>
-							<Button variant="ghost" size="sm">
-								<Ellipsis />
-							</Button>
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell>Store C</TableCell>
-						<TableCell>789 Oak St</TableCell>
-						<TableCell>Bob Johnson</TableCell>
-						<TableCell>123-456-7890</TableCell>
-						<TableCell>Active</TableCell>
-						<TableCell>
-							<Button variant="ghost" size="sm">
-								<Ellipsis />
-							</Button>
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell>Store D</TableCell>
-						<TableCell>101 Pine St</TableCell>
-						<TableCell>Emily Davis</TableCell>
-						<TableCell>987-654-3210</TableCell>
-						<TableCell>Inactive</TableCell>
-						<TableCell>
-							<Button variant="ghost" size="sm">
-								<Ellipsis />
-							</Button>
-						</TableCell>
-					</TableRow>
+					{#each stores as store (store.id)}
+						<TableRow>
+							<TableCell>{store.name}</TableCell>
+							<TableCell>{store.address}</TableCell>
+							<TableCell>{store.manager}</TableCell>
+							<TableCell>{store.phone_number}</TableCell>
+							<TableCell>{store.is_active ? 'Active' : 'Inactive'}</TableCell>
+							<TableCell>
+								<Button variant="ghost" size="sm">
+									<Ellipsis />
+								</Button>
+							</TableCell>
+						</TableRow>
+					{/each}
 				</TableBody>
 			</Table>
 		</CardContent>

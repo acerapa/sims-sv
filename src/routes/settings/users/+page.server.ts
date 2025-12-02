@@ -7,6 +7,25 @@ import { users } from '$lib/server/db/schema';
 import { hash } from 'bcrypt';
 import { desc } from 'drizzle-orm';
 
+export const load: PageServerLoad = async ({ depends }) => {
+	depends('settings:users');
+
+	return {
+		users: await db
+			.select({
+				id: users.id,
+				name: users.name,
+				email: users.email,
+				role: users.role,
+				is_active: users.is_active,
+				created_at: users.created_at
+			})
+			.from(users)
+			.orderBy(desc(users.created_at))
+			.execute()
+	};
+};
+
 export const actions: Actions = {
 	default: async ({ request }) => {
 		try {
@@ -46,23 +65,4 @@ export const actions: Actions = {
 			});
 		}
 	}
-};
-
-export const load: PageServerLoad = async ({ depends }) => {
-	depends('settings:users');
-
-	return {
-		users: await db
-			.select({
-				id: users.id,
-				name: users.name,
-				email: users.email,
-				role: users.role,
-				is_active: users.is_active,
-				created_at: users.created_at
-			})
-			.from(users)
-			.orderBy(desc(users.created_at))
-			.execute()
-	};
 };

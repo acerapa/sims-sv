@@ -1,7 +1,19 @@
 import { decode } from 'decode-formdata';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
+import { db } from '$lib/server/db';
+import { stores } from '$lib/server/db/schema';
+import { desc } from 'drizzle-orm';
+
+export const load: PageServerLoad = async ({ depends }) => {
+	depends('settings:stores');
+	const storeList = await db.select().from(stores).orderBy(desc(stores.created_at));
+
+	return {
+		stores: storeList
+	};
+};
 
 export const actions: Actions = {
 	createStore: async ({ request }) => {
@@ -20,7 +32,22 @@ export const actions: Actions = {
 				is_active: z.boolean()
 			});
 
-			console.log(formValues);
+			const { success, error } = storeSchema.safeParse(formValues);
+			if (!success) {
+				return fail(400, {
+					errors: z.treeifyError(error),
+					message: 'Invalid input'
+				});
+			}
+
+			return await db.insert(stores).values(Object(formValues)).returning({
+				id: stores.id,
+				name: stores.name,
+				address: stores.address,
+				phone_number: stores.phone_number,
+				manager: stores.manager,
+				is_active: stores.is_active
+			});
 		} catch (error) {
 			console.error(error);
 			return fail(500, { message: 'Failed to create store' });
