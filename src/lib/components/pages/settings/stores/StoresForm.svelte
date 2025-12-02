@@ -32,7 +32,7 @@
 			<SheetTitle>Add Store</SheetTitle>
 			<SheetDescription>Fill out the form below to add a new store.</SheetDescription>
 		</SheetHeader>
-		<form method="post" id="store-form" use:enhance>
+		<form method="post" action="/settings/stores?/createStore" id="store-form" use:enhance>
 			<div class="space-y-4 px-4">
 				<div class="space-y-2">
 					<Label for="name">Store Name</Label>
@@ -80,7 +80,7 @@
 					</div>
 				</div>
 				<div class="space-y-2">
-					<Label for="name">Manager</Label>
+					<Label for="manager">Manager</Label>
 					<div>
 						<Select type="single" name="manager">
 							<SelectTrigger

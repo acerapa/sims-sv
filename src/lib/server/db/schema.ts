@@ -17,7 +17,6 @@ export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
 export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
 export const physicalInventoryStatus = pgEnum('physical_inventory_status', ['draft', 'finalized']);
-export const storeStatus = pgEnum('store_status', ['active', 'inactive']);
 
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
@@ -197,7 +196,7 @@ export const stores = pgTable('stores', {
 		.references(() => users.id),
 	address: varchar().notNull(),
 	phone_number: varchar().notNull(),
-	status: storeStatus().default('active'),
+	is_active: boolean().default(true),
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()

@@ -148,6 +148,13 @@
       "when": 1764613866127,
       "tag": "0020_flowery_karma",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1764649254521,
+      "tag": "0021_square_namor",
+      "breakpoints": true
     }
   ]
 }
