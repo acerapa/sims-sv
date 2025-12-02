@@ -18,6 +18,10 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Ellipsis, Search } from '@lucide/svelte';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+	const stores = $derived(data.stores);
 </script>
 
 <Card>
@@ -27,7 +31,7 @@
 				<CardTitle>Stock Transfer Requests</CardTitle>
 				<CardDescription>Track and manage inventory transfers between locations</CardDescription>
 			</div>
-			<STRForm />
+			<STRForm {stores} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">

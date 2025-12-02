@@ -4,11 +4,11 @@ import { fail } from '@sveltejs/kit';
 import z from 'zod';
 import { db } from '$lib/server/db';
 import { stores } from '$lib/server/db/schema';
-import { desc } from 'drizzle-orm';
+import { getStores } from '$lib/server/db/queries/stores';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('settings:stores');
-	const storeList = await db.select().from(stores).orderBy(desc(stores.created_at));
+	const storeList = await getStores();
 
 	return {
 		stores: storeList

@@ -18,6 +18,13 @@ export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
 export const physicalInventoryStatus = pgEnum('physical_inventory_status', ['draft', 'finalized']);
 
+const timestamps = {
+	created_at: timestamp().defaultNow().notNull(),
+	updated_at: timestamp()
+		.defaultNow()
+		.$onUpdate(() => sql`NOW()`)
+};
+
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
 	email: text().notNull().unique(),
@@ -25,10 +32,7 @@ export const users = pgTable('users', {
 	role: roles().default('cashier').notNull(),
 	password: text().notNull(),
 	is_active: boolean().default(true).notNull(),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => sql`NOW()`)
+	...timestamps
 });
 
 export const sessions = pgTable('sessions', {
@@ -58,20 +62,14 @@ export const suppliers = pgTable('suppliers', {
 	phone_number: text(),
 	telephone_number: text(),
 	notes: text(),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => sql`NOW()`)
+	...timestamps
 });
 
 export const categories = pgTable('categories', {
 	id: serial().primaryKey(),
 	parent_id: integer().references((): AnyPgColumn => categories.id),
 	name: varchar().notNull(),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => sql`NOW()`)
+	...timestamps
 });
 
 export const products = pgTable('products', {
@@ -88,10 +86,7 @@ export const products = pgTable('products', {
 	minimum_quantity: integer().default(0),
 	sales_description: text().notNull(),
 	sale_price: decimal().notNull(),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => new Date())
+	...timestamps
 });
 
 export const productsToSupplier = pgTable('products_to_suppliers', {
@@ -116,10 +111,7 @@ export const purchaseOrders = pgTable('purhase_order', {
 	sub_total: decimal().notNull(),
 	discount: decimal().notNull(),
 	total: decimal().notNull(),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => sql`NOW()`)
+	...timestamps
 });
 
 export const purchaseOrderItems = pgTable('purchase_order_items', {
@@ -150,10 +142,7 @@ export const bills = pgTable('bills', {
 	due_date: timestamp().notNull(),
 	total_amount: decimal().notNull(),
 	paid_amount: decimal().notNull(),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => new Date())
+	...timestamps
 });
 
 export const physicalInventories = pgTable('physical_inventory', {
@@ -165,10 +154,7 @@ export const physicalInventories = pgTable('physical_inventory', {
 	created_by: integer()
 		.notNull()
 		.references(() => users.id),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => new Date())
+	...timestamps
 });
 
 export const physicalInventoryItems = pgTable('physical_inventory_items', {
@@ -182,10 +168,7 @@ export const physicalInventoryItems = pgTable('physical_inventory_items', {
 	system_count: integer().notNull(),
 	actual_count: integer().notNull(),
 	difference: integer().notNull(),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => new Date())
+	...timestamps
 });
 
 export const stores = pgTable('stores', {
@@ -197,18 +180,33 @@ export const stores = pgTable('stores', {
 	address: varchar().notNull(),
 	phone_number: varchar().notNull(),
 	is_active: boolean().default(true),
-	created_at: timestamp().defaultNow().notNull(),
-	updated_at: timestamp()
-		.defaultNow()
-		.$onUpdate(() => new Date())
+	...timestamps
+});
+
+export const strs = pgTable('stock_transfer_requests', {
+	id: serial().primaryKey(),
+	store_id: integer()
+		.notNull()
+		.references(() => stores.id),
+	transfer_date: timestamp().notNull(),
+	notes: text(),
+	...timestamps
 });
 
 // relations
-export const storeRelations = relations(stores, ({ one }) => ({
+export const strRelations = relations(strs, ({ one }) => ({
+	detination: one(stores, {
+		fields: [strs.store_id],
+		references: [stores.id]
+	})
+}));
+
+export const storeRelations = relations(stores, ({ one, many }) => ({
 	manager: one(users, {
 		fields: [stores.manager],
 		references: [users.id]
-	})
+	}),
+	strs: many(strs)
 }));
 
 export const physicalInventoryItemsRelations = relations(physicalInventoryItems, ({ one }) => ({
