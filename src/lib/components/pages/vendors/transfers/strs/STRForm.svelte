@@ -17,13 +17,29 @@
 	import { Plus } from '@lucide/svelte';
 	import STRItems from './STRItems.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance } from '$app/forms';
+	import { toast } from 'svelte-sonner';
 
-	let { stores } = $props();
+	let { stores, form = null, open = $bindable(false) } = $props();
 	let storeId = $state('');
 	let selectedStore = $derived.by(() => stores.find((store) => store.id === parseInt(storeId)));
+	let errors = $derived(form?.errors);
+
+	const enhanceForm: SubmitFunction = async () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				toast.success('STR created successfully');
+				open = false;
+			} else {
+				toast.error('Failed to create STR');
+			}
+		};
+	};
 </script>
 
-<Sheet>
+<Sheet bind:open>
 	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}>
 		<Plus />
 		Add STR
@@ -34,7 +50,7 @@
 			<SheetDescription>Fill in the details to add a new str</SheetDescription>
 		</SheetHeader>
 
-		<form action="/vendors/transfers/strs?/createStr" method="post">
+		<form action="/vendors/transfers/strs?/createStr" method="post" use:enhance={enhanceForm}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
@@ -44,20 +60,37 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Destination</Label>
-								<Select type="single" name="store_id" bind:value={storeId}>
-									<SelectTrigger class={['w-full']}>
-										{selectedStore ? selectedStore.name : 'Select Store'}
-									</SelectTrigger>
-									<SelectContent>
-										{#each stores as store (store.id)}
-											<SelectItem value={store.id}>{store.name}</SelectItem>
-										{/each}
-									</SelectContent>
-								</Select>
+								<div>
+									<Select type="single" name="store_id" bind:value={storeId}>
+										<SelectTrigger
+											class={['w-full', errors?.properties?.store_id ? 'border-red-500' : '']}
+										>
+											{selectedStore ? selectedStore.name : 'Select Store'}
+										</SelectTrigger>
+										<SelectContent>
+											{#each stores as store (store.id)}
+												<SelectItem value={store.id}>{store.name}</SelectItem>
+											{/each}
+										</SelectContent>
+									</Select>
+									{#if errors?.properties?.store_id}
+										<small class="text-red-500">{errors.properties.store_id.errors[0]}</small>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Transfer date</Label>
-								<DatePicker name="transfer_date" />
+								<div>
+									<DatePicker
+										error={errors?.properties?.transfer_date ? true : false}
+										name="transfer_date"
+									/>
+									{#if errors?.properties?.transfer_date}
+										<small class="text-red-500">
+											{errors.properties.transfer_date.errors[0]}
+										</small>
+									{/if}
+								</div>
 							</div>
 							<div class="space-y-2">
 								<Label>Notes</Label>

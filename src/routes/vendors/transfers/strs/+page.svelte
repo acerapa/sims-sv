@@ -21,11 +21,11 @@
 	import type { PageProps } from './$types';
 	import { setContext } from 'svelte';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 	const stores = $derived(data?.stores || []);
 	const products = $derived(data?.products || []);
 
-	setContext('products', products);
+	setContext('products', () => products);
 </script>
 
 <Card>
@@ -35,7 +35,7 @@
 				<CardTitle>Stock Transfer Requests</CardTitle>
 				<CardDescription>Track and manage inventory transfers between locations</CardDescription>
 			</div>
-			<STRForm {stores} />
+			<STRForm {form} {stores} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">

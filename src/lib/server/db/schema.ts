@@ -198,6 +198,9 @@ export const strItems = pgTable('str_items', {
 	product_id: integer()
 		.notNull()
 		.references(() => products.id),
+	str_id: integer()
+		.notNull()
+		.references(() => strs.id),
 	quantity: integer().notNull(),
 	cost: integer().notNull(),
 	total_cost: integer().notNull()

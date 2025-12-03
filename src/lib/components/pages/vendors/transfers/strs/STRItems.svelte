@@ -15,7 +15,9 @@
 	import { Plus, Trash } from '@lucide/svelte';
 	import { getContext } from 'svelte';
 
-	const products = getContext('products') as Product[];
+	const getProducts = getContext('products');
+	const products = getProducts() as Product[];
+
 	const items = $state([
 		{
 			product_id: '',
