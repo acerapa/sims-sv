@@ -1,19 +1,22 @@
 <script lang="ts">
 	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { buttonVariants } from '$lib/components/ui/button';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
 	import {
 		Sheet,
+		SheetClose,
 		SheetContent,
 		SheetDescription,
+		SheetFooter,
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Plus } from '@lucide/svelte';
 	import STRItems from './STRItems.svelte';
+	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 
 	let { stores } = $props();
 	let storeId = $state('');
@@ -31,7 +34,7 @@
 			<SheetDescription>Fill in the details to add a new str</SheetDescription>
 		</SheetHeader>
 
-		<form action="" method="post">
+		<form action="/vendors/transfers/strs?/createStr" method="post">
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>
@@ -41,7 +44,7 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Destination</Label>
-								<Select type="single" bind:value={storeId}>
+								<Select type="single" name="store_id" bind:value={storeId}>
 									<SelectTrigger class={['w-full']}>
 										{selectedStore ? selectedStore.name : 'Select Store'}
 									</SelectTrigger>
@@ -54,13 +57,24 @@
 							</div>
 							<div class="space-y-2">
 								<Label>Transfer date</Label>
-								<DatePicker />
+								<DatePicker name="transfer_date" />
+							</div>
+							<div class="space-y-2">
+								<Label>Notes</Label>
+								<Textarea
+									name="notes"
+									placeholder="Add any additional notes about this transfer..."
+								/>
 							</div>
 						</div>
 					</CardContent>
 				</Card>
 				<STRItems />
 			</div>
+			<SheetFooter class="flex-row justify-end">
+				<SheetClose class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
+				<Button type="submit" variant="default">Add STR</Button>
+			</SheetFooter>
 		</form>
 	</SheetContent>
 </Sheet>

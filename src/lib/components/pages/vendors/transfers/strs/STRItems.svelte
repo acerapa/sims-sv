@@ -21,7 +21,7 @@
 			product_id: '',
 			quantity: 1,
 			cost: 0,
-			amount: 0
+			total_cost: 0
 		}
 	]);
 
@@ -30,7 +30,7 @@
 			product_id: '',
 			quantity: 1,
 			cost: 0,
-			amount: 0
+			total_cost: 0
 		});
 	};
 
@@ -39,9 +39,9 @@
 		return product ? product.purchase_description : null;
 	};
 
-	// create a method that will remove an item based on its index
-	const removeItem = (index: number) => {
-		items.splice(index, 1);
+	// create a method that will remove an item based on its ndx
+	const removeItem = (ndx: number) => {
+		items.splice(ndx, 1);
 	};
 </script>
 
@@ -62,18 +62,22 @@
 					<TableHead>Product</TableHead>
 					<TableHead>Quantity</TableHead>
 					<TableHead>Cost</TableHead>
-					<TableHead>Amount</TableHead>
+					<TableHead>Total Cost</TableHead>
 					<TableHead>Action</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#each items as _, index (index)}
+				{#each items as _, ndx (ndx)}
 					<TableRow>
 						<TableCell>
-							<Select type="single" bind:value={items[index].product_id}>
+							<Select
+								type="single"
+								name={`items.${ndx}.product_id`}
+								bind:value={items[ndx].product_id}
+							>
 								<SelectTrigger>
-									{getProductName(items[index].product_id)
-										? getProductName(items[index].product_id)
+									{getProductName(items[ndx].product_id)
+										? getProductName(items[ndx].product_id)
 										: 'Select Product'}
 								</SelectTrigger>
 								<SelectContent>
@@ -86,20 +90,30 @@
 							</Select>
 						</TableCell>
 						<TableCell>
-							<Input type="number" bind:value={items[index].quantity} />
+							<Input
+								type="number"
+								name={`items.${ndx}.quantity`}
+								bind:value={items[ndx].quantity}
+							/>
 						</TableCell>
 						<TableCell>
-							<Input type="number" bind:value={items[index].cost} readonly />
+							<Input
+								type="number"
+								name={`items.${ndx}.cost`}
+								bind:value={items[ndx].cost}
+								readonly
+							/>
 						</TableCell>
 						<TableCell>
-							<Input type="number" bind:value={items[index].amount} readonly />
+							<Input
+								type="number"
+								name={`items.${ndx}.total_cost`}
+								bind:value={items[ndx].total_cost}
+								readonly
+							/>
 						</TableCell>
 						<TableCell>
-							<Button
-								disabled={items.length === 1}
-								variant="ghost"
-								onclick={() => removeItem(index)}
-							>
+							<Button disabled={items.length === 1} variant="ghost" onclick={() => removeItem(ndx)}>
 								<Trash class="text-red-500" />
 							</Button>
 						</TableCell>

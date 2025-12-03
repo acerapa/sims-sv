@@ -193,6 +193,16 @@ export const strs = pgTable('stock_transfer_requests', {
 	...timestamps
 });
 
+export const strItems = pgTable('str_items', {
+	id: serial().primaryKey(),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	quantity: integer().notNull(),
+	cost: integer().notNull(),
+	total_cost: integer().notNull()
+});
+
 // relations
 export const strRelations = relations(strs, ({ one }) => ({
 	detination: one(stores, {
