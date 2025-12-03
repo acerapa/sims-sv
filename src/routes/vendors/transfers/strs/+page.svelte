@@ -19,9 +19,13 @@
 	} from '$lib/components/ui/table';
 	import { Ellipsis, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
+	import { setContext } from 'svelte';
 
 	let { data }: PageProps = $props();
 	const stores = $derived(data?.stores || []);
+	const products = $derived(data?.products || []);
+
+	setContext('products', products);
 </script>
 
 <Card>
