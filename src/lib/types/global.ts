@@ -22,7 +22,7 @@ export interface Product {
 	id: number;
 	purchase_description: string;
 	sales_description: string;
-	price: number;
+	sale_price: number;
 	item_code: string;
 	category_id: number;
 	quantity: number;

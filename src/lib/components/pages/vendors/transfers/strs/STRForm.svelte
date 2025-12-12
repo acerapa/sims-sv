@@ -37,9 +37,16 @@
 			}
 		};
 	};
+
+	const onOpenChangeComplete = (state: boolean) => {
+		if (!state) {
+			storeId = '';
+			errors = null;
+		}
+	};
 </script>
 
-<Sheet bind:open>
+<Sheet bind:open {onOpenChangeComplete}>
 	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}>
 		<Plus />
 		Add STR
@@ -105,7 +112,7 @@
 				<STRItems />
 			</div>
 			<SheetFooter class="flex-row justify-end">
-				<SheetClose class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
+				<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
 				<Button type="submit" variant="default">Add STR</Button>
 			</SheetFooter>
 		</form>

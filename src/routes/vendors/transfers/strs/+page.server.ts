@@ -1,4 +1,3 @@
-import { getProducts } from '$lib/server/db/queries/products';
 import { getStores } from '$lib/server/db/queries/stores';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
@@ -8,9 +7,7 @@ import { createStr, type CreateSTRData } from '$lib/server/db/queries/strs';
 
 export const load: PageServerLoad = async () => {
 	const stores = await getStores();
-	const products = await getProducts();
-
-	return { stores, products };
+	return { stores };
 };
 
 export const actions: Actions = {
@@ -36,7 +33,7 @@ export const actions: Actions = {
 				items: z
 					.array(
 						z.object({
-							product_id: z.number().int().positive(),
+							product_id: z.number('Product is required!').int().positive(),
 							quantity: z.number().int().min(1),
 							cost: z.number().min(0),
 							total_cost: z.number().min(0)
