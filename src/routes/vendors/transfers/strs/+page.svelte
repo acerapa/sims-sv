@@ -24,6 +24,7 @@
 	let { data, form }: PageProps = $props();
 	const stores = $derived(data?.stores || []);
 	const products = $derived(data?.products || []);
+	const strs = $derived(data?.strs || []);
 
 	setContext('products', () => products);
 </script>
@@ -54,50 +55,25 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				<TableRow>
-					<TableCell>STR-001</TableCell>
-					<TableCell>Warehouse B</TableCell>
-					<TableCell>2023-09-15</TableCell>
-					<TableCell class="text-center">10</TableCell>
-					<TableCell>
-						<Button variant="ghost">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>STR-002</TableCell>
-					<TableCell>Warehouse C</TableCell>
-					<TableCell>2023-09-16</TableCell>
-					<TableCell class="text-center">5</TableCell>
-					<TableCell>
-						<Button variant="ghost">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>STR-003</TableCell>
-					<TableCell>Warehouse D</TableCell>
-					<TableCell>2023-09-17</TableCell>
-					<TableCell class="text-center">3</TableCell>
-					<TableCell>
-						<Button variant="ghost">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>STR-004</TableCell>
-					<TableCell>Warehouse E</TableCell>
-					<TableCell>2023-09-18</TableCell>
-					<TableCell class="text-center">8</TableCell>
-					<TableCell>
-						<Button variant="ghost">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
+				{#each strs as str (str.id)}
+					<TableRow>
+						<TableCell>STR-00{str.id}</TableCell>
+						<TableCell>{str.store_name}</TableCell>
+						<TableCell>
+							{str.transfer_date.toLocaleString('default', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							})}
+						</TableCell>
+						<TableCell class="text-center">{str.items_count}</TableCell>
+						<TableCell>
+							<Button variant="ghost">
+								<Ellipsis />
+							</Button>
+						</TableCell>
+					</TableRow>
+				{/each}
 			</TableBody>
 		</Table>
 	</CardContent>

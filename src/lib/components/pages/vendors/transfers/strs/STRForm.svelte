@@ -20,6 +20,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { applyAction, enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
+	import { invalidate } from '$app/navigation';
 
 	let { stores, form = null, open = $bindable(false) } = $props();
 	let storeId = $state('');
@@ -30,6 +31,7 @@
 		return async ({ result }) => {
 			await applyAction(result);
 			if (result.type === 'success') {
+				await invalidate('transfers:strs');
 				toast.success('STR created successfully');
 				open = false;
 			} else {

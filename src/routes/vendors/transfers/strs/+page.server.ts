@@ -3,11 +3,13 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { fail } from '@sveltejs/kit';
-import { createStr, type CreateSTRData } from '$lib/server/db/queries/strs';
+import { createStr, getStrs, type CreateSTRData } from '$lib/server/db/queries/strs';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ depends }) => {
+	depends('transfers:strs');
 	const stores = await getStores();
-	return { stores };
+	const strs = await getStrs();
+	return { stores, strs };
 };
 
 export const actions: Actions = {

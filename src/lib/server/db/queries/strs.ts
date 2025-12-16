@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 import { db } from '..';
 import { stores, strItems, strs } from '../schema';
 
@@ -54,9 +54,13 @@ export const getStrs = async () => {
 			id: strs.id,
 			store_id: strs.store_id,
 			transfer_date: strs.transfer_date,
-			notes: strs.notes
+			notes: strs.notes,
+			store_name: stores.name,
+			items_count: count(strItems.id)
 		})
 		.from(strs)
 		.leftJoin(stores, eq(stores.id, strs.store_id))
+		.leftJoin(strItems, eq(strItems.str_id, strs.id))
+		.groupBy(strs.id, strs.store_id, strs.transfer_date, strs.notes, strs.created_at, stores.name)
 		.orderBy(desc(strs.created_at));
 };
