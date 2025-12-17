@@ -15,6 +15,6 @@ export const getIBRRs = async () => {
 		.from(ibrrs)
 		.leftJoin(stores, eq(stores.id, ibrrs.source_store_id))
 		.leftJoin(ibrrItems, eq(ibrrItems.ibrr_id, ibrrs.id))
-		.groupBy(ibrrs.id, ibrrs.source_store_id, ibrrs.str_id, ibrrs.received_date)
+		.groupBy(ibrrs.id, ibrrs.source_store_id, ibrrs.str_id, ibrrs.received_date, stores.name)
 		.orderBy(desc(ibrrs.received_date));
 };
