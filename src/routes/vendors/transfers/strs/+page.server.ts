@@ -1,4 +1,3 @@
-import { getStores } from '$lib/server/db/queries/stores';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
@@ -7,9 +6,8 @@ import { createStr, getStrs, type CreateSTRData } from '$lib/server/db/queries/s
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('transfers:strs');
-	const stores = await getStores();
 	const strs = await getStrs();
-	return { stores, strs };
+	return { strs };
 };
 
 export const actions: Actions = {

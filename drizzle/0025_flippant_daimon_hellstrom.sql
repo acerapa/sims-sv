@@ -1,0 +1,1 @@
+ALTER TABLE "inter_branch_receiving_reports" ADD COLUMN "notes" text;

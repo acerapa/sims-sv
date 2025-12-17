@@ -1,5 +1,5 @@
 <script lang="ts">
-	import IBRRForm from '$lib/components/pages/vendors/transfers/IBRRForm.svelte';
+	import IBRRForm from '$lib/components/pages/vendors/transfers/ibrrs/IBRRForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,

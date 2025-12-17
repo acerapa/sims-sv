@@ -213,6 +213,7 @@ export const ibrrs = pgTable('inter_branch_receiving_reports', {
 		.notNull()
 		.references(() => stores.id),
 	received_date: timestamp().notNull(),
+	notes: text(),
 	...timestamps
 });
 
