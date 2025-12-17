@@ -19,6 +19,10 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Plus } from '@lucide/svelte';
 	import IBRRItems from './IBRRItems.svelte';
+	import { applyAction, enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { invalidate } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	let { open = $bindable(false) } = $props();
 
@@ -27,6 +31,19 @@
 	const stores = $derived(page.data.stores);
 	const selectedStore = $derived.by(() => stores.find((store) => store.id === parseInt(storeId)));
 	let errors = $derived(page.form?.errors);
+
+	const enhanceForm: SubmitFunction = () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				open = false;
+				await invalidate('transfers:ibrrs');
+				toast.success('IBRR created successfully');
+			} else {
+				toast.error('Failed to create IBRR');
+			}
+		};
+	};
 
 	const onOpenChangeComplete = (state: boolean) => {
 		if (!state) {
@@ -47,7 +64,7 @@
 			<SheetDescription>Fill in the details to add a new ibrr</SheetDescription>
 		</SheetHeader>
 
-		<form method="post" action="">
+		<form method="post" action="/vendors/transfers/ibrrs?/createIBRR" use:enhance={enhanceForm}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
 					<CardHeader>

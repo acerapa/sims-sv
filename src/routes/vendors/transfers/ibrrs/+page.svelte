@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import IBRRForm from '$lib/components/pages/vendors/transfers/ibrrs/IBRRForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -18,6 +19,8 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Ellipsis, Search } from '@lucide/svelte';
+
+	const ibrrs = $derived(page.data.ibrrs);
 </script>
 
 <Card>
@@ -48,66 +51,26 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				<TableRow>
-					<TableCell>IBRR-001</TableCell>
-					<TableCell>STR-001</TableCell>
-					<TableCell>Branch A</TableCell>
-					<TableCell>2023-01-01</TableCell>
-					<TableCell class="text-center">10</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis class="size-4" />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>IBRR-002</TableCell>
-					<TableCell>STR-002</TableCell>
-					<TableCell>Branch B</TableCell>
-					<TableCell>2023-01-02</TableCell>
-					<TableCell class="text-center">5</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis class="size-4" />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>IBRR-003</TableCell>
-					<TableCell>STR-003</TableCell>
-					<TableCell>Branch C</TableCell>
-					<TableCell>2023-01-03</TableCell>
-					<TableCell class="text-center">8</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis class="size-4" />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>IBRR-004</TableCell>
-					<TableCell>STR-004</TableCell>
-					<TableCell>Branch D</TableCell>
-					<TableCell>2023-01-04</TableCell>
-					<TableCell class="text-center">12</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis class="size-4" />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>IBRR-005</TableCell>
-					<TableCell>STR-005</TableCell>
-					<TableCell>Branch E</TableCell>
-					<TableCell>2023-01-05</TableCell>
-					<TableCell class="text-center">15</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis class="size-4" />
-						</Button>
-					</TableCell>
-				</TableRow>
+				{#each ibrrs as ibrr (ibrr.id)}
+					<TableRow>
+						<TableCell>IBRR-00{ibrr.id}</TableCell>
+						<TableCell>{ibrr.str_id}</TableCell>
+						<TableCell>{ibrr.source_store_name}</TableCell>
+						<TableCell>
+							{ibrr.received_date.toLocaleString('default', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							})}
+						</TableCell>
+						<TableCell class="text-center">{ibrr.items_count}</TableCell>
+						<TableCell>
+							<Button variant="ghost" size="icon">
+								<Ellipsis class="size-4" />
+							</Button>
+						</TableCell>
+					</TableRow>
+				{/each}
 			</TableBody>
 		</Table>
 	</CardContent>
