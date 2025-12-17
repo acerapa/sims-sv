@@ -51,7 +51,7 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#if rmas.length === 0}
+				{#if !rmas || rmas.length === 0}
 					<TableRow>
 						<TableCell colspan={5} class="py-4 text-center">No Data</TableCell>
 					</TableRow>
