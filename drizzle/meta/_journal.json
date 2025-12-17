@@ -169,6 +169,13 @@
       "when": 1765538604248,
       "tag": "0023_lame_shape",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1765939999337,
+      "tag": "0024_high_the_renegades",
+      "breakpoints": true
     }
   ]
 }

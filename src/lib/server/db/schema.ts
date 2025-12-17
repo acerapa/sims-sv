@@ -206,7 +206,38 @@ export const strItems = pgTable('str_items', {
 	total_cost: integer().notNull()
 });
 
+export const ibrrs = pgTable('inter_branch_receiving_reports', {
+	id: serial().primaryKey(),
+	str_id: integer().notNull(),
+	source_store_id: integer()
+		.notNull()
+		.references(() => stores.id),
+	received_date: timestamp().notNull(),
+	...timestamps
+});
+
+export const ibrrItems = pgTable('inter_branch_receiving_report_items', {
+	id: serial().primaryKey(),
+	ibrr_id: integer()
+		.notNull()
+		.references(() => ibrrs.id),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	quantity: integer().notNull(),
+	cost: integer().notNull(),
+	total_cost: integer().notNull()
+});
+
 // relations
+export const ibrrRelations = relations(ibrrs, ({ one, many }) => ({
+	items: many(ibrrItems),
+	source_store: one(stores, {
+		fields: [ibrrs.source_store_id],
+		references: [stores.id]
+	})
+}));
+
 export const strRelations = relations(strs, ({ one }) => ({
 	detination: one(stores, {
 		fields: [strs.store_id],
