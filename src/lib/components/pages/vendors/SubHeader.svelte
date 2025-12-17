@@ -68,6 +68,9 @@
 						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/ibrrs'))}>
 							Inter-Branch Reciving (IBRR)
 						</DropdownMenuItem>
+						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/rmas'))}>
+							Return Merchandise Authorization (RMA)
+						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			{:else}
