@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import RMAForm from '$lib/components/pages/vendors/transfers/rmas/RMAForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -18,6 +19,10 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Ellipsis, Search } from '@lucide/svelte';
+
+	const rmas = $derived(page.data.rmas);
+
+	$inspect(page);
 </script>
 
 <Card>
@@ -46,61 +51,25 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				<TableRow>
-					<TableCell>RMA-001</TableCell>
-					<TableCell>Supplier A</TableCell>
-					<TableCell>2023-01-01</TableCell>
-					<TableCell class="text-center">5</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>RMA-002</TableCell>
-					<TableCell>Supplier B</TableCell>
-					<TableCell>2023-02-01</TableCell>
-					<TableCell class="text-center">3</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>RMA-003</TableCell>
-					<TableCell>Supplier C</TableCell>
-					<TableCell>2023-03-01</TableCell>
-					<TableCell class="text-center">2</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>RMA-004</TableCell>
-					<TableCell>Supplier D</TableCell>
-					<TableCell>2023-04-01</TableCell>
-					<TableCell class="text-center">4</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell>RMA-005</TableCell>
-					<TableCell>Supplier E</TableCell>
-					<TableCell>2023-05-01</TableCell>
-					<TableCell class="text-center">6</TableCell>
-					<TableCell>
-						<Button variant="ghost" size="icon">
-							<Ellipsis />
-						</Button>
-					</TableCell>
-				</TableRow>
+				{#if rmas.length === 0}
+					<TableRow>
+						<TableCell colspan={5} class="py-4 text-center">No Data</TableCell>
+					</TableRow>
+				{:else}
+					{#each rmas as rma (rma.id)}
+						<TableRow>
+							<TableCell>RMA-00{rma.id}</TableCell>
+							<TableCell>{rma.supplier_name}</TableCell>
+							<TableCell>{rma.date_returned}</TableCell>
+							<TableCell class="text-center">{rma.items_count}</TableCell>
+							<TableCell>
+								<Button variant="ghost" size="icon">
+									<Ellipsis />
+								</Button>
+							</TableCell>
+						</TableRow>
+					{/each}
+				{/if}
 			</TableBody>
 		</Table>
 	</CardContent>
