@@ -209,6 +209,7 @@ export const strItems = pgTable('str_items', {
 export const ibrrs = pgTable('inter_branch_receiving_reports', {
 	id: serial().primaryKey(),
 	str_id: integer().notNull(),
+
 	source_store_id: integer()
 		.notNull()
 		.references(() => stores.id),
@@ -230,12 +231,66 @@ export const ibrrItems = pgTable('inter_branch_receiving_report_items', {
 	total_cost: integer().notNull()
 });
 
+export const rmas = pgTable('return_merchandise_authorizations', {
+	id: serial().primaryKey(),
+	supplier_id: integer()
+		.notNull()
+		.references(() => suppliers.id),
+	date_returned: timestamp().notNull(),
+	notes: text(),
+	...timestamps
+});
+
+export const rmaItems = pgTable('rma_items', {
+	id: serial().primaryKey(),
+	rma_id: integer()
+		.notNull()
+		.references(() => rmas.id),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	quantity: integer().notNull(),
+	cost: integer().notNull(),
+	total_cost: integer().notNull()
+});
+
 // relations
+
+export const rmaRelations = relations(rmas, ({ one, many }) => ({
+	supplier: one(suppliers, {
+		fields: [rmas.supplier_id],
+		references: [suppliers.id]
+	}),
+	items: many(rmaItems)
+}));
+
+export const rmaItemRelations = relations(rmaItems, ({ one }) => ({
+	rma: one(rmas, {
+		fields: [rmaItems.rma_id],
+		references: [rmas.id]
+	}),
+	product: one(products, {
+		fields: [rmaItems.product_id],
+		references: [products.id]
+	})
+}));
+
 export const ibrrRelations = relations(ibrrs, ({ one, many }) => ({
 	items: many(ibrrItems),
 	source_store: one(stores, {
 		fields: [ibrrs.source_store_id],
 		references: [stores.id]
+	})
+}));
+
+export const ibrrItemRelations = relations(ibrrItems, ({ one }) => ({
+	ibrr: one(ibrrs, {
+		fields: [ibrrItems.ibrr_id],
+		references: [ibrrs.id]
+	}),
+	product: one(products, {
+		fields: [ibrrItems.product_id],
+		references: [products.id]
 	})
 }));
 
