@@ -1,8 +1,9 @@
 import type { Actions } from './$types';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { suppliers } from '$lib/server/db/schema';
+import { createSupplier, type CreateSupplierData } from '$lib/server/db/queries/suppliers';
+import { DrizzleQueryError } from 'drizzle-orm';
+import { type PostgresError } from 'postgres';
 
 export const actions: Actions = {
 	default: async ({ request }) => {
@@ -37,17 +38,23 @@ export const actions: Actions = {
 				});
 			}
 
-			return await db.insert(suppliers).values(Object(data)).returning({
-				id: suppliers.id,
-				name: suppliers.name,
-				email: suppliers.email,
-				notes: suppliers.notes,
-				address: suppliers.address,
-				phone_number: suppliers.phone_number,
-				contact_person: suppliers.contact_person,
-				telephone_number: suppliers.telephone_number
-			});
+			return await createSupplier(Object(data) as CreateSupplierData);
 		} catch (error) {
+			if (error instanceof DrizzleQueryError && error.cause) {
+				const cause = error.cause as PostgresError;
+				if (cause?.code === '23505') {
+					return fail(409, {
+						message: 'Supplier already exists',
+						errors: {
+							properties: {
+								name: {
+									errors: ['Supplier name already exists']
+								}
+							}
+						}
+					});
+				}
+			}
 			return fail(500, {
 				message: 'Internal Server Error',
 				errors: (error as Error).message

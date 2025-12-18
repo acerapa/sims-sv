@@ -55,7 +55,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 
 export const suppliers = pgTable('suppliers', {
 	id: serial().primaryKey(),
-	name: text().notNull(),
+	name: text().notNull().unique(),
 	address: text().notNull(),
 	contact_person: text().notNull(),
 	email: text(),
