@@ -188,6 +188,7 @@ export const getProductsBySupplier = async (supplierId: number) => {
 			minimum_quantity: products.minimum_quantity,
 			purchase_description: products.purchase_description,
 			preferred_supplier_id: products.preferred_supplier_id,
+			sale_price: products.sale_price,
 			cost: productsToSupplier.cost
 		})
 		.from(products)

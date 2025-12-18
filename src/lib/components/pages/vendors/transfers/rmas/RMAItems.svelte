@@ -15,7 +15,7 @@
 	import type { Product } from '$lib/types/global';
 	import { Plus, Trash } from '@lucide/svelte';
 
-	const products = $derived<Product[]>(page.data.products);
+	const products = $derived<Product[]>(page.data.supplierProducts ?? []);
 	let errors: typeof page.form.errors = $derived(page.form?.errors?.properties?.items?.items);
 
 	const items = $state([

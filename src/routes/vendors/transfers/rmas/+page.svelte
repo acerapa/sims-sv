@@ -21,8 +21,6 @@
 	import { Ellipsis, Search } from '@lucide/svelte';
 
 	const rmas = $derived(page.data.rmas);
-
-	$inspect(page);
 </script>
 
 <Card>
@@ -60,7 +58,13 @@
 						<TableRow>
 							<TableCell>RMA-00{rma.id}</TableCell>
 							<TableCell>{rma.supplier_name}</TableCell>
-							<TableCell>{rma.date_returned}</TableCell>
+							<TableCell>
+								{rma.date_returned.toLocaleString('default', {
+									day: 'numeric',
+									month: 'long',
+									year: 'numeric'
+								})}
+							</TableCell>
 							<TableCell class="text-center">{rma.items_count}</TableCell>
 							<TableCell>
 								<Button variant="ghost" size="icon">
