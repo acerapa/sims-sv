@@ -1,6 +1,12 @@
 <script lang="ts">
 	import StartInventory from '$lib/components/pages/vendors/phyiscal-inventory/StartInventory.svelte';
 	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
+	import {
 		Card,
 		CardContent,
 		CardDescription,
@@ -16,12 +22,22 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, Search } from '@lucide/svelte';
+	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { buttonVariants } from '$lib/components/ui/button';
 
 	let { data, form }: PageProps = $props();
+
+	const onViewPhysicalInventory = (id: number) => {
+		goto(
+			resolve('/vendors/physical-inventory/[physical_inventory_id]', {
+				physical_inventory_id: id.toString()
+			})
+		);
+	};
 </script>
 
 <Card>
@@ -75,9 +91,20 @@
 						</TableCell>
 						<TableCell class="text-center">{inventory.items_counted}</TableCell>
 						<TableCell>
-							<Button variant="ghost" size="sm">
-								<Ellipsis />
-							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+									<Ellipsis />
+								</DropdownMenuTrigger>
+								<DropdownMenuContent>
+									<DropdownMenuItem
+										onSelect={() => onViewPhysicalInventory(inventory.id)}
+										class="space-x-2"
+									>
+										<Eye />
+										<span>View</span>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</TableCell>
 					</TableRow>
 				{/each}

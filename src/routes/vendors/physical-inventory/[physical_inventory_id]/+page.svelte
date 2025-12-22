@@ -16,7 +16,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { resolve } from '$app/paths';
 	import { toast } from 'svelte-sonner';
-	import { invalidate } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
@@ -85,7 +85,7 @@
 		</div>
 		{#if physicalInventory.status === 'draft'}
 			<div class="flex items-center gap-3">
-				<Button variant="outline">
+				<Button variant="outline" onclick={() => goto(resolve('/vendors/physical-inventory'))}>
 					<Save />
 					Save as Draft
 				</Button>
