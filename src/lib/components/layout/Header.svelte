@@ -58,9 +58,9 @@
 						Dashboard
 					</Button>
 				</a>
-				<a href={resolve('/customers')}>
+				<a href={resolve('/customers/sales-orders')}>
 					<Button
-						variant={isRouteActive('/customers', path) ? 'info' : 'ghost'}
+						variant={isRouteActive('/customers', path, true) ? 'info' : 'ghost'}
 						class="text-muted-foreground">Customers</Button
 					>
 				</a>
