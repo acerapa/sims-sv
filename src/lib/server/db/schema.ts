@@ -22,7 +22,7 @@ const timestamps = {
 	created_at: timestamp().defaultNow().notNull(),
 	updated_at: timestamp()
 		.defaultNow()
-		.$onUpdate(() => sql`NOW()`)
+		.$onUpdate(() => new Date())
 };
 
 export const users = pgTable('users', {
