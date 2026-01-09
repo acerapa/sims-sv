@@ -21,7 +21,7 @@
 	import IBRRItems from './IBRRItems.svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { invalidate } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 
 	let { open = $bindable(false) } = $props();
@@ -37,7 +37,7 @@
 			await applyAction(result);
 			if (result.type === 'success') {
 				open = false;
-				await invalidate('transfers:ibrrs');
+				await invalidateAll();
 				toast.success('IBRR created successfully');
 			} else {
 				toast.error('Failed to create IBRR');

@@ -1,6 +1,6 @@
-import { count, desc, eq } from 'drizzle-orm';
+import { count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '..';
-import { ibrrItems, ibrrs, stores } from '../schema';
+import { ibrrItems, ibrrs, products, stores } from '../schema';
 
 export interface CreateIBRRData {
 	source_store_id: number;
@@ -44,6 +44,30 @@ export const createIBRR = async (data: CreateIBRRData) => {
 					cost: item.cost,
 					total_cost: item.total_cost
 				});
+			})
+		);
+
+		// update the products stocks
+		const productsInvolved = await tx
+			.select()
+			.from(products)
+			.where(
+				inArray(
+					products.id,
+					data.items.map((item) => item.product_id)
+				)
+			);
+
+		await Promise.all(
+			data.items.map(async (item) => {
+				const p = productsInvolved.find((pi) => pi.id === item.product_id);
+				if (!p) {
+					throw new Error(`Product with ID ${item.product_id} not found`);
+				}
+				return await tx
+					.update(products)
+					.set({ quantity: p.quantity + item.quantity })
+					.where(eq(products.id, item.product_id));
 			})
 		);
 
