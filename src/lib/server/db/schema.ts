@@ -17,6 +17,8 @@ export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
 export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
 export const physicalInventoryStatus = pgEnum('physical_inventory_status', ['draft', 'finalized']);
+export const salesOrderType = pgEnum('sales_order_type', ['onetime', 'installment']);
+export const salesOrderStatus = pgEnum('sales_order_status', ['open', 'cancelled', 'invoiced']);
 
 const timestamps = {
 	created_at: timestamp().defaultNow().notNull(),
@@ -254,8 +256,32 @@ export const rmaItems = pgTable('rma_items', {
 	total_cost: integer().notNull()
 });
 
-// relations
+export const customers = pgTable('customers', {
+	id: serial().primaryKey(),
+	name: varchar().notNull(),
+	address: text().notNull(),
+	phone: varchar(),
+	viber: varchar(),
+	fb_account: varchar()
+});
 
+export const salesOrders = pgTable('sales_orders', {
+	id: serial().primaryKey(),
+	customer_id: integer()
+		.notNull()
+		.references(() => customers.id),
+	staff_user_id: integer()
+		.notNull()
+		.references(() => users.id),
+	date_ordered: timestamp().notNull(),
+	order_type: salesOrderType().default('onetime'),
+	order_status: salesOrderStatus().default('open'),
+	notes: text(),
+	total_cost: integer().notNull(),
+	...timestamps
+});
+
+// relations
 export const rmaRelations = relations(rmas, ({ one, many }) => ({
 	supplier: one(suppliers, {
 		fields: [rmas.supplier_id],
