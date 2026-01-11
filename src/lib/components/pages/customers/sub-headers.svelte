@@ -9,6 +9,10 @@
 		{
 			name: 'Sales Orders',
 			path: '/customers/sales-orders'
+		},
+		{
+			name: 'Clients',
+			path: '/customers/clients'
 		}
 	] as const;
 </script>
