@@ -281,6 +281,14 @@ export const salesOrders = pgTable('sales_orders', {
 	...timestamps
 });
 
+export const sellingBrackets = pgTable('selling_brackets', {
+	id: serial().primaryKey(),
+	start_price: integer().notNull(),
+	end_price: integer().notNull(),
+	discount_percentage: integer().notNull(),
+	...timestamps
+});
+
 // relations
 export const rmaRelations = relations(rmas, ({ one, many }) => ({
 	supplier: one(suppliers, {

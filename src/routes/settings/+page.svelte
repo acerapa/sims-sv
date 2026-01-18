@@ -1,8 +1,22 @@
 <script>
 	import PageTitle from '$lib/components/layout/PageTitle.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Store, Users } from '@lucide/svelte';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
+	import {
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow
+	} from '$lib/components/ui/table';
+	import { Ellipsis, PhilippinePeso, Store, Users } from '@lucide/svelte';
 </script>
 
 <svelte:head>
@@ -43,5 +57,60 @@
 				Manage Stores
 			</Button>
 		</CardHeader>
+	</Card>
+
+	<Card>
+		<CardHeader>
+			<CardTitle class="flex items-center gap-2">
+				<PhilippinePeso class="size-5 text-blue-500" />
+				Selling Price Brackets
+			</CardTitle>
+			<CardDescription>
+				Configure markup percentages based on product cost ranges.Formula: Selling Price = Cost × (1
+				+ Markup%)
+			</CardDescription>
+		</CardHeader>
+		<CardContent>
+			<Table>
+				<TableHeader>
+					<TableRow>
+						<TableHead>Bracket #</TableHead>
+						<TableHead>Lower Limit</TableHead>
+						<TableHead>Upper Limit</TableHead>
+						<TableHead>Markup %</TableHead>
+						<TableHead>Actions</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					<TableRow>
+						<TableCell>BRACKET-1</TableCell>
+						<TableCell>0</TableCell>
+						<TableCell>1000</TableCell>
+						<TableCell>10%</TableCell>
+						<TableCell>
+							<Ellipsis />
+						</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell>BRACKET-2</TableCell>
+						<TableCell>1001</TableCell>
+						<TableCell>2000</TableCell>
+						<TableCell>15%</TableCell>
+						<TableCell>
+							<Ellipsis />
+						</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell>BRACKET-3</TableCell>
+						<TableCell>2001</TableCell>
+						<TableCell>3000</TableCell>
+						<TableCell>20%</TableCell>
+						<TableCell>
+							<Ellipsis />
+						</TableCell>
+					</TableRow>
+				</TableBody>
+			</Table>
+		</CardContent>
 	</Card>
 </section>
