@@ -18,6 +18,7 @@
 		disabled: boolean;
 		issues: z.core.$ZodIssue[] | undefined;
 		suppliers: Supplier[];
+		costPerSuppliers?: { supplierId: string; cost: number | null }[];
 		selectedSuppliers: Supplier[];
 		preSelectedSuppliers: {
 			supplierId: string;
@@ -29,6 +30,7 @@
 		issues,
 		suppliers,
 		disabled = $bindable(false),
+		costPerSuppliers = $bindable(),
 		selectedSuppliers = $bindable(),
 		preSelectedSuppliers = $bindable([])
 	}: Props = $props();
@@ -48,16 +50,14 @@
 		return grouped;
 	});
 
-	let costPerSuppliers = $state<{ supplierId: string; cost: number | null }[]>(
-		preSelectedSuppliers.length
-			? (preSelectedSuppliers as { supplierId: string; cost: number }[])
-			: [
-					{
-						supplierId: '',
-						cost: null
-					}
-				]
-	);
+	costPerSuppliers = preSelectedSuppliers.length
+		? (preSelectedSuppliers as { supplierId: string; cost: number }[])
+		: [
+				{
+					supplierId: '',
+					cost: null
+				}
+			];
 
 	let suppliersSelected = $derived.by(() => {
 		return costPerSuppliers

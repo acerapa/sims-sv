@@ -62,6 +62,7 @@
 	);
 
 	let selectSupplierAndCostRef: SupplierAndCost;
+	let selectedSuppliersWithCost = $state<{ supplierId: string; cost: number | null }[]>([]);
 
 	const handleAddSupplier = () => {
 		selectSupplierAndCostRef.addSupplierCost();
@@ -203,65 +204,6 @@
 									{/if}
 								</div>
 							</div>
-							<div class="space-y-2">
-								<Label>Quantity</Label>
-								<div>
-									<Input
-										disabled={!!product && !edit}
-										type="number"
-										name="quantity"
-										placeholder="Enter quantity"
-										value={product?.quantity}
-										class={[
-											'disabled:opacity-100',
-											errors?.properties?.quantity ? 'border-red-500' : ''
-										]}
-									/>
-									{#if errors?.properties?.quantity}
-										<small class="text-red-500">{errors.properties.quantity.errors[0]}</small>
-									{/if}
-								</div>
-							</div>
-							<div class="space-y-2">
-								<Label>Minimum Quantity</Label>
-								<div>
-									<Input
-										class={[
-											'disabled:opacity-100',
-											errors?.properties?.minimum_quantity ? 'border-red-500' : ''
-										]}
-										type="number"
-										name="minimum_quantity"
-										disabled={!!product && !edit}
-										value={product?.minimum_quantity}
-										placeholder="Enter minimum quantity"
-									/>
-									{#if errors?.properties?.minimum_quantity}
-										<small class="text-red-500"
-											>{errors.properties.minimum_quantity.errors[0]}</small
-										>
-									{/if}
-								</div>
-							</div>
-							<div class="space-y-2">
-								<Label>Sale Price (₱)</Label>
-								<div>
-									<Input
-										class={[
-											'disabled:opacity-100',
-											errors?.properties?.sale_price ? 'border-red-500' : ''
-										]}
-										type="number"
-										name="sale_price"
-										value={product?.sale_price}
-										disabled={!!product && !edit}
-										placeholder="e,.g,. 1000"
-									/>
-									{#if errors?.properties?.sale_price}
-										<small class="text-red-500">{errors.properties.sale_price.errors[0]}</small>
-									{/if}
-								</div>
-							</div>
 						</div>
 					</CardContent>
 				</Card>
@@ -281,6 +223,7 @@
 						<div class="flex flex-col gap-6">
 							<SupplierAndCost
 								disabled={!!product && !edit}
+								bind:costPerSuppliers={selectedSuppliersWithCost}
 								bind:preSelectedSuppliers
 								bind:selectedSuppliers
 								bind:this={selectSupplierAndCostRef}
@@ -331,6 +274,87 @@
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-col gap-6">
+							<div class="flex items-start gap-3 [&>div]:flex-1">
+								<div class="space-y-2">
+									<Label>Quantity</Label>
+									<div>
+										<Input
+											disabled={!!product && !edit}
+											type="number"
+											name="quantity"
+											placeholder="Enter quantity"
+											value={product?.quantity}
+											class={[
+												'disabled:opacity-100',
+												errors?.properties?.quantity ? 'border-red-500' : ''
+											]}
+										/>
+										{#if errors?.properties?.quantity}
+											<small class="text-red-500">{errors.properties.quantity.errors[0]}</small>
+										{/if}
+									</div>
+								</div>
+								<div class="space-y-2">
+									<Label>Minimum Quantity</Label>
+									<div>
+										<Input
+											class={[
+												'disabled:opacity-100',
+												errors?.properties?.minimum_quantity ? 'border-red-500' : ''
+											]}
+											type="number"
+											name="minimum_quantity"
+											disabled={!!product && !edit}
+											value={product?.minimum_quantity}
+											placeholder="Enter minimum quantity"
+										/>
+										{#if errors?.properties?.minimum_quantity}
+											<small class="text-red-500"
+												>{errors.properties.minimum_quantity.errors[0]}</small
+											>
+										{/if}
+									</div>
+								</div>
+							</div>
+							<div class="flex items-start gap-3 [&>div]:flex-1">
+								<div class="space-y-2">
+									<Label>Cost Price (₱)</Label>
+									<div>
+										<Input
+											class={[
+												'disabled:opacity-100',
+												errors?.properties?.cost_price ? 'border-red-500' : ''
+											]}
+											type="number"
+											name="cost_price"
+											value={selectedSuppliersWithCost.find(
+												(s) => preferredSupplierId == s.supplierId
+											)?.cost || 0}
+											placeholder="e,.g,. 1000"
+											readonly
+										/>
+									</div>
+								</div>
+								<div class="space-y-2">
+									<Label>Sale Price (₱)</Label>
+									<div>
+										<Input
+											class={[
+												'disabled:opacity-100',
+												errors?.properties?.sale_price ? 'border-red-500' : ''
+											]}
+											type="number"
+											name="sale_price"
+											value={product?.sale_price}
+											disabled={!!product && !edit}
+											placeholder="e,.g,. 1000"
+										/>
+										{#if errors?.properties?.sale_price}
+											<small class="text-red-500">{errors.properties.sale_price.errors[0]}</small>
+										{/if}
+									</div>
+								</div>
+							</div>
 							<div class="flex items-center gap-1">
 								<Checkbox id="same-value" bind:checked={isSameDescription} />
 								<Label for="same-value">Is same value?</Label>
