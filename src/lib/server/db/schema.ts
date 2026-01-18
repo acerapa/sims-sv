@@ -84,7 +84,7 @@ export const products = pgTable('products', {
 		.notNull()
 		.references(() => suppliers.id),
 	purchase_description: text().notNull(),
-	quantity: integer().notNull(),
+	quantity: integer().default(0),
 	minimum_quantity: integer().default(0),
 	sales_description: text().notNull(),
 	sale_price: decimal().notNull(),

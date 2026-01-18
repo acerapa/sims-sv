@@ -40,11 +40,17 @@
 		<p class="col-span-2 font-semibold">₱{parseFloat(product.sale_price).toFixed(2)}</p>
 		<div class="col-span-2 space-y-1">
 			<p class="text-sm text-muted-foreground">
-				<span class={[textColor, 'font-bold']}>{product.quantity}</span>/{product.minimum_quantity}
+				<span class={[textColor, 'font-bold']}>
+					{product.quantity || 0}
+				</span>
+				/{product.minimum_quantity || 0}
 			</p>
 			<p class="text-xs text-muted-foreground">Current/Min</p>
 		</div>
-		<ProductBadge quantity={product.quantity} minimum_quantity={product.minimum_quantity} />
+		<ProductBadge
+			quantity={product.quantity || 0}
+			minimum_quantity={product.minimum_quantity || 0}
+		/>
 		<div class="col-span-1 text-end">
 			<DropdownMenu>
 				<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost' })}>
