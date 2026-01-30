@@ -73,10 +73,10 @@ export const updateProduct = async (data: UpdateProductData) => {
 			.set(
 				Object({
 					sku: data.sku,
+					cost: data.cost,
 					quantity: data.quantity,
 					sale_price: data.sale_price,
 					category_id: data.category_id,
-					preferred_supplier_id: data.preferred_supplier_id,
 					minimum_quantity: data.minimum_quantity,
 					sales_description: data.sales_description,
 					purchase_description: data.purchase_description
@@ -89,23 +89,24 @@ export const updateProduct = async (data: UpdateProductData) => {
 				quantity: products.quantity,
 				sale_price: products.sale_price,
 				minimum_quantity: products.minimum_quantity,
-				purchase_description: products.purchase_description,
-				preferred_supplier_id: products.preferred_supplier_id
+				purchase_description: products.purchase_description
 			});
 
-		// Delete existing supplier associations
-		await tx.delete(productsToSupplier).where(eq(productsToSupplier.product_id, data.id));
+		if (data.suppliers.length) {
+			// Delete existing supplier associations
+			await tx.delete(productsToSupplier).where(eq(productsToSupplier.product_id, data.id));
 
-		// Insert new supplier associations
-		await tx.insert(productsToSupplier).values(
-			data.suppliers.map((supplier) => {
-				return Object({
-					product_id: data.id,
-					supplier_id: supplier.supplier_id,
-					cost: supplier.cost
-				});
-			})
-		);
+			// Insert new supplier associations
+			await tx.insert(productsToSupplier).values(
+				data.suppliers.map((supplier) => {
+					return Object({
+						product_id: data.id,
+						supplier_id: supplier.supplier_id,
+						cost: supplier.cost
+					});
+				})
+			);
+		}
 
 		return product;
 	});

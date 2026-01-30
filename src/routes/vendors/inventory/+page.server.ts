@@ -98,7 +98,6 @@ export const actions: Actions = {
 					'quantity',
 					'cost',
 					'minimum_quantity',
-					'preferred_supplier_id',
 					'sale_price',
 					'suppliers.$.supplier_id',
 					'suppliers.$.cost'
@@ -120,8 +119,7 @@ export const actions: Actions = {
 							cost: z.number('Cost is required').min(0)
 						})
 					)
-					.min(1),
-				preferred_supplier_id: z.number('Preferred supplier is required').min(1),
+					.min(0),
 				purchase_description: z
 					.string('Purchase description is required')
 					.min(1, 'Purchase description is required')
@@ -143,6 +141,7 @@ export const actions: Actions = {
 
 			return await updateProduct(formvalues);
 		} catch (error) {
+			console.error(error);
 			return fail(500, {
 				message: 'An error occurred while processing the form',
 				error: error
