@@ -10,7 +10,7 @@
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { CircleAlert, CircleCheck } from '@lucide/svelte';
+	import { CircleAlert, CircleCheck, Eye, EyeClosed } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -18,6 +18,7 @@
 	import { resolve } from '$app/paths';
 
 	let { form }: PageProps = $props();
+	let showPassword = $state(false);
 
 	const formEnhance: SubmitFunction = async () => {
 		return async ({ result }) => {
@@ -67,7 +68,26 @@
 				</div>
 				<div class="space-y-2">
 					<Label for="password">Password</Label>
-					<Input id="password" name="password" type="password" placeholder="Enter Password" />
+					<div class="relative">
+						<Button
+							variant="ghost"
+							size="icon"
+							class="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:bg-transparent"
+							onclick={() => (showPassword = !showPassword)}
+						>
+							{#if showPassword}
+								<Eye />
+							{:else}
+								<EyeClosed />
+							{/if}
+						</Button>
+						<Input
+							id="password"
+							name="password"
+							type={showPassword ? 'text' : 'password'}
+							placeholder="Enter Password"
+						/>
+					</div>
 				</div>
 				<Button type="submit" class="w-full">Sign in</Button>
 			</form>
