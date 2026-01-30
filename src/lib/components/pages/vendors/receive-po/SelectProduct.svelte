@@ -20,7 +20,7 @@
 	import type { Category, Product, Supplier } from '$lib/types/global';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
-	import ProductForm from '../ProductForm.svelte';
+	import ProductForm from '../product-form.svelte';
 	import type { ActionData } from '../../../../../routes/vendors/receive-po/$types';
 
 	interface Props {

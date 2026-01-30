@@ -7,6 +7,7 @@ export interface CreateProductData {
 	quantity: number;
 	sale_price: number;
 	category_id: number;
+	cost: number;
 	// preferred_supplier_id: number | null;
 	minimum_quantity: number | null;
 	sales_description: string | null;
@@ -31,6 +32,7 @@ export const createProduct = async (data: CreateProductData) => {
 					quantity: data.quantity,
 					sale_price: data.sale_price,
 					category_id: data.category_id,
+					cost: data.cost,
 					// preferred_supplier_id: data.preferred_supplier_id,
 					minimum_quantity: data.minimum_quantity,
 					sales_description: data.sales_description,
@@ -40,6 +42,7 @@ export const createProduct = async (data: CreateProductData) => {
 			.returning({
 				id: products.id,
 				sku: products.sku,
+				cost: products.cost,
 				quantity: products.quantity,
 				sale_price: products.sale_price,
 				minimum_quantity: products.minimum_quantity,

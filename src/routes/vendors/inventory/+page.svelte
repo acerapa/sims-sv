@@ -1,6 +1,6 @@
 <script lang="ts">
 	import StatCard from '$lib/components/common/StatCard.svelte';
-	import ProductForm from '$lib/components/pages/vendors/ProductForm.svelte';
+	import ProductForm from '$lib/components/pages/vendors/product-form.svelte';
 	import ProductRow from '$lib/components/pages/vendors/ProductRow.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {

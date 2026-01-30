@@ -322,23 +322,72 @@
 									</div>
 								</div>
 							</div>
-							<div class="flex items-start gap-3 [&>div]:flex-1">
+							<div class="flex items-center gap-1">
+								<Checkbox id="same-value" bind:checked={isSameDescription} />
+								<Label for="same-value">Is same value?</Label>
+							</div>
+							<div class="flex items-start gap-1">
+								<div class="flex-1 space-y-2">
+									<Label>Item Description - Purchase</Label>
+									<div>
+										<Textarea
+											disabled={!!product && !edit}
+											name="purchase_description"
+											class={[
+												'disabled:opacity-100',
+												errors?.properties?.purchase_description ? 'border-red-500' : ''
+											]}
+											bind:value={purchase_description}
+											oninput={handlePurchaseDescriptionInput}
+											placeholder="Description for purchase orders and receiving..."
+										/>
+										{#if errors?.properties?.purchase_description && !isSameDescription}
+											<small class="text-red-500">
+												{errors.properties.purchase_description.errors[0]}
+											</small>
+										{/if}
+									</div>
+								</div>
 								<div class="space-y-2">
 									<Label>Cost Price (₱)</Label>
 									<div>
 										<Input
 											class={[
 												'disabled:opacity-100',
-												errors?.properties?.cost_price ? 'border-red-500' : ''
+												errors?.properties?.cost ? 'border-red-500' : ''
 											]}
 											type="number"
-											name="cost_price"
-											value={selectedSuppliersWithCost.find(
-												(s) => preferredSupplierId == s.supplierId
-											)?.cost || 0}
+											name="cost"
 											placeholder="e,.g,. 1000"
-											readonly
 										/>
+									</div>
+								</div>
+							</div>
+							<div class="flex items-start gap-1">
+								<div class="flex-1 space-y-2">
+									<Label class={isSameDescription ? 'opacity-50' : ''}
+										>Item Description - Sales</Label
+									>
+									<div>
+										<Textarea
+											disabled={!!product && !edit}
+											readonly={isSameDescription}
+											name="sales_description"
+											class={[
+												'disabled:opacity-100',
+												!isSameDescription && errors?.properties?.sales_description
+													? 'border-red-500'
+													: ''
+											]}
+											bind:value={sales_description}
+											oninput={handleSalesDescriptionInput}
+											placeholder="Description for sales and customer-facing documents..."
+										/>
+										{#if errors?.properties?.sales_description && !isSameDescription}
+											<small class="text-red-500">
+												{errors.properties.sales_description.errors[0]}
+											</small>
+										{/if}
 									</div>
 								</div>
 								<div class="space-y-2">
@@ -359,56 +408,6 @@
 											<small class="text-red-500">{errors.properties.sale_price.errors[0]}</small>
 										{/if}
 									</div>
-								</div>
-							</div>
-							<div class="flex items-center gap-1">
-								<Checkbox id="same-value" bind:checked={isSameDescription} />
-								<Label for="same-value">Is same value?</Label>
-							</div>
-							<div class="space-y-2">
-								<Label>Item Description - Purchase</Label>
-								<div>
-									<Textarea
-										disabled={!!product && !edit}
-										name="purchase_description"
-										class={[
-											'disabled:opacity-100',
-											errors?.properties?.purchase_description ? 'border-red-500' : ''
-										]}
-										bind:value={purchase_description}
-										oninput={handlePurchaseDescriptionInput}
-										placeholder="Description for purchase orders and receiving..."
-									/>
-									{#if errors?.properties?.purchase_description && !isSameDescription}
-										<small class="text-red-500">
-											{errors.properties.purchase_description.errors[0]}
-										</small>
-									{/if}
-								</div>
-							</div>
-							<div class="space-y-2">
-								<Label class={isSameDescription ? 'opacity-50' : ''}>Item Description - Sales</Label
-								>
-								<div>
-									<Textarea
-										disabled={!!product && !edit}
-										readonly={isSameDescription}
-										name="sales_description"
-										class={[
-											'disabled:opacity-100',
-											!isSameDescription && errors?.properties?.sales_description
-												? 'border-red-500'
-												: ''
-										]}
-										bind:value={sales_description}
-										oninput={handleSalesDescriptionInput}
-										placeholder="Description for sales and customer-facing documents..."
-									/>
-									{#if errors?.properties?.sales_description && !isSameDescription}
-										<small class="text-red-500">
-											{errors.properties.sales_description.errors[0]}
-										</small>
-									{/if}
 								</div>
 							</div>
 						</div>
