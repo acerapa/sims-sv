@@ -51,8 +51,12 @@ export const actions: Actions = {
 							cost: z.number('Cost is required').min(0)
 						})
 					)
-					.min(1),
-				preferred_supplier_id: z.number('Preferred supplier is required').min(1),
+					.min(0),
+				preferred_supplier_id: z
+					.number('Preferred supplier is required')
+					.optional()
+					.nullable()
+					.default(null),
 				purchase_description: z
 					.string('Purchase description is required')
 					.min(1, 'Purchase description is required')

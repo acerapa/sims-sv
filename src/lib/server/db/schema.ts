@@ -80,9 +80,7 @@ export const products = pgTable('products', {
 	category_id: serial()
 		.notNull()
 		.references(() => categories.id),
-	preferred_supplier_id: serial()
-		.notNull()
-		.references(() => suppliers.id),
+	// preferred_supplier_id: serial().references(() => suppliers.id), This is disabled for now
 	purchase_description: text().notNull(),
 	quantity: integer().default(0),
 	minimum_quantity: integer().default(0),
@@ -389,10 +387,6 @@ export const productRelations = relations(products, ({ many, one }) => ({
 	category: one(categories, {
 		fields: [products.category_id],
 		references: [categories.id]
-	}),
-	preferred_supplier: one(suppliers, {
-		fields: [products.preferred_supplier_id],
-		references: [suppliers.id]
 	})
 }));
 

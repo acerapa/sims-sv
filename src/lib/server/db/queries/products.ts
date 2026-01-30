@@ -7,7 +7,7 @@ export interface CreateProductData {
 	quantity: number;
 	sale_price: number;
 	category_id: number;
-	preferred_supplier_id: number;
+	// preferred_supplier_id: number | null;
 	minimum_quantity: number | null;
 	sales_description: string | null;
 	purchase_description: string | null;
@@ -31,7 +31,7 @@ export const createProduct = async (data: CreateProductData) => {
 					quantity: data.quantity,
 					sale_price: data.sale_price,
 					category_id: data.category_id,
-					preferred_supplier_id: data.preferred_supplier_id,
+					// preferred_supplier_id: data.preferred_supplier_id,
 					minimum_quantity: data.minimum_quantity,
 					sales_description: data.sales_description,
 					purchase_description: data.purchase_description
@@ -43,19 +43,21 @@ export const createProduct = async (data: CreateProductData) => {
 				quantity: products.quantity,
 				sale_price: products.sale_price,
 				minimum_quantity: products.minimum_quantity,
-				purchase_description: products.purchase_description,
-				preferred_supplier_id: products.preferred_supplier_id
+				purchase_description: products.purchase_description
+				// preferred_supplier_id: products.preferred_supplier_id
 			});
 
-		await tx.insert(productsToSupplier).values(
-			data.suppliers.map((supplier) => {
-				return Object({
-					product_id: product.id,
-					supplier_id: supplier.supplier_id,
-					cost: supplier.cost
-				});
-			})
-		);
+		if (data.suppliers.length) {
+			await tx.insert(productsToSupplier).values(
+				data.suppliers.map((supplier) => {
+					return Object({
+						product_id: product.id,
+						supplier_id: supplier.supplier_id,
+						cost: supplier.cost
+					});
+				})
+			);
+		}
 
 		return product;
 	});
