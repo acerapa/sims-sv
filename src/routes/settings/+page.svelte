@@ -8,6 +8,7 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import Input from '$lib/components/ui/input/input.svelte';
 	import {
 		Table,
 		TableBody,
@@ -16,7 +17,7 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, PhilippinePeso, Store, Users } from '@lucide/svelte';
+	import { Ellipsis, PhilippinePeso, Plus, Store, Users } from '@lucide/svelte';
 </script>
 
 <svelte:head>
@@ -71,46 +72,57 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent>
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead>Bracket #</TableHead>
-						<TableHead>Lower Limit</TableHead>
-						<TableHead>Upper Limit</TableHead>
-						<TableHead>Markup %</TableHead>
-						<TableHead>Actions</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					<TableRow>
-						<TableCell>BRACKET-1</TableCell>
-						<TableCell>0</TableCell>
-						<TableCell>1000</TableCell>
-						<TableCell>10%</TableCell>
-						<TableCell>
-							<Ellipsis />
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell>BRACKET-2</TableCell>
-						<TableCell>1001</TableCell>
-						<TableCell>2000</TableCell>
-						<TableCell>15%</TableCell>
-						<TableCell>
-							<Ellipsis />
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell>BRACKET-3</TableCell>
-						<TableCell>2001</TableCell>
-						<TableCell>3000</TableCell>
-						<TableCell>20%</TableCell>
-						<TableCell>
-							<Ellipsis />
-						</TableCell>
-					</TableRow>
-				</TableBody>
-			</Table>
+			<div class="space-y-2">
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>Bracket #</TableHead>
+							<TableHead>Lower Limit</TableHead>
+							<TableHead>Upper Limit</TableHead>
+							<TableHead>Markup %</TableHead>
+							<TableHead>Actions</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						<TableRow>
+							<TableCell>BRACKET-1</TableCell>
+							<TableCell>
+								<Input type="number" />
+							</TableCell>
+							<TableCell><Input type="number" /></TableCell>
+							<TableCell class="flex items-center gap-2"><Input type="number" />%</TableCell>
+							<TableCell>
+								<Ellipsis />
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell>BRACKET-2</TableCell>
+							<TableCell>1001</TableCell>
+							<TableCell>2000</TableCell>
+							<TableCell>15%</TableCell>
+							<TableCell>
+								<Ellipsis />
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell>BRACKET-3</TableCell>
+							<TableCell>2001</TableCell>
+							<TableCell>3000</TableCell>
+							<TableCell>20%</TableCell>
+							<TableCell>
+								<Ellipsis />
+							</TableCell>
+						</TableRow>
+					</TableBody>
+				</Table>
+				<hr />
+				<div>
+					<Button variant="outline" class="flex items-center gap-2">
+						<Plus />
+						Add Bracket
+					</Button>
+				</div>
+			</div>
 		</CardContent>
 	</Card>
 </section>
