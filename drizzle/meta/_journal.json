@@ -225,6 +225,13 @@
       "when": 1769796610226,
       "tag": "0031_faithful_wendell_rand",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1769797386250,
+      "tag": "0032_lowly_matthew_murdock",
+      "breakpoints": true
     }
   ]
 }

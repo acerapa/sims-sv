@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "cost" numeric DEFAULT '0' NOT NULL;
