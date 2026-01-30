@@ -120,8 +120,7 @@ export const getProducts = async () => {
 			quantity: true,
 			sale_price: true,
 			minimum_quantity: true,
-			purchase_description: true,
-			preferred_supplier_id: true
+			purchase_description: true
 		},
 		with: {
 			category: {
@@ -145,18 +144,15 @@ export const getProduct = async (productId: number) => {
 		.select({
 			id: products.id,
 			sku: products.sku,
+			cost: products.cost,
 			quantity: products.quantity,
-			cost: productsToSupplier.cost,
 			sale_price: products.sale_price,
 			category_id: products.category_id,
 			minimum_quantity: products.minimum_quantity,
-			supplier_id: productsToSupplier.supplier_id,
 			sales_description: products.sales_description,
-			purchase_description: products.purchase_description,
-			preferred_supplier_id: products.preferred_supplier_id
+			purchase_description: products.purchase_description
 		})
 		.from(products)
-		.leftJoin(productsToSupplier, eq(productsToSupplier.product_id, products.id))
 		.where(eq(products.id, productId));
 
 	if (result.length === 0) {
@@ -166,19 +162,13 @@ export const getProduct = async (productId: number) => {
 	const product = {
 		id: result[0].id,
 		sku: result[0].sku,
+		cost: result[0].cost,
 		quantity: result[0].quantity,
 		sale_price: result[0].sale_price,
 		category_id: result[0].category_id,
 		minimum_quantity: result[0].minimum_quantity,
 		sales_description: result[0].sales_description,
-		purchase_description: result[0].purchase_description,
-		preferred_supplier_id: result[0].preferred_supplier_id,
-		suppliers: result.map((r) => {
-			return {
-				supplierId: r.supplier_id,
-				cost: r.cost
-			};
-		})
+		purchase_description: result[0].purchase_description
 	};
 
 	return product;

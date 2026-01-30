@@ -357,9 +357,14 @@
 												errors?.properties?.cost ? 'border-red-500' : ''
 											]}
 											type="number"
+											value={product?.cost}
 											name="cost"
 											placeholder="e,.g,. 1000"
 										/>
+
+										{#if errors?.properties?.cost}
+											<small class="text-red-500">{errors.properties.cost.errors[0]}</small>
+										{/if}
 									</div>
 								</div>
 							</div>
