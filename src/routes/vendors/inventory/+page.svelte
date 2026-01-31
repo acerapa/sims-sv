@@ -42,7 +42,7 @@
 	import type { PageProps } from './$types';
 	import type { Category, Supplier } from '$lib/types/global';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);

@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+	import { page } from '$app/state';
 	import PageTitle from '$lib/components/layout/PageTitle.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -18,6 +19,19 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Ellipsis, PhilippinePeso, Plus, Store, Users } from '@lucide/svelte';
+
+	const sellingBrackets = $derived(page.data.sellingBrackets);
+	let newSellingBracket = $state<
+		{ start_price: number; end_price: number; discount_percentage: number }[]
+	>([]);
+
+	const addSellingBracket = () => {
+		newSellingBracket.push({
+			start_price: 0,
+			end_price: 0,
+			discount_percentage: 0
+		});
+	};
 </script>
 
 <svelte:head>
@@ -84,40 +98,52 @@
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						<TableRow>
-							<TableCell>BRACKET-1</TableCell>
-							<TableCell>
-								<Input type="number" />
-							</TableCell>
-							<TableCell><Input type="number" /></TableCell>
-							<TableCell class="flex items-center gap-2"><Input type="number" />%</TableCell>
-							<TableCell>
-								<Ellipsis />
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell>BRACKET-2</TableCell>
-							<TableCell>1001</TableCell>
-							<TableCell>2000</TableCell>
-							<TableCell>15%</TableCell>
-							<TableCell>
-								<Ellipsis />
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell>BRACKET-3</TableCell>
-							<TableCell>2001</TableCell>
-							<TableCell>3000</TableCell>
-							<TableCell>20%</TableCell>
-							<TableCell>
-								<Ellipsis />
-							</TableCell>
-						</TableRow>
+						{#if sellingBrackets.length > 0}
+							{#each sellingBrackets as bracket (bracket.id)}
+								<TableRow>
+									<TableCell>BRACKET-{bracket.id}</TableCell>
+									<TableCell><Input type="number" value={bracket.lowerLimit} /></TableCell>
+									<TableCell><Input type="number" value={bracket.upperLimit} /></TableCell>
+									<TableCell class="flex items-center gap-2">
+										<Input type="number" value={bracket.markupPercentage} />%
+									</TableCell>
+									<TableCell>
+										<Ellipsis />
+									</TableCell>
+								</TableRow>
+							{/each}
+						{:else if newSellingBracket.length > 0}
+							{#each newSellingBracket as bracket (bracket)}
+								<TableRow>
+									<TableCell>BRACKET-{bracket.id}</TableCell>
+									<TableCell>
+										<Input type="number" name="start_price" value={bracket.start_price} />
+									</TableCell>
+									<TableCell>
+										<Input type="number" name="end_price" value={bracket.end_price} />
+									</TableCell>
+									<TableCell class="flex items-center gap-2">
+										<Input
+											type="number"
+											name="discount_percentage"
+											value={bracket.discount_percentage}
+										/>%
+									</TableCell>
+									<TableCell>
+										<Ellipsis />
+									</TableCell>
+								</TableRow>
+							{/each}
+						{:else}
+							<TableRow>
+								<TableCell colspan={5} class="text-center">No selling brackets found.</TableCell>
+							</TableRow>
+						{/if}
 					</TableBody>
 				</Table>
 				<hr />
 				<div>
-					<Button variant="outline" class="flex items-center gap-2">
+					<Button onclick={addSellingBracket} variant="outline" class="flex items-center gap-2">
 						<Plus />
 						Add Bracket
 					</Button>
