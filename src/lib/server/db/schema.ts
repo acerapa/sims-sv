@@ -80,13 +80,13 @@ export const products = pgTable('products', {
 	category_id: serial()
 		.notNull()
 		.references(() => categories.id),
-	cost: decimal().notNull().default('0'),
+	cost: decimal().default('0'),
 	// preferred_supplier_id: serial().references(() => suppliers.id), This is disabled for now
 	purchase_description: text().notNull(),
 	quantity: integer().default(0),
 	minimum_quantity: integer().default(0),
 	sales_description: text().notNull(),
-	sale_price: decimal().notNull(),
+	sale_price: decimal().default('0'),
 	...timestamps
 });
 

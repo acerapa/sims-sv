@@ -232,6 +232,13 @@
       "when": 1769797386250,
       "tag": "0032_lowly_matthew_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1769830209662,
+      "tag": "0033_robust_jubilee",
+      "breakpoints": true
     }
   ]
 }

@@ -43,14 +43,14 @@ export const actions: Actions = {
 				sku: z.string('Invalid SKU').min(1, 'SKU is required').max(1000),
 				category_id: z.number('Category is required').min(1, 'Category is required'),
 				quantity: z.number('Quantity is required').nullable().optional().default(0),
-				cost: z.number('Cost is required').min(0),
+				cost: z.number('Cost is should be a number').nullable().default(0),
 				minimum_quantity: z.number('Invalid minimum quantity').nullable().optional().default(0),
-				sale_price: z.number('Sale price is required').min(0),
+				sale_price: z.number('Sale price should be a number').nullable().default(0),
 				suppliers: z
 					.array(
 						z.object({
 							supplier_id: z.number('Supplier is required').min(1),
-							cost: z.number('Cost is required').min(0)
+							cost: z.number('Cost is should be a number').min(0)
 						})
 					)
 					.min(0),
@@ -109,9 +109,9 @@ export const actions: Actions = {
 				sku: z.string('Invalid SKU').min(1, 'SKU is required').max(1000),
 				category_id: z.number('Category is required').min(1, 'Category is required'),
 				quantity: z.number('Quantity is required').min(0),
-				cost: z.number('Cost is required').min(0),
+				cost: z.number('Cost is should be a number').default(0),
 				minimum_quantity: z.number('Invalid minimum quantity').default(0),
-				sale_price: z.number('Sale price is required').min(0),
+				sale_price: z.number('Sale price should be a number').nullable().default(0),
 				suppliers: z
 					.array(
 						z.object({

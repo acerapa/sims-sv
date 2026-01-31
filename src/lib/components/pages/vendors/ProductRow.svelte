@@ -37,7 +37,7 @@
 			<p class="text-xs text-muted-foreground">SKU: {product.sku}</p>
 		</div>
 		<p class="col-span-2 text-sm text-muted-foreground">{product.category.name}</p>
-		<p class="col-span-2 font-semibold">₱{parseFloat(product.sale_price).toFixed(2)}</p>
+		<p class="col-span-2 font-semibold">₱{parseFloat(product.sale_price || '0').toFixed(2)}</p>
 		<div class="col-span-2 space-y-1">
 			<p class="text-sm text-muted-foreground">
 				<span class={[textColor, 'font-bold']}>
