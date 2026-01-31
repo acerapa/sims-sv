@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, asc, ilike, or, count } from 'drizzle-orm';
 import { db } from '..';
 import { products, productsToSupplier } from '../schema';
 
@@ -192,4 +192,94 @@ export const getProductsBySupplier = async (supplierId: number) => {
 		.where(eq(productsToSupplier.supplier_id, supplierId));
 
 	return supplierProducts;
+};
+
+export type SortableColumn =
+	| 'sku'
+	| 'purchase_description'
+	| 'sale_price'
+	| 'quantity'
+	| 'created_at';
+export type SortOrder = 'asc' | 'desc';
+
+export interface GetProductsPaginatedParams {
+	page?: number;
+	limit?: number;
+	sortBy?: SortableColumn;
+	sortOrder?: SortOrder;
+	search?: string;
+}
+
+export interface PaginatedProductsResult {
+	products: Awaited<ReturnType<typeof getProducts>>;
+	total: number;
+	page: number;
+	limit: number;
+	totalPages: number;
+}
+
+export const getProductsPaginated = async (
+	params: GetProductsPaginatedParams = {}
+): Promise<PaginatedProductsResult> => {
+	const { page = 1, limit = 25, sortBy = 'created_at', sortOrder = 'desc', search = '' } = params;
+
+	const offset = (page - 1) * limit;
+
+	// Build sort column mapping
+	const sortColumnMap: Record<SortableColumn, typeof products.sku> = {
+		sku: products.sku,
+		purchase_description: products.purchase_description,
+		sale_price: products.sale_price,
+		quantity: products.quantity,
+		created_at: products.created_at
+	};
+
+	const sortColumn = sortColumnMap[sortBy] ?? products.created_at;
+	const orderFn = sortOrder === 'asc' ? asc : desc;
+
+	// Build search condition
+	const searchCondition = search
+		? or(ilike(products.sku, `%${search}%`), ilike(products.purchase_description, `%${search}%`))
+		: undefined;
+
+	// Get total count
+	const [{ total }] = await db.select({ total: count() }).from(products).where(searchCondition);
+
+	// Get paginated products with relations
+	const paginatedProducts = await db.query.products.findMany({
+		where: searchCondition,
+		orderBy: [orderFn(sortColumn)],
+		limit,
+		offset,
+		columns: {
+			id: true,
+			sku: true,
+			quantity: true,
+			sale_price: true,
+			minimum_quantity: true,
+			purchase_description: true
+		},
+		with: {
+			category: {
+				columns: {
+					id: true,
+					name: true
+				}
+			},
+			productToSuppliers: {
+				columns: {
+					supplier_id: true,
+					cost: true
+				}
+			}
+		}
+	});
+
+	return {
+		products: paginatedProducts,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
 };
