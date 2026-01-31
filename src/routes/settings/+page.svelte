@@ -18,7 +18,7 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, PhilippinePeso, Plus, Store, Users } from '@lucide/svelte';
+	import { Trash, PhilippinePeso, Plus, Store, Users, Check } from '@lucide/svelte';
 
 	const sellingBrackets = $derived(page.data.sellingBrackets);
 	let newSellingBracket = $state<
@@ -31,6 +31,10 @@
 			end_price: 0,
 			discount_percentage: 0
 		});
+	};
+
+	const removeSellingBracket = (index: number) => {
+		newSellingBracket.splice(index, 1);
 	};
 </script>
 
@@ -99,7 +103,7 @@
 					</TableHeader>
 					<TableBody>
 						{#if sellingBrackets.length > 0}
-							{#each sellingBrackets as bracket (bracket.id)}
+							{#each sellingBrackets as bracket, ndx (bracket.id)}
 								<TableRow>
 									<TableCell>BRACKET-{bracket.id}</TableCell>
 									<TableCell><Input type="number" value={bracket.lowerLimit} /></TableCell>
@@ -108,12 +112,19 @@
 										<Input type="number" value={bracket.markupPercentage} />%
 									</TableCell>
 									<TableCell>
-										<Ellipsis />
+										<Button
+											variant="ghost"
+											size="icon"
+											class="group cursor-pointer"
+											onclick={() => removeSellingBracket(ndx)}
+										>
+											<Trash class="h-4 w-4 text-muted-foreground group-hover:text-destructive" />
+										</Button>
 									</TableCell>
 								</TableRow>
 							{/each}
 						{:else if newSellingBracket.length > 0}
-							{#each newSellingBracket as bracket (bracket)}
+							{#each newSellingBracket as bracket, ndx (bracket)}
 								<TableRow>
 									<TableCell>BRACKET-{bracket.id}</TableCell>
 									<TableCell>
@@ -130,7 +141,14 @@
 										/>%
 									</TableCell>
 									<TableCell>
-										<Ellipsis />
+										<Button
+											variant="ghost"
+											size="icon"
+											class="group cursor-pointer"
+											onclick={() => removeSellingBracket(ndx)}
+										>
+											<Trash class="h-4 w-4 text-muted-foreground group-hover:text-destructive" />
+										</Button>
 									</TableCell>
 								</TableRow>
 							{/each}
@@ -142,10 +160,14 @@
 					</TableBody>
 				</Table>
 				<hr />
-				<div>
+				<div class="flex items-center justify-between">
 					<Button onclick={addSellingBracket} variant="outline" class="flex items-center gap-2">
 						<Plus />
 						Add Bracket
+					</Button>
+					<Button>
+						<Check />
+						Save Changes
 					</Button>
 				</div>
 			</div>
