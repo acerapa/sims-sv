@@ -1,0 +1,1 @@
+ALTER TABLE "purchase_order_items" ADD COLUMN "sale_price" numeric DEFAULT 0 NOT NULL;

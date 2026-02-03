@@ -33,6 +33,7 @@
 			product_id: string;
 			quantity: number;
 			cost: number;
+			sale_price: number;
 			total_cost: number;
 		}[];
 		selectedSupplierId: string;
@@ -95,6 +96,7 @@
 			product_id: '',
 			quantity: 1,
 			cost: 0,
+			sale_price: 0,
 			total_cost: 0
 		});
 	};
@@ -148,6 +150,7 @@
 						product_id: product?.id.toString() || '',
 						quantity: 1,
 						cost: cost,
+						sale_price: cost, // should be from input or recalculated
 						total_cost: cost * 1
 					};
 				} else {
@@ -156,6 +159,7 @@
 						product_id: product?.id.toString() || '',
 						quantity: 1,
 						cost: cost,
+						sale_price: cost,
 						total_cost: cost * 1
 					});
 				}
@@ -196,6 +200,7 @@
 						<TableHead>Product</TableHead>
 						<TableHead>Quantity Received</TableHead>
 						<TableHead>Unit Cost (₱)</TableHead>
+						<TableHead>Sale Price (₱)</TableHead>
 						<TableHead>Total (₱)</TableHead>
 						<TableHead></TableHead>
 					</TableRow>
@@ -270,6 +275,14 @@
 									type="number"
 									name={`products.${i}.cost`}
 									bind:value={items[i].cost}
+								/>
+							</TableCell>
+							<TableCell class="align-top">
+								<Input
+									class="pointer-events-none disabled:text-primary disabled:!opacity-100"
+									type="number"
+									name={`products.${i}.sale_price`}
+									bind:value={items[i].sale_price}
 								/>
 							</TableCell>
 							<TableCell class="align-top">

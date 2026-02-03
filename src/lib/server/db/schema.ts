@@ -122,6 +122,7 @@ export const purchaseOrderItems = pgTable('purchase_order_items', {
 	quantity: integer().notNull(),
 	cost: decimal().notNull(),
 	total_cost: decimal().notNull(),
+	sale_price: decimal().notNull().default(0),
 	purchase_order_id: integer()
 		.notNull()
 		.references(() => purchaseOrders.id)

@@ -14,6 +14,7 @@ export interface CreatePO {
 		quantity: number;
 		cost: number;
 		total_cost: number;
+		sale_price: number;
 	}[];
 	sub_total: number;
 	discount: number;

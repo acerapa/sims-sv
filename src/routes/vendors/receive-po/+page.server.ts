@@ -38,6 +38,7 @@ export const actions: Actions = {
 					'products.$.quantity',
 					'products.$.product_id',
 					'products.$.cost',
+					'products.$.sale_price',
 					'products.$.total_cost'
 				],
 				dates: ['receive_date']

@@ -3,13 +3,13 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import {
-		Select,
-		SelectContent,
-		SelectGroup,
-		SelectItem,
-		SelectTrigger
-	} from '$lib/components/ui/select';
+	// import {
+	// 	Select,
+	// 	SelectContent,
+	// 	SelectGroup,
+	// 	SelectItem,
+	// 	SelectTrigger
+	// } from '$lib/components/ui/select';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import {
 		Sheet,
@@ -29,14 +29,14 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
-	import { findErrorByKey } from '$lib/utils/common';
+	// import { findErrorByKey } from '$lib/utils/common';
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
 	let {
 		form,
-		suppliers,
+		// suppliers,
 		categories,
 		product = null,
 		hasTrigger = true,
@@ -46,9 +46,9 @@
 	} = $props();
 
 	let edit = $state(false);
-	let selectedSuppliers = $state<Supplier[]>([]);
+	// let selectedSuppliers = $state<Supplier[]>([]);
 	let categoryId = $derived.by(() => product?.category_id || '');
-	let preferredSupplierId = $derived.by(() => product?.preferred_supplier_id?.toString() || '');
+	// let preferredSupplierId = $derived.by(() => product?.preferred_supplier_id?.toString() || '');
 	let purchase_description = $derived.by(() => product?.purchase_description || '');
 	let sales_description = $derived.by(() => product?.sales_description || '');
 	let isSameDescription = $derived.by(
@@ -56,18 +56,18 @@
 	);
 
 	const errors = $derived(form?.errors);
-	const issues = $derived(form?.issues);
+	// const issues = $derived(form?.issues);
 	const hasSelectSupplierInput = $state(false);
-	const preferredSupplier = $derived.by(() =>
-		suppliers.find((s: Supplier) => s.id.toString() === preferredSupplierId)
-	);
+	// const preferredSupplier = $derived.by(() =>
+	// 	suppliers.find((s: Supplier) => s.id.toString() === preferredSupplierId)
+	// );
 
-	let selectSupplierAndCostRef: SupplierAndCost;
-	let selectedSuppliersWithCost = $state<{ supplierId: string; cost: number | null }[]>([]);
+	// let selectSupplierAndCostRef: SupplierAndCost;
+	// let selectedSuppliersWithCost = $state<{ supplierId: string; cost: number | null }[]>([]);
 
-	const handleAddSupplier = () => {
-		selectSupplierAndCostRef.addSupplierCost();
-	};
+	// const handleAddSupplier = () => {
+	// 	selectSupplierAndCostRef.addSupplierCost();
+	// };
 
 	const handlePurchaseDescriptionInput = () => {
 		if (isSameDescription) {
@@ -110,7 +110,6 @@
 
 	$effect(() => {
 		if (!open) {
-			preferredSupplierId = '';
 			purchase_description = '';
 			sales_description = '';
 			isSameDescription = false;
@@ -120,9 +119,9 @@
 			}
 		}
 
-		if (selectedSuppliers.length === 0) {
-			preferredSupplierId = '';
-		}
+		// if (selectedSuppliers.length === 0) {
+		// 	preferredSupplierId = '';
+		// }
 	});
 </script>
 
@@ -211,7 +210,7 @@
 
 				<!-- Disabling this for now -->
 				{#if hasSelectSupplierInput}
-					<Card>
+					<!-- <Card>
 						<CardHeader>
 							<div class="flex items-center justify-between">
 								<CardTitle>Suppliers and Costs</CardTitle>
@@ -271,7 +270,7 @@
 								</div>
 							</div>
 						</CardContent>
-					</Card>
+					</Card> -->
 				{/if}
 
 				<Card>
