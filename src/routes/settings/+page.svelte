@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
 	import PageTitle from '$lib/components/layout/PageTitle.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -67,6 +68,7 @@
 		return async ({ result }) => {
 			await applyAction(result);
 			if (result.type === 'success') {
+				await invalidateAll();
 				toast.success('Bracket updated successfully');
 			} else {
 				toast.error('Failed to update bracket');
