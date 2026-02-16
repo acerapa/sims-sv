@@ -23,6 +23,7 @@
 	import { Trash, PhilippinePeso, Plus, Store, Users, Check } from '@lucide/svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	const sellingBrackets = $derived(page.data.sellingBrackets);
 
@@ -65,6 +66,11 @@
 	const enhanceForm: SubmitFunction = () => {
 		return async ({ result }) => {
 			await applyAction(result);
+			if (result.type === 'success') {
+				toast.success('Bracket updated successfully');
+			} else {
+				toast.error('Failed to update bracket');
+			}
 		};
 	};
 </script>
