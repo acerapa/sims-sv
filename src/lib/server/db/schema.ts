@@ -262,7 +262,8 @@ export const customers = pgTable('customers', {
 	address: text().notNull(),
 	phone: varchar(),
 	viber: varchar(),
-	fb_account: varchar()
+	fb_account: varchar(),
+	...timestamps
 });
 
 export const salesOrders = pgTable('sales_orders', {

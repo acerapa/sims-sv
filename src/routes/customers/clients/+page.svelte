@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import ClientForm from '$lib/components/pages/customers/clients/client-form.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -17,6 +19,8 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Ellipsis, Search } from '@lucide/svelte';
+
+	const customers = $derived(page.data.customers);
 </script>
 
 <svelte:head>
@@ -31,7 +35,7 @@
 				<CardTitle>Clients</CardTitle>
 				<CardDescription>Manage your client relationships</CardDescription>
 			</div>
-			<!-- <SupplierForm {form} /> -->
+			<ClientForm />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -52,7 +56,7 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#each [{ id: 1, name: 'Acme Corp', address: '123 Main St, Springfield', phone: '0917-123-4567', viber: '0917-123-4567', fb: 'acme.corp' }, { id: 2, name: 'Beta Solutions', address: '456 Elm St, Shelbyville', phone: '0922-987-6543', viber: '0922-987-6543', fb: 'betasolutions' }, { id: 3, name: 'Gamma Industries', address: '789 Oak Ave, Capital City', phone: '0933-555-1212', viber: '0933-555-1212', fb: 'gamma.industries' }] as client (client.id)}
+				{#each customers as client (client.id)}
 					<TableRow>
 						<TableCell>{client.name}</TableCell>
 						<TableCell>{client.address}</TableCell>
@@ -66,6 +70,11 @@
 						</TableCell>
 					</TableRow>
 				{/each}
+				{#if customers.length === 0}
+					<TableRow>
+						<TableCell colspan={6} class="text-center">No clients found</TableCell>
+					</TableRow>
+				{/if}
 			</TableBody>
 		</Table>
 	</CardContent>
