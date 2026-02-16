@@ -83,3 +83,19 @@ export interface SupplierPO {
 	total: number;
 	discount: number;
 }
+
+export interface Bracket {
+	id?: number;
+	start_price: number;
+	end_price: number;
+	discount_percentage: number;
+
+	is_edited: boolean;
+	is_deleted: boolean;
+	original_values: {
+		id: number;
+		start_price: number;
+		end_price: number;
+		discount_percentage: number;
+	} | null;
+}

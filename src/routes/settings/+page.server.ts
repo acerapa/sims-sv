@@ -1,8 +1,12 @@
-import { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
+import {
+	getSellingBrackets,
+	updateCreateSellingBrackets
+} from '$lib/server/db/queries/selling-brackets';
 import { decode } from 'decode-formdata';
 import z from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
+import type { Bracket } from '$lib/types/global';
 
 export const load: PageServerLoad = async () => {
 	const sellingBrackets = await getSellingBrackets();
@@ -14,13 +18,28 @@ export const actions: Actions = {
 		try {
 			const formData = await request.formData();
 			const formValues = decode(formData, {
-				numbers: ['start_price', 'end_price', 'discount_percentage']
+				numbers: [
+					'brackets.$.start_price',
+					'brackets.$.end_price',
+					'brackets.$.discount_percentage',
+					'brackets.$.id'
+				],
+				booleans: ['brackets.$.is_edited', 'brackets.$.is_deleted']
 			});
 
 			const bracketSchema = z.object({
-				start_price: z.number().min(0),
-				end_price: z.number().min(0),
-				discount_percentage: z.number().min(0)
+				brackets: z
+					.array(
+						z.object({
+							id: z.number().nullable(),
+							start_price: z.number().min(0),
+							end_price: z.number().min(0),
+							discount_percentage: z.number().min(0),
+							is_edited: z.boolean().default(false),
+							is_deleted: z.boolean().default(false)
+						})
+					)
+					.min(1)
 			});
 
 			const { success, error } = bracketSchema.safeParse(formValues);
@@ -31,6 +50,8 @@ export const actions: Actions = {
 					message: 'Invalid input'
 				});
 			}
+
+			await updateCreateSellingBrackets(formValues.brackets as Bracket[]);
 		} catch (error) {
 			console.error(error);
 			return fail(500, {

@@ -239,6 +239,13 @@
       "when": 1769830209662,
       "tag": "0033_robust_jubilee",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1770094435860,
+      "tag": "0034_good_longshot",
+      "breakpoints": true
     }
   ]
 }

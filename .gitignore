@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 
 # Custom files
 ssh-git.sh
+
+.claude
+nul
