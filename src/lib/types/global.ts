@@ -99,3 +99,11 @@ export interface Bracket {
 		discount_percentage: number;
 	} | null;
 }
+
+export interface Customer {
+	name: string;
+	address?: string;
+	phone?: string;
+	viber?: string;
+	fb_account?: string;
+}

@@ -259,7 +259,7 @@ export const rmaItems = pgTable('rma_items', {
 export const customers = pgTable('customers', {
 	id: serial().primaryKey(),
 	name: varchar().notNull(),
-	address: text().notNull(),
+	address: text(),
 	phone: varchar(),
 	viber: varchar(),
 	fb_account: varchar(),

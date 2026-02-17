@@ -59,10 +59,10 @@
 				{#each customers as client (client.id)}
 					<TableRow>
 						<TableCell>{client.name}</TableCell>
-						<TableCell>{client.address}</TableCell>
-						<TableCell>{client.phone}</TableCell>
-						<TableCell>{client.viber}</TableCell>
-						<TableCell>{client.fb}</TableCell>
+						<TableCell>{client.address || '-'}</TableCell>
+						<TableCell>{client.phone || '-'}</TableCell>
+						<TableCell>{client.viber || '-'}</TableCell>
+						<TableCell>{client.fb || '-'}</TableCell>
 						<TableCell>
 							<Button size="icon-sm" variant="ghost">
 								<Ellipsis />
@@ -70,7 +70,7 @@
 						</TableCell>
 					</TableRow>
 				{/each}
-				{#if customers.length === 0}
+				{#if customers?.length === 0}
 					<TableRow>
 						<TableCell colspan={6} class="text-center">No clients found</TableCell>
 					</TableRow>
