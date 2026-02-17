@@ -195,7 +195,6 @@
 					bind:preSelectedSuppliers
 					{product}
 					{form}
-					{suppliers}
 					{categories}
 				/>
 			</div>
