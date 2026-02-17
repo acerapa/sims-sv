@@ -47,7 +47,7 @@
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
-	let products = $derived(data.products);
+	let products = $derived(page.data.products);
 	let product = $derived(data.product);
 	let total = $derived(data.total);
 	let currentPage = $derived(data.page);

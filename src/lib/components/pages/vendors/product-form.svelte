@@ -95,6 +95,7 @@
 				insertedProduct = result.data;
 				toast.success(edit ? 'Product updated successfully' : 'Product added successfully');
 				open = false;
+				await invalidate('vendors:inventory');
 				await invalidate('vendors');
 			} else {
 				toast.error(edit ? 'Failed to update product' : 'Failed to add product');
