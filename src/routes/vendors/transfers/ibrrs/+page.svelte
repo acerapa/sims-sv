@@ -71,6 +71,13 @@
 						</TableCell>
 					</TableRow>
 				{/each}
+				{#if ibrrs.length === 0}
+					<TableRow>
+						<TableCell colspan={5} class="text-center text-muted-foreground">
+							No inter-branch receiving reports found!
+						</TableCell>
+					</TableRow>
+				{/if}
 			</TableBody>
 		</Table>
 	</CardContent>

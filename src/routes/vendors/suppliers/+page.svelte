@@ -69,6 +69,13 @@
 						</TableCell>
 					</TableRow>
 				{/each}
+				{#if suppliers.length === 0}
+					<TableRow>
+						<TableCell colspan={7} class="text-center text-muted-foreground">
+							No suppliers found!
+						</TableCell>
+					</TableRow>
+				{/if}
 			</TableBody>
 		</Table>
 	</CardContent>

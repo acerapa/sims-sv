@@ -51,7 +51,9 @@
 			<TableBody>
 				{#if !rmas || rmas.length === 0}
 					<TableRow>
-						<TableCell colspan={5} class="py-4 text-center">No Data</TableCell>
+						<TableCell colspan={5} class="py-4 text-center text-muted-foreground">
+							No Data!
+						</TableCell>
 					</TableRow>
 				{:else}
 					{#each rmas as rma (rma.id)}

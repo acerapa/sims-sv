@@ -108,6 +108,13 @@
 						</TableCell>
 					</TableRow>
 				{/each}
+				{#if data.physicalInventories.length === 0}
+					<TableRow>
+						<TableCell colspan={5} class="text-center text-muted-foreground">
+							No physical inventories found!
+						</TableCell>
+					</TableRow>
+				{/if}
 			</TableBody>
 		</Table>
 	</CardContent>

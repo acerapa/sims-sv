@@ -74,6 +74,13 @@
 						</TableCell>
 					</TableRow>
 				{/each}
+				{#if strs.length === 0}
+					<TableRow>
+						<TableCell colspan={5} class="text-center text-muted-foreground">
+							No stock transfer requests found!
+						</TableCell>
+					</TableRow>
+				{/if}
 			</TableBody>
 		</Table>
 	</CardContent>
