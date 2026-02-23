@@ -9,8 +9,16 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import { Table, TableHead, TableHeader } from '$lib/components/ui/table';
-	import { DollarSign, Funnel, Search, ShoppingCart, TrendingUp, Users } from '@lucide/svelte';
+	import { Table, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
+	import {
+		DollarSign,
+		Funnel,
+		Plus,
+		Search,
+		ShoppingCart,
+		TrendingUp,
+		Users
+	} from '@lucide/svelte';
 
 	const statCards = [
 		{
@@ -80,6 +88,10 @@
 					<Funnel />
 					<span>Filter</span>
 				</Button>
+				<Button href="/customers/sales-orders/form">
+					<Plus class="size-4" />
+					Add Order
+				</Button>
 			</div>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4">
@@ -95,12 +107,14 @@
 
 			<Table>
 				<TableHeader>
-					<TableHead>Order id</TableHead>
-					<TableHead>Date</TableHead>
-					<TableHead>Customer</TableHead>
-					<TableHead>Product</TableHead>
-					<TableHead>Status</TableHead>
-					<TableHead>Amount</TableHead>
+					<TableRow>
+						<TableHead>Order id</TableHead>
+						<TableHead>Date</TableHead>
+						<TableHead>Customer</TableHead>
+						<TableHead>Product</TableHead>
+						<TableHead>Status</TableHead>
+						<TableHead>Amount</TableHead>
+					</TableRow>
 				</TableHeader>
 			</Table>
 		</CardContent>
