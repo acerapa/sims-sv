@@ -121,7 +121,8 @@ export const getProducts = async () => {
 			quantity: true,
 			sale_price: true,
 			minimum_quantity: true,
-			purchase_description: true
+			purchase_description: true,
+			sales_description: true
 		},
 		with: {
 			category: {

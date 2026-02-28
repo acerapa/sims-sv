@@ -18,7 +18,19 @@ export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
 export const physicalInventoryStatus = pgEnum('physical_inventory_status', ['draft', 'finalized']);
 export const salesOrderType = pgEnum('sales_order_type', ['onetime', 'installment']);
-export const salesOrderStatus = pgEnum('sales_order_status', ['open', 'cancelled', 'invoiced']);
+export const salesOrderStatus = pgEnum('sales_order_status', [
+	'open',
+	'partially_invoiced',
+	'cancelled',
+	'invoiced'
+]);
+export const invoiceStatus = pgEnum('invoice_status', [
+	'unpaid',
+	'partially_paid',
+	'paid',
+	'cancelled'
+]);
+export const invoicePaymentType = pgEnum('invoice_payment_type', ['cash', 'check', 'bank_transfer']);
 
 const timestamps = {
 	created_at: timestamp().defaultNow().notNull(),
@@ -282,6 +294,65 @@ export const salesOrders = pgTable('sales_orders', {
 	...timestamps
 });
 
+export const salesOrderItems = pgTable('sales_order_items', {
+	id: serial().primaryKey(),
+	sales_order_id: integer()
+		.notNull()
+		.references(() => salesOrders.id),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	quantity: integer().notNull(),
+	unit_price: decimal().notNull(),
+	total_price: decimal().notNull(),
+	...timestamps
+});
+
+export const invoices = pgTable('invoices', {
+	id: serial().primaryKey(),
+	sales_order_id: integer()
+		.notNull()
+		.references(() => salesOrders.id),
+	invoice_date: timestamp().notNull(),
+	due_date: timestamp().notNull(),
+	invoice_status: invoiceStatus().default('unpaid'),
+	notes: text(),
+	total_amount: decimal().notNull(),
+	paid_amount: decimal().default('0'),
+	...timestamps
+});
+
+export const invoiceItems = pgTable('invoice_items', {
+	id: serial().primaryKey(),
+	invoice_id: integer()
+		.notNull()
+		.references(() => invoices.id),
+	sales_order_item_id: integer()
+		.notNull()
+		.references(() => salesOrderItems.id),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	quantity: integer().notNull(),
+	unit_price: decimal().notNull(),
+	total_price: decimal().notNull(),
+	...timestamps
+});
+
+export const invoicePayments = pgTable('invoice_payments', {
+	id: serial().primaryKey(),
+	invoice_id: integer()
+		.notNull()
+		.references(() => invoices.id),
+	payment_date: timestamp().notNull(),
+	amount: decimal().notNull(),
+	payment_type: invoicePaymentType().notNull(),
+	check_number: varchar(),
+	reference_number: varchar(),
+	notes: text(),
+	...timestamps
+});
+
 export const sellingBrackets = pgTable('selling_brackets', {
 	id: serial().primaryKey(),
 	start_price: integer().notNull(),
@@ -412,5 +483,64 @@ export const categoryRelations = relations(categories, ({ many, one }) => ({
 	parent_category: one(categories, {
 		fields: [categories.parent_id],
 		references: [categories.id]
+	})
+}));
+
+export const salesOrderRelations = relations(salesOrders, ({ one, many }) => ({
+	customer: one(customers, {
+		fields: [salesOrders.customer_id],
+		references: [customers.id]
+	}),
+	staff: one(users, {
+		fields: [salesOrders.staff_user_id],
+		references: [users.id]
+	}),
+	items: many(salesOrderItems),
+	invoices: many(invoices)
+}));
+
+export const salesOrderItemRelations = relations(salesOrderItems, ({ one }) => ({
+	salesOrder: one(salesOrders, {
+		fields: [salesOrderItems.sales_order_id],
+		references: [salesOrders.id]
+	}),
+	product: one(products, {
+		fields: [salesOrderItems.product_id],
+		references: [products.id]
+	})
+}));
+
+export const customerRelations = relations(customers, ({ many }) => ({
+	salesOrders: many(salesOrders)
+}));
+
+export const invoiceRelations = relations(invoices, ({ one, many }) => ({
+	salesOrder: one(salesOrders, {
+		fields: [invoices.sales_order_id],
+		references: [salesOrders.id]
+	}),
+	items: many(invoiceItems),
+	payments: many(invoicePayments)
+}));
+
+export const invoiceItemRelations = relations(invoiceItems, ({ one }) => ({
+	invoice: one(invoices, {
+		fields: [invoiceItems.invoice_id],
+		references: [invoices.id]
+	}),
+	salesOrderItem: one(salesOrderItems, {
+		fields: [invoiceItems.sales_order_item_id],
+		references: [salesOrderItems.id]
+	}),
+	product: one(products, {
+		fields: [invoiceItems.product_id],
+		references: [products.id]
+	})
+}));
+
+export const invoicePaymentRelations = relations(invoicePayments, ({ one }) => ({
+	invoice: one(invoices, {
+		fields: [invoicePayments.invoice_id],
+		references: [invoices.id]
 	})
 }));

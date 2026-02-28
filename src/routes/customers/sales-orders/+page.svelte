@@ -1,6 +1,7 @@
 <script lang="ts">
 	import StatCard from '$lib/components/common/StatCard.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -8,10 +9,25 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
-	import { Table, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
+	import {
+		Table,
+		TableBody,
+		TableCell,
+		TableHead,
+		TableHeader,
+		TableRow
+	} from '$lib/components/ui/table';
 	import {
 		DollarSign,
+		Ellipsis,
+		FileText,
 		Funnel,
 		Plus,
 		Search,
@@ -19,6 +35,13 @@
 		TrendingUp,
 		Users
 	} from '@lucide/svelte';
+	import type { PageProps } from './$types';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+
+	let { data }: PageProps = $props();
+
+	let salesOrders = $derived(data.salesOrders);
 
 	const statCards = [
 		{
@@ -56,6 +79,40 @@
 	];
 
 	let searchValue = $state('');
+
+	const getStatusVariant = (status: string) => {
+		switch (status) {
+			case 'open':
+				return 'default';
+			case 'partially_invoiced':
+				return 'outline';
+			case 'invoiced':
+				return 'secondary';
+			case 'cancelled':
+				return 'destructive';
+			default:
+				return 'outline';
+		}
+	};
+
+	const getStatusLabel = (status: string) => {
+		switch (status) {
+			case 'open':
+				return 'Open';
+			case 'partially_invoiced':
+				return 'Partially Invoiced';
+			case 'invoiced':
+				return 'Invoiced';
+			case 'cancelled':
+				return 'Cancelled';
+			default:
+				return status;
+		}
+	};
+
+	const onCreateInvoice = (orderId: number) => {
+		goto(resolve(`/customers/invoices/form?sales_order_id=${orderId}` as '/customers/invoices/form'));
+	};
 </script>
 
 <svelte:head>
@@ -108,14 +165,59 @@
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead>Order id</TableHead>
+						<TableHead>Order ID</TableHead>
 						<TableHead>Date</TableHead>
 						<TableHead>Customer</TableHead>
-						<TableHead>Product</TableHead>
+						<TableHead>Items</TableHead>
 						<TableHead>Status</TableHead>
 						<TableHead>Amount</TableHead>
+						<TableHead>Actions</TableHead>
 					</TableRow>
 				</TableHeader>
+				<TableBody>
+					{#each salesOrders as order (order.id)}
+						<TableRow>
+							<TableCell class="font-medium">SO-{order.id}</TableCell>
+							<TableCell>
+								{new Date(order.date_ordered).toLocaleDateString('default', {
+									day: 'numeric',
+									month: 'short',
+									year: 'numeric'
+								})}
+							</TableCell>
+							<TableCell>{order.customer_name}</TableCell>
+							<TableCell>{order.item_count} item(s)</TableCell>
+							<TableCell>
+								<Badge variant={getStatusVariant(order.order_status || 'open')}>
+									{getStatusLabel(order.order_status || 'open')}
+								</Badge>
+							</TableCell>
+							<TableCell class="font-medium">₱{order.total_cost.toLocaleString()}</TableCell>
+							<TableCell>
+								{#if order.order_status !== 'invoiced' && order.order_status !== 'cancelled'}
+									<DropdownMenu>
+										<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+											<Ellipsis />
+										</DropdownMenuTrigger>
+										<DropdownMenuContent>
+											<DropdownMenuItem onSelect={() => onCreateInvoice(order.id)} class="space-x-2">
+												<FileText />
+												<span>Create Invoice</span>
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								{/if}
+							</TableCell>
+						</TableRow>
+					{/each}
+					{#if salesOrders.length === 0}
+						<TableRow>
+							<TableCell colspan={7} class="text-center text-muted-foreground">
+								No sales orders found
+							</TableCell>
+						</TableRow>
+					{/if}
+				</TableBody>
 			</Table>
 		</CardContent>
 	</Card>

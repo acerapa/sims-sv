@@ -107,3 +107,63 @@ export interface Customer {
 	viber?: string;
 	fb_account?: string;
 }
+
+export interface CustomerWithId extends Customer {
+	id: number;
+}
+
+export type SalesOrderType = 'onetime' | 'installment';
+export type SalesOrderStatus = 'open' | 'partially_invoiced' | 'cancelled' | 'invoiced';
+
+export type InvoiceStatus = 'unpaid' | 'partially_paid' | 'paid' | 'cancelled';
+export type InvoicePaymentType = 'cash' | 'check' | 'bank_transfer';
+
+export interface SalesOrder {
+	id: number;
+	customer_id: number;
+	customer_name: string;
+	staff_user_id: number;
+	date_ordered: Date;
+	order_type: SalesOrderType;
+	order_status: SalesOrderStatus;
+	notes: string | null;
+	total_cost: number;
+	item_count: number;
+	created_at: Date;
+}
+
+export interface SalesOrderWithItems extends SalesOrder {
+	items: {
+		id: number;
+		product_id: number;
+		product_name: string;
+		quantity: number;
+		invoiced_quantity: number;
+		unit_price: number;
+		total_price: number;
+	}[];
+}
+
+export interface Invoice {
+	id: number;
+	sales_order_id: number;
+	customer_name: string;
+	invoice_date: Date;
+	due_date: Date;
+	invoice_status: InvoiceStatus;
+	notes: string | null;
+	total_amount: number;
+	paid_amount: number;
+	created_at: Date;
+}
+
+export interface InvoicePayment {
+	id: number;
+	invoice_id: number;
+	payment_date: Date;
+	amount: number;
+	payment_type: InvoicePaymentType;
+	check_number: string | null;
+	reference_number: string | null;
+	notes: string | null;
+}
