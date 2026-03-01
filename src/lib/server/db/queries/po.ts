@@ -1,6 +1,6 @@
-import { eq, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { db } from '..';
-import { products, purchaseOrderItems, purchaseOrders } from '../schema';
+import { products, purchaseOrderItems, purchaseOrders, suppliers } from '../schema';
 import type { SupplierPO } from '$lib/types/global';
 
 export interface CreatePO {
@@ -124,7 +124,23 @@ export const getPOBySupplierId = async (supplierId: number) => {
 	return supplierPos;
 };
 
-// Purchase Order list
-// Bill Section should be under inventory and beside the receive po
-// If Check: Check number, Amount payment date
-// If Cash: Date ug Amount
+export const getPurchaseOrders = async () => {
+	const result = await db
+		.select({
+			id: purchaseOrders.id,
+			reference: purchaseOrders.reference,
+			supplier_name: suppliers.name,
+			receive_date: purchaseOrders.receive_date,
+			receive_type: purchaseOrders.receive_type,
+			item_count: sql<number>`count(${purchaseOrderItems.product_id})`.as('item_count'),
+			total: purchaseOrders.total,
+			created_at: purchaseOrders.created_at
+		})
+		.from(purchaseOrders)
+		.leftJoin(suppliers, eq(purchaseOrders.supplier_id, suppliers.id))
+		.leftJoin(purchaseOrderItems, eq(purchaseOrders.id, purchaseOrderItems.purchase_order_id))
+		.groupBy(purchaseOrders.id, suppliers.name)
+		.orderBy(desc(purchaseOrders.created_at));
+
+	return result;
+};

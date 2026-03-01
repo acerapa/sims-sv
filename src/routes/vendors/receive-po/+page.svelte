@@ -71,7 +71,7 @@
 			await applyAction(result);
 			if (result.type === 'success') {
 				toast.success('Purchase order received successfully');
-				goto(resolve('/vendors/inventory'));
+				goto(resolve('/vendors/receive-po/list'));
 			} else {
 				toast.error('Failed to receive purchase order');
 			}
@@ -117,7 +117,7 @@
 							</div>
 						</div>
 						<div class="flex flex-1 flex-col gap-2">
-							<Label>Supplier <span class="text-muted-foreground text-xs">(optional)</span></Label>
+							<Label>Supplier <span class="text-xs text-muted-foreground">(optional)</span></Label>
 							<div>
 								<Select type="single" name="supplier_id" bind:value={selectedSupplierId}>
 									<SelectTrigger class="h-10 w-full">
@@ -202,7 +202,9 @@
 			issues={findErrorByKey(issues, 'products')}
 		/>
 		<div class="flex gap-3 self-end">
-			<Button variant="outline">Cancel</Button>
+			<Button variant="outline" onclick={() => goto(resolve('/vendors/receive-po/list'))}>
+				Cancel
+			</Button>
 			<Button type="submit">Receive Items</Button>
 		</div>
 	</form>

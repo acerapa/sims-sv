@@ -48,7 +48,29 @@
 <section>
 	<nav class="border-b">
 		{#each inventoryNavs as nav (nav.name)}
-			{#if nav.name === 'Transfers'}
+			{#if nav.name === 'Receive PO'}
+				<DropdownMenu>
+					<DropdownMenuTrigger
+						class={[
+							buttonVariants({ variant: 'ghost' }),
+							`rounded-none border-b-2 border-transparent text-muted-foreground hover:border-blue-300 hover:bg-transparent hover:text-blue-400
+				  ${isRouteActive(nav.path, path, true) ? '!border-blue-500 !text-blue-500 hover:border-blue-500 hover:text-blue-500' : ''}`
+						]}
+					>
+						Receive PO
+
+						<ChevronDown class="size-3.5" />
+					</DropdownMenuTrigger>
+					<DropdownMenuContent>
+						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/receive-po'))}>
+							New Receive PO
+						</DropdownMenuItem>
+						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/receive-po/list'))}>
+							Received PO List
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			{:else if nav.name === 'Transfers'}
 				<DropdownMenu>
 					<DropdownMenuTrigger
 						class={[
