@@ -14,13 +14,13 @@ export const actions: Actions = {
 	receivePo: async ({ request }) => {
 		try {
 			const body = await request.formData();
+			const rawSupplierId = body.get('supplier_id') as string;
 			const formValues = decode(body, {
 				arrays: ['products'],
 				numbers: [
 					'sub_total',
 					'total',
 					'discount',
-					'supplier_id',
 					'products.$.quantity',
 					'products.$.product_id',
 					'products.$.cost',
@@ -29,6 +29,14 @@ export const actions: Actions = {
 				],
 				dates: ['receive_date']
 			}) as CreatePO;
+
+			// Only set supplier_id if a valid number was provided
+			const supplierId = parseInt(rawSupplierId);
+			if (!isNaN(supplierId) && supplierId > 0) {
+				formValues.supplier_id = supplierId;
+			} else {
+				delete formValues.supplier_id;
+			}
 
 			const purchaseOrderSchema = z.object({
 				reference: z.string('Reference is required').min(1, 'Reference is required'),
