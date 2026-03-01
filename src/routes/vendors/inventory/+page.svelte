@@ -61,7 +61,7 @@
 	let searchTimeout: ReturnType<typeof setTimeout>;
 
 	function updateSearchParams(updates: Record<string, string | number | null>) {
-		const params = new URLSearchParams($page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams);
 
 		for (const [key, value] of Object.entries(updates)) {
 			if (value === null || value === '') {
@@ -104,7 +104,7 @@
 	}
 
 	let onEditOrView = async (productId: number) => {
-		const params = new URLSearchParams($page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams);
 		params.set('id', String(productId));
 		await goto(`?${params.toString()}`);
 		preSelectedSuppliers = product?.suppliers || [];
