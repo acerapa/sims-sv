@@ -3,13 +3,13 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	// import {
-	// 	Select,
-	// 	SelectContent,
-	// 	SelectGroup,
-	// 	SelectItem,
-	// 	SelectTrigger
-	// } from '$lib/components/ui/select';
+	import {
+		Select,
+		SelectContent,
+		SelectGroup,
+		SelectItem,
+		SelectTrigger
+	} from '$lib/components/ui/select';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import {
 		Sheet,
@@ -26,6 +26,7 @@
 	import { applyAction, enhance } from '$app/forms';
 	import SupplierAndCost from './SupplierAndCost.svelte';
 	import type { Product, Supplier } from '$lib/types/global';
+	import type { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
@@ -42,11 +43,71 @@
 		hasTrigger = true,
 		open = $bindable<boolean>(false),
 		preSelectedSuppliers = $bindable([]),
-		insertedProduct = $bindable<Product | undefined>(undefined)
+		insertedProduct = $bindable<Product | undefined>(undefined),
+		sellingBrackets = []
+	}: {
+		form: any;
+		categories: any;
+		product?: any;
+		hasTrigger?: boolean;
+		open?: boolean;
+		preSelectedSuppliers?: any[];
+		insertedProduct?: Product | undefined;
+		sellingBrackets?: Awaited<ReturnType<typeof getSellingBrackets>>;
 	} = $props();
 
 	let edit = $state(false);
-	// let selectedSuppliers = $state<Supplier[]>([]);
+	let costValue = $state<number>(0);
+	let salePriceValue = $state<number>(0);
+	let selectedBracketId = $state<string>('auto');
+
+	let matchedBracket = $derived.by(() => {
+		if (!costValue || costValue <= 0) return null;
+		return (
+			sellingBrackets.find((b) => costValue >= b.start_price && costValue <= b.end_price) ?? null
+		);
+	});
+
+	let activeBracket = $derived.by(() => {
+		if (selectedBracketId === 'auto') return matchedBracket;
+		if (selectedBracketId === 'custom') return null;
+		return sellingBrackets.find((b) => b.id?.toString() === selectedBracketId) ?? null;
+	});
+
+	let bracketLabel = $derived.by(() => {
+		if (selectedBracketId === 'auto') {
+			return matchedBracket
+				? `Auto: BRACKET-${matchedBracket.id} (${matchedBracket.discount_percentage}%)`
+				: 'Auto-detect (no match)';
+		}
+		if (selectedBracketId === 'custom') return 'Custom';
+		const b = sellingBrackets.find((b) => b.id?.toString() === selectedBracketId);
+		return b ? `BRACKET-${b.id} (${b.discount_percentage}%)` : 'Select Bracket';
+	});
+
+	$effect(() => {
+		if (activeBracket && costValue > 0) {
+			salePriceValue = Math.round(costValue * (1 + activeBracket.discount_percentage / 100) * 100) / 100;
+		}
+	});
+
+	// Initialize cost/sale price from product when editing
+	$effect(() => {
+		if (product) {
+			costValue = parseFloat(product.cost?.toString() || '0');
+			salePriceValue = parseFloat(product.sale_price?.toString() || '0');
+		}
+	});
+
+	// Reset bracket state when form closes
+	$effect(() => {
+		if (!open) {
+			costValue = 0;
+			salePriceValue = 0;
+			selectedBracketId = 'auto';
+		}
+	});
+
 	let categoryId = $derived.by(() => product?.category_id || '');
 	// let preferredSupplierId = $derived.by(() => product?.preferred_supplier_id?.toString() || '');
 	let purchase_description = $derived.by(() => product?.purchase_description || '');
@@ -184,7 +245,7 @@
 										]}
 										type="text"
 										name="sku"
-										placeholder="e,.g,, WH-2025-0001"
+										placeholder="e.g. WH-2025-0001"
 									/>
 									{#if errors?.properties?.sku}
 										<small class="text-red-500">{errors.properties.sku.errors[0]}</small>
@@ -357,9 +418,10 @@
 												errors?.properties?.cost ? 'border-red-500' : ''
 											]}
 											type="number"
-											value={product?.cost}
+											bind:value={costValue}
 											name="cost"
-											placeholder="e,.g,. 1000"
+											disabled={!!product && !edit}
+											placeholder="e.g. 1000"
 										/>
 
 										{#if errors?.properties?.cost}
@@ -368,6 +430,34 @@
 									</div>
 								</div>
 							</div>
+							{#if sellingBrackets.length > 0}
+								<div class="space-y-2">
+									<Label>Selling Bracket</Label>
+									<div class="flex items-center gap-3">
+										<Select type="single" bind:value={selectedBracketId}>
+											<SelectTrigger class="w-full">
+												{bracketLabel}
+											</SelectTrigger>
+											<SelectContent>
+												<SelectGroup>
+													<SelectItem value="auto">Auto-detect</SelectItem>
+													{#each sellingBrackets as bracket (bracket.id)}
+														<SelectItem value={bracket.id?.toString() ?? ''}>
+															BRACKET-{bracket.id} (₱{bracket.start_price} - ₱{bracket.end_price}, {bracket.discount_percentage}%)
+														</SelectItem>
+													{/each}
+													<SelectItem value="custom">Custom</SelectItem>
+												</SelectGroup>
+											</SelectContent>
+										</Select>
+										{#if activeBracket}
+											<span class="whitespace-nowrap text-sm text-muted-foreground">
+												+{activeBracket.discount_percentage}% markup
+											</span>
+										{/if}
+									</div>
+								</div>
+							{/if}
 							<div class="flex items-start gap-1">
 								<div class="flex-1 space-y-2">
 									<Label class={isSameDescription ? 'opacity-50' : ''}
@@ -405,9 +495,10 @@
 											]}
 											type="number"
 											name="sale_price"
-											value={product?.sale_price}
+											bind:value={salePriceValue}
 											disabled={!!product && !edit}
-											placeholder="e,.g,. 1000"
+											readonly={!!activeBracket}
+											placeholder="e.g. 1000"
 										/>
 										{#if errors?.properties?.sale_price}
 											<small class="text-red-500">{errors.properties.sale_price.errors[0]}</small>

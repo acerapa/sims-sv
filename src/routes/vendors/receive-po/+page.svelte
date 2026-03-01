@@ -198,6 +198,7 @@
 			{products}
 			{categories}
 			{form}
+			sellingBrackets={data.sellingBrackets}
 			bind:this={selectProductRef}
 			issues={findErrorByKey(issues, 'products')}
 		/>

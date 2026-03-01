@@ -196,6 +196,7 @@
 					{product}
 					{form}
 					{categories}
+					sellingBrackets={data.sellingBrackets}
 				/>
 			</div>
 		</CardHeader>

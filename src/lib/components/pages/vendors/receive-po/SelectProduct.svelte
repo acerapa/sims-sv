@@ -19,6 +19,7 @@
 	} from '$lib/components/ui/table';
 	import type { Category } from '$lib/types/global';
 	import type { getProducts } from '$lib/server/db/queries/products';
+	import type { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
 	import ProductForm from '../product-form.svelte';
@@ -39,6 +40,7 @@
 			total_cost: number;
 		}[];
 		form: ActionData;
+		sellingBrackets: Awaited<ReturnType<typeof getSellingBrackets>>;
 	}
 
 	let {
@@ -46,7 +48,8 @@
 		items = $bindable(),
 		issues,
 		categories,
-		form
+		form,
+		sellingBrackets = []
 	}: Props = $props();
 
 	let openProductForm = $state(false);
@@ -171,6 +174,7 @@
 		<ProductForm
 			{form}
 			{categories}
+			{sellingBrackets}
 			bind:insertedProduct
 			bind:open={openProductForm}
 			hasTrigger={false}
