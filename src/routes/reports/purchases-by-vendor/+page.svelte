@@ -2,6 +2,7 @@
 	import PageTitle from '$lib/components/layout/PageTitle.svelte';
 	import DatePicker from '$lib/components/common/DatePicker.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Printer } from '@lucide/svelte';
 	import {
 		Card,
 		CardContent,
@@ -134,6 +135,14 @@
 		goto('?', { replaceState: true });
 	}
 
+	function openPrint() {
+		const params = new URLSearchParams();
+		params.set('view', activeTab);
+		if (fromDate) params.set('from', fromDate.toISOString().split('T')[0]);
+		if (toDate) params.set('to', toDate.toISOString().split('T')[0]);
+		window.open(`/reports/purchases-by-vendor/print?${params.toString()}`, '_blank');
+	}
+
 	function formatCurrency(value: string | number) {
 		const num = typeof value === 'string' ? parseFloat(value || '0') : value;
 		return `₱${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -167,10 +176,16 @@
 	</Card>
 
 	<Tabs bind:value={activeTab}>
-		<TabsList>
-			<TabsTrigger value="summary">Summary</TabsTrigger>
-			<TabsTrigger value="detail">Detail</TabsTrigger>
-		</TabsList>
+		<div class="flex items-center justify-between">
+			<TabsList>
+				<TabsTrigger value="summary">Summary</TabsTrigger>
+				<TabsTrigger value="detail">Detail</TabsTrigger>
+			</TabsList>
+			<Button variant="outline" onclick={openPrint}>
+				<Printer size={16} />
+				Print
+			</Button>
+		</div>
 
 		<TabsContent value="summary">
 			<Card>
