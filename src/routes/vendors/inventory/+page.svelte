@@ -120,45 +120,43 @@
 		return 'text-red-500';
 	}
 
+	let stats = $derived(data.inventoryStats);
+
 	setContext('pageTitle', {
 		title: 'Inventory',
 		subTitle: 'Monitor your product stock levels and inventory status.'
 	});
 
-	const statCards = [
+	const statCards = $derived([
 		{
 			title: 'Total Items',
-			value: '2,847',
+			value: stats.totalItems.toLocaleString(),
 			icon: Package,
-			diff: '+45',
-			description: 'this month',
+			description: 'products in inventory',
 			variant: 'success'
 		},
 		{
-			title: 'Low Stock items',
-			value: '12',
+			title: 'Low Stock Items',
+			value: stats.lowStockItems.toLocaleString(),
 			icon: TriangleAlert,
-			diff: '+3',
-			description: 'this month',
-			variant: 'warning'
+			description: 'below minimum quantity',
+			variant: stats.lowStockItems > 0 ? 'warning' : 'success'
 		},
 		{
 			title: 'Out of Stock',
-			value: '5',
+			value: stats.outOfStock.toLocaleString(),
 			icon: TrendingDown,
-			diff: '-2',
-			description: 'this month',
-			variant: 'danger'
+			description: 'items with zero stock',
+			variant: stats.outOfStock > 0 ? 'error' : 'success'
 		},
 		{
 			title: 'Total Value',
-			value: '₱89,432',
+			value: `₱${stats.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
 			icon: Package,
-			diff: '+₱9,432',
-			description: 'this month',
+			description: 'inventory value at cost',
 			variant: 'success'
 		}
-	];
+	]);
 </script>
 
 <svelte:head>

@@ -7,6 +7,7 @@ import {
 	updateProduct,
 	getProduct,
 	getProductsPaginated,
+	getInventoryStats,
 	type CreateProductData,
 	type UpdateProductData,
 	type SortableColumn,
@@ -43,7 +44,8 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 		product = await getProduct(parseInt(productId));
 	}
 
-	// Get paginated products
+	// Get inventory stats and paginated products
+	const inventoryStats = await getInventoryStats();
 	const paginatedData = await getProductsPaginated({
 		page,
 		limit,
@@ -55,6 +57,7 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 	return {
 		...paginatedData,
 		product,
+		inventoryStats,
 		currentParams: { page, limit, sortBy, sortOrder, search }
 	};
 };

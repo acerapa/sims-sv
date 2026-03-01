@@ -1,4 +1,4 @@
-import { desc, eq, asc, ilike, or, count } from 'drizzle-orm';
+import { desc, eq, asc, ilike, or, count, sql, sum, and, lte, gt } from 'drizzle-orm';
 import { db } from '..';
 import { products, productsToSupplier } from '../schema';
 
@@ -283,5 +283,29 @@ export const getProductsPaginated = async (
 		page,
 		limit,
 		totalPages: Math.ceil(total / limit)
+	};
+};
+
+export const getInventoryStats = async () => {
+	const [stats] = await db
+		.select({
+			totalItems: count(),
+			lowStockItems: sum(
+				sql<number>`CASE WHEN ${products.quantity} > 0 AND ${products.quantity} <= ${products.minimum_quantity} THEN 1 ELSE 0 END`
+			),
+			outOfStock: sum(
+				sql<number>`CASE WHEN ${products.quantity} = 0 OR ${products.quantity} IS NULL THEN 1 ELSE 0 END`
+			),
+			totalValue: sum(
+				sql<number>`COALESCE(${products.quantity}, 0) * COALESCE(${products.cost}::numeric, 0)`
+			)
+		})
+		.from(products);
+
+	return {
+		totalItems: stats.totalItems ?? 0,
+		lowStockItems: parseInt(stats.lowStockItems ?? '0'),
+		outOfStock: parseInt(stats.outOfStock ?? '0'),
+		totalValue: parseFloat(stats.totalValue ?? '0')
 	};
 };
