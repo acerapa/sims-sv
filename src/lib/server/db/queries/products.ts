@@ -118,6 +118,7 @@ export const getProducts = async () => {
 		columns: {
 			id: true,
 			sku: true,
+			cost: true,
 			quantity: true,
 			sale_price: true,
 			minimum_quantity: true,

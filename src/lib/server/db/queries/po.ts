@@ -5,7 +5,7 @@ import type { SupplierPO } from '$lib/types/global';
 
 export interface CreatePO {
 	reference: string;
-	supplier_id: number;
+	supplier_id?: number;
 	receive_date: Date;
 	receive_type: string;
 	notes?: string;

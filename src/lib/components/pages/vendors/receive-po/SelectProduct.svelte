@@ -17,17 +17,19 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import type { Category, Product, Supplier } from '$lib/types/global';
+	import type { Category } from '$lib/types/global';
+	import type { getProducts } from '$lib/server/db/queries/products';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
 	import ProductForm from '../product-form.svelte';
 	import type { ActionData } from '../../../../../routes/vendors/receive-po/$types';
 
+	type ProductItem = Awaited<ReturnType<typeof getProducts>>[number];
+
 	interface Props {
 		issues: z.core.$ZodIssue[] | undefined;
-		products: Product[];
+		products: ProductItem[];
 		categories: Category[];
-		suppliers: Supplier[];
 		items: {
 			id: number;
 			product_id: string;
@@ -36,25 +38,19 @@
 			sale_price: number;
 			total_cost: number;
 		}[];
-		selectedSupplierId: string;
 		form: ActionData;
-		triggerRefetchProducts: () => void;
 	}
 
 	let {
 		products,
 		items = $bindable(),
-		selectedSupplierId,
 		issues,
-		suppliers,
 		categories,
-		form,
-		triggerRefetchProducts = () => {}
+		form
 	}: Props = $props();
 
 	let openProductForm = $state(false);
-	let insertedProduct = $state<Product | null>(null);
-	let lastInsertedProductId = $state<number | null>(null);
+	let insertedProduct = $state<ProductItem | null>(null);
 	let activeItemIndex = $state<number | null>(null);
 	let subTotal = $derived.by(() => {
 		return items
@@ -67,13 +63,6 @@
 	let overAllTotal = $derived.by(() => {
 		return (parseFloat(subTotal) - orderDiscount).toFixed(2);
 	});
-	let preSelectedSuppliers = $derived([
-		{
-			supplierId: selectedSupplierId,
-			cost: 0
-		}
-	]);
-
 	let groupedIssues = $derived.by(() => {
 		let grouped: Record<string, string>[] = [];
 
@@ -101,7 +90,7 @@
 		});
 	};
 
-	const getProduct = (productId: number): Product | undefined => {
+	const getProduct = (productId: number): ProductItem | undefined => {
 		return products.find((product) => product.id === productId);
 	};
 
@@ -116,12 +105,17 @@
 		const product = getProduct(parseInt(item.product_id));
 
 		if (product) {
-			item.cost = product.cost || 0;
+			item.cost = parseFloat(product.cost?.toString() || '0');
 			item.total_cost = item.quantity * item.cost;
 		}
 	};
 
 	const onQuantityChange = (ndx: number) => {
+		const item = items[ndx];
+		item.total_cost = item.quantity * item.cost;
+	};
+
+	const onCostChange = (ndx: number) => {
 		const item = items[ndx];
 		item.total_cost = item.quantity * item.cost;
 	};
@@ -133,39 +127,29 @@
 
 	$effect(() => {
 		if (insertedProduct) {
-			triggerRefetchProducts();
-			lastInsertedProductId = insertedProduct.id;
-			insertedProduct = null;
-		}
+			const cost = parseInt(insertedProduct.cost?.toString() || '0');
 
-		if (products && lastInsertedProductId && lastInsertedProductId !== null) {
-			const product = products.find((p) => p.id === lastInsertedProductId);
-
-			if (product) {
-				const cost = parseInt(product?.cost?.toString() || '0');
-
-				if (activeItemIndex !== null) {
-					items[activeItemIndex] = {
-						id: items.length + 1,
-						product_id: product?.id.toString() || '',
-						quantity: 1,
-						cost: cost,
-						sale_price: cost, // should be from input or recalculated
-						total_cost: cost * 1
-					};
-				} else {
-					items.push({
-						id: items.length + 1,
-						product_id: product?.id.toString() || '',
-						quantity: 1,
-						cost: cost,
-						sale_price: cost,
-						total_cost: cost * 1
-					});
-				}
+			if (activeItemIndex !== null) {
+				items[activeItemIndex] = {
+					id: items.length + 1,
+					product_id: insertedProduct.id.toString(),
+					quantity: 1,
+					cost: cost,
+					sale_price: cost,
+					total_cost: cost * 1
+				};
 				activeItemIndex = null;
-				lastInsertedProductId = null;
+			} else {
+				items.push({
+					id: items.length + 1,
+					product_id: insertedProduct.id.toString(),
+					quantity: 1,
+					cost: cost,
+					sale_price: cost,
+					total_cost: cost * 1
+				});
 			}
+			insertedProduct = null;
 		}
 	});
 </script>
@@ -187,8 +171,6 @@
 		<ProductForm
 			{form}
 			{categories}
-			{suppliers}
-			bind:preSelectedSuppliers
 			bind:insertedProduct
 			bind:open={openProductForm}
 			hasTrigger={false}
@@ -224,26 +206,22 @@
 												: 'Select Product'}
 										</SelectTrigger>
 										<SelectContent>
-											{#if !selectedSupplierId}
-												<SelectItem value="" disabled>Please select supplier first</SelectItem>
-											{:else}
-												<SelectItem onclick={() => onOpenProductForm(i)} value="0">
-													Add product
-												</SelectItem>
-												{#if !products.length}
-													<SelectItem value="" disabled>No Products available</SelectItem>
-												{/if}
-												{#each products as product (product.id)}
-													<SelectItem
-														disabled={items.some(
-															(item) => parseInt(item.product_id) === product.id
-														)}
-														value={product.id.toString()}
-													>
-														{product.purchase_description}
-													</SelectItem>
-												{/each}
+											<SelectItem onclick={() => onOpenProductForm(i)} value="0">
+												Add product
+											</SelectItem>
+											{#if !products.length}
+												<SelectItem value="" disabled>No Products available</SelectItem>
 											{/if}
+											{#each products as product (product.id)}
+												<SelectItem
+													disabled={items.some(
+														(item) => parseInt(item.product_id) === product.id
+													)}
+													value={product.id.toString()}
+												>
+													{product.purchase_description}
+												</SelectItem>
+											{/each}
 										</SelectContent>
 									</Select>
 									{#if groupedIssues[i]?.product_id}
@@ -271,7 +249,7 @@
 							</TableCell>
 							<TableCell class="align-top">
 								<Input
-									class="pointer-events-none disabled:text-primary disabled:!opacity-100"
+									oninput={() => onCostChange(i)}
 									type="number"
 									name={`products.${i}.cost`}
 									bind:value={items[i].cost}

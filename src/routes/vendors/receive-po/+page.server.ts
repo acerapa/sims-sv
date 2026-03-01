@@ -1,30 +1,16 @@
-import { getSuppliers } from '$lib/server/db/queries/suppliers';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getProductsBySupplier } from '$lib/server/db/queries/products';
 import { decode } from 'decode-formdata';
 import z from 'zod';
 import { createReceivePO, type CreatePO } from '$lib/server/db/queries/po';
+import { getProducts } from '$lib/server/db/queries/products';
 
 export const load: PageServerLoad = async () => {
-	const suppliers = await getSuppliers();
-	return { suppliers };
+	const products = await getProducts();
+	return { products };
 };
 
 export const actions: Actions = {
-	getProductBySupplier: async ({ request }) => {
-		const formData = await request.formData();
-		const supplierId = formData.get('supplier_id');
-
-		if (!supplierId) {
-			return fail(400, {
-				message: 'Supplier ID is required'
-			});
-		}
-
-		const products = await getProductsBySupplier(parseInt(supplierId as string));
-		return { products };
-	},
 	receivePo: async ({ request }) => {
 		try {
 			const body = await request.formData();
@@ -46,7 +32,7 @@ export const actions: Actions = {
 
 			const purchaseOrderSchema = z.object({
 				reference: z.string('Reference is required').min(1, 'Reference is required'),
-				supplier_id: z.number('Supplier is required'),
+				supplier_id: z.number().optional(),
 				receive_date: z.date('Receive date is required'),
 				receive_type: z.enum(
 					['with_pay', 'without_pay'],

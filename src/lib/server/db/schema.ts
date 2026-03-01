@@ -115,9 +115,7 @@ export const productsToSupplier = pgTable('products_to_suppliers', {
 export const purchaseOrders = pgTable('purhase_order', {
 	id: serial().primaryKey(),
 	reference: varchar().notNull().unique(),
-	supplier_id: integer()
-		.notNull()
-		.references(() => suppliers.id),
+	supplier_id: integer().references(() => suppliers.id),
 	receive_date: timestamp().notNull(),
 	receive_type: receiveType().notNull(),
 	notes: text(),

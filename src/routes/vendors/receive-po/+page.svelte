@@ -37,8 +37,7 @@
 	let insertedSupplier = $state<Supplier | null>(null);
 	let suppliers = $derived<Supplier[]>(data.suppliers);
 	let categories = $derived<Category[]>(data.categories);
-	let products = $state<Product[]>([]);
-	let fetchProductsForm: HTMLFormElement;
+	let products = $derived(data.products);
 	let selectedSupplierId = $state<string>('');
 	let selectedSupplier = $derived(
 		suppliers.find((supplier) => supplier.id === parseInt(selectedSupplierId))
@@ -62,6 +61,7 @@
 			product_id: '',
 			quantity: 1,
 			cost: 0,
+			sale_price: 0,
 			total_cost: 0
 		}
 	]);
@@ -79,10 +79,6 @@
 	};
 
 	$effect(() => {
-		if (selectedSupplierId && selectedSupplierId !== '-' && fetchProductsForm) {
-			fetchProductsForm.requestSubmit();
-		}
-
 		if (insertedSupplier) {
 			selectedSupplierId = insertedSupplier.id.toString();
 			suppliers.unshift(insertedSupplier);
@@ -98,29 +94,6 @@
 
 <div class="mb-6 flex flex-col gap-6">
 	<SupplierForm bind:open={openSupplierForm} {form} bind:insertedSupplier hasTrigger={false} />
-	<form
-		bind:this={fetchProductsForm}
-		method="post"
-		action="?/getProductBySupplier"
-		use:enhance={() => {
-			return async ({ result }) => {
-				if (result.type === 'success') {
-					products = result.data?.products as Product[];
-
-					items = items.filter((item) => {
-						return products.some((product) => product.id === parseInt(item.product_id));
-					});
-
-					if (items.length === 0) {
-						selectProductRef.addItem();
-					}
-				}
-			};
-		}}
-		class="hidden"
-	>
-		<input type="hidden" name="supplier_id" value={selectedSupplierId} />
-	</form>
 	<form class="flex flex-col gap-6" method="post" action="?/receivePo" use:enhance={submitForm}>
 		<Card class="rounded-lg">
 			<CardHeader>
@@ -144,12 +117,10 @@
 							</div>
 						</div>
 						<div class="flex flex-1 flex-col gap-2">
-							<Label>Supplier</Label>
+							<Label>Supplier <span class="text-muted-foreground text-xs">(optional)</span></Label>
 							<div>
 								<Select type="single" name="supplier_id" bind:value={selectedSupplierId}>
-									<SelectTrigger
-										class={['h-10 w-full', errors?.properties?.supplier_id ? 'border-red-500' : '']}
-									>
+									<SelectTrigger class="h-10 w-full">
 										{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
 									</SelectTrigger>
 									<SelectContent>
@@ -165,11 +136,6 @@
 										</SelectGroup>
 									</SelectContent>
 								</Select>
-								{#if errors?.properties?.supplier_id}
-									<small class="text-red-500">
-										{errors.properties.supplier_id.errors[0]}
-									</small>
-								{/if}
 							</div>
 						</div>
 					</div>
@@ -230,14 +196,9 @@
 		<SelectProduct
 			bind:items
 			{products}
-			{suppliers}
 			{categories}
 			{form}
-			triggerRefetchProducts={() => {
-				fetchProductsForm.requestSubmit();
-			}}
 			bind:this={selectProductRef}
-			{selectedSupplierId}
 			issues={findErrorByKey(issues, 'products')}
 		/>
 		<div class="flex gap-3 self-end">
