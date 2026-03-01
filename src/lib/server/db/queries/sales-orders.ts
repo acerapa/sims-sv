@@ -1,4 +1,4 @@
-import { desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, sql, count, sum, and, gte, lt } from 'drizzle-orm';
 import { db } from '..';
 import { customers, products, salesOrderItems, salesOrders } from '../schema';
 
@@ -81,4 +81,38 @@ export const getSalesOrders = async () => {
 		.orderBy(desc(salesOrders.created_at));
 
 	return result;
+};
+
+export const getSalesOrderStats = async () => {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	const tomorrow = new Date(today);
+	tomorrow.setDate(tomorrow.getDate() + 1);
+	const todayISO = today.toISOString();
+	const tomorrowISO = tomorrow.toISOString();
+
+	const [stats] = await db
+		.select({
+			totalSales: sum(salesOrders.total_cost),
+			totalOrders: count(),
+			todaySales: sql<string>`COALESCE(SUM(CASE WHEN ${salesOrders.created_at} >= ${todayISO}::timestamp AND ${salesOrders.created_at} < ${tomorrowISO}::timestamp THEN ${salesOrders.total_cost} ELSE 0 END), 0)`,
+			todayOrders: sql<string>`COALESCE(SUM(CASE WHEN ${salesOrders.created_at} >= ${todayISO}::timestamp AND ${salesOrders.created_at} < ${tomorrowISO}::timestamp THEN 1 ELSE 0 END), 0)`,
+			openOrders: sql<string>`COALESCE(SUM(CASE WHEN ${salesOrders.order_status} = 'open' THEN 1 ELSE 0 END), 0)`
+		})
+		.from(salesOrders);
+
+	const [customerStats] = await db
+		.select({
+			totalCustomers: count()
+		})
+		.from(customers);
+
+	return {
+		todaySales: parseInt(stats.todaySales ?? '0'),
+		todayOrders: parseInt(stats.todayOrders ?? '0'),
+		totalSales: parseInt(stats.totalSales ?? '0'),
+		totalOrders: stats.totalOrders ?? 0,
+		openOrders: parseInt(stats.openOrders ?? '0'),
+		totalCustomers: customerStats.totalCustomers ?? 0
+	};
 };

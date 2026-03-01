@@ -10,47 +10,62 @@
 		sales: [
 			{
 				title: 'Daily Sales Summary',
-				subtitle: 'Detailed breakdown of daily sales performance and trends'
+				subtitle: 'Detailed breakdown of daily sales performance and trends',
+				href: ''
 			},
 			{
 				title: 'Monthly Revenue Report',
-				subtitle: 'Comprehensive monthly revenue analysis with comparisons'
+				subtitle: 'Comprehensive monthly revenue analysis with comparisons',
+				href: ''
 			},
 			{
 				title: 'Sales by Product',
-				subtitle: 'Product-wise sales performance and ranking'
+				subtitle: 'Product-wise sales performance and ranking',
+				href: ''
 			},
 			{
 				title: 'Sales by Customer',
-				subtitle: 'Customer purchase history and analytics'
+				subtitle: 'Customer purchase history and analytics',
+				href: ''
 			}
 		],
 		inventory: [
 			{
 				title: 'Current Stock Levels',
-				subtitle: 'Real-time inventory status across all locations'
+				subtitle: 'Real-time inventory status across all locations',
+				href: ''
 			},
 			{
 				title: 'Stock Movement Report',
-				subtitle: 'Track inventory movements and transfers'
+				subtitle: 'Track inventory movements and transfers',
+				href: ''
 			},
 			{
 				title: 'Low Stock Alert',
-				subtitle: 'Products below minimum threshold'
+				subtitle: 'Products below minimum threshold',
+				href: ''
 			}
 		],
 		purchasing: [
 			{
+				title: 'Purchases by Vendor',
+				subtitle: 'Purchase order summary and details grouped by vendor',
+				href: '/reports/purchases-by-vendor'
+			},
+			{
 				title: 'Purchase Order Report',
-				subtitle: 'All purchase orders with status tracking'
+				subtitle: 'All purchase orders with status tracking',
+				href: ''
 			},
 			{
 				title: 'Supplier Performance',
-				subtitle: 'Supplier delivery and quality metrics'
+				subtitle: 'Supplier delivery and quality metrics',
+				href: ''
 			},
 			{
 				title: 'Purchase History',
-				subtitle: 'Historical purchase data and trends'
+				subtitle: 'Historical purchase data and trends',
+				href: ''
 			}
 		]
 	};
@@ -116,10 +131,19 @@
 						<CardDescription>{report.subtitle}</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<Button variant="outline" class="w-full" size="lg">
-							<NotepadText />
-							View Report
-						</Button>
+						{#if report.href}
+							<a href={report.href}>
+								<Button variant="outline" class="w-full" size="lg">
+									<NotepadText />
+									View Report
+								</Button>
+							</a>
+						{:else}
+							<Button variant="outline" class="w-full" size="lg" disabled>
+								<NotepadText />
+								Coming Soon
+							</Button>
+						{/if}
 					</CardContent>
 				</Card>
 			{/each}

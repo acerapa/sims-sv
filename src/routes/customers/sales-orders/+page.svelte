@@ -42,41 +42,38 @@
 	let { data }: PageProps = $props();
 
 	let salesOrders = $derived(data.salesOrders);
+	let stats = $derived(data.salesOrderStats);
 
-	const statCards = [
+	const statCards = $derived([
 		{
 			title: "Today's Sales",
-			value: '2,847',
+			value: `₱${stats.todaySales.toLocaleString()}`,
 			icon: DollarSign,
-			diff: '+45',
-			description: 'this month',
+			description: `${stats.todayOrders} order(s) today`,
 			variant: 'success'
 		},
 		{
-			title: 'Orders Today',
-			value: '12',
+			title: 'Total Orders',
+			value: stats.totalOrders.toLocaleString(),
 			icon: ShoppingCart,
-			diff: '+3',
-			description: 'this month',
+			description: `${stats.openOrders} open`,
 			variant: 'success'
 		},
 		{
-			title: 'New Customers',
-			value: '5',
+			title: 'Total Customers',
+			value: stats.totalCustomers.toLocaleString(),
 			icon: Users,
-			diff: '2',
-			description: 'this month',
+			description: 'registered customers',
 			variant: 'success'
 		},
 		{
-			title: 'Profit Margin',
-			value: '30%',
+			title: 'Total Sales',
+			value: `₱${stats.totalSales.toLocaleString()}`,
 			icon: TrendingUp,
-			diff: '0.5%',
-			description: 'this month',
+			description: 'all-time revenue',
 			variant: 'success'
 		}
-	];
+	]);
 
 	let searchValue = $state('');
 
