@@ -26,7 +26,7 @@
 			{
 				title: 'Sales by Customer',
 				subtitle: 'Customer purchase history and analytics',
-				href: ''
+				href: '/reports/sales-by-customer'
 			}
 		],
 		inventory: [

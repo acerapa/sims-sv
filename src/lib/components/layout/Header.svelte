@@ -74,7 +74,9 @@
 				</a>
 				<a href={resolve('/reports')}>
 					<Button
-						variant={isRouteActive('/reports', path) ? 'info' : 'ghost'}
+						variant={isRouteActive('/reports', path) || path?.startsWith('/reports')
+							? 'info'
+							: 'ghost'}
 						class="text-muted-foreground"
 					>
 						Reports
