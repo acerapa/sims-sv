@@ -70,7 +70,6 @@ export const createProduct = async (data: CreateProductData) => {
 };
 
 export const updateProduct = async (data: UpdateProductData) => {
-	console.log(data);
 	return await db.transaction(async (tx) => {
 		const [product] = await tx
 			.update(products)
