@@ -29,8 +29,8 @@
 
 	let { data, form }: PageProps = $props();
 
-	let errors = $derived((form as any)?.errors);
-	let issues = $derived((form as any)?.issues);
+	let errors = $derived(form?.errors);
+	let issues = $derived(form?.issues);
 	let customers = $derived<CustomerWithId[]>(data.customers as CustomerWithId[]);
 	let products = $derived<Product[]>(
 		data.products.map((p: any) => ({
@@ -59,6 +59,8 @@
 				return null;
 		}
 	});
+	let dateOrdered = $state<Date | null>(null);
+	let notes = $state<string>('');
 
 	let items = $state([
 		{
@@ -66,15 +68,38 @@
 			product_id: '',
 			quantity: 1,
 			unit_price: 0,
-			total_price: 0
+			total_price: 0,
+			serial_number: ''
 		}
 	]);
+
+	let submitAction = $state<'close' | 'new'>('close');
 
 	const submitForm: SubmitFunction = async () => {
 		return async ({ result }) => {
 			if (result.type === 'success') {
 				toast.success('Sales order created successfully');
-				goto(resolve('/customers/sales-orders'));
+				if (submitAction === 'new') {
+					// reset page states
+					selectedCustomerId = '';
+					selectedOrderType = '';
+					dateOrdered = null;
+					notes = '';
+					items = [
+						{
+							id: 0,
+							product_id: '',
+							quantity: 1,
+							unit_price: 0,
+							total_price: 0,
+							serial_number: ''
+						}
+					];
+
+					goto(resolve('/customers/sales-orders/form'));
+				} else {
+					goto(resolve('/customers/sales-orders'));
+				}
 			} else {
 				await applyAction(result);
 				toast.error('Failed to create sales order');
@@ -89,7 +114,12 @@
 </svelte:head>
 
 <div class="mb-6 flex flex-col gap-6">
-	<form class="flex flex-col gap-6" method="post" action="?/createSalesOrder" use:enhance={submitForm}>
+	<form
+		class="flex flex-col gap-6"
+		method="post"
+		action="?/createSalesOrder"
+		use:enhance={submitForm}
+	>
 		<Card class="rounded-lg">
 			<CardHeader>
 				<CardTitle>Create Sales Order</CardTitle>
@@ -127,10 +157,7 @@
 							<div>
 								<Select type="single" name="order_type" bind:value={selectedOrderType}>
 									<SelectTrigger
-										class={[
-											'h-10 w-full',
-											errors?.properties?.order_type ? 'border-red-500' : ''
-										]}
+										class={['h-10 w-full', errors?.properties?.order_type ? 'border-red-500' : '']}
 									>
 										{selectedOrderTypeLabel ? selectedOrderTypeLabel : 'Select Type'}
 									</SelectTrigger>
@@ -154,6 +181,7 @@
 							<Label>Date Ordered</Label>
 							<div class="flex flex-col gap-1">
 								<DatePicker
+									bind:value={dateOrdered}
 									error={errors?.properties?.date_ordered ? true : false}
 									name="date_ordered"
 								/>
@@ -167,6 +195,7 @@
 						<div class="flex flex-1 flex-col gap-2">
 							<Label>Notes</Label>
 							<Textarea
+								bind:value={notes}
 								name="notes"
 								class="h-10"
 								placeholder="Add any additional notes about this order..."
@@ -177,14 +206,13 @@
 			</CardContent>
 		</Card>
 
-		<SelectProduct
-			bind:items
-			{products}
-			issues={findErrorByKey(issues, 'products')}
-		/>
+		<SelectProduct bind:items {products} issues={findErrorByKey(issues, 'products')} />
 		<div class="flex gap-3 self-end">
 			<Button variant="outline" href="/customers/sales-orders">Cancel</Button>
-			<Button type="submit">Create Order</Button>
+			<Button variant="outline" type="submit" onclick={() => (submitAction = 'new')}
+				>Save and New</Button
+			>
+			<Button type="submit" onclick={() => (submitAction = 'close')}>Save and Close</Button>
 		</div>
 	</form>
 </div>

@@ -87,7 +87,8 @@
 
 	$effect(() => {
 		if (activeBracket && costValue > 0) {
-			salePriceValue = Math.round(costValue * (1 + activeBracket.discount_percentage / 100) * 100) / 100;
+			salePriceValue =
+				Math.round(costValue * (1 + activeBracket.discount_percentage / 100) * 100) / 100;
 		}
 	});
 
@@ -434,8 +435,16 @@
 								<div class="space-y-2">
 									<Label>Selling Bracket</Label>
 									<div class="flex items-center gap-3">
-										<Select type="single" bind:value={selectedBracketId}>
-											<SelectTrigger class="w-full">
+										<Select
+											disabled={!!product && !edit}
+											name="selling_bracket_id"
+											type="single"
+											bind:value={selectedBracketId}
+										>
+											<SelectTrigger
+												class="w-full disabled:opacity-100"
+												disabled={!!product && !edit}
+											>
 												{bracketLabel}
 											</SelectTrigger>
 											<SelectContent>
@@ -451,7 +460,7 @@
 											</SelectContent>
 										</Select>
 										{#if activeBracket}
-											<span class="whitespace-nowrap text-sm text-muted-foreground">
+											<span class="text-sm whitespace-nowrap text-muted-foreground">
 												+{activeBracket.discount_percentage}% markup
 											</span>
 										{/if}

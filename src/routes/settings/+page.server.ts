@@ -1,4 +1,5 @@
 import {
+	getBracketProducts,
 	getSellingBrackets,
 	updateCreateSellingBrackets
 } from '$lib/server/db/queries/selling-brackets';
@@ -9,8 +10,11 @@ import { fail } from '@sveltejs/kit';
 import type { Bracket } from '$lib/types/global';
 
 export const load: PageServerLoad = async () => {
-	const sellingBrackets = await getSellingBrackets();
-	return { sellingBrackets };
+	const [sellingBrackets, bracketProducts] = await Promise.all([
+		getSellingBrackets(),
+		getBracketProducts()
+	]);
+	return { sellingBrackets, bracketProducts };
 };
 
 export const actions: Actions = {

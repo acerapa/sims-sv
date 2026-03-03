@@ -47,7 +47,7 @@
 </script>
 
 <Popover bind:open>
-	<PopoverTrigger class="w-full">
+	<PopoverTrigger class="w-full" {disabled}>
 		<Button
 			{disabled}
 			variant="outline"

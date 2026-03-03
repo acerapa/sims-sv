@@ -12,6 +12,7 @@ export interface CreateProductData {
 	minimum_quantity: number | null;
 	sales_description: string | null;
 	purchase_description: string | null;
+	selling_bracket_id: number | null;
 	suppliers: {
 		supplier_id: number;
 		cost: number;
@@ -36,6 +37,7 @@ export const createProduct = async (data: CreateProductData) => {
 					// preferred_supplier_id: data.preferred_supplier_id,
 					minimum_quantity: data.minimum_quantity,
 					sales_description: data.sales_description,
+					selling_bracket_id: data.selling_bracket_id,
 					purchase_description: data.purchase_description
 				})
 			)
@@ -46,6 +48,7 @@ export const createProduct = async (data: CreateProductData) => {
 				quantity: products.quantity,
 				sale_price: products.sale_price,
 				minimum_quantity: products.minimum_quantity,
+				selling_bracket_id: products.selling_bracket_id,
 				purchase_description: products.purchase_description
 				// preferred_supplier_id: products.preferred_supplier_id
 			});
@@ -67,6 +70,7 @@ export const createProduct = async (data: CreateProductData) => {
 };
 
 export const updateProduct = async (data: UpdateProductData) => {
+	console.log(data);
 	return await db.transaction(async (tx) => {
 		const [product] = await tx
 			.update(products)
@@ -79,6 +83,7 @@ export const updateProduct = async (data: UpdateProductData) => {
 					category_id: data.category_id,
 					minimum_quantity: data.minimum_quantity,
 					sales_description: data.sales_description,
+					selling_bracket_id: data.selling_bracket_id,
 					purchase_description: data.purchase_description
 				})
 			)
@@ -89,6 +94,7 @@ export const updateProduct = async (data: UpdateProductData) => {
 				quantity: products.quantity,
 				sale_price: products.sale_price,
 				minimum_quantity: products.minimum_quantity,
+				selling_bracket_id: products.selling_bracket_id,
 				purchase_description: products.purchase_description
 			});
 
@@ -153,6 +159,7 @@ export const getProduct = async (productId: number) => {
 			category_id: products.category_id,
 			minimum_quantity: products.minimum_quantity,
 			sales_description: products.sales_description,
+			selling_bracket_id: products.selling_bracket_id,
 			purchase_description: products.purchase_description
 		})
 		.from(products)
@@ -171,6 +178,7 @@ export const getProduct = async (productId: number) => {
 		category_id: result[0].category_id,
 		minimum_quantity: result[0].minimum_quantity,
 		sales_description: result[0].sales_description,
+		selling_bracket_id: result[0].selling_bracket_id,
 		purchase_description: result[0].purchase_description
 	};
 

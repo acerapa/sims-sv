@@ -1,10 +1,24 @@
 import type { Bracket } from '$lib/types/global';
-import { inArray, sql } from 'drizzle-orm';
+import { eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { db } from '..';
-import { sellingBrackets } from '../schema';
+import { products, sellingBrackets } from '../schema';
 
 export const getSellingBrackets = async () => {
 	return await db.select().from(sellingBrackets);
+};
+
+export const getBracketProducts = async () => {
+	return await db
+		.select({
+			id: products.id,
+			sku: products.sku,
+			sales_description: products.sales_description,
+			cost: products.cost,
+			sale_price: products.sale_price,
+			selling_bracket_id: products.selling_bracket_id
+		})
+		.from(products)
+		.where(isNotNull(products.selling_bracket_id));
 };
 
 export const updateCreateSellingBrackets = async (data: Bracket[]) => {

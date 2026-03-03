@@ -74,6 +74,7 @@ export const actions: Actions = {
 					'cost',
 					'minimum_quantity',
 					'preferred_supplier_id',
+					'selling_bracket_id',
 					'sale_price',
 					'suppliers.$.supplier_id',
 					'suppliers.$.cost'
@@ -87,6 +88,7 @@ export const actions: Actions = {
 				cost: z.number('Cost is should be a number').nullable().default(0),
 				minimum_quantity: z.number('Invalid minimum quantity').nullable().optional().default(0),
 				sale_price: z.number('Sale price should be a number').nullable().default(0),
+				selling_bracket_id: z.number('Selling bracket should be a number').nullable().default(null),
 				suppliers: z
 					.array(
 						z.object({
@@ -140,6 +142,7 @@ export const actions: Actions = {
 					'cost',
 					'minimum_quantity',
 					'sale_price',
+					'selling_bracket_id',
 					'suppliers.$.supplier_id',
 					'suppliers.$.cost'
 				]
@@ -151,7 +154,7 @@ export const actions: Actions = {
 				category_id: z.number('Category is required').min(1, 'Category is required'),
 				quantity: z.number('Quantity is required').min(0),
 				cost: z.number('Cost is should be a number').default(0),
-				minimum_quantity: z.number('Invalid minimum quantity').default(0),
+				minimum_quantity: z.number('Invalid minimum quantity').nullable().optional().default(0),
 				sale_price: z.number('Sale price should be a number').nullable().default(0),
 				suppliers: z
 					.array(

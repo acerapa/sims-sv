@@ -274,6 +274,27 @@
       "when": 1772361923998,
       "tag": "0038_outstanding_vertigo",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1772502042980,
+      "tag": "0039_stale_lyja",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1772503821718,
+      "tag": "0040_goofy_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1772504655619,
+      "tag": "0041_yielding_doctor_faustus",
+      "breakpoints": true
     }
   ]
 }

@@ -30,6 +30,7 @@
 			quantity: number;
 			unit_price: number;
 			total_price: number;
+			serial_number: string;
 		}[];
 	}
 
@@ -65,7 +66,8 @@
 			product_id: '',
 			quantity: 1,
 			unit_price: 0,
-			total_price: 0
+			total_price: 0,
+			serial_number: ''
 		});
 	};
 
@@ -118,6 +120,7 @@
 				<TableHeader>
 					<TableRow>
 						<TableHead>Product</TableHead>
+						<TableHead>S/N</TableHead>
 						<TableHead>Quantity</TableHead>
 						<TableHead>Unit Price (₱)</TableHead>
 						<TableHead>Total (₱)</TableHead>
@@ -162,6 +165,14 @@
 										</small>
 									{/if}
 								</div>
+							</TableCell>
+							<TableCell class="align-top">
+								<Input
+									type="text"
+									placeholder="Optional"
+									name={`products.${i}.serial_number`}
+									bind:value={items[i].serial_number}
+								/>
 							</TableCell>
 							<TableCell class="align-top">
 								<div>

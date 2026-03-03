@@ -14,6 +14,7 @@ export interface CreateSalesOrder {
 		quantity: number;
 		unit_price: number;
 		total_price: number;
+		serial_number?: string;
 	}[];
 }
 

@@ -21,14 +21,38 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import type { Bracket } from '$lib/types/global';
-	import { Trash, PhilippinePeso, Plus, Store, Users, Check } from '@lucide/svelte';
+	import { Trash, PhilippinePeso, Plus, Store, Users, Check, PackageSearch } from '@lucide/svelte';
+	import {
+		Dialog,
+		DialogContent,
+		DialogDescription,
+		DialogHeader,
+		DialogTitle
+	} from '$lib/components/ui/dialog';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	const sellingBrackets = $derived(page.data.sellingBrackets);
+	const allProducts = $derived(
+		page.data.bracketProducts as {
+			id: number;
+			sku: string;
+			sales_description: string;
+			cost: string | null;
+			sale_price: string | null;
+			selling_bracket_id: number | null;
+		}[]
+	);
 
 	let brackets = $state<Bracket[]>([]);
+	let viewBracket = $state<Bracket | null>(null);
+	let viewDialogOpen = $state(false);
+
+	let viewBracketProducts = $derived.by(() => {
+		if (!viewBracket) return [];
+		return allProducts.filter((p) => p.selling_bracket_id === viewBracket?.id);
+	});
 	onMount(() => {
 		brackets = sellingBrackets.map((bracket: Bracket) => {
 			return {
@@ -178,14 +202,29 @@
 										/>%
 									</TableCell>
 									<TableCell>
-										<Button
-											variant="ghost"
-											size="icon"
-											class="group cursor-pointer"
-											onclick={() => removeSellingBracket(ndx)}
-										>
-											<Trash class="h-4 w-4 text-muted-foreground group-hover:text-destructive" />
-										</Button>
+										<div class="flex items-center gap-1">
+											<Button
+												variant="ghost"
+												size="icon"
+												class="group cursor-pointer"
+												onclick={() => {
+													viewBracket = bracket;
+													viewDialogOpen = true;
+												}}
+											>
+												<PackageSearch
+													class="h-4 w-4 text-muted-foreground group-hover:text-primary"
+												/>
+											</Button>
+											<Button
+												variant="ghost"
+												size="icon"
+												class="group cursor-pointer"
+												onclick={() => removeSellingBracket(ndx)}
+											>
+												<Trash class="h-4 w-4 text-muted-foreground group-hover:text-destructive" />
+											</Button>
+										</div>
 									</TableCell>
 								</TableRow>
 							{/each}
@@ -212,3 +251,55 @@
 		</CardContent>
 	</Card>
 </section>
+
+<Dialog
+	bind:open={viewDialogOpen}
+	onOpenChange={(open) => {
+		if (!open) viewBracket = null;
+	}}
+>
+	<DialogContent class="max-w-2xl">
+		<DialogHeader>
+			<DialogTitle>
+				Products in BRACKET-{viewBracket?.id}
+			</DialogTitle>
+			<DialogDescription>
+				Products with cost between ₱{viewBracket?.start_price} and ₱{viewBracket?.end_price} ({viewBracket?.discount_percentage}%
+				markup)
+			</DialogDescription>
+		</DialogHeader>
+		<div class="max-h-96 overflow-y-auto">
+			<Table>
+				<TableHeader>
+					<TableRow>
+						<TableHead>SKU</TableHead>
+						<TableHead>Description</TableHead>
+						<TableHead class="text-right">Cost (₱)</TableHead>
+						<TableHead class="text-right">Selling Price (₱)</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{#each viewBracketProducts as product (product.id)}
+						<TableRow>
+							<TableCell class="font-mono text-sm">{product.sku}</TableCell>
+							<TableCell>{product.sales_description}</TableCell>
+							<TableCell class="text-right">{parseFloat(product.cost ?? '0').toFixed(2)}</TableCell>
+							<TableCell class="text-right">
+								{(
+									parseFloat(product.cost ?? '0') *
+									(1 + (viewBracket?.discount_percentage ?? 0) / 100)
+								).toFixed(2)}
+							</TableCell>
+						</TableRow>
+					{:else}
+						<TableRow>
+							<TableCell colspan={4} class="text-center text-muted-foreground">
+								No products fall within this bracket's cost range.
+							</TableCell>
+						</TableRow>
+					{/each}
+				</TableBody>
+			</Table>
+		</div>
+	</DialogContent>
+</Dialog>

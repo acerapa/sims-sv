@@ -30,7 +30,11 @@ export const invoiceStatus = pgEnum('invoice_status', [
 	'paid',
 	'cancelled'
 ]);
-export const invoicePaymentType = pgEnum('invoice_payment_type', ['cash', 'check', 'bank_transfer']);
+export const invoicePaymentType = pgEnum('invoice_payment_type', [
+	'cash',
+	'check',
+	'bank_transfer'
+]);
 
 const timestamps = {
 	created_at: timestamp().defaultNow().notNull(),
@@ -94,6 +98,7 @@ export const products = pgTable('products', {
 		.references(() => categories.id),
 	cost: decimal().default('0'),
 	// preferred_supplier_id: serial().references(() => suppliers.id), This is disabled for now
+	selling_bracket_id: integer().references(() => sellingBrackets.id),
 	purchase_description: text().notNull(),
 	quantity: integer().default(0),
 	minimum_quantity: integer().default(0),
@@ -303,6 +308,7 @@ export const salesOrderItems = pgTable('sales_order_items', {
 	quantity: integer().notNull(),
 	unit_price: decimal().notNull(),
 	total_price: decimal().notNull(),
+	serial_number: varchar(),
 	...timestamps
 });
 
@@ -459,6 +465,10 @@ export const productRelations = relations(products, ({ many, one }) => ({
 	category: one(categories, {
 		fields: [products.category_id],
 		references: [categories.id]
+	}),
+	sellingBracket: one(sellingBrackets, {
+		fields: [products.selling_bracket_id],
+		references: [sellingBrackets.id]
 	})
 }));
 

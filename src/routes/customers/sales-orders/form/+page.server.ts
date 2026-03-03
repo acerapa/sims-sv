@@ -46,7 +46,8 @@ export const actions: Actions = {
 							product_id: z.number('Product is required'),
 							quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
 							unit_price: z.number('Unit price is required'),
-							total_price: z.number('Total price is required')
+							total_price: z.number('Total price is required'),
+							serial_number: z.string().optional()
 						})
 					)
 					.min(1, 'At least one product is required')
