@@ -26,9 +26,11 @@
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import ClientForm from '$lib/components/pages/customers/clients/client-form.svelte';
 
 	let { data, form }: PageProps = $props();
 
+	let clientFormOpen = $state<boolean>(false);
 	let errors = $derived(form?.errors);
 	let issues = $derived(form?.issues);
 	let customers = $derived<CustomerWithId[]>(data.customers as CustomerWithId[]);
@@ -106,6 +108,14 @@
 			}
 		};
 	};
+
+	const showClientForm = () => {
+		clientFormOpen = true;
+	};
+
+	const onClientFormSucceed = (clientId: number) => {
+		selectedCustomerId = clientId.toString();
+	};
 </script>
 
 <svelte:head>
@@ -113,6 +123,7 @@
 	<meta name="description" content="Sales orders form" />
 </svelte:head>
 
+<ClientForm bind:open={clientFormOpen} hasTrigger={false} onSuccess={onClientFormSucceed} />
 <div class="mb-6 flex flex-col gap-6">
 	<form
 		class="flex flex-col gap-6"
@@ -139,6 +150,7 @@
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup>
+											<SelectItem value="0" onclick={showClientForm}>Add Client</SelectItem>
 											{#each customers as customer (customer.id)}
 												<SelectItem value={customer.id.toString()}>{customer.name}</SelectItem>
 											{/each}
@@ -163,6 +175,7 @@
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup>
+											<SelectItem value="0" onclick={showClientForm}>Add Client</SelectItem>
 											<SelectItem value="onetime">One-time</SelectItem>
 											<SelectItem value="installment">Installment</SelectItem>
 										</SelectGroup>

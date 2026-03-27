@@ -19,7 +19,11 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 
-	let { open = $bindable<boolean>(false) } = $props();
+	let {
+		open = $bindable<boolean>(false),
+		hasTrigger = $bindable<boolean>(true),
+		onSuccess = $bindable<(clientId: number) => void>(() => {})
+	} = $props();
 	let errors = $derived(page.form?.errors);
 
 	const enhanceForm: SubmitFunction = () => {
@@ -28,6 +32,8 @@
 			if (result.type === 'success') {
 				await invalidateAll();
 				open = false;
+				let clientId = result ? (result.data ? result.data[0].id : 0) : 0;
+				onSuccess(clientId);
 				toast.success('Client added successfully');
 			} else {
 				toast.error('Failed to add client');
@@ -43,10 +49,12 @@
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
-	<SheetTrigger class={`${buttonVariants({ variant: 'default' })} cursor-pointer`}>
-		<Plus class="size-4" />
-		Add Client
-	</SheetTrigger>
+	{#if hasTrigger}
+		<SheetTrigger class={`${buttonVariants({ variant: 'default' })} cursor-pointer`}>
+			<Plus class="size-4" />
+			Add Client
+		</SheetTrigger>
+	{/if}
 	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:max-w-md">
 		<SheetHeader>
 			<SheetTitle>Add Client</SheetTitle>

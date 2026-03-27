@@ -98,7 +98,6 @@
 		const item = items[ndx];
 		item.total_price = item.quantity * item.unit_price;
 	};
-
 </script>
 
 <Card class="relative rounded-lg">
