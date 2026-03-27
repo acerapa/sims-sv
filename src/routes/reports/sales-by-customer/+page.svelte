@@ -111,6 +111,10 @@
 
 	let detailGrouped = $derived(groupDetailByCustomer(detail));
 
+	let detailGrandTotal = $derived(
+		detailGrouped.reduce((sum, c) => sum + c.subtotal, 0)
+	);
+
 	function applyFilter() {
 		const params = new URLSearchParams(page.url.searchParams);
 
@@ -240,69 +244,84 @@
 		</TabsContent>
 
 		<TabsContent value="detail">
-			{#if detailGrouped.length === 0}
-				<Card>
-					<CardContent class="py-8 text-center text-muted-foreground">
-						No sales orders found for the selected date range.
-					</CardContent>
-				</Card>
-			{:else}
-				{#each detailGrouped as customer (customer.customer_id)}
-					<Card class="mb-4">
-						<CardHeader>
-							<CardTitle>{customer.customer_name}</CardTitle>
-						</CardHeader>
-						<CardContent class="space-y-6">
-							{#each customer.orders as order (order.order_id)}
-								<div>
-									<div class="mb-2 flex items-center gap-4 text-sm text-muted-foreground">
-										<span class="font-semibold text-foreground">SO-{order.order_id}</span>
-										<span>
-											{new Date(order.date_ordered).toLocaleDateString('default', {
-												day: 'numeric',
-												month: 'long',
-												year: 'numeric'
-											})}
-										</span>
-										<span class="rounded bg-muted px-2 py-0.5 text-xs capitalize">
-											{order.order_status}
-										</span>
-									</div>
-									<Table>
-										<TableHeader>
+			<Card>
+				<CardHeader>
+					<CardTitle>Sales Detail by Customer</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Type</TableHead>
+								<TableHead>Date</TableHead>
+								<TableHead>Num</TableHead>
+								<TableHead>Item</TableHead>
+								<TableHead class="text-right">Qty</TableHead>
+								<TableHead class="text-right">Sales Price</TableHead>
+								<TableHead class="text-right">Amount</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{#if detailGrouped.length === 0}
+								<TableRow>
+									<TableCell colspan={7} class="text-center text-muted-foreground">
+										No sales orders found for the selected date range.
+									</TableCell>
+								</TableRow>
+							{:else}
+								{#each detailGrouped as customer (customer.customer_id)}
+									<TableRow class="bg-muted/50 hover:bg-muted/50">
+										<TableCell colspan={7} class="py-2 font-bold">
+											{customer.customer_name}
+										</TableCell>
+									</TableRow>
+									{#each customer.orders as order (order.order_id)}
+										{#each order.items as item}
 											<TableRow>
-												<TableHead>Product</TableHead>
-												<TableHead class="text-right">Qty</TableHead>
-												<TableHead class="text-right">Unit Price</TableHead>
-												<TableHead class="text-right">Total Price</TableHead>
+												<TableCell class="pl-8 text-muted-foreground">Invoice</TableCell>
+												<TableCell>
+													{new Date(order.date_ordered).toLocaleDateString('default', {
+														day: '2-digit',
+														month: '2-digit',
+														year: 'numeric'
+													})}
+												</TableCell>
+												<TableCell>{order.order_id}</TableCell>
+												<TableCell>{item.product_name}</TableCell>
+												<TableCell class="text-right">{item.quantity}</TableCell>
+												<TableCell class="text-right">
+													{formatCurrency(item.unit_price)}
+												</TableCell>
+												<TableCell class="text-right">
+													{formatCurrency(item.total_price)}
+												</TableCell>
 											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{#each order.items as item}
-												<TableRow>
-													<TableCell>{item.product_name}</TableCell>
-													<TableCell class="text-right">{item.quantity}</TableCell>
-													<TableCell class="text-right">
-														{formatCurrency(item.unit_price)}
-													</TableCell>
-													<TableCell class="text-right">
-														{formatCurrency(item.total_price)}
-													</TableCell>
-												</TableRow>
-											{/each}
-										</TableBody>
-									</Table>
-								</div>
-							{/each}
-
-							<div class="flex justify-end border-t pt-2">
-								<span class="mr-4 font-semibold">Subtotal:</span>
-								<span class="font-bold">{formatCurrency(customer.subtotal)}</span>
-							</div>
-						</CardContent>
-					</Card>
-				{/each}
-			{/if}
+										{/each}
+									{/each}
+									<TableRow class="border-t hover:bg-transparent">
+										<TableCell colspan={6} class="py-1 pl-8 text-sm font-semibold">
+											Total {customer.customer_name}
+										</TableCell>
+										<TableCell class="py-1 text-right font-semibold">
+											{formatCurrency(customer.subtotal)}
+										</TableCell>
+									</TableRow>
+								{/each}
+							{/if}
+						</TableBody>
+						{#if detailGrouped.length > 0}
+							<TableFooter>
+								<TableRow class="font-bold">
+									<TableCell colspan={6}>TOTAL</TableCell>
+									<TableCell class="text-right">
+										{formatCurrency(detailGrandTotal)}
+									</TableCell>
+								</TableRow>
+							</TableFooter>
+						{/if}
+					</Table>
+				</CardContent>
+			</Card>
 		</TabsContent>
 	</Tabs>
 </section>
