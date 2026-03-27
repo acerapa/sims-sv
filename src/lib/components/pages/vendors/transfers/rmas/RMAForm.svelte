@@ -64,7 +64,7 @@
 		<Plus />
 		Add RMA
 	</SheetTrigger>
-	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
+	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-3xl">
 		<SheetHeader>
 			<SheetTitle>New Return Merchandise Authorization</SheetTitle>
 			<SheetDescription>Fill in the details to add a new rma</SheetDescription>

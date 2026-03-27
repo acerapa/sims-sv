@@ -58,7 +58,7 @@
 		<Plus />
 		Add IBRR
 	</SheetTrigger>
-	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
+	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-3xl">
 		<SheetHeader>
 			<SheetTitle>New Inter-Branch Receiving Report</SheetTitle>
 			<SheetDescription>Fill in the details to add a new ibrr</SheetDescription>

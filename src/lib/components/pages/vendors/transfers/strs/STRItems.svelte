@@ -82,84 +82,90 @@
 		</div>
 	</CardHeader>
 	<CardContent>
-		<Table>
-			<TableHeader>
-				<TableRow>
-					<TableHead>Product</TableHead>
-					<TableHead>Quantity</TableHead>
-					<TableHead>Cost</TableHead>
-					<TableHead>Total Cost</TableHead>
-					<TableHead>Action</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				{#each items as _, ndx (ndx)}
+		<div class="overflow-x-auto">
+			<Table class="min-w-[558.4px]">
+				<TableHeader>
 					<TableRow>
-						<TableCell class="align-top">
-							<div>
-								<Select
-									onValueChange={() => onSelectProduct(ndx)}
-									type="single"
-									name={`items.${ndx}.product_id`}
-									bind:value={items[ndx].product_id}
-								>
-									<SelectTrigger
-										class={errors && errors[ndx]?.properties?.product_id ? 'border-red-500' : ''}
-									>
-										{getProductName(items[ndx].product_id)
-											? getProductName(items[ndx].product_id)
-											: 'Select Product'}
-									</SelectTrigger>
-									<SelectContent class="max-h-96">
-										{#each products as product (product.id)}
-											<SelectItem
-												disabled={items.some((item) => parseInt(item.product_id) === product.id)}
-												value={product.id.toString()}
-											>
-												{product.purchase_description}
-											</SelectItem>
-										{/each}
-									</SelectContent>
-								</Select>
-								{#if errors && errors[ndx]?.properties?.product_id}
-									<small class="text-red-500">
-										{errors[ndx]?.properties?.product_id.errors[0]}
-									</small>
-								{/if}
-							</div>
-						</TableCell>
-						<TableCell class="align-top">
-							<Input
-								type="number"
-								onchange={() => onQuantityUpdate(ndx)}
-								name={`items.${ndx}.quantity`}
-								bind:value={items[ndx].quantity}
-							/>
-						</TableCell>
-						<TableCell class="align-top">
-							<Input
-								type="number"
-								name={`items.${ndx}.cost`}
-								bind:value={items[ndx].cost}
-								readonly
-							/>
-						</TableCell>
-						<TableCell class="align-top">
-							<Input
-								type="number"
-								name={`items.${ndx}.total_cost`}
-								bind:value={items[ndx].total_cost}
-								readonly
-							/>
-						</TableCell>
-						<TableCell class="align-top">
-							<Button disabled={items.length === 1} variant="ghost" onclick={() => removeItem(ndx)}>
-								<Trash class="text-red-500" />
-							</Button>
-						</TableCell>
+						<TableHead>Product</TableHead>
+						<TableHead>Quantity</TableHead>
+						<TableHead>Cost</TableHead>
+						<TableHead>Total Cost</TableHead>
+						<TableHead>Action</TableHead>
 					</TableRow>
-				{/each}
-			</TableBody>
-		</Table>
+				</TableHeader>
+				<TableBody>
+					{#each items as _, ndx (ndx)}
+						<TableRow>
+							<TableCell class="align-top">
+								<div>
+									<Select
+										onValueChange={() => onSelectProduct(ndx)}
+										type="single"
+										name={`items.${ndx}.product_id`}
+										bind:value={items[ndx].product_id}
+									>
+										<SelectTrigger
+											class={errors && errors[ndx]?.properties?.product_id ? 'border-red-500' : ''}
+										>
+											{getProductName(items[ndx].product_id)
+												? getProductName(items[ndx].product_id)
+												: 'Select Product'}
+										</SelectTrigger>
+										<SelectContent class="max-h-96">
+											{#each products as product (product.id)}
+												<SelectItem
+													disabled={items.some((item) => parseInt(item.product_id) === product.id)}
+													value={product.id.toString()}
+												>
+													{product.purchase_description}
+												</SelectItem>
+											{/each}
+										</SelectContent>
+									</Select>
+									{#if errors && errors[ndx]?.properties?.product_id}
+										<small class="text-red-500">
+											{errors[ndx]?.properties?.product_id.errors[0]}
+										</small>
+									{/if}
+								</div>
+							</TableCell>
+							<TableCell class="align-top">
+								<Input
+									type="number"
+									onchange={() => onQuantityUpdate(ndx)}
+									name={`items.${ndx}.quantity`}
+									bind:value={items[ndx].quantity}
+								/>
+							</TableCell>
+							<TableCell class="align-top">
+								<Input
+									type="number"
+									name={`items.${ndx}.cost`}
+									bind:value={items[ndx].cost}
+									readonly
+								/>
+							</TableCell>
+							<TableCell class="align-top">
+								<Input
+									type="number"
+									name={`items.${ndx}.total_cost`}
+									bind:value={items[ndx].total_cost}
+									readonly
+								/>
+							</TableCell>
+							<TableCell class="align-top">
+								<Button
+									disabled={items.length === 1}
+									variant="ghost"
+									onclick={() => removeItem(ndx)}
+								>
+									<Trash class="text-red-500" />
+								</Button>
+							</TableCell>
+						</TableRow>
+					{/each}
+				</TableBody>
+			</Table>
+		</div>
 	</CardContent>
 </Card>

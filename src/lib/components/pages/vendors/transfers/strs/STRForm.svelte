@@ -53,7 +53,7 @@
 		<Plus />
 		Add STR
 	</SheetTrigger>
-	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
+	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:max-w-3xl">
 		<SheetHeader>
 			<SheetTitle>New Stock Transfer Request</SheetTitle>
 			<SheetDescription>Fill in the details to add a new str</SheetDescription>
