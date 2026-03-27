@@ -22,9 +22,15 @@
 
 	let { data }: PageProps = $props();
 
-	let invoices = $derived(data.invoices);
-
 	let searchValue = $state('');
+
+	let invoices = $derived.by(() => {
+		const value = searchValue;
+
+		return data.invoices.filter((invoice) =>
+			invoice.customer_name.toLowerCase().includes(value.toLowerCase())
+		);
+	});
 
 	const getStatusVariant = (status: string) => {
 		switch (status) {
@@ -82,7 +88,7 @@
 					type="search"
 					class="h-10 pl-9"
 					placeholder="Search invoices..."
-					value={searchValue}
+					bind:value={searchValue}
 				/>
 				<Search class="absolute top-1/2 left-3 size-4 translate-y-[-50%] text-muted-foreground" />
 			</div>
