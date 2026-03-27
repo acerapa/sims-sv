@@ -1,20 +1,14 @@
 import { createRMA, getRMAs, type CreateRMAData } from '$lib/server/db/queries/rmas';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
-import { getProductsBySupplier } from '$lib/server/db/queries/products';
+import { getProducts } from '$lib/server/db/queries/products';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async () => {
 	const rmas = await getRMAs();
-	let supplierProducts = null;
-	const supplierId = url.searchParams.get('supplier_id');
-
-	if (supplierId) {
-		supplierProducts = await getProductsBySupplier(parseInt(supplierId));
-	}
-
-	return { rmas, supplierProducts };
+	const products = await getProducts();
+	return { rmas, products };
 };
 
 export const actions: Actions = {

@@ -15,7 +15,7 @@
 	import type { Product } from '$lib/types/global';
 	import { Plus, Trash } from '@lucide/svelte';
 
-	const products = $derived<Product[]>(page.data.supplierProducts ?? []);
+	const products = $derived<Product[]>(page.data.products ?? []);
 	let errors: typeof page.form.errors = $derived(page.form?.errors?.properties?.items?.items);
 
 	const items = $state([
@@ -23,7 +23,8 @@
 			product_id: '',
 			quantity: 1,
 			cost: 0,
-			total_cost: 0
+			total_cost: 0,
+			serial_number: ''
 		}
 	]);
 
@@ -32,7 +33,8 @@
 			product_id: '',
 			quantity: 1,
 			cost: 0,
-			total_cost: 0
+			total_cost: 0,
+			serial_number: ''
 		});
 	};
 
@@ -86,6 +88,7 @@
 			<TableHeader>
 				<TableRow>
 					<TableHead>Product</TableHead>
+					<TableHead>Serial Number</TableHead>
 					<TableHead>Quantity</TableHead>
 					<TableHead>Cost</TableHead>
 					<TableHead>Total Cost</TableHead>
@@ -127,6 +130,14 @@
 									</small>
 								{/if}
 							</div>
+						</TableCell>
+						<TableCell class="align-top">
+							<Input
+								type="text"
+								placeholder="Serial Number"
+								name={`items.${ndx}.serial_number`}
+								bind:value={items[ndx].serial_number}
+							/>
 						</TableCell>
 						<TableCell class="align-top">
 							<Input

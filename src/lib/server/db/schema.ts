@@ -266,6 +266,7 @@ export const rmaItems = pgTable('rma_items', {
 	product_id: integer()
 		.notNull()
 		.references(() => products.id),
+	serial_number: varchar(),
 	quantity: integer().notNull(),
 	cost: integer().notNull(),
 	total_cost: integer().notNull()

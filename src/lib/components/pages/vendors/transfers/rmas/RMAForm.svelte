@@ -21,7 +21,7 @@
 	import RMAItems from './RMAItems.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
 	let { open = $bindable(false) } = $props();
@@ -44,9 +44,11 @@
 		return async ({ result }) => {
 			await applyAction(result);
 			if (result.type === 'success') {
+				await invalidateAll();
 				toast.success('RMA created successfully!');
 				open = false;
 			} else {
+				console.error(result);
 				toast.error('Failed to create RMA!');
 			}
 		};

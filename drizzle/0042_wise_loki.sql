@@ -1,0 +1,1 @@
+ALTER TABLE "rma_items" ADD COLUMN "serial_number" varchar;

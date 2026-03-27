@@ -295,6 +295,13 @@
       "when": 1772504655619,
       "tag": "0041_yielding_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1774619129831,
+      "tag": "0042_wise_loki",
+      "breakpoints": true
     }
   ]
 }
