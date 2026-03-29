@@ -175,7 +175,6 @@
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup>
-											<SelectItem value="0" onclick={showClientForm}>Add Client</SelectItem>
 											<SelectItem value="onetime">One-time</SelectItem>
 											<SelectItem value="installment">Installment</SelectItem>
 										</SelectGroup>
