@@ -158,6 +158,118 @@ export const getSalesByCustomerSummary = async (
 	return result as CustomerSummaryRow[];
 };
 
+// ─── Profit & Loss ────────────────────────────────────────────────
+
+export interface ProfitLossSummaryRow {
+	total_income: string;
+	total_cogs: string;
+	gross_profit: string;
+}
+
+export interface ProfitLossMonthlyRow {
+	month: string;
+	income: string;
+	cogs: string;
+	gross_profit: string;
+}
+
+export interface ProfitLossDetailRow {
+	product_id: number;
+	product_sku: string;
+	product_name: string;
+	quantity_sold: number;
+	total_revenue: string;
+	total_cost: string;
+	profit: string;
+}
+
+export const getProfitLossSummary = async (
+	from?: string,
+	to?: string
+): Promise<ProfitLossSummaryRow> => {
+	const dateParts = buildDateConditions(from, to, 'i', 'invoice_date');
+	const whereClause =
+		dateParts.length > 0
+			? sql`WHERE i.invoice_status != 'cancelled' AND ${sql.join(dateParts, sql` AND `)}`
+			: sql`WHERE i.invoice_status != 'cancelled'`;
+
+	const result = await db.execute<ProfitLossSummaryRow>(sql`
+		SELECT
+			COALESCE(SUM(ii.total_price::numeric), 0)::text AS total_income,
+			COALESCE(SUM(ii.quantity * p.cost::numeric), 0)::text AS total_cogs,
+			COALESCE(SUM(ii.total_price::numeric) - SUM(ii.quantity * p.cost::numeric), 0)::text AS gross_profit
+		FROM invoices i
+		INNER JOIN invoice_items ii ON i.id = ii.invoice_id
+		INNER JOIN products p ON ii.product_id = p.id
+		${whereClause}
+	`);
+
+	return (
+		result[0] ?? {
+			total_income: '0',
+			total_cogs: '0',
+			gross_profit: '0'
+		}
+	);
+};
+
+export const getProfitLossMonthly = async (
+	from?: string,
+	to?: string
+): Promise<ProfitLossMonthlyRow[]> => {
+	const dateParts = buildDateConditions(from, to, 'i', 'invoice_date');
+	const whereClause =
+		dateParts.length > 0
+			? sql`WHERE i.invoice_status != 'cancelled' AND ${sql.join(dateParts, sql` AND `)}`
+			: sql`WHERE i.invoice_status != 'cancelled'`;
+
+	const result = await db.execute<ProfitLossMonthlyRow>(sql`
+		SELECT
+			TO_CHAR(i.invoice_date, 'YYYY-MM') AS month,
+			COALESCE(SUM(ii.total_price::numeric), 0)::text AS income,
+			COALESCE(SUM(ii.quantity * p.cost::numeric), 0)::text AS cogs,
+			COALESCE(SUM(ii.total_price::numeric) - SUM(ii.quantity * p.cost::numeric), 0)::text AS gross_profit
+		FROM invoices i
+		INNER JOIN invoice_items ii ON i.id = ii.invoice_id
+		INNER JOIN products p ON ii.product_id = p.id
+		${whereClause}
+		GROUP BY TO_CHAR(i.invoice_date, 'YYYY-MM')
+		ORDER BY month
+	`);
+
+	return result as ProfitLossMonthlyRow[];
+};
+
+export const getProfitLossDetail = async (
+	from?: string,
+	to?: string
+): Promise<ProfitLossDetailRow[]> => {
+	const dateParts = buildDateConditions(from, to, 'i', 'invoice_date');
+	const whereClause =
+		dateParts.length > 0
+			? sql`WHERE i.invoice_status != 'cancelled' AND ${sql.join(dateParts, sql` AND `)}`
+			: sql`WHERE i.invoice_status != 'cancelled'`;
+
+	const result = await db.execute<ProfitLossDetailRow>(sql`
+		SELECT
+			p.id AS product_id,
+			p.sku AS product_sku,
+			p.sales_description AS product_name,
+			SUM(ii.quantity)::int AS quantity_sold,
+			COALESCE(SUM(ii.total_price::numeric), 0)::text AS total_revenue,
+			COALESCE(SUM(ii.quantity * p.cost::numeric), 0)::text AS total_cost,
+			COALESCE(SUM(ii.total_price::numeric) - SUM(ii.quantity * p.cost::numeric), 0)::text AS profit
+		FROM invoices i
+		INNER JOIN invoice_items ii ON i.id = ii.invoice_id
+		INNER JOIN products p ON ii.product_id = p.id
+		${whereClause}
+		GROUP BY p.id, p.sku, p.sales_description
+		ORDER BY SUM(ii.total_price::numeric) - SUM(ii.quantity * p.cost::numeric) DESC
+	`);
+
+	return result as ProfitLossDetailRow[];
+};
+
 export const getSalesByCustomerDetail = async (
 	from?: string,
 	to?: string

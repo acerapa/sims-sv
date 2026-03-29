@@ -4,9 +4,16 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardDescription, CardTitle } from '$lib/components/ui/card';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
-	import { ChartColumn, NotepadText, Package, ShoppingCart } from '@lucide/svelte';
+	import { ChartColumn, DollarSign, NotepadText, Package, ShoppingCart } from '@lucide/svelte';
 
 	const reports = {
+		financial: [
+			{
+				title: 'Profit & Loss',
+				subtitle: 'Revenue, cost of goods sold, and gross profit analysis',
+				href: '/reports/profit-loss'
+			}
+		],
 		sales: [
 			{
 				title: 'Daily Sales Summary',
@@ -70,8 +77,8 @@
 		]
 	};
 
-	type ReportType = 'sales' | 'inventory' | 'purchasing';
-	let reportSelected = $state<ReportType>('sales');
+	type ReportType = 'financial' | 'sales' | 'inventory' | 'purchasing';
+	let reportSelected = $state<ReportType>('financial');
 
 	const onSelectReport = (report: ReportType) => {
 		reportSelected = report;
@@ -92,6 +99,15 @@
 				<CardContent class="space-y-4 !p-0">
 					<p class="text-sm font-semibold text-muted-foreground">Report Categories</p>
 					<div class="flex flex-col gap-1">
+						<Button
+							variant={reportSelected !== 'financial' ? 'ghost' : 'default'}
+							class="justify-start"
+							size="lg"
+							onclick={() => onSelectReport('financial')}
+						>
+							<DollarSign />
+							Financial Reports
+						</Button>
 						<Button
 							variant={reportSelected !== 'sales' ? 'ghost' : 'default'}
 							class="justify-start"

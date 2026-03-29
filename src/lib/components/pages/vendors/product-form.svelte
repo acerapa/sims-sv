@@ -60,7 +60,7 @@
 	let costValue = $state<number>(0);
 	let salePriceValue = $state<number>(0);
 	let selectedBracketId = $derived<string>(
-		product ? product?.selling_bracket_id.toString() : 'auto'
+		product ? product?.selling_bracket_id?.toString() : 'auto'
 	);
 
 	let matchedBracket = $derived.by(() => {
