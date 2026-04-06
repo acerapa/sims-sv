@@ -19,10 +19,16 @@
 	import { Plus } from '@lucide/svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
+	import { page } from '$app/state';
 
-	let { form, open = $bindable(false) } = $props();
-	const errors = $derived(form?.errors);
+	let { open = $bindable(false), onSuccess = $bindable<(clientId: number) => void>(() => {}) } =
+		$props();
+	let errors = $derived(page.form?.errors);
+	let managers = $derived(page.data?.managers || []);
 	let isActive = $state(false);
+
+	let selectedManagerId = $state('');
+	let selectedManager = $derived(managers.find((m) => m.id === selectedManagerId));
 
 	const enhanceForm: SubmitFunction = async () => {
 		return async ({ result }) => {
@@ -39,7 +45,7 @@
 
 	const onOpenChangeComplete = (open: boolean) => {
 		if (!open) {
-			form = null;
+			errors = null;
 		}
 	};
 </script>
@@ -109,15 +115,20 @@
 				<div class="space-y-2">
 					<Label for="manager">Manager</Label>
 					<div>
-						<Select type="single" name="manager">
+						<Select type="single" name="manager" bind:value={selectedManagerId}>
 							<SelectTrigger
 								class={['w-full', errors?.properties?.manager ? 'border-red-500' : '']}
 							>
-								Select Manager
+								{#if selectedManager}
+									{selectedManager.name}
+								{:else}
+									Select Manager
+								{/if}
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="1">John Doe</SelectItem>
-								<SelectItem value="2">John Doe</SelectItem>
+								{#each managers as manager (manager.id)}
+									<SelectItem value={manager.id}>{manager.name}</SelectItem>
+								{/each}
 							</SelectContent>
 						</Select>
 						{#if errors?.properties?.phone_number}

@@ -24,6 +24,7 @@
 		hasTrigger = $bindable<boolean>(true),
 		onSuccess = $bindable<(clientId: number) => void>(() => {})
 	} = $props();
+
 	let errors = $derived(page.form?.errors);
 
 	const enhanceForm: SubmitFunction = () => {

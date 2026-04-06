@@ -5,13 +5,16 @@ import z from 'zod';
 import { db } from '$lib/server/db';
 import { stores } from '$lib/server/db/schema';
 import { getStores } from '$lib/server/db/queries/stores';
+import { getManagerUsers } from '$lib/server/db/queries/users';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('settings:stores');
 	const storeList = await getStores();
+	const managerUsers = await getManagerUsers();
 
 	return {
-		stores: storeList
+		stores: storeList,
+		managers: managerUsers
 	};
 };
 

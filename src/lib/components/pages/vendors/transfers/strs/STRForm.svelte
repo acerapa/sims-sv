@@ -21,11 +21,13 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import { invalidateAll } from '$app/navigation';
+	import StoresForm from '$lib/components/pages/settings/stores/StoresForm.svelte';
 
 	let { stores, form = null, open = $bindable(false) } = $props();
 	let storeId = $state('');
 	let selectedStore = $derived.by(() => stores.find((store) => store.id === parseInt(storeId)));
 	let errors = $derived(form?.errors);
+	let showStoresForm = $state(false);
 
 	const enhanceForm: SubmitFunction = async () => {
 		return async ({ result }) => {
@@ -48,6 +50,7 @@
 	};
 </script>
 
+<StoresForm bind:open={showStoresForm} />
 <Sheet bind:open {onOpenChangeComplete}>
 	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}>
 		<Plus />
@@ -77,6 +80,7 @@
 											{selectedStore ? selectedStore.name : 'Select Store'}
 										</SelectTrigger>
 										<SelectContent>
+											<SelectItem value="0">Add Store</SelectItem>
 											{#each stores as store (store.id)}
 												<SelectItem value={store.id}>{store.name}</SelectItem>
 											{/each}

@@ -5,24 +5,13 @@ import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { hash } from 'bcrypt';
-import { desc } from 'drizzle-orm';
+import { getUsers } from '$lib/server/db/queries/users';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('settings:users');
 
 	return {
-		users: await db
-			.select({
-				id: users.id,
-				name: users.name,
-				email: users.email,
-				role: users.role,
-				is_active: users.is_active,
-				created_at: users.created_at
-			})
-			.from(users)
-			.orderBy(desc(users.created_at))
-			.execute()
+		users: await getUsers()
 	};
 };
 
