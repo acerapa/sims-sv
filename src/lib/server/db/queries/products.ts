@@ -4,6 +4,7 @@ import { products, productsToSupplier } from '../schema';
 
 export interface CreateProductData {
 	sku: string;
+	barcode: string | null;
 	quantity: number;
 	sale_price: number;
 	category_id: number;
@@ -30,6 +31,7 @@ export const createProduct = async (data: CreateProductData) => {
 			.values(
 				Object({
 					sku: data.sku,
+					barcode: data.barcode,
 					quantity: data.quantity,
 					sale_price: data.sale_price,
 					category_id: data.category_id,
@@ -44,6 +46,7 @@ export const createProduct = async (data: CreateProductData) => {
 			.returning({
 				id: products.id,
 				sku: products.sku,
+				barcode: products.barcode,
 				cost: products.cost,
 				quantity: products.quantity,
 				sale_price: products.sale_price,
@@ -76,6 +79,7 @@ export const updateProduct = async (data: UpdateProductData) => {
 			.set(
 				Object({
 					sku: data.sku,
+					barcode: data.barcode,
 					cost: data.cost,
 					quantity: data.quantity,
 					sale_price: data.sale_price,
@@ -90,6 +94,7 @@ export const updateProduct = async (data: UpdateProductData) => {
 			.returning({
 				id: products.id,
 				sku: products.sku,
+				barcode: products.barcode,
 				quantity: products.quantity,
 				sale_price: products.sale_price,
 				minimum_quantity: products.minimum_quantity,
@@ -123,6 +128,7 @@ export const getProducts = async () => {
 		columns: {
 			id: true,
 			sku: true,
+			barcode: true,
 			cost: true,
 			quantity: true,
 			sale_price: true,
@@ -152,6 +158,7 @@ export const getProduct = async (productId: number) => {
 		.select({
 			id: products.id,
 			sku: products.sku,
+			barcode: products.barcode,
 			cost: products.cost,
 			quantity: products.quantity,
 			sale_price: products.sale_price,
@@ -171,6 +178,7 @@ export const getProduct = async (productId: number) => {
 	const product = {
 		id: result[0].id,
 		sku: result[0].sku,
+		barcode: result[0].barcode,
 		cost: result[0].cost,
 		quantity: result[0].quantity,
 		sale_price: result[0].sale_price,
@@ -248,7 +256,11 @@ export const getProductsPaginated = async (
 
 	// Build search condition
 	const searchCondition = search
-		? or(ilike(products.sku, `%${search}%`), ilike(products.purchase_description, `%${search}%`))
+		? or(
+				ilike(products.sku, `%${search}%`),
+				ilike(products.purchase_description, `%${search}%`),
+				ilike(products.barcode, `%${search}%`)
+			)
 		: undefined;
 
 	// Get total count
@@ -263,6 +275,7 @@ export const getProductsPaginated = async (
 		columns: {
 			id: true,
 			sku: true,
+			barcode: true,
 			quantity: true,
 			sale_price: true,
 			minimum_quantity: true,

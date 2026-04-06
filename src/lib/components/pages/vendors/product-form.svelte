@@ -23,6 +23,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Plus } from '@lucide/svelte';
 	import SelectCategory from './categories/SelectCategory.svelte';
+	import BarcodeDisplay from './BarcodeDisplay.svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import SupplierAndCost from './SupplierAndCost.svelte';
 	import type { Product, Supplier } from '$lib/types/global';
@@ -256,6 +257,25 @@
 								</div>
 							</div>
 							<div class="space-y-2">
+								<Label>Barcode <span class="text-muted-foreground">(optional)</span></Label>
+								<div>
+									<Input
+										disabled={!!product && !edit}
+										value={product?.barcode ?? ''}
+										class={[
+											'disabled:opacity-100',
+											errors?.properties?.barcode ? 'border-red-500' : ''
+										]}
+										type="text"
+										name="barcode"
+										placeholder="Scan or enter barcode"
+									/>
+									{#if errors?.properties?.barcode}
+										<small class="text-red-500">{errors.properties.barcode.errors[0]}</small>
+									{/if}
+								</div>
+							</div>
+							<div class="space-y-2">
 								<Label>Category</Label>
 								<div>
 									<SelectCategory
@@ -272,6 +292,17 @@
 						</div>
 					</CardContent>
 				</Card>
+
+				{#if product?.barcode}
+					<Card>
+						<CardHeader>
+							<CardTitle>Barcode</CardTitle>
+						</CardHeader>
+						<CardContent class="flex justify-center">
+							<BarcodeDisplay value={product.barcode} />
+						</CardContent>
+					</Card>
+				{/if}
 
 				<!-- Disabling this for now -->
 				{#if hasSelectSupplierInput}

@@ -302,6 +302,13 @@
       "when": 1774619129831,
       "tag": "0042_wise_loki",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1775440412641,
+      "tag": "0043_burly_hiroim",
+      "breakpoints": true
     }
   ]
 }

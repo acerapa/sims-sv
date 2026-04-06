@@ -93,6 +93,7 @@ export const categories = pgTable('categories', {
 export const products = pgTable('products', {
 	id: serial().primaryKey(),
 	sku: varchar().notNull().unique(),
+	barcode: varchar().unique(),
 	category_id: serial()
 		.notNull()
 		.references(() => categories.id),
