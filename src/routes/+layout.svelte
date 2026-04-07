@@ -21,7 +21,7 @@
 	{#if route && !route.startsWith('/auth')}
 		<Header auth_user={data.auth_user} />
 	{/if}
-	<div class="h-[calc(100vh_-_64px)] bg-slate-50">
+	<div class="h-[calc(100vh_-_64px)] overflow-y-auto bg-slate-50">
 		<main class="mx-auto h-full w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 			{@render children()}
 		</main>

@@ -5,11 +5,13 @@ import { fail } from '@sveltejs/kit';
 import { decode } from 'decode-formdata';
 import z from 'zod';
 import type { Actions, PageServerLoad } from './$types';
+import { getUsers } from '$lib/server/db/queries/users';
 
 export const load: PageServerLoad = async () => {
 	const customers = await getCustomers();
 	const products = await getProducts();
-	return { customers, products };
+	const users = await getUsers();
+	return { customers, products, users };
 };
 
 export const actions: Actions = {

@@ -27,12 +27,14 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ClientForm from '$lib/components/pages/customers/clients/client-form.svelte';
+	import { page } from '$app/state';
 
 	let { data, form }: PageProps = $props();
 
 	let clientFormOpen = $state<boolean>(false);
 	let errors = $derived(form?.errors);
 	let issues = $derived(form?.issues);
+	let users = $derived(page.data?.users || []);
 	let customers = $derived<CustomerWithId[]>(data.customers as CustomerWithId[]);
 	let products = $derived<Product[]>(
 		data.products.map((p: any) => ({
@@ -50,6 +52,9 @@
 	let selectedCustomer = $derived(
 		customers.find((customer) => customer.id === parseInt(selectedCustomerId))
 	);
+	let selectedStaffUserId = $state<string>('');
+	let selectedStaffUser = $derived(users.find((user) => user.id === parseInt(selectedStaffUserId)));
+
 	let selectedOrderType = $state<string>('');
 	let selectedOrderTypeLabel = $derived.by(() => {
 		switch (selectedOrderType) {
@@ -116,6 +121,8 @@
 	const onClientFormSucceed = (clientId: number) => {
 		selectedCustomerId = clientId.toString();
 	};
+
+	$inspect(page);
 </script>
 
 <svelte:head>
@@ -131,6 +138,32 @@
 		action="?/createSalesOrder"
 		use:enhance={submitForm}
 	>
+		<Card class="rounded-lg">
+			<CardHeader>
+				<CardTitle>Sales man</CardTitle>
+				<CardDescription>Select sales person</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<Select type="single" name="staff_user_id" bind:value={selectedCustomerId}>
+					<SelectTrigger
+						class={[
+							'h-10 !w-[calc(50%_-_12px)]',
+							errors?.properties?.customer_id ? 'border-red-500' : ''
+						]}
+					>
+						{selectedStaffUser ? selectedStaffUser.name : 'Select Sales Person'}
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<!-- <SelectItem value="0" onclick={showClientForm}>Add Client</SelectItem> -->
+							{#each users as user (user.id)}
+								<SelectItem value={user.id.toString()}>{user.name}</SelectItem>
+							{/each}
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</CardContent>
+		</Card>
 		<Card class="rounded-lg">
 			<CardHeader>
 				<CardTitle>Create Sales Order</CardTitle>
