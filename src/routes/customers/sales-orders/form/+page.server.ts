@@ -15,7 +15,7 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	createSalesOrder: async ({ request, locals }) => {
+	createSalesOrder: async ({ request }) => {
 		try {
 			const body = await request.formData();
 			const formValues = decode(body, {
@@ -23,6 +23,7 @@ export const actions: Actions = {
 				numbers: [
 					'total_cost',
 					'customer_id',
+					'staff_user_id',
 					'products.$.quantity',
 					'products.$.product_id',
 					'products.$.unit_price',
@@ -31,14 +32,9 @@ export const actions: Actions = {
 				dates: ['date_ordered']
 			}) as CreateSalesOrder;
 
-			if (!locals.user) {
-				return fail(401, { message: 'Unauthorized' });
-			}
-
-			formValues.staff_user_id = locals.user.id;
-
 			const salesOrderSchema = z.object({
 				customer_id: z.number('Customer is required'),
+				staff_user_id: z.number('Staff user is required'),
 				date_ordered: z.date('Order date is required'),
 				order_type: z.enum(['onetime', 'installment'], 'Must be either "onetime" or "installment"'),
 				notes: z.string().optional(),

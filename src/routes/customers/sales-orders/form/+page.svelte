@@ -121,8 +121,6 @@
 	const onClientFormSucceed = (clientId: number) => {
 		selectedCustomerId = clientId.toString();
 	};
-
-	$inspect(page);
 </script>
 
 <svelte:head>
@@ -144,24 +142,31 @@
 				<CardDescription>Select sales person</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<Select type="single" name="staff_user_id" bind:value={selectedCustomerId}>
-					<SelectTrigger
-						class={[
-							'h-10 !w-[calc(50%_-_12px)]',
-							errors?.properties?.customer_id ? 'border-red-500' : ''
-						]}
-					>
-						{selectedStaffUser ? selectedStaffUser.name : 'Select Sales Person'}
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<!-- <SelectItem value="0" onclick={showClientForm}>Add Client</SelectItem> -->
-							{#each users as user (user.id)}
-								<SelectItem value={user.id.toString()}>{user.name}</SelectItem>
-							{/each}
-						</SelectGroup>
-					</SelectContent>
-				</Select>
+				<div>
+					<Select type="single" name="staff_user_id" bind:value={selectedStaffUserId}>
+						<SelectTrigger
+							class={[
+								'h-10 !w-[calc(50%_-_12px)]',
+								errors?.properties?.customer_id ? 'border-red-500' : ''
+							]}
+						>
+							{selectedStaffUser ? selectedStaffUser.name : 'Select Sales Person'}
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<!-- <SelectItem value="0" onclick={showClientForm}>Add Client</SelectItem> -->
+								{#each users as user (user.id)}
+									<SelectItem value={user.id.toString()}>{user.name}</SelectItem>
+								{/each}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+					{#if errors?.properties?.staff_user_id}
+						<small class="text-red-500">
+							{errors.properties.staff_user_id.errors[0]}
+						</small>
+					{/if}
+				</div>
 			</CardContent>
 		</Card>
 		<Card class="rounded-lg">
