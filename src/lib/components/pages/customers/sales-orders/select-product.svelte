@@ -18,6 +18,7 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import type { Product } from '$lib/types/global';
+	import BarcodeDisplay from '$lib/components/pages/vendors/BarcodeDisplay.svelte';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
 
@@ -162,6 +163,11 @@
 										<small class="text-red-500">
 											{groupedIssues[i]?.product_id}
 										</small>
+									{/if}
+									{#if getProduct(parseInt(items[i].product_id))?.barcode}
+										<div class="mt-2">
+											<BarcodeDisplay value={getProduct(parseInt(items[i].product_id))!.barcode!} />
+										</div>
 									{/if}
 								</div>
 							</TableCell>

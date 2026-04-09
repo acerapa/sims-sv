@@ -27,6 +27,7 @@
 	import {
 		DollarSign,
 		Ellipsis,
+		Eye,
 		FileText,
 		Funnel,
 		Plus,
@@ -108,7 +109,9 @@
 	};
 
 	const onCreateInvoice = (orderId: number) => {
-		goto(resolve(`/customers/invoices/form?sales_order_id=${orderId}` as '/customers/invoices/form'));
+		goto(
+			resolve(`/customers/invoices/form?sales_order_id=${orderId}` as '/customers/invoices/form')
+		);
 	};
 </script>
 
@@ -165,6 +168,7 @@
 						<TableHead>Order ID</TableHead>
 						<TableHead>Date</TableHead>
 						<TableHead>Customer</TableHead>
+						<TableHead>Sales Person</TableHead>
 						<TableHead>Items</TableHead>
 						<TableHead>Status</TableHead>
 						<TableHead>Amount</TableHead>
@@ -183,6 +187,7 @@
 								})}
 							</TableCell>
 							<TableCell>{order.customer_name}</TableCell>
+							<TableCell>{order.sales_person_name}</TableCell>
 							<TableCell>{order.item_count} item(s)</TableCell>
 							<TableCell>
 								<Badge variant={getStatusVariant(order.order_status || 'open')}>
@@ -191,19 +196,29 @@
 							</TableCell>
 							<TableCell class="font-medium">₱{order.total_cost.toLocaleString()}</TableCell>
 							<TableCell>
-								{#if order.order_status !== 'invoiced' && order.order_status !== 'cancelled'}
-									<DropdownMenu>
-										<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
-											<Ellipsis />
-										</DropdownMenuTrigger>
-										<DropdownMenuContent>
-											<DropdownMenuItem onSelect={() => onCreateInvoice(order.id)} class="space-x-2">
+								<DropdownMenu>
+									<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+										<Ellipsis />
+									</DropdownMenuTrigger>
+									<DropdownMenuContent>
+										<DropdownMenuItem
+											onSelect={() => goto(resolve(`/customers/sales-orders/${order.id}` as '/customers/sales-orders'))}
+											class="space-x-2"
+										>
+											<Eye />
+											<span>View</span>
+										</DropdownMenuItem>
+										{#if order.order_status !== 'invoiced' && order.order_status !== 'cancelled'}
+											<DropdownMenuItem
+												onSelect={() => onCreateInvoice(order.id)}
+												class="space-x-2"
+											>
 												<FileText />
 												<span>Create Invoice</span>
 											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
-								{/if}
+										{/if}
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</TableCell>
 						</TableRow>
 					{/each}

@@ -1,6 +1,6 @@
 import { desc, eq, sql, count, sum, and, gte, lt } from 'drizzle-orm';
 import { db } from '..';
-import { customers, products, salesOrderItems, salesOrders } from '../schema';
+import { customers, products, salesOrderItems, salesOrders, users } from '../schema';
 
 export interface CreateSalesOrder {
 	customer_id: number;
@@ -68,6 +68,7 @@ export const getSalesOrders = async () => {
 			id: salesOrders.id,
 			customer_id: salesOrders.customer_id,
 			customer_name: customers.name,
+			sales_person_name: users.name,
 			staff_user_id: salesOrders.staff_user_id,
 			date_ordered: salesOrders.date_ordered,
 			order_type: salesOrders.order_type,
@@ -79,9 +80,29 @@ export const getSalesOrders = async () => {
 		})
 		.from(salesOrders)
 		.leftJoin(customers, eq(salesOrders.customer_id, customers.id))
+		.leftJoin(users, eq(salesOrders.staff_user_id, users.id))
 		.orderBy(desc(salesOrders.created_at));
 
 	return result;
+};
+
+export const getSalesOrder = async (id: number) => {
+	const order = await db.query.salesOrders.findFirst({
+		where: eq(salesOrders.id, id),
+		with: {
+			customer: { columns: { id: true, name: true } },
+			staff: { columns: { id: true, name: true } },
+			items: {
+				with: {
+					product: {
+						columns: { id: true, sales_description: true, barcode: true }
+					}
+				}
+			}
+		}
+	});
+
+	return order;
 };
 
 export const getSalesOrderStats = async () => {
