@@ -1,6 +1,6 @@
 <script lang="ts">
 	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import UserFormSheet from '$lib/components/pages/settings/users/UserFormSheet.svelte';
+	import UserFormSheet from '$lib/components/pages/settings/users/user-form-sheet.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import {
