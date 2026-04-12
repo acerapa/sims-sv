@@ -12,7 +12,7 @@ import {
 	type AnyPgColumn
 } from 'drizzle-orm/pg-core';
 
-export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager']);
+export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager', 'sales-person']);
 export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
 export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);

@@ -7,7 +7,8 @@ import z from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { getUsers } from '$lib/server/db/queries/users';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ depends }) => {
+	depends('sales-orders:form');
 	const customers = await getCustomers();
 	const products = await getProducts();
 	const users = await getUsers();

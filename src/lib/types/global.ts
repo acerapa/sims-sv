@@ -70,6 +70,14 @@ export interface SafeUser {
 	created_at: Date;
 }
 
+export interface UserPresets {
+	name?: string;
+	email?: string;
+	password?: string;
+	role?: string;
+	is_active?: boolean;
+}
+
 export interface SupplierPO {
 	id: number;
 	reference: string;

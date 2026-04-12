@@ -18,14 +18,20 @@
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Switch } from '$lib/components/ui/switch';
+	import type { UserPresets } from '$lib/types/global';
 	import { getRoleLabel } from '$lib/utils/common';
 	import { Plus } from '@lucide/svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 
-	let { open = $bindable<boolean>(false) } = $props();
+	let {
+		open = $bindable<boolean>(false),
+		preset = $bindable<UserPresets>({}),
+		hasTrigger = $bindable<boolean>(true),
+		onSuccess = $bindable<(userId: number) => void>(() => {})
+	} = $props();
 
-	let selectedRole = $state('');
+	let selectedRole = $derived(preset.role ?? '');
 	let isActive = $state(true);
 
 	let errors = $derived(page.form?.errors);
@@ -35,6 +41,7 @@
 			if (result.type === 'success') {
 				toast.success('User added successfully');
 				await invalidate('settings:users');
+				onSuccess(result?.data ? result?.data[0].lastInsertedId : null);
 			} else {
 				toast.error('Failed to add user');
 			}
@@ -46,23 +53,26 @@
 	const onOpenChangeComplete = async (open: boolean) => {
 		if (!open) {
 			errors = null;
+			selectedRole = '';
 		}
 	};
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
-	<SheetTrigger
-		class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
-	>
-		<Plus class="size-4" />
-		Add User
-	</SheetTrigger>
+	{#if hasTrigger}
+		<SheetTrigger
+			class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
+		>
+			<Plus class="size-4" />
+			Add User
+		</SheetTrigger>
+	{/if}
 	<SheetContent side="right" class="sm:!max-w-2xl">
 		<SheetHeader>
 			<SheetTitle>Add New User</SheetTitle>
 			<SheetDescription>Fill in the details to add a new user</SheetDescription>
 		</SheetHeader>
-		<form method="post" id="user-form" use:enhance={formEnhance}>
+		<form method="post" id="user-form" action="/settings/users" use:enhance={formEnhance}>
 			<div class="space-y-4 px-4">
 				<div class="space-y-2">
 					<Label for="name">Full Name</Label>
@@ -112,14 +122,29 @@
 				<div class="space-y-2">
 					<Label for="role">Role</Label>
 					<div>
-						<Select type="single" name="role" bind:value={selectedRole}>
-							<SelectTrigger class={['w-full', errors?.properties?.role ? 'border-red-500' : '']}>
+						{#if preset.role}
+							<input type="hidden" name="role" value={selectedRole} />
+						{/if}
+						<Select
+							type="single"
+							name={preset.role ? undefined : 'role'}
+							bind:value={selectedRole}
+							disabled={!!preset.role}
+						>
+							<SelectTrigger
+								class={[
+									'w-full',
+									errors?.properties?.role ? 'border-red-500' : '',
+									selectedRole ? '' : 'text-gray-500'
+								]}
+							>
 								{selectedRole ? getRoleLabel(selectedRole) : 'Select role'}
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="admin">Admin</SelectItem>
 								<SelectItem value="inventory-manager">Inventory Manager</SelectItem>
 								<SelectItem value="cashier">Cashier</SelectItem>
+								<SelectItem value="sales-person">Sales Person</SelectItem>
 							</SelectContent>
 						</Select>
 						{#if errors?.properties?.role}

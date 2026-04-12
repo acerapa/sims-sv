@@ -27,7 +27,10 @@ export const actions: Actions = {
 				password: z
 					.string('Must be a string')
 					.min(8, 'Password must be at least 8 characters long'),
-				role: z.enum(['admin', 'cashier', 'inventory-manager'], 'Must be a valid role'),
+				role: z.enum(
+					['admin', 'cashier', 'inventory-manager', 'sales-person'],
+					'Must be a valid role'
+				),
 				is_active: z.boolean().default(true).optional()
 			});
 

@@ -24,11 +24,12 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { findErrorByKey } from '$lib/utils/common';
 	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ClientForm from '$lib/components/pages/customers/clients/client-form.svelte';
 	import UserFormSheet from '$lib/components/pages/settings/users/user-form-sheet.svelte';
 	import { page } from '$app/state';
+	import { userRoles } from '$lib/constants';
 
 	let { data, form }: PageProps = $props();
 
@@ -121,6 +122,18 @@
 		clientFormOpen = true;
 	};
 
+	const showUserForm = () => {
+		userFormOpen = true;
+	};
+
+	const onUserFormSucceed = async (userId: number | null) => {
+		if (userId) {
+			await invalidate('sales-orders:form');
+			selectedStaffUserId = userId.toString();
+			userFormOpen = false;
+		}
+	};
+
 	const onClientFormSucceed = (clientId: number) => {
 		selectedCustomerId = clientId.toString();
 	};
@@ -132,7 +145,12 @@
 </svelte:head>
 
 <ClientForm bind:open={clientFormOpen} hasTrigger={false} onSuccess={onClientFormSucceed} />
-<UserFormSheet bind:open={userFormOpen} />
+<UserFormSheet
+	bind:open={userFormOpen}
+	hasTrigger={false}
+	onSuccess={onUserFormSucceed}
+	preset={{ role: userRoles.SALES_PERSON }}
+/>
 <div class="mb-6 flex flex-col gap-6">
 	<form
 		class="flex flex-col gap-6"
@@ -158,7 +176,7 @@
 						</SelectTrigger>
 						<SelectContent>
 							<SelectGroup>
-								<!-- <SelectItem value="0" onclick={showClientForm}>Add Client</SelectItem> -->
+								<SelectItem value="" onclick={showUserForm}>Add Sales Person</SelectItem>
 								{#each users as user (user.id)}
 									<SelectItem value={user.id.toString()}>{user.name}</SelectItem>
 								{/each}

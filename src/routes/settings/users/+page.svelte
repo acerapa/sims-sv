@@ -24,7 +24,7 @@
 	import type { PageProps } from './$types';
 	import { getRoleLabel } from '$lib/utils/common';
 
-	let { form, data }: PageProps = $props();
+	let { data }: PageProps = $props();
 
 	let users = $derived<SafeUser[]>(data.users);
 </script>
