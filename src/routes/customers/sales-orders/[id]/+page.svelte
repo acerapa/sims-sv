@@ -1,5 +1,4 @@
 <script lang="ts">
-	import BarcodeDisplay from '$lib/components/pages/vendors/BarcodeDisplay.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -113,7 +112,6 @@
 				<TableHeader>
 					<TableRow>
 						<TableHead>Product</TableHead>
-						<TableHead>Barcode</TableHead>
 						<TableHead>S/N</TableHead>
 						<TableHead>Quantity</TableHead>
 						<TableHead>Unit Price (₱)</TableHead>
@@ -124,13 +122,6 @@
 					{#each order.items as item (item.id)}
 						<TableRow>
 							<TableCell>{item.product?.sales_description || '—'}</TableCell>
-							<TableCell>
-								{#if item.product?.barcode}
-									<BarcodeDisplay value={item.product.barcode} />
-								{:else}
-									<span class="text-muted-foreground">—</span>
-								{/if}
-							</TableCell>
 							<TableCell>{item.serial_number || '—'}</TableCell>
 							<TableCell>{item.quantity}</TableCell>
 							<TableCell>₱{parseFloat(item.unit_price as string).toFixed(2)}</TableCell>

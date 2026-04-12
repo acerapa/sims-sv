@@ -203,7 +203,7 @@
 				<Input
 					type="search"
 					class="h-10 pl-9"
-					placeholder="Search by SKU, barcode, or description..."
+					placeholder="Search by SKU or description..."
 					value={searchValue}
 					oninput={handleSearch}
 				/>

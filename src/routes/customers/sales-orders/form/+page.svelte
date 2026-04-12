@@ -46,7 +46,6 @@
 			sales_description: p.sales_description || '',
 			sale_price: parseFloat(p.sale_price || '0'),
 			item_code: p.sku,
-			barcode: p.barcode || undefined,
 			category_id: p.category?.id || 0,
 			quantity: p.quantity || 0,
 			minimum_quantity: p.minimum_quantity || 0

@@ -58,6 +58,7 @@
 	} = $props();
 
 	let edit = $state(false);
+	let skuValue = $state<string>(product?.sku ?? '');
 	let costValue = $state<number>(0);
 	let salePriceValue = $state<number>(0);
 	let selectedBracketId = $derived<string>(
@@ -98,6 +99,7 @@
 	// Initialize cost/sale price from product when editing
 	$effect(() => {
 		if (product) {
+			skuValue = product.sku ?? '';
 			costValue = parseFloat(product.cost?.toString() || '0');
 			salePriceValue = parseFloat(product.sale_price?.toString() || '0');
 		}
@@ -176,6 +178,7 @@
 
 	$effect(() => {
 		if (!open) {
+			skuValue = '';
 			purchase_description = '';
 			sales_description = '';
 			isSameDescription = false;
@@ -242,7 +245,7 @@
 								<div>
 									<Input
 										disabled={!!product && !edit}
-										value={product?.sku}
+										bind:value={skuValue}
 										class={[
 											'disabled:opacity-100',
 											errors?.properties?.sku ? 'border-red-500' : ''
@@ -253,25 +256,6 @@
 									/>
 									{#if errors?.properties?.sku}
 										<small class="text-red-500">{errors.properties.sku.errors[0]}</small>
-									{/if}
-								</div>
-							</div>
-							<div class="space-y-2">
-								<Label>Barcode <span class="text-muted-foreground">(optional)</span></Label>
-								<div>
-									<Input
-										disabled={!!product && !edit}
-										value={product?.barcode ?? ''}
-										class={[
-											'disabled:opacity-100',
-											errors?.properties?.barcode ? 'border-red-500' : ''
-										]}
-										type="text"
-										name="barcode"
-										placeholder="Scan or enter barcode"
-									/>
-									{#if errors?.properties?.barcode}
-										<small class="text-red-500">{errors.properties.barcode.errors[0]}</small>
 									{/if}
 								</div>
 							</div>
@@ -293,13 +277,13 @@
 					</CardContent>
 				</Card>
 
-				{#if product?.barcode}
+				{#if skuValue}
 					<Card>
 						<CardHeader>
 							<CardTitle>Barcode</CardTitle>
 						</CardHeader>
 						<CardContent class="flex justify-center">
-							<BarcodeDisplay value={product.barcode} />
+							<BarcodeDisplay value={skuValue} />
 						</CardContent>
 					</Card>
 				{/if}

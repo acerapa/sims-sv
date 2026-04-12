@@ -18,9 +18,9 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import type { Product } from '$lib/types/global';
-	import BarcodeDisplay from '$lib/components/pages/vendors/BarcodeDisplay.svelte';
-	import { Plus, Trash2 } from '@lucide/svelte';
+	import { Plus, ScanBarcode, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		issues: z.core.$ZodIssue[] | undefined;
@@ -36,6 +36,56 @@
 	}
 
 	let { products, items = $bindable(), issues }: Props = $props();
+
+	let barcodeInput = $state('');
+	let barcodeInputEl = $state<HTMLInputElement | null>(null);
+
+	const onBarcodeScan = () => {
+		const barcode = barcodeInput.trim();
+		if (!barcode) return;
+
+		const product = products.find((p) => p.item_code === barcode);
+
+		if (!product) {
+			toast.error('Product not found for barcode: ' + barcode);
+			barcodeInput = '';
+			barcodeInputEl?.focus();
+			return;
+		}
+
+		const existingIndex = items.findIndex((item) => parseInt(item.product_id) === product.id);
+
+		if (existingIndex !== -1) {
+			items[existingIndex].quantity += 1;
+			items[existingIndex].total_price =
+				items[existingIndex].quantity * items[existingIndex].unit_price;
+		} else {
+			const price =
+				typeof product.sale_price === 'string'
+					? parseFloat(product.sale_price)
+					: product.sale_price || 0;
+
+			// replace first empty row, or add a new one
+			const emptyIndex = items.findIndex((item) => !item.product_id);
+			if (emptyIndex !== -1) {
+				items[emptyIndex].product_id = product.id.toString();
+				items[emptyIndex].unit_price = price;
+				items[emptyIndex].total_price = items[emptyIndex].quantity * price;
+			} else {
+				items.push({
+					id: items.length + 1,
+					product_id: product.id.toString(),
+					quantity: 1,
+					unit_price: price,
+					total_price: price,
+					serial_number: ''
+				});
+			}
+		}
+
+		barcodeInput = '';
+		barcodeInputEl?.focus();
+	};
 
 	let subTotal = $derived.by(() => {
 		return items
@@ -113,6 +163,22 @@
 				Add Item
 			</Button>
 		</div>
+		<div class="relative">
+			<ScanBarcode class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+			<Input
+				bind:ref={barcodeInputEl}
+				bind:value={barcodeInput}
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						onBarcodeScan();
+					}
+				}}
+				type="text"
+				placeholder="Scan or type barcode..."
+				class="pl-9"
+			/>
+		</div>
 	</CardHeader>
 	<CardContent>
 		<div class="flex flex-col gap-6">
@@ -163,11 +229,6 @@
 										<small class="text-red-500">
 											{groupedIssues[i]?.product_id}
 										</small>
-									{/if}
-									{#if getProduct(parseInt(items[i].product_id))?.barcode}
-										<div class="mt-2">
-											<BarcodeDisplay value={getProduct(parseInt(items[i].product_id))!.barcode!} />
-										</div>
 									{/if}
 								</div>
 							</TableCell>

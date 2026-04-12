@@ -95,7 +95,7 @@ export const getSalesOrder = async (id: number) => {
 			items: {
 				with: {
 					product: {
-						columns: { id: true, sales_description: true, barcode: true }
+						columns: { id: true, sales_description: true }
 					}
 				}
 			}

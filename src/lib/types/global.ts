@@ -24,7 +24,6 @@ export interface Product {
 	sales_description: string;
 	sale_price: number;
 	item_code: string;
-	barcode?: string;
 	category_id: number;
 	quantity: number;
 	minimum_quantity: number;

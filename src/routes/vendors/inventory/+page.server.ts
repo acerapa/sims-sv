@@ -83,7 +83,6 @@ export const actions: Actions = {
 
 			const productSchema = z.object({
 				sku: z.string('Invalid SKU').min(1, 'SKU is required').max(1000),
-				barcode: z.string('Invalid barcode').max(255).transform(v => v === '' ? null : v).nullable().optional().default(null),
 				category_id: z.number('Category is required').min(1, 'Category is required'),
 				quantity: z.number('Quantity is required').nullable().optional().default(0),
 				cost: z.number('Cost is should be a number').nullable().default(0),
@@ -152,7 +151,6 @@ export const actions: Actions = {
 			const productSchema = z.object({
 				id: z.number('Product ID is required').min(1, 'Product ID is required'),
 				sku: z.string('Invalid SKU').min(1, 'SKU is required').max(1000),
-				barcode: z.string('Invalid barcode').max(255).transform(v => v === '' ? null : v).nullable().optional().default(null),
 				category_id: z.number('Category is required').min(1, 'Category is required'),
 				quantity: z.number('Quantity is required').min(0),
 				cost: z.number('Cost is should be a number').default(0),
