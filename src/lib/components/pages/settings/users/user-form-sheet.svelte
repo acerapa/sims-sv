@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance, applyAction } from '$app/forms';
 	import { invalidate } from '$app/navigation';
+	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardDescription, CardTitle } from '$lib/components/ui/card';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
@@ -22,20 +23,18 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 
-	let { form } = $props();
+	let { open = $bindable<boolean>(false) } = $props();
 
-	let sheetState = $state(false);
 	let selectedRole = $state('');
 	let isActive = $state(true);
 
-	const errors = $derived(form?.errors);
+	let errors = $derived(page.form?.errors);
 
 	const formEnhance: SubmitFunction = async () => {
 		return async ({ result }) => {
 			if (result.type === 'success') {
 				toast.success('User added successfully');
 				await invalidate('settings:users');
-				sheetState = false;
 			} else {
 				toast.error('Failed to add user');
 			}
@@ -44,14 +43,14 @@
 		};
 	};
 
-	$effect(() => {
-		if (!sheetState) {
-			form = null;
+	const onOpenChangeComplete = async (open: boolean) => {
+		if (!open) {
+			errors = null;
 		}
-	});
+	};
 </script>
 
-<Sheet bind:open={sheetState}>
+<Sheet bind:open {onOpenChangeComplete}>
 	<SheetTrigger
 		class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary/90"
 	>

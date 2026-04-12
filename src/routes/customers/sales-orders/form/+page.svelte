@@ -27,11 +27,13 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import ClientForm from '$lib/components/pages/customers/clients/client-form.svelte';
+	import UserFormSheet from '$lib/components/pages/settings/users/user-form-sheet.svelte';
 	import { page } from '$app/state';
 
 	let { data, form }: PageProps = $props();
 
 	let clientFormOpen = $state<boolean>(false);
+	let userFormOpen = $state<boolean>(false);
 	let errors = $derived(form?.errors);
 	let issues = $derived(form?.issues);
 	let users = $derived(page.data?.users || []);
@@ -130,6 +132,7 @@
 </svelte:head>
 
 <ClientForm bind:open={clientFormOpen} hasTrigger={false} onSuccess={onClientFormSucceed} />
+<UserFormSheet bind:open={userFormOpen} />
 <div class="mb-6 flex flex-col gap-6">
 	<form
 		class="flex flex-col gap-6"

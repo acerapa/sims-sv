@@ -43,7 +43,7 @@
 				<CardTitle>Users</CardTitle>
 				<CardDescription>Manage system users and access permissions</CardDescription>
 			</div>
-			<UserFormSheet {form} />
+			<UserFormSheet />
 		</CardHeader>
 		<CardContent class="space-y-4">
 			<div class="relative">
