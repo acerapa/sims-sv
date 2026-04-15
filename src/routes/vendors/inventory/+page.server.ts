@@ -74,7 +74,6 @@ export const actions: Actions = {
 					'cost',
 					'minimum_quantity',
 					'preferred_supplier_id',
-					'selling_bracket_id',
 					'sale_price',
 					'suppliers.$.supplier_id',
 					'suppliers.$.cost'
@@ -88,7 +87,14 @@ export const actions: Actions = {
 				cost: z.number('Cost is should be a number').nullable().default(0),
 				minimum_quantity: z.number('Invalid minimum quantity').nullable().optional().default(0),
 				sale_price: z.number('Sale price should be a number').nullable().default(0),
-				selling_bracket_id: z.number('Selling bracket should be a number').nullable().default(null),
+				selling_bracket_id: z
+					.string()
+					.transform((v) => {
+						const n = Number(v);
+						return isNaN(n) ? null : n;
+					})
+					.nullable()
+					.default(null),
 				suppliers: z
 					.array(
 						z.object({
@@ -112,7 +118,7 @@ export const actions: Actions = {
 					.max(1000)
 			});
 
-			const { success, error } = productSchema.safeParse(formvalues);
+			const { success, error, data } = productSchema.safeParse(formvalues);
 			if (!success) {
 				return fail(400, {
 					errors: z.treeifyError(error),
@@ -121,11 +127,20 @@ export const actions: Actions = {
 				});
 			}
 
-			return await createProduct(formvalues);
-		} catch (error) {
+			return await createProduct(data as CreateProductData);
+		} catch (error: any) {
+			const cause = error?.cause;
+			if (cause?.code === '23505') {
+				const detail = cause.detail ?? '';
+				const match = detail.match(/Key \((\w+)\)=\((.+?)\)/);
+				const field = match?.[1] ?? 'field';
+				const value = match?.[2] ?? '';
+				return fail(400, {
+					message: `A product with ${field} "${value}" already exists`
+				});
+			}
 			return fail(500, {
-				message: 'An error occurred while processing the form',
-				error: error
+				message: 'An error occurred while processing the form'
 			});
 		}
 	},
@@ -142,7 +157,6 @@ export const actions: Actions = {
 					'cost',
 					'minimum_quantity',
 					'sale_price',
-					'selling_bracket_id',
 					'suppliers.$.supplier_id',
 					'suppliers.$.cost'
 				]
@@ -156,6 +170,14 @@ export const actions: Actions = {
 				cost: z.number('Cost is should be a number').default(0),
 				minimum_quantity: z.number('Invalid minimum quantity').nullable().optional().default(0),
 				sale_price: z.number('Sale price should be a number').nullable().default(0),
+				selling_bracket_id: z
+					.string()
+					.transform((v) => {
+						const n = Number(v);
+						return isNaN(n) ? null : n;
+					})
+					.nullable()
+					.default(null),
 				suppliers: z
 					.array(
 						z.object({
@@ -174,7 +196,7 @@ export const actions: Actions = {
 					.max(1000)
 			});
 
-			const { success, error } = productSchema.safeParse(formvalues);
+			const { success, error, data } = productSchema.safeParse(formvalues);
 			if (!success) {
 				return fail(400, {
 					errors: z.treeifyError(error),
@@ -183,12 +205,20 @@ export const actions: Actions = {
 				});
 			}
 
-			return await updateProduct(formvalues);
-		} catch (error) {
-			console.error(error);
+			return await updateProduct(data as UpdateProductData);
+		} catch (error: any) {
+			const cause = error?.cause;
+			if (cause?.code === '23505') {
+				const detail = cause.detail ?? '';
+				const match = detail.match(/Key \((\w+)\)=\((.+?)\)/);
+				const field = match?.[1] ?? 'field';
+				const value = match?.[2] ?? '';
+				return fail(400, {
+					message: `A product with ${field} "${value}" already exists`
+				});
+			}
 			return fail(500, {
-				message: 'An error occurred while processing the form',
-				error: error
+				message: 'An error occurred while processing the form'
 			});
 		}
 	}

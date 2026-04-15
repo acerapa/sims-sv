@@ -165,7 +165,8 @@
 				await invalidate('vendors:inventory');
 				await invalidate('vendors');
 			} else {
-				toast.error(edit ? 'Failed to update product' : 'Failed to add product');
+				const message = result.type === 'failure' ? result.data?.message : null;
+				toast.error(message || (edit ? 'Failed to update product' : 'Failed to add product'));
 			}
 		};
 	};
