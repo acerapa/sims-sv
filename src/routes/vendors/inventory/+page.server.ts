@@ -102,7 +102,7 @@ export const actions: Actions = {
 							cost: z.number('Cost is should be a number').min(0)
 						})
 					)
-					.min(0),
+					.default([]),
 				preferred_supplier_id: z
 					.number('Preferred supplier is required')
 					.optional()
@@ -137,6 +137,11 @@ export const actions: Actions = {
 				const value = match?.[2] ?? '';
 				return fail(400, {
 					message: `A product with ${field} "${value}" already exists`
+				});
+			}
+			if (cause?.code === '23503') {
+				return fail(400, {
+					message: 'Referenced record not found. Please check your selections.'
 				});
 			}
 			return fail(500, {
@@ -185,7 +190,7 @@ export const actions: Actions = {
 							cost: z.number('Cost is required').min(0)
 						})
 					)
-					.min(0),
+					.default([]),
 				purchase_description: z
 					.string('Purchase description is required')
 					.min(1, 'Purchase description is required')
@@ -215,6 +220,11 @@ export const actions: Actions = {
 				const value = match?.[2] ?? '';
 				return fail(400, {
 					message: `A product with ${field} "${value}" already exists`
+				});
+			}
+			if (cause?.code === '23503') {
+				return fail(400, {
+					message: 'Referenced record not found. Please check your selections.'
 				});
 			}
 			return fail(500, {
