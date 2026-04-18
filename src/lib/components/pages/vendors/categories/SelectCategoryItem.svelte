@@ -1,33 +1,51 @@
 <script lang="ts">
 	import { Item } from '$lib/components/ui/command';
 	import type { Category } from '$lib/types/global';
-	import { Check, Folder } from '@lucide/svelte';
+	import { Check, Folder, Plus } from '@lucide/svelte';
 	import SelectCategoryItem from './SelectCategoryItem.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	interface Props {
 		level?: number;
 		category: Category;
 		selectedCategory: Category | null;
 		itemHandler: (category: Category) => void;
+		hasInput?: boolean;
 	}
 
-	let { category, level = 0, selectedCategory = null, itemHandler }: Props = $props();
+	let {
+		category,
+		level = 0,
+		selectedCategory = null,
+		itemHandler,
+		hasInput = false
+	}: Props = $props();
 
 	let isSelected = $derived.by(() => selectedCategory && selectedCategory.id === category.id);
 </script>
 
 <div>
-	<Item
-		class={['flex items-center gap-2 disabled:opacity-100', isSelected ? 'bg-slate-100' : '']}
-		onclick={() => itemHandler(category)}
-		style={{ paddingLeft: `${1.25 * level + 0.5}rem` }}
-	>
-		<Folder class="size-4 text-muted-foreground" />
-		<p class="flex-1 text-sm">{category.name}</p>
-		{#if isSelected}
-			<Check class="size-4 text-primary" />
+	<div class="flex items-center gap-2">
+		<Item
+			class={[
+				'flex flex-1 items-center gap-2 disabled:opacity-100',
+				isSelected ? 'bg-slate-100' : ''
+			]}
+			onclick={() => itemHandler(category)}
+			style={{ paddingLeft: `${1.25 * level + 0.5}rem` }}
+		>
+			<Folder class="size-4 text-muted-foreground" />
+			<p class="flex-1 text-sm">{category.name}</p>
+			{#if isSelected}
+				<Check class="size-4 text-primary" />
+			{/if}
+		</Item>
+		{#if hasInput}
+			<Button class="text-blue-500 hover:text-blue-700" variant="ghost" size="icon-sm">
+				<Plus />
+			</Button>
 		{/if}
-	</Item>
+	</div>
 
 	{#if category.sub_categories?.length}
 		<div class="flex flex-col">
@@ -35,6 +53,7 @@
 				<SelectCategoryItem
 					{selectedCategory}
 					{itemHandler}
+					hasInput={true}
 					category={sub_category}
 					level={level + 1}
 				/>

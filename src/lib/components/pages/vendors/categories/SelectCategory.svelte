@@ -67,7 +67,7 @@
 			<CommandInput type="search" placeholder="Search category..." />
 			<CommandList>
 				{#each treeCategories as category (category.id)}
-					<SelectCategoryItem {selectedCategory} {itemHandler} {category} />
+					<SelectCategoryItem {selectedCategory} {itemHandler} {category} hasInput={true} />
 				{/each}
 			</CommandList>
 		</Command>
