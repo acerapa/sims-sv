@@ -52,10 +52,10 @@ export type role = 'admin' | 'cashier' | 'inventory-manager' | 'sales-person';
 export interface User {
 	id: number;
 	name: string;
-	email: string;
+	email: string | null;
 	role: role;
 	is_active: boolean;
-	password: string;
+	password: string | null;
 	created_at: Date;
 	updated_at: Date;
 }

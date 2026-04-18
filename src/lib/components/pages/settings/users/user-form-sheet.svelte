@@ -39,10 +39,12 @@
 	const formEnhance: SubmitFunction = async () => {
 		return async ({ result }) => {
 			if (result.type === 'success') {
+				open = false;
 				toast.success('User added successfully');
 				await invalidate('settings:users');
 				onSuccess(result?.data ? result?.data[0].lastInsertedId : null);
 			} else {
+				console.error(result);
 				toast.error('Failed to add user');
 			}
 
@@ -90,36 +92,6 @@
 					</div>
 				</div>
 				<div class="space-y-2">
-					<Label for="email">Email</Label>
-					<div>
-						<Input
-							id="email"
-							name="email"
-							type="email"
-							placeholder="email@example.com"
-							class={errors?.properties?.email ? 'border-red-500' : ''}
-						/>
-						{#if errors?.properties?.email}
-							<small class="text-red-500">{errors.properties.email.errors[0]}</small>
-						{/if}
-					</div>
-				</div>
-				<div class="space-y-2">
-					<Label for="password">Password</Label>
-					<div>
-						<Input
-							id="password"
-							name="password"
-							type="password"
-							placeholder="•••••••••••"
-							class={errors?.properties?.password ? 'border-red-500' : ''}
-						/>
-						{#if errors?.properties?.password}
-							<small class="text-red-500">{errors.properties.password.errors[0]}</small>
-						{/if}
-					</div>
-				</div>
-				<div class="space-y-2">
 					<Label for="role">Role</Label>
 					<div>
 						{#if preset.role}
@@ -149,6 +121,36 @@
 						</Select>
 						{#if errors?.properties?.role}
 							<small class="text-red-500">{errors.properties.role.errors[0]}</small>
+						{/if}
+					</div>
+				</div>
+				<div class="space-y-2">
+					<Label for="email">Email</Label>
+					<div>
+						<Input
+							id="email"
+							name="email"
+							type="email"
+							placeholder="email@example.com"
+							class={errors?.properties?.email ? 'border-red-500' : ''}
+						/>
+						{#if errors?.properties?.email}
+							<small class="text-red-500">{errors.properties.email.errors[0]}</small>
+						{/if}
+					</div>
+				</div>
+				<div class="space-y-2">
+					<Label for="password">Password</Label>
+					<div>
+						<Input
+							id="password"
+							name="password"
+							type="password"
+							placeholder="•••••••••••"
+							class={errors?.properties?.password ? 'border-red-500' : ''}
+						/>
+						{#if errors?.properties?.password}
+							<small class="text-red-500">{errors.properties.password.errors[0]}</small>
 						{/if}
 					</div>
 				</div>

@@ -33,17 +33,19 @@ export const actions: Actions = {
 					password: z
 						.string('Must be a string')
 						.min(8, 'Password must be at least 8 characters long'),
-					role: z.enum(
-						['admin', 'cashier', 'inventory-manager', 'sales-person'],
-						'Must be a valid role'
-					)
+					role: z.enum(['admin', 'cashier', 'inventory-manager'], 'Must be a valid role')
 				}),
 				z.object({
 					...baseFields,
-					email: z.email('Invalid email').nullable().optional(),
+					email: z
+						.union([z.email('Invalid email'), z.literal('')])
+						.nullable()
+						.optional(),
 					password: z
-						.string('Must be a string')
-						.min(8, 'Password must be at least 8 characters long')
+						.union([
+							z.string('Must be a string').min(8, 'Password must be at least 8 characters long'),
+							z.literal('')
+						])
 						.nullable()
 						.optional(),
 					role: z.literal('sales-person')
@@ -65,10 +67,14 @@ export const actions: Actions = {
 				const hashedPassword = await hash(password, saltRound);
 
 				data.password = hashedPassword;
+			} else {
+				if (!data.email) data.email = null;
+				if (!data.password) data.password = null;
 			}
 
 			return await db.insert(users).values(Object(data)).returning({ lastInsertedId: users.id });
 		} catch (error) {
+			console.error(error);
 			return fail(500, {
 				message: 'Internal Server Error',
 				errors: (error as Error).message
