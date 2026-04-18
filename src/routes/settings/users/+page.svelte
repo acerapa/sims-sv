@@ -68,7 +68,7 @@
 							<TableCell>
 								<p class="font-medium">{user.name}</p>
 							</TableCell>
-							<TableCell>{user.email}</TableCell>
+							<TableCell>{user.email ?? '-'}</TableCell>
 							<TableCell>
 								<Badge variant="secondary">{getRoleLabel(user.role)}</Badge>
 							</TableCell>
