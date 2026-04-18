@@ -21,18 +21,34 @@ export const actions: Actions = {
 			const data = Object.fromEntries(await request.formData()) as Partial<User>;
 			data.is_active = data.is_active?.toString().toLocaleLowerCase() === 'true' ? true : false;
 
-			const userFormSchema = z.object({
+			const baseFields = {
 				name: z.string('Must be a string').min(1, 'Name is required'),
-				email: z.email('Invalid email'),
-				password: z
-					.string('Must be a string')
-					.min(8, 'Password must be at least 8 characters long'),
-				role: z.enum(
-					['admin', 'cashier', 'inventory-manager', 'sales-person'],
-					'Must be a valid role'
-				),
 				is_active: z.boolean().default(true).optional()
-			});
+			};
+
+			const userFormSchema = z.discriminatedUnion('role', [
+				z.object({
+					...baseFields,
+					email: z.email('Invalid email'),
+					password: z
+						.string('Must be a string')
+						.min(8, 'Password must be at least 8 characters long'),
+					role: z.enum(
+						['admin', 'cashier', 'inventory-manager', 'sales-person'],
+						'Must be a valid role'
+					)
+				}),
+				z.object({
+					...baseFields,
+					email: z.email('Invalid email').nullable().optional(),
+					password: z
+						.string('Must be a string')
+						.min(8, 'Password must be at least 8 characters long')
+						.nullable()
+						.optional(),
+					role: z.literal('sales-person')
+				})
+			]);
 
 			const { success, error } = userFormSchema.safeParse(data);
 
@@ -43,11 +59,13 @@ export const actions: Actions = {
 				});
 			}
 
-			const saltRound = 10;
-			const password = data.password || '';
-			const hashedPassword = await hash(password, saltRound);
+			if (data.role && data.role !== 'sales-person') {
+				const saltRound = 10;
+				const password = data.password || '';
+				const hashedPassword = await hash(password, saltRound);
 
-			data.password = hashedPassword;
+				data.password = hashedPassword;
+			}
 
 			return await db.insert(users).values(Object(data)).returning({ lastInsertedId: users.id });
 		} catch (error) {

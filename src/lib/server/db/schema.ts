@@ -45,10 +45,10 @@ const timestamps = {
 
 export const users = pgTable('users', {
 	id: serial().primaryKey(),
-	email: text().notNull().unique(),
+	email: text().unique(),
 	name: text().notNull(),
 	role: roles().default('cashier').notNull(),
-	password: text().notNull(),
+	password: text(),
 	is_active: boolean().default(true).notNull(),
 	...timestamps
 });

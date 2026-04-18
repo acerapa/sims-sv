@@ -48,7 +48,7 @@ export interface Supplier {
 	telephone_number: string | null;
 }
 
-export type role = 'admin' | 'cashier' | 'inventory-manager';
+export type role = 'admin' | 'cashier' | 'inventory-manager' | 'sales-person';
 export interface User {
 	id: number;
 	name: string;

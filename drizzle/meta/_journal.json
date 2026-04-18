@@ -323,6 +323,13 @@
       "when": 1775983010674,
       "tag": "0045_new_odin",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1776482174023,
+      "tag": "0046_easy_psynapse",
+      "breakpoints": true
     }
   ]
 }
