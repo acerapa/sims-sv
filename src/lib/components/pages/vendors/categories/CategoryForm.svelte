@@ -4,15 +4,15 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { Check, Folder, X } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
-	import type { ActionData } from '../../../../../routes/vendors/categories/$types';
+	import { page } from '$app/state';
 
 	interface Props {
 		parent_id?: number | null;
 		open?: boolean;
-		form: ActionData;
 	}
 
-	let { parent_id = null, open = $bindable(false), form }: Props = $props();
+	let form = $derived(page.form);
+	let { parent_id = null, open = $bindable(false) }: Props = $props();
 	let errors = $derived(form?.errors);
 
 	const handleCloseForm = () => {
@@ -23,7 +23,13 @@
 	};
 </script>
 
-<form method="post" use:enhance class="ml-4 flex items-center gap-3" transition:slide>
+<form
+	method="post"
+	action="/vendors/categories"
+	use:enhance
+	class="ml-4 flex items-center gap-3"
+	transition:slide
+>
 	<Folder class="size-4" />
 	<Input
 		name="name"

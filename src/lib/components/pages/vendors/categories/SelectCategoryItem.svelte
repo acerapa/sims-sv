@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { Item } from '$lib/components/ui/command';
 	import type { Category } from '$lib/types/global';
-	import { Check, Folder, Plus } from '@lucide/svelte';
+	import { Check, Folder, Plus, X } from '@lucide/svelte';
 	import SelectCategoryItem from './SelectCategoryItem.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import CategoryForm from './CategoryForm.svelte';
 
 	interface Props {
 		level?: number;
@@ -22,6 +24,7 @@
 	}: Props = $props();
 
 	let isSelected = $derived.by(() => selectedCategory && selectedCategory.id === category.id);
+	let showAddNewCategory = $state(false);
 </script>
 
 <div>
@@ -41,11 +44,33 @@
 			{/if}
 		</Item>
 		{#if hasInput}
-			<Button class="text-blue-500 hover:text-blue-700" variant="ghost" size="icon-sm">
+			<Button
+				class="text-blue-500 hover:text-blue-700"
+				variant="ghost"
+				size="icon-sm"
+				onclick={() => (showAddNewCategory = true)}
+			>
 				<Plus />
 			</Button>
 		{/if}
 	</div>
+	{#if showAddNewCategory}
+		<div style={`margin-left: ${1.25 * (level + 1) + 0.5}rem`}>
+			<CategoryForm bind:open={showAddNewCategory} parent_id={category.id} />
+		</div>
+	{/if}
+	<!-- {#if showAddNewCategory}
+		<div class="my-2 flex items-center gap-2" style={`margin-left: ${1.25 * (level + 1) + 0.5}rem`}>
+			<Folder class="size-4 shrink-0 text-muted-foreground" />
+			<Input class="w-full" />
+			<Button class="text-green-500 hover:text-green-700" variant="ghost" size="icon-sm">
+				<Check />
+			</Button>
+			<Button class="text-red-500 hover:text-red-700" variant="ghost" size="icon-sm">
+				<X />
+			</Button>
+		</div>
+	{/if} -->
 
 	{#if category.sub_categories?.length}
 		<div class="flex flex-col">
