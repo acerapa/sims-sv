@@ -306,6 +306,7 @@ export const salesOrderItems = pgTable('sales_order_items', {
 	product_id: integer()
 		.notNull()
 		.references(() => products.id),
+	package_id: integer().references(() => packages.id),
 	quantity: integer().notNull(),
 	unit_price: decimal().notNull(),
 	total_price: decimal().notNull(),
@@ -338,6 +339,7 @@ export const invoiceItems = pgTable('invoice_items', {
 	product_id: integer()
 		.notNull()
 		.references(() => products.id),
+	package_id: integer().references(() => packages.id),
 	quantity: integer().notNull(),
 	unit_price: decimal().notNull(),
 	total_price: decimal().notNull(),
@@ -364,6 +366,23 @@ export const sellingBrackets = pgTable('selling_brackets', {
 	end_price: integer().notNull(),
 	discount_percentage: integer().notNull(),
 	...timestamps
+});
+
+export const packages = pgTable('packages', {
+	id: serial().primaryKey(),
+	name: varchar().notNull(),
+	description: text(),
+	...timestamps
+});
+
+export const packagesToProducts = pgTable('packages_to_products', {
+	package_id: integer()
+		.notNull()
+		.references(() => packages.id),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	quantity: integer().notNull().default(1)
 });
 
 // relations
@@ -463,6 +482,7 @@ export const productToSupplierRelations = relations(productsToSupplier, ({ one }
 
 export const productRelations = relations(products, ({ many, one }) => ({
 	productToSuppliers: many(productsToSupplier),
+	packagesToProducts: many(packagesToProducts),
 	category: one(categories, {
 		fields: [products.category_id],
 		references: [categories.id]
@@ -470,6 +490,21 @@ export const productRelations = relations(products, ({ many, one }) => ({
 	sellingBracket: one(sellingBrackets, {
 		fields: [products.selling_bracket_id],
 		references: [sellingBrackets.id]
+	})
+}));
+
+export const packageRelations = relations(packages, ({ many }) => ({
+	packagesToProducts: many(packagesToProducts)
+}));
+
+export const packagesToProductsRelations = relations(packagesToProducts, ({ one }) => ({
+	package: one(packages, {
+		fields: [packagesToProducts.package_id],
+		references: [packages.id]
+	}),
+	product: one(products, {
+		fields: [packagesToProducts.product_id],
+		references: [products.id]
 	})
 }));
 
@@ -516,6 +551,10 @@ export const salesOrderItemRelations = relations(salesOrderItems, ({ one }) => (
 	product: one(products, {
 		fields: [salesOrderItems.product_id],
 		references: [products.id]
+	}),
+	package: one(packages, {
+		fields: [salesOrderItems.package_id],
+		references: [packages.id]
 	})
 }));
 
@@ -544,6 +583,10 @@ export const invoiceItemRelations = relations(invoiceItems, ({ one }) => ({
 	product: one(products, {
 		fields: [invoiceItems.product_id],
 		references: [products.id]
+	}),
+	package: one(packages, {
+		fields: [invoiceItems.package_id],
+		references: [packages.id]
 	})
 }));
 

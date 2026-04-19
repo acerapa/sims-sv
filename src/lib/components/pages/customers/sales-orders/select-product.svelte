@@ -18,16 +18,33 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import type { Product } from '$lib/types/global';
-	import { Plus, ScanBarcode, Trash2 } from '@lucide/svelte';
+	import { Package, Plus, ScanBarcode, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
+
+	interface PackageOption {
+		id: number;
+		name: string;
+		packagesToProducts: {
+			product_id: number;
+			quantity: number;
+			product: {
+				id: number;
+				sku: string | null;
+				sales_description: string | null;
+				sale_price: string | null;
+			};
+		}[];
+	}
 
 	interface Props {
 		issues: z.core.$ZodIssue[] | undefined;
 		products: Product[];
+		packages?: PackageOption[];
 		items: {
 			id: number;
 			product_id: string;
+			package_id: number | null;
 			quantity: number;
 			unit_price: number;
 			total_price: number;
@@ -35,7 +52,9 @@
 		}[];
 	}
 
-	let { products, items = $bindable(), issues }: Props = $props();
+	let { products, packages = [], items = $bindable(), issues }: Props = $props();
+
+	let selectedPackageId = $state<string>('');
 
 	let barcodeInput = $state('');
 	let barcodeInputEl = $state<HTMLInputElement | null>(null);
@@ -75,6 +94,7 @@
 				items.push({
 					id: items.length + 1,
 					product_id: product.id.toString(),
+					package_id: null,
 					quantity: 1,
 					unit_price: price,
 					total_price: price,
@@ -85,6 +105,43 @@
 
 		barcodeInput = '';
 		barcodeInputEl?.focus();
+	};
+
+	const onPackageSelect = () => {
+		const pkg = packages.find((p) => p.id.toString() === selectedPackageId);
+		if (!pkg) return;
+
+		for (const entry of pkg.packagesToProducts) {
+			const price = parseFloat(entry.product.sale_price ?? '0');
+			const existingIndex = items.findIndex(
+				(item) => parseInt(item.product_id) === entry.product_id
+			);
+
+			if (existingIndex !== -1) {
+				items[existingIndex].quantity += entry.quantity;
+				items[existingIndex].total_price =
+					items[existingIndex].quantity * items[existingIndex].unit_price;
+				items[existingIndex].package_id = pkg.id;
+			} else {
+				const emptyIndex = items.findIndex((item) => !item.product_id);
+				const newRow = {
+					product_id: entry.product_id.toString(),
+					package_id: pkg.id,
+					quantity: entry.quantity,
+					unit_price: price,
+					total_price: price * entry.quantity,
+					serial_number: ''
+				};
+				if (emptyIndex !== -1) {
+					items[emptyIndex] = { id: items[emptyIndex].id, ...newRow };
+				} else {
+					items.push({ id: items.length + 1, ...newRow });
+				}
+			}
+		}
+
+		toast.success(`Added package "${pkg.name}"`);
+		selectedPackageId = '';
 	};
 
 	let subTotal = $derived.by(() => {
@@ -115,6 +172,7 @@
 		items.push({
 			id: items.length + 1,
 			product_id: '',
+			package_id: null,
 			quantity: 1,
 			unit_price: 0,
 			total_price: 0,
@@ -134,6 +192,9 @@
 	const onSelectProduct = (ndx: number) => {
 		const item = items[ndx];
 		const product = getProduct(parseInt(item.product_id));
+
+		// Manually changing product breaks the package link
+		item.package_id = null;
 
 		if (product) {
 			const price =
@@ -163,21 +224,49 @@
 				Add Item
 			</Button>
 		</div>
-		<div class="relative">
-			<ScanBarcode class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-			<Input
-				bind:ref={barcodeInputEl}
-				bind:value={barcodeInput}
-				onkeydown={(e) => {
-					if (e.key === 'Enter') {
-						e.preventDefault();
-						onBarcodeScan();
-					}
-				}}
-				type="text"
-				placeholder="Scan or type barcode..."
-				class="pl-9"
-			/>
+		<div class="flex flex-wrap gap-3">
+			<div class="relative flex-1">
+				<ScanBarcode
+					class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+				/>
+				<Input
+					bind:ref={barcodeInputEl}
+					bind:value={barcodeInput}
+					onkeydown={(e) => {
+						if (e.key === 'Enter') {
+							e.preventDefault();
+							onBarcodeScan();
+						}
+					}}
+					type="text"
+					placeholder="Scan or type barcode..."
+					class="pl-9"
+				/>
+			</div>
+			{#if packages.length}
+				<Select
+					type="single"
+					bind:value={selectedPackageId}
+					onValueChange={onPackageSelect}
+				>
+					<SelectTrigger class="min-w-56">
+						<span class="flex items-center gap-2">
+							<Package class="size-4" />
+							Add from Package
+						</span>
+					</SelectTrigger>
+					<SelectContent>
+						{#each packages as pkg (pkg.id)}
+							<SelectItem value={pkg.id.toString()}>
+								{pkg.name} ({pkg.packagesToProducts.length} item{pkg.packagesToProducts.length ===
+								1
+									? ''
+									: 's'})
+							</SelectItem>
+						{/each}
+					</SelectContent>
+				</Select>
+			{/if}
 		</div>
 	</CardHeader>
 	<CardContent>
@@ -197,6 +286,11 @@
 					{#each items as item, i (item)}
 						<TableRow>
 							<TableCell class="w-96 align-top">
+								<input
+									type="hidden"
+									name={`products.${i}.package_id`}
+									value={items[i].package_id ?? ''}
+								/>
 								<div>
 									<Select
 										name={`products.${i}.product_id`}
@@ -229,6 +323,17 @@
 										<small class="text-red-500">
 											{groupedIssues[i]?.product_id}
 										</small>
+									{/if}
+									{#if items[i].package_id}
+										{@const pkg = packages.find((p) => p.id === items[i].package_id)}
+										{#if pkg}
+											<span
+												class="mt-1 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600"
+											>
+												<Package class="size-3" />
+												From package: {pkg.name}
+											</span>
+										{/if}
 									{/if}
 								</div>
 							</TableCell>

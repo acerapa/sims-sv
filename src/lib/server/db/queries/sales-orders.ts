@@ -11,6 +11,7 @@ export interface CreateSalesOrder {
 	total_cost: number;
 	products: {
 		product_id: number;
+		package_id?: number | null;
 		quantity: number;
 		unit_price: number;
 		total_price: number;

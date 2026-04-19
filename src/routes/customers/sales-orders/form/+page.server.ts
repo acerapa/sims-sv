@@ -6,13 +6,15 @@ import { decode } from 'decode-formdata';
 import z from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { getUsers } from '$lib/server/db/queries/users';
+import { getPackages } from '$lib/server/db/queries/packages';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('sales-orders:form');
 	const customers = await getCustomers();
 	const products = await getProducts();
 	const users = await getUsers();
-	return { customers, products, users };
+	const packages = await getPackages();
+	return { customers, products, users, packages };
 };
 
 export const actions: Actions = {
@@ -27,6 +29,7 @@ export const actions: Actions = {
 					'staff_user_id',
 					'products.$.quantity',
 					'products.$.product_id',
+					'products.$.package_id',
 					'products.$.unit_price',
 					'products.$.total_price'
 				],
@@ -43,6 +46,7 @@ export const actions: Actions = {
 					.array(
 						z.object({
 							product_id: z.number('Product is required'),
+							package_id: z.number().nullable().optional(),
 							quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
 							unit_price: z.number('Unit price is required'),
 							total_price: z.number('Total price is required'),

@@ -76,6 +76,7 @@
 		{
 			id: 0,
 			product_id: '',
+			package_id: null as number | null,
 			quantity: 1,
 			unit_price: 0,
 			total_price: 0,
@@ -99,6 +100,7 @@
 						{
 							id: 0,
 							product_id: '',
+							package_id: null,
 							quantity: 1,
 							unit_price: 0,
 							total_price: 0,
@@ -277,7 +279,12 @@
 			</CardContent>
 		</Card>
 
-		<SelectProduct bind:items {products} issues={findErrorByKey(issues, 'products')} />
+		<SelectProduct
+			bind:items
+			{products}
+			packages={data.packages}
+			issues={findErrorByKey(issues, 'products')}
+		/>
 		<div class="flex gap-3 self-end">
 			<Button variant="outline" href="/customers/sales-orders">Cancel</Button>
 			<Button variant="outline" type="submit" onclick={() => (submitAction = 'new')}

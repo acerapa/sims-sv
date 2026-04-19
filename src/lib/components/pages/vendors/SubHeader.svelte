@@ -41,6 +41,10 @@
 		{
 			name: 'Item Categories',
 			path: '/vendors/categories'
+		},
+		{
+			name: 'Packages',
+			path: '/vendors/packages'
 		}
 	] as const;
 </script>
