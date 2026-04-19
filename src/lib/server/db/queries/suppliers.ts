@@ -1,6 +1,6 @@
-import { desc } from 'drizzle-orm';
+import { desc, sql } from 'drizzle-orm';
 import { db } from '..';
-import { suppliers } from '../schema';
+import { productsToSupplier, suppliers } from '../schema';
 
 export interface CreateSupplierData {
 	name: string;
@@ -36,6 +36,24 @@ export const getSuppliers = async () => {
 			phone_number: suppliers.phone_number,
 			contact_person: suppliers.contact_person,
 			telephone_number: suppliers.telephone_number
+		})
+		.from(suppliers)
+		.orderBy(desc(suppliers.created_at))
+		.execute();
+};
+
+export const getSuppliersWithProductCount = async () => {
+	return await db
+		.select({
+			id: suppliers.id,
+			name: suppliers.name,
+			email: suppliers.email,
+			notes: suppliers.notes,
+			address: suppliers.address,
+			phone_number: suppliers.phone_number,
+			contact_person: suppliers.contact_person,
+			telephone_number: suppliers.telephone_number,
+			product_count: sql<number>`(SELECT COUNT(*)::int FROM ${productsToSupplier} WHERE ${productsToSupplier.supplier_id} = ${suppliers.id})`
 		})
 		.from(suppliers)
 		.orderBy(desc(suppliers.created_at))

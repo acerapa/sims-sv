@@ -1,9 +1,18 @@
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
-import { createSupplier, type CreateSupplierData } from '$lib/server/db/queries/suppliers';
+import {
+	createSupplier,
+	getSuppliersWithProductCount,
+	type CreateSupplierData
+} from '$lib/server/db/queries/suppliers';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { type PostgresError } from 'postgres';
+
+export const load: PageServerLoad = async () => {
+	const suppliers = await getSuppliersWithProductCount();
+	return { suppliers };
+};
 
 export const actions: Actions = {
 	default: async ({ request }) => {

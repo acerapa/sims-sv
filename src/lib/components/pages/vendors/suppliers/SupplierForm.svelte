@@ -23,11 +23,19 @@
 
 	let {
 		form,
+		supplier = null,
 		insertedSupplier = $bindable<Supplier | null>(null),
 		hasTrigger = $bindable<boolean>(true),
 		open = $bindable<boolean>(false)
+	}: {
+		form: any;
+		supplier?: Supplier | null;
+		insertedSupplier?: Supplier | null;
+		hasTrigger?: boolean;
+		open?: boolean;
 	} = $props();
 	const errors = $derived(form?.errors);
+	const isView = $derived(!!supplier);
 
 	const formEnhance: SubmitFunction = async () => {
 		return async ({ result }) => {
@@ -63,8 +71,10 @@
 	{/if}
 	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl">
 		<SheetHeader>
-			<SheetTitle>Add New Supplier</SheetTitle>
-			<SheetDescription>Fill in the details to add a new supplier</SheetDescription>
+			<SheetTitle>{isView ? 'View Supplier' : 'Add New Supplier'}</SheetTitle>
+			<SheetDescription>
+				{isView ? 'Supplier details' : 'Fill in the details to add a new supplier'}
+			</SheetDescription>
 		</SheetHeader>
 		<form method="post" action="/vendors/suppliers" use:enhance={formEnhance}>
 			<div class="flex flex-col gap-6 px-6">
@@ -77,7 +87,12 @@
 							<Label for="name">Supplier Name</Label>
 							<div>
 								<Input
-									class={errors?.properties?.name ? 'border-red-500' : ''}
+									disabled={isView}
+									value={supplier?.name ?? ''}
+									class={[
+										'disabled:opacity-100',
+										errors?.properties?.name ? 'border-red-500' : ''
+									]}
 									id="name"
 									name="name"
 									type="text"
@@ -92,7 +107,12 @@
 							<Label for="contact_person">Contact Person</Label>
 							<div>
 								<Input
-									class={errors?.properties?.contact_person ? 'border-red-500' : ''}
+									disabled={isView}
+									value={supplier?.contact_person ?? ''}
+									class={[
+										'disabled:opacity-100',
+										errors?.properties?.contact_person ? 'border-red-500' : ''
+									]}
 									id="contact_person"
 									name="contact_person"
 									type="text"
@@ -107,7 +127,12 @@
 							<Label for="address">Address</Label>
 							<div>
 								<Textarea
-									class={errors?.properties?.address ? 'border-red-500' : ''}
+									disabled={isView}
+									value={supplier?.address ?? ''}
+									class={[
+										'disabled:opacity-100',
+										errors?.properties?.address ? 'border-red-500' : ''
+									]}
 									id="address"
 									name="address"
 									placeholder="Enter address"
@@ -121,7 +146,12 @@
 							<Label for="notes">Notes</Label>
 							<div>
 								<Textarea
-									class={errors?.properties?.notes ? 'border-red-500' : ''}
+									disabled={isView}
+									value={supplier?.notes ?? ''}
+									class={[
+										'disabled:opacity-100',
+										errors?.properties?.notes ? 'border-red-500' : ''
+									]}
 									id="notes"
 									name="notes"
 									placeholder="Enter notes"
@@ -143,7 +173,12 @@
 							<Label for="email">Email</Label>
 							<div>
 								<Input
-									class={errors?.properties?.email ? 'border-red-500' : ''}
+									disabled={isView}
+									value={supplier?.email ?? ''}
+									class={[
+										'disabled:opacity-100',
+										errors?.properties?.email ? 'border-red-500' : ''
+									]}
 									id="email"
 									name="email"
 									type="email"
@@ -158,7 +193,12 @@
 							<Label for="phone">Phone</Label>
 							<div>
 								<Input
-									class={errors?.properties?.phone_number ? 'border-red-500' : ''}
+									disabled={isView}
+									value={supplier?.phone_number ?? ''}
+									class={[
+										'disabled:opacity-100',
+										errors?.properties?.phone_number ? 'border-red-500' : ''
+									]}
 									id="phone"
 									name="phone_number"
 									type="text"
@@ -173,7 +213,12 @@
 							<Label for="telephone">Telephone</Label>
 							<div>
 								<Input
-									class={errors?.properties?.telephone_number ? 'border-red-500' : ''}
+									disabled={isView}
+									value={supplier?.telephone_number ?? ''}
+									class={[
+										'disabled:opacity-100',
+										errors?.properties?.telephone_number ? 'border-red-500' : ''
+									]}
 									id="telephone"
 									name="telephone_number"
 									type="text"
@@ -187,12 +232,14 @@
 					</CardContent>
 				</Card>
 			</div>
-			<SheetFooter class="flex flex-row justify-end">
-				<SheetClose type="button">
-					<Button type="button" variant="outline">Cancel</Button>
-				</SheetClose>
-				<Button type="submit" variant="default">Add Supplier</Button>
-			</SheetFooter>
+			{#if !isView}
+				<SheetFooter class="flex flex-row justify-end">
+					<SheetClose type="button">
+						<Button type="button" variant="outline">Cancel</Button>
+					</SheetClose>
+					<Button type="submit" variant="default">Add Supplier</Button>
+				</SheetFooter>
+			{/if}
 		</form>
 	</SheetContent>
 </Sheet>

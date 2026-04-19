@@ -113,8 +113,7 @@ export const productsToSupplier = pgTable('products_to_suppliers', {
 		.references(() => products.id),
 	supplier_id: integer()
 		.notNull()
-		.references(() => suppliers.id),
-	cost: decimal().notNull()
+		.references(() => suppliers.id)
 });
 
 export const purchaseOrders = pgTable('purhase_order', {

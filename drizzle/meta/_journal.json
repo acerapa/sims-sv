@@ -337,6 +337,13 @@
       "when": 1776578005905,
       "tag": "0047_worthless_nuke",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1776594667258,
+      "tag": "0048_worried_slyde",
+      "breakpoints": true
     }
   ]
 }

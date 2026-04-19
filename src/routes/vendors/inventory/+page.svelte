@@ -56,7 +56,7 @@
 	let currentParams = $derived(data.currentParams);
 
 	let openProductForm = $state(false);
-	let preSelectedSuppliers = $state<{ supplierId: number | null; cost: string | null }[]>([]);
+	let preSelectedSuppliers = $state<string[]>([]);
 	let searchValue = $state(data.currentParams.search);
 	let searchTimeout: ReturnType<typeof setTimeout>;
 
@@ -107,7 +107,9 @@
 		const params = new URLSearchParams(page.url.searchParams);
 		params.set('id', String(productId));
 		await goto(`?${params.toString()}`);
-		preSelectedSuppliers = product?.suppliers || [];
+		preSelectedSuppliers = (product?.productToSuppliers ?? []).map((s) =>
+			s.supplier_id.toString()
+		);
 		openProductForm = true;
 	};
 
@@ -194,6 +196,7 @@
 					{product}
 					{form}
 					{categories}
+					{suppliers}
 					sellingBrackets={data.sellingBrackets}
 				/>
 			</div>

@@ -8,14 +8,12 @@ export interface CreateProductData {
 	sale_price: number;
 	category_id: number;
 	cost: number;
-	// preferred_supplier_id: number | null;
 	minimum_quantity: number | null;
 	sales_description: string | null;
 	purchase_description: string | null;
 	selling_bracket_id: number | null;
 	suppliers: {
 		supplier_id: number;
-		cost: number;
 	}[];
 }
 
@@ -34,7 +32,6 @@ export const createProduct = async (data: CreateProductData) => {
 					sale_price: data.sale_price,
 					category_id: data.category_id,
 					cost: data.cost,
-					// preferred_supplier_id: data.preferred_supplier_id,
 					minimum_quantity: data.minimum_quantity,
 					sales_description: data.sales_description,
 					selling_bracket_id: data.selling_bracket_id,
@@ -50,18 +47,14 @@ export const createProduct = async (data: CreateProductData) => {
 				minimum_quantity: products.minimum_quantity,
 				selling_bracket_id: products.selling_bracket_id,
 				purchase_description: products.purchase_description
-				// preferred_supplier_id: products.preferred_supplier_id
 			});
 
 		if (data.suppliers.length) {
 			await tx.insert(productsToSupplier).values(
-				data.suppliers.map((supplier) => {
-					return Object({
-						product_id: product.id,
-						supplier_id: supplier.supplier_id,
-						cost: supplier.cost
-					});
-				})
+				data.suppliers.map((supplier) => ({
+					product_id: product.id,
+					supplier_id: supplier.supplier_id
+				}))
 			);
 		}
 
@@ -97,19 +90,14 @@ export const updateProduct = async (data: UpdateProductData) => {
 				purchase_description: products.purchase_description
 			});
 
-		if (data.suppliers.length) {
-			// Delete existing supplier associations
-			await tx.delete(productsToSupplier).where(eq(productsToSupplier.product_id, data.id));
+		await tx.delete(productsToSupplier).where(eq(productsToSupplier.product_id, data.id));
 
-			// Insert new supplier associations
+		if (data.suppliers.length) {
 			await tx.insert(productsToSupplier).values(
-				data.suppliers.map((supplier) => {
-					return Object({
-						product_id: data.id,
-						supplier_id: supplier.supplier_id,
-						cost: supplier.cost
-					});
-				})
+				data.suppliers.map((supplier) => ({
+					product_id: data.id,
+					supplier_id: supplier.supplier_id
+				}))
 			);
 		}
 
@@ -139,8 +127,7 @@ export const getProducts = async () => {
 			},
 			productToSuppliers: {
 				columns: {
-					supplier_id: true,
-					cost: true
+					supplier_id: true
 				}
 			}
 		}
@@ -148,38 +135,32 @@ export const getProducts = async () => {
 };
 
 export const getProduct = async (productId: number) => {
-	const result = await db
-		.select({
-			id: products.id,
-			sku: products.sku,
-			cost: products.cost,
-			quantity: products.quantity,
-			sale_price: products.sale_price,
-			category_id: products.category_id,
-			minimum_quantity: products.minimum_quantity,
-			sales_description: products.sales_description,
-			selling_bracket_id: products.selling_bracket_id,
-			purchase_description: products.purchase_description
-		})
-		.from(products)
-		.where(eq(products.id, productId));
+	const product = await db.query.products.findFirst({
+		where: eq(products.id, productId),
+		columns: {
+			id: true,
+			sku: true,
+			cost: true,
+			quantity: true,
+			sale_price: true,
+			category_id: true,
+			minimum_quantity: true,
+			sales_description: true,
+			selling_bracket_id: true,
+			purchase_description: true
+		},
+		with: {
+			productToSuppliers: {
+				columns: {
+					supplier_id: true
+				}
+			}
+		}
+	});
 
-	if (result.length === 0) {
+	if (!product) {
 		throw new Error(`Product with ID ${productId} not found`);
 	}
-
-	const product = {
-		id: result[0].id,
-		sku: result[0].sku,
-		cost: result[0].cost,
-		quantity: result[0].quantity,
-		sale_price: result[0].sale_price,
-		category_id: result[0].category_id,
-		minimum_quantity: result[0].minimum_quantity,
-		sales_description: result[0].sales_description,
-		selling_bracket_id: result[0].selling_bracket_id,
-		purchase_description: result[0].purchase_description
-	};
 
 	return product;
 };
@@ -192,9 +173,8 @@ export const getProductsBySupplier = async (supplierId: number) => {
 			quantity: products.quantity,
 			minimum_quantity: products.minimum_quantity,
 			purchase_description: products.purchase_description,
-			preferred_supplier_id: products.preferred_supplier_id,
 			sale_price: products.sale_price,
-			cost: productsToSupplier.cost
+			cost: products.cost
 		})
 		.from(products)
 		.leftJoin(productsToSupplier, eq(productsToSupplier.product_id, products.id))
@@ -280,8 +260,7 @@ export const getProductsPaginated = async (
 			},
 			productToSuppliers: {
 				columns: {
-					supplier_id: true,
-					cost: true
+					supplier_id: true
 				}
 			}
 		}

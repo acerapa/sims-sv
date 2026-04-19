@@ -1,0 +1,1 @@
+ALTER TABLE "products_to_suppliers" DROP COLUMN "cost";

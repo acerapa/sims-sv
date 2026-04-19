@@ -25,20 +25,20 @@
 	import SelectCategory from './categories/SelectCategory.svelte';
 	import BarcodeDisplay from './BarcodeDisplay.svelte';
 	import { applyAction, enhance } from '$app/forms';
-	import SupplierAndCost from './SupplierAndCost.svelte';
+	import SupplierSelect from './SupplierSelect.svelte';
 	import type { Product, Supplier } from '$lib/types/global';
 	import type { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
-	// import { findErrorByKey } from '$lib/utils/common';
+	import { findErrorByKey } from '$lib/utils/common';
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 
 	let {
 		form,
-		// suppliers,
+		suppliers,
 		categories,
 		product = null,
 		hasTrigger = true,
@@ -48,11 +48,12 @@
 		sellingBrackets = []
 	}: {
 		form: any;
+		suppliers: Supplier[];
 		categories: any;
 		product?: any;
 		hasTrigger?: boolean;
 		open?: boolean;
-		preSelectedSuppliers?: any[];
+		preSelectedSuppliers?: string[];
 		insertedProduct?: Product | undefined;
 		sellingBrackets?: Awaited<ReturnType<typeof getSellingBrackets>>;
 	} = $props();
@@ -115,7 +116,6 @@
 	});
 
 	let categoryId = $derived.by(() => product?.category_id || '');
-	// let preferredSupplierId = $derived.by(() => product?.preferred_supplier_id?.toString() || '');
 	let purchase_description = $derived.by(() => product?.purchase_description || '');
 	let sales_description = $derived.by(() => product?.sales_description || '');
 	let isSameDescription = $derived.by(
@@ -123,18 +123,8 @@
 	);
 
 	const errors = $derived(form?.errors);
-	// const issues = $derived(form?.issues);
-	const hasSelectSupplierInput = $state(false);
-	// const preferredSupplier = $derived.by(() =>
-	// 	suppliers.find((s: Supplier) => s.id.toString() === preferredSupplierId)
-	// );
+	const issues = $derived(form?.issues);
 
-	// let selectSupplierAndCostRef: SupplierAndCost;
-	// let selectedSuppliersWithCost = $state<{ supplierId: string; cost: number | null }[]>([]);
-
-	// const handleAddSupplier = () => {
-	// 	selectSupplierAndCostRef.addSupplierCost();
-	// };
 
 	const handlePurchaseDescriptionInput = () => {
 		if (isSameDescription) {
@@ -188,10 +178,6 @@
 				form = null;
 			}
 		}
-
-		// if (selectedSuppliers.length === 0) {
-		// 	preferredSupplierId = '';
-		// }
 	});
 </script>
 
@@ -289,70 +275,19 @@
 					</Card>
 				{/if}
 
-				<!-- Disabling this for now -->
-				{#if hasSelectSupplierInput}
-					<!-- <Card>
-						<CardHeader>
-							<div class="flex items-center justify-between">
-								<CardTitle>Suppliers and Costs</CardTitle>
-								{#if !product}
-									<Button variant="outline" type="button" onclick={handleAddSupplier}>
-										<Plus />
-										Add Supplier
-									</Button>
-								{/if}
-							</div>
-						</CardHeader>
-						<CardContent>
-							<div class="flex flex-col gap-6">
-								<SupplierAndCost
-									disabled={!!product && !edit}
-									bind:costPerSuppliers={selectedSuppliersWithCost}
-									bind:preSelectedSuppliers
-									bind:selectedSuppliers
-									bind:this={selectSupplierAndCostRef}
-									{suppliers}
-									issues={findErrorByKey(issues, 'suppliers')}
-								/>
-								<div class="space-y-2">
-									<Label>Preferred Supplier</Label>
-									<div>
-										<Select
-											disabled={!selectedSuppliers.length || (!!product && !edit)}
-											type="single"
-											name="preferred_supplier_id"
-											bind:value={preferredSupplierId}
-										>
-											<SelectTrigger
-												class={[
-													'disabled:opacity-100',
-													errors?.properties?.sale_price ? 'border-red-500' : '',
-													'w-full'
-												]}
-											>
-												{preferredSupplier ? preferredSupplier.name : 'Select Preferred Supplier'}
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup>
-													{#each selectedSuppliers as supplier (supplier.id)}
-														<SelectItem value={supplier.id.toString()} label={supplier.name}>
-															{supplier.name}
-														</SelectItem>
-													{/each}
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-										{#if errors?.properties?.preferred_supplier_id}
-											<small class="text-red-500">
-												{errors.properties.preferred_supplier_id.errors[0]}
-											</small>
-										{/if}
-									</div>
-								</div>
-							</div>
-						</CardContent>
-					</Card> -->
-				{/if}
+				<Card>
+					<CardHeader>
+						<CardTitle>Suppliers</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<SupplierSelect
+							disabled={!!product && !edit}
+							bind:selected={preSelectedSuppliers}
+							{suppliers}
+							issues={findErrorByKey(issues, 'suppliers')}
+						/>
+					</CardContent>
+				</Card>
 
 				<Card>
 					<CardHeader>

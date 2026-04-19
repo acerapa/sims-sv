@@ -73,12 +73,14 @@ export const actions: Actions = {
 					'quantity',
 					'cost',
 					'minimum_quantity',
-					'preferred_supplier_id',
 					'sale_price',
-					'suppliers.$.supplier_id',
-					'suppliers.$.cost'
+					'suppliers.$.supplier_id'
 				]
 			}) as CreateProductData;
+
+			formvalues.suppliers = (formvalues.suppliers ?? []).filter(
+				(s) => typeof s?.supplier_id === 'number' && s.supplier_id > 0
+			);
 
 			const productSchema = z.object({
 				sku: z.string('Invalid SKU').min(1, 'SKU is required').max(1000),
@@ -98,16 +100,10 @@ export const actions: Actions = {
 				suppliers: z
 					.array(
 						z.object({
-							supplier_id: z.number('Supplier is required').min(1),
-							cost: z.number('Cost is should be a number').min(0)
+							supplier_id: z.number('Supplier is required').min(1)
 						})
 					)
 					.default([]),
-				preferred_supplier_id: z
-					.number('Preferred supplier is required')
-					.optional()
-					.nullable()
-					.default(null),
 				purchase_description: z
 					.string('Purchase description is required')
 					.min(1, 'Purchase description is required')
@@ -162,10 +158,13 @@ export const actions: Actions = {
 					'cost',
 					'minimum_quantity',
 					'sale_price',
-					'suppliers.$.supplier_id',
-					'suppliers.$.cost'
+					'suppliers.$.supplier_id'
 				]
 			}) as UpdateProductData;
+
+			formvalues.suppliers = (formvalues.suppliers ?? []).filter(
+				(s) => typeof s?.supplier_id === 'number' && s.supplier_id > 0
+			);
 
 			const productSchema = z.object({
 				id: z.number('Product ID is required').min(1, 'Product ID is required'),
@@ -186,8 +185,7 @@ export const actions: Actions = {
 				suppliers: z
 					.array(
 						z.object({
-							supplier_id: z.number('Supplier is required').min(1),
-							cost: z.number('Cost is required').min(0)
+							supplier_id: z.number('Supplier is required').min(1)
 						})
 					)
 					.default([]),

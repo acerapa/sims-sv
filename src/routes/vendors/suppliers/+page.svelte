@@ -1,6 +1,6 @@
 <script lang="ts">
 	import SupplierForm from '$lib/components/pages/vendors/suppliers/SupplierForm.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -8,6 +8,12 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
 	import {
 		Table,
@@ -17,12 +23,20 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, Search } from '@lucide/svelte';
+	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import type { Supplier } from '$lib/types/global';
 
 	let { form, data }: PageProps = $props();
-	const suppliers = $derived<Supplier[]>(data.suppliers);
+	const suppliers = $derived(data.suppliers);
+
+	let viewSupplierOpen = $state(false);
+	let viewedSupplier = $state<Supplier | null>(null);
+
+	const onView = (supplier: Supplier) => {
+		viewedSupplier = supplier;
+		viewSupplierOpen = true;
+	};
 </script>
 
 <Card>
@@ -33,6 +47,12 @@
 				<CardDescription>Manage your supplier relationships</CardDescription>
 			</div>
 			<SupplierForm {form} />
+			<SupplierForm
+				{form}
+				hasTrigger={false}
+				bind:open={viewSupplierOpen}
+				supplier={viewedSupplier}
+			/>
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -61,11 +81,21 @@
 						<TableCell>{supplier.email || '-'}</TableCell>
 						<TableCell>{supplier.phone_number || '-'}</TableCell>
 						<TableCell>{supplier.telephone_number || '-'}</TableCell>
-						<TableCell class="text-center">{0}</TableCell>
+						<TableCell class="text-center">{supplier.product_count}</TableCell>
 						<TableCell>
-							<Button variant="ghost" size="sm">
-								<Ellipsis />
-							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									class={buttonVariants({ variant: 'ghost', size: 'icon' })}
+								>
+									<Ellipsis class="size-4" />
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuItem onSelect={() => onView(supplier)} class="space-x-2">
+										<Eye class="size-4" />
+										<span>View</span>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</TableCell>
 					</TableRow>
 				{/each}
