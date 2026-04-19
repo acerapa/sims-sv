@@ -17,8 +17,13 @@ export const load: PageServerLoad = async ({ params, depends }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, params }) => {
 		try {
+			const physicalInventoryId = parseInt(params.physical_inventory_id);
+			if (!physicalInventoryId) {
+				return fail(400, { error: 'Invalid inventory id' });
+			}
+
 			const formData = await request.formData();
 			const formValues = decode(formData, {
 				arrays: ['items'],
@@ -32,7 +37,11 @@ export const actions: Actions = {
 				]
 			}) as CreateInventoryItems;
 
-			await upsertInventoryItems(formValues);
+			await upsertInventoryItems({
+				...formValues,
+				physical_inventory_id: physicalInventoryId,
+				items: formValues.items ?? []
+			});
 			return { success: true };
 		} catch (error) {
 			console.error(error);

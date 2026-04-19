@@ -34,9 +34,9 @@
 						sku: product.sku,
 						purchase_description: product.purchase_description,
 						category: product.category.name,
-						system_count: product.quantity,
+						system_count: product.quantity ? product.quantity : 0,
 						actual_count: 0,
-						difference: 0 - parseInt(product.quantity.toString())
+						difference: 0 - (product.quantity ? product.quantity : 0)
 					})))()
 	);
 

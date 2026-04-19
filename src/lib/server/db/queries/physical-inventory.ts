@@ -1,6 +1,6 @@
 import { eq, sql } from 'drizzle-orm';
 import { db } from '..';
-import { categories, physicalInventories, physicalInventoryItems, products } from '../schema';
+import { physicalInventories, physicalInventoryItems } from '../schema';
 
 export interface StartInventory {
 	title: string;
@@ -18,6 +18,7 @@ export interface InventoryItem {
 }
 
 export interface CreateInventoryItems {
+	physical_inventory_id: number;
 	items: InventoryItem[];
 	status: 'draft' | 'finalized';
 }
@@ -30,51 +31,42 @@ export const startInventory = async (data: StartInventory) => {
 };
 
 export const getInventoryById = async (id: number) => {
-	const result = await db
-		.select({
-			id: physicalInventories.id,
-			title: physicalInventories.title,
-			status: physicalInventories.status,
-			item: {
-				id: physicalInventoryItems.id,
-				product_id: physicalInventoryItems.product_id,
-				sku: products.sku,
-				purchase_description: products.purchase_description,
-				category: categories.name,
-				system_count: physicalInventoryItems.system_count,
-				actual_count: physicalInventoryItems.actual_count,
-				difference: physicalInventoryItems.difference
+	const result = await db.query.physicalInventories.findFirst({
+		where: eq(physicalInventories.id, id),
+		columns: { id: true, title: true, status: true },
+		with: {
+			physicalInventoryItems: {
+				with: {
+					product: {
+						columns: { sku: true, purchase_description: true, quantity: true },
+						with: {
+							category: { columns: { name: true } }
+						}
+					}
+				}
 			}
-		})
-		.from(physicalInventories)
-		.leftJoin(
-			physicalInventoryItems,
-			eq(physicalInventoryItems.physical_inventory_id, physicalInventories.id)
-		)
-		.leftJoin(products, eq(products.id, physicalInventoryItems.product_id))
-		.leftJoin(categories, eq(categories.id, products.category_id))
-		.where(eq(physicalInventories.id, id));
+		}
+	});
 
-	const physicalInventory = {
-		id: result[0].id,
-		title: result[0].title,
-		status: result[0].status,
-		items: result.map((inventory) => ({
-			id: inventory.item.id as number,
-			product_id: inventory.item.product_id as number,
-			sku: inventory.item.sku as string,
-			purchase_description: inventory.item.purchase_description as string,
-			category: inventory.item.category as string,
-			system_count: inventory.item.system_count as number,
-			actual_count: inventory.item.actual_count as number,
-			difference: inventory.item.difference as number
+	if (!result) {
+		throw new Error(`Physical inventory with ID ${id} not found`);
+	}
+
+	return {
+		id: result.id,
+		title: result.title,
+		status: result.status,
+		items: result.physicalInventoryItems.map((item) => ({
+			id: item.id,
+			product_id: item.product_id,
+			sku: item.product.sku,
+			purchase_description: item.product.purchase_description,
+			category: item.product.category?.name ?? '',
+			system_count: item.system_count,
+			actual_count: item.actual_count,
+			difference: item.difference
 		}))
 	};
-
-	// remove items with no id
-	physicalInventory.items = physicalInventory.items.filter((item) => item.id);
-
-	return physicalInventory;
 };
 
 export const getInventories = async () => {
@@ -93,17 +85,29 @@ export const getInventories = async () => {
 };
 
 export const upsertInventoryItems = async (data: CreateInventoryItems) => {
-	const physicalInventoryId = data.items[0].physical_inventory_id;
-
 	await db.transaction(async (tx) => {
 		await tx
 			.update(physicalInventories)
-			.set({ status: data.status })
-			.where(eq(physicalInventories.id, physicalInventoryId));
+			.set({
+				status: data.status,
+				date_finalized: data.status === 'finalized' ? new Date() : null
+			})
+			.where(eq(physicalInventories.id, data.physical_inventory_id));
+
+		if (!data.items.length) return;
 
 		await tx
 			.insert(physicalInventoryItems)
-			.values(Object(data.items))
+			.values(
+				data.items.map((item) => ({
+					...(item.id ? { id: item.id } : {}),
+					physical_inventory_id: data.physical_inventory_id,
+					product_id: item.product_id,
+					system_count: item.system_count,
+					actual_count: item.actual_count,
+					difference: item.difference
+				}))
+			)
 			.onConflictDoUpdate({
 				target: physicalInventoryItems.id,
 				set: {
