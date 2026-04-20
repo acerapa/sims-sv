@@ -21,7 +21,16 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import type { Bracket } from '$lib/types/global';
-	import { Trash, PhilippinePeso, Plus, Store, Users, Check, PackageSearch } from '@lucide/svelte';
+	import {
+		Trash,
+		PhilippinePeso,
+		Plus,
+		Store,
+		Users,
+		Check,
+		PackageSearch,
+		Package
+	} from '@lucide/svelte';
 	import {
 		Dialog,
 		DialogContent,
@@ -137,6 +146,21 @@
 			<Button variant="outline" href="settings/stores" class="flex items-center gap-2">
 				<Store />
 				Manage Stores
+			</Button>
+		</CardHeader>
+	</Card>
+	<Card>
+		<CardHeader class="flex items-center justify-between">
+			<div class="flex flex-col gap-1">
+				<CardTitle class="flex items-center gap-2">
+					<Package class="size-5 text-blue-500" />
+					<h2>Product Onhand Quantity Management</h2>
+				</CardTitle>
+				<CardDescription>Manage product onhand quantity across stores.</CardDescription>
+			</div>
+			<Button variant="outline" href="settings/products" class="flex items-center gap-2">
+				<Package />
+				Manage Products
 			</Button>
 		</CardHeader>
 	</Card>

@@ -275,6 +275,24 @@ export const getProductsPaginated = async (
 	};
 };
 
+export const updateProductQuantities = async (
+	updates: { product_id: number; quantity: number }[]
+) => {
+	if (!updates.length) return [];
+	return await db.transaction(async (tx) => {
+		const results = [];
+		for (const { product_id, quantity } of updates) {
+			const [row] = await tx
+				.update(products)
+				.set({ quantity })
+				.where(eq(products.id, product_id))
+				.returning({ id: products.id, quantity: products.quantity });
+			if (row) results.push(row);
+		}
+		return results;
+	});
+};
+
 export const getInventoryStats = async () => {
 	const [stats] = await db
 		.select({

@@ -14,6 +14,7 @@
 	let form = $derived(page.form);
 	let { parent_id = null, open = $bindable(false) }: Props = $props();
 	let errors = $derived(form?.errors);
+	let submitting = $state(false);
 
 	const handleCloseForm = () => {
 		open = false;
@@ -26,7 +27,14 @@
 <form
 	method="post"
 	action="/vendors/categories"
-	use:enhance
+	use:enhance={() => {
+		if (submitting) return;
+		submitting = true;
+		return async ({ update }) => {
+			await update();
+			submitting = false;
+		};
+	}}
 	class="ml-4 flex items-center gap-3"
 	transition:slide
 >
@@ -38,7 +46,12 @@
 	/>
 	<Input type="hidden" name="parent_id" value={parent_id} />
 	<div class="flex items-center gap-2">
-		<Button variant="ghost" type="submit" class="size-7 cursor-pointer hover:bg-green-500/10">
+		<Button
+			variant="ghost"
+			type="submit"
+			disabled={submitting}
+			class="size-7 cursor-pointer hover:bg-green-500/10"
+		>
 			<Check class="text-green-500" />
 		</Button>
 		<Button
