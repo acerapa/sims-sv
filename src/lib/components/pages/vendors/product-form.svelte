@@ -25,7 +25,7 @@
 	import SelectCategory from './categories/SelectCategory.svelte';
 	import BarcodeDisplay from './BarcodeDisplay.svelte';
 	import { applyAction, enhance } from '$app/forms';
-	import SupplierSelect from './SupplierSelect.svelte';
+	import SupplierSelect from './select-supplier.svelte';
 	import type { Product, Supplier } from '$lib/types/global';
 	import type { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
 	import { Checkbox } from '$lib/components/ui/checkbox';
@@ -124,7 +124,6 @@
 
 	const errors = $derived(form?.errors);
 	const issues = $derived(form?.issues);
-
 
 	const handlePurchaseDescriptionInput = () => {
 		if (isSameDescription) {

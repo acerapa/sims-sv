@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SupplierForm from '$lib/components/pages/vendors/suppliers/SupplierForm.svelte';
+	import SupplierForm from '$lib/components/pages/vendors/suppliers/supplier-form.svelte';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -27,7 +27,7 @@
 	import type { PageProps } from './$types';
 	import type { Supplier } from '$lib/types/global';
 
-	let { form, data }: PageProps = $props();
+	let { data }: PageProps = $props();
 	const suppliers = $derived(data.suppliers);
 
 	let viewSupplierOpen = $state(false);
@@ -46,13 +46,7 @@
 				<CardTitle>Suppliers</CardTitle>
 				<CardDescription>Manage your supplier relationships</CardDescription>
 			</div>
-			<SupplierForm {form} />
-			<SupplierForm
-				{form}
-				hasTrigger={false}
-				bind:open={viewSupplierOpen}
-				supplier={viewedSupplier}
-			/>
+			<SupplierForm hasTrigger={true} bind:open={viewSupplierOpen} supplier={viewedSupplier} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -84,9 +78,7 @@
 						<TableCell class="text-center">{supplier.product_count}</TableCell>
 						<TableCell>
 							<DropdownMenu>
-								<DropdownMenuTrigger
-									class={buttonVariants({ variant: 'ghost', size: 'icon' })}
-								>
+								<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
 									<Ellipsis class="size-4" />
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end">

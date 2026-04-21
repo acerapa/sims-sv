@@ -5,7 +5,7 @@
 	import type { Category } from '$lib/types/global';
 	import { ChevronsUpDown } from '@lucide/svelte';
 	import SelectCategoryItem from './SelectCategoryItem.svelte';
-	import { groupedCategories } from '$lib/utils/categories';
+	import { filterCategories, groupedCategories } from '$lib/utils/categories';
 	import { Input } from '$lib/components/ui/input';
 
 	let {
@@ -19,8 +19,9 @@
 		disabled?: boolean;
 		categoryId?: number | null;
 	} = $props();
+	let searchQuery = $state('');
 	let treeCategories: Category[] = $derived.by(() => {
-		return groupedCategories(categories);
+		return groupedCategories(filterCategories(categories, searchQuery));
 	});
 
 	let open = $state(false);
@@ -63,8 +64,8 @@
 		</Button>
 	</PopoverTrigger>
 	<PopoverContent class="w-[var(--bits-floating-anchor-width)] p-0">
-		<Command>
-			<CommandInput type="search" placeholder="Search category..." />
+		<Command shouldFilter={false}>
+			<CommandInput bind:value={searchQuery} type="search" placeholder="Search category..." />
 			<CommandList>
 				{#each treeCategories as category (category.id)}
 					<SelectCategoryItem {selectedCategory} {itemHandler} {category} hasInput={true} />

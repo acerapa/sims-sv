@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
+	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
@@ -22,19 +23,19 @@
 	import { toast } from 'svelte-sonner';
 
 	let {
-		form,
 		supplier = null,
 		insertedSupplier = $bindable<Supplier | null>(null),
 		hasTrigger = $bindable<boolean>(true),
-		open = $bindable<boolean>(false)
+		open = $bindable<boolean>(false),
+		onSuccess = $bindable<(supplierId: number) => void>(() => {})
 	}: {
-		form: any;
 		supplier?: Supplier | null;
 		insertedSupplier?: Supplier | null;
 		hasTrigger?: boolean;
 		open?: boolean;
+		onSuccess?: (supplierId: number) => void;
 	} = $props();
-	const errors = $derived(form?.errors);
+	let errors = $derived(page.form?.errors);
 	const isView = $derived(!!supplier);
 
 	const formEnhance: SubmitFunction = async () => {
@@ -43,7 +44,8 @@
 			if (result.type === 'success') {
 				open = false;
 				insertedSupplier = result.data ? result.data[0] : null;
-				await invalidate('vendors');
+				await invalidateAll();
+				onSuccess(result.data ? result.data[0].id : 0);
 				toast.success('Supplier added successfully');
 			} else {
 				toast.error('Failed to add supplier');
@@ -53,8 +55,8 @@
 
 	$effect(() => {
 		if (!open) {
-			if (form) {
-				form = null;
+			if (errors) {
+				errors = null;
 			}
 		}
 	});
@@ -89,10 +91,7 @@
 								<Input
 									disabled={isView}
 									value={supplier?.name ?? ''}
-									class={[
-										'disabled:opacity-100',
-										errors?.properties?.name ? 'border-red-500' : ''
-									]}
+									class={['disabled:opacity-100', errors?.properties?.name ? 'border-red-500' : '']}
 									id="name"
 									name="name"
 									type="text"

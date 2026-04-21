@@ -27,7 +27,7 @@
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import SupplierForm from '$lib/components/pages/vendors/suppliers/SupplierForm.svelte';
+	import SupplierForm from '$lib/components/pages/vendors/suppliers/supplier-form.svelte';
 
 	let { data, form }: PageProps = $props();
 
@@ -93,7 +93,7 @@
 </svelte:head>
 
 <div class="mb-6 flex flex-col gap-6">
-	<SupplierForm bind:open={openSupplierForm} {form} bind:insertedSupplier hasTrigger={false} />
+	<SupplierForm bind:open={openSupplierForm} bind:insertedSupplier hasTrigger={false} />
 	<form class="flex flex-col gap-6" method="post" action="?/receivePo" use:enhance={submitForm}>
 		<Card class="rounded-lg">
 			<CardHeader>
