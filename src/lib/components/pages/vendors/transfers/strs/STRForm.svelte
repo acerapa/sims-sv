@@ -48,9 +48,12 @@
 			errors = null;
 		}
 	};
+
+	const openStoresForm = () => {
+		showStoresForm = true;
+	};
 </script>
 
-<StoresForm bind:open={showStoresForm} />
 <Sheet bind:open {onOpenChangeComplete}>
 	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}>
 		<Plus />
@@ -80,7 +83,7 @@
 											{selectedStore ? selectedStore.name : 'Select Store'}
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="0">Add Store</SelectItem>
+											<SelectItem value="0" onclick={openStoresForm}>Add Store</SelectItem>
 											{#each stores as store (store.id)}
 												<SelectItem value={store.id}>{store.name}</SelectItem>
 											{/each}
@@ -124,3 +127,4 @@
 		</form>
 	</SheetContent>
 </Sheet>
+<StoresForm hasTrigger={false} bind:open={showStoresForm} />

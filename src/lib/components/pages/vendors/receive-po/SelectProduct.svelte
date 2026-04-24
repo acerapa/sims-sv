@@ -8,7 +8,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import ProductCombobox from '$lib/components/common/ProductCombobox.svelte';
 	import {
 		Table,
 		TableBody,
@@ -196,38 +196,16 @@
 						<TableRow>
 							<TableCell class="w-96 align-top">
 								<div>
-									<Select
-										name={`products.${i}.product_id`}
-										onValueChange={() => onSelectProduct(i)}
-										type="single"
+									<ProductCombobox
+										{products}
 										bind:value={items[i].product_id}
-									>
-										<SelectTrigger
-											class={['w-full', groupedIssues[i]?.product_id ? 'border-red-500' : '']}
-										>
-											{getProduct(parseInt(items[i].product_id))
-												? getProduct(parseInt(items[i].product_id))?.purchase_description
-												: 'Select Product'}
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem onclick={() => onOpenProductForm(i)} value="0">
-												Add product
-											</SelectItem>
-											{#if !products.length}
-												<SelectItem value="" disabled>No Products available</SelectItem>
-											{/if}
-											{#each products as product (product.id)}
-												<SelectItem
-													disabled={items.some(
-														(item) => parseInt(item.product_id) === product.id
-													)}
-													value={product.id.toString()}
-												>
-													{product.purchase_description}
-												</SelectItem>
-											{/each}
-										</SelectContent>
-									</Select>
+										name={`products.${i}.product_id`}
+										getLabel={(p) => p.purchase_description ?? ''}
+										hasError={!!groupedIssues[i]?.product_id}
+										disabledIds={items.map((it) => parseInt(it.product_id)).filter(Boolean)}
+										onSelect={() => onSelectProduct(i)}
+										onAddNew={() => onOpenProductForm(i)}
+									/>
 									{#if groupedIssues[i]?.product_id}
 										<small class="text-red-500">
 											{groupedIssues[i]?.product_id}

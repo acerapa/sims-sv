@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import ProductCombobox from '$lib/components/common/ProductCombobox.svelte';
 	import {
 		Table,
 		TableBody,
@@ -34,11 +34,6 @@
 			cost: 0,
 			total_cost: 0
 		});
-	};
-
-	const getProductName = (product_id: string): string | null => {
-		const product = products.find((product) => product.id === parseInt(product_id));
-		return product ? product.purchase_description : null;
 	};
 
 	const onSelectProduct = (ndx: number) => {
@@ -98,30 +93,15 @@
 						<TableRow>
 							<TableCell class="align-top">
 								<div>
-									<Select
-										onValueChange={() => onSelectProduct(ndx)}
-										type="single"
-										name={`items.${ndx}.product_id`}
+									<ProductCombobox
+										{products}
 										bind:value={items[ndx].product_id}
-									>
-										<SelectTrigger
-											class={errors && errors[ndx]?.properties?.product_id ? 'border-red-500' : ''}
-										>
-											{getProductName(items[ndx].product_id)
-												? getProductName(items[ndx].product_id)
-												: 'Select Product'}
-										</SelectTrigger>
-										<SelectContent class="max-h-96">
-											{#each products as product (product.id)}
-												<SelectItem
-													disabled={items.some((item) => parseInt(item.product_id) === product.id)}
-													value={product.id.toString()}
-												>
-													{product.purchase_description}
-												</SelectItem>
-											{/each}
-										</SelectContent>
-									</Select>
+										name={`items.${ndx}.product_id`}
+										getLabel={(p) => p.purchase_description ?? ''}
+										hasError={!!(errors && errors[ndx]?.properties?.product_id)}
+										disabledIds={items.map((it) => parseInt(it.product_id)).filter(Boolean)}
+										onSelect={() => onSelectProduct(ndx)}
+									/>
 									{#if errors && errors[ndx]?.properties?.product_id}
 										<small class="text-red-500">
 											{errors[ndx]?.properties?.product_id.errors[0]}

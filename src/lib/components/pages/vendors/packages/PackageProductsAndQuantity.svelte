@@ -1,13 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import {
-		Select,
-		SelectContent,
-		SelectGroup,
-		SelectItem,
-		SelectTrigger
-	} from '$lib/components/ui/select';
+	import ProductCombobox from '$lib/components/common/ProductCombobox.svelte';
 	import {
 		Table,
 		TableBody,
@@ -58,11 +52,6 @@
 		return grouped;
 	});
 
-	const getProductLabel = (id: number): string | null => {
-		const p = products.find((p) => p.id === id);
-		return p ? `${p.sku} — ${p.sales_description}` : null;
-	};
-
 	export const addRow = () => {
 		rows.push({ product_id: '', quantity: 1 });
 	};
@@ -87,35 +76,18 @@
 				<TableRow>
 					<TableCell class="align-top">
 						<div>
-							<Select
+							<ProductCombobox
+								{products}
 								{disabled}
-								name={`products.${ndx}.product_id`}
-								type="single"
 								bind:value={rows[ndx].product_id}
-							>
-								<SelectTrigger
-									class={[
-										'w-full min-w-xs disabled:opacity-100',
-										groupedIssues[ndx]?.product_id ? 'border-red-500' : ''
-									]}
-								>
-									{getProductLabel(parseInt(row.product_id)) ?? 'Select Product'}
-								</SelectTrigger>
-								<SelectContent>
-									<SelectGroup>
-										{#each products as product (product.id)}
-											<SelectItem
-												disabled={rows.some(
-													(r, i) => i !== ndx && parseInt(r.product_id) === product.id
-												)}
-												value={product.id.toString()}
-											>
-												{product.sku} — {product.sales_description}
-											</SelectItem>
-										{/each}
-									</SelectGroup>
-								</SelectContent>
-							</Select>
+								name={`products.${ndx}.product_id`}
+								getLabel={(p) => `${p.sku} — ${p.sales_description}`}
+								hasError={!!groupedIssues[ndx]?.product_id}
+								disabledIds={rows
+									.filter((_, i) => i !== ndx)
+									.map((r) => parseInt(r.product_id))
+									.filter(Boolean)}
+							/>
 							{#if groupedIssues[ndx]?.product_id}
 								<small class="text-red-500">{groupedIssues[ndx]?.product_id}</small>
 							{/if}

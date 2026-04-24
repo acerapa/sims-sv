@@ -21,8 +21,11 @@
 	import { toast } from 'svelte-sonner';
 	import { page } from '$app/state';
 
-	let { open = $bindable(false), onSuccess = $bindable<(clientId: number) => void>(() => {}) } =
-		$props();
+	let {
+		open = $bindable(false),
+		onSuccess = $bindable<(clientId: number) => void>(() => {}),
+		hasTrigger = $bindable(true)
+	} = $props();
 	let errors = $derived(page.form?.errors);
 	let managers = $derived(page.data?.managers || []);
 	let isActive = $state(false);
@@ -51,10 +54,12 @@
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
-	<SheetTrigger class={buttonVariants({ variant: 'default' })}>
-		<Plus />
-		Add Store
-	</SheetTrigger>
+	{#if hasTrigger}
+		<SheetTrigger class={buttonVariants({ variant: 'default' })}>
+			<Plus />
+			Add Store
+		</SheetTrigger>
+	{/if}
 	<SheetContent side="right" class="sm:!max-w-2xl">
 		<SheetHeader>
 			<SheetTitle>Add Store</SheetTitle>
