@@ -59,12 +59,21 @@
 	} = $props();
 
 	let edit = $state(false);
+	let skuOpen = $state(false);
 	let skuValue = $state<string>(product?.sku ?? '');
 	let costValue = $state<number>(0);
 	let salePriceValue = $state<number>(0);
 	let selectedBracketId = $derived<string>(
 		product ? product?.selling_bracket_id?.toString() : 'auto'
 	);
+	let productSkus = $derived.by(() => {
+		let skus = page.data.products?.map((e) => e.sku);
+		return skuValue
+			? skus.filter((sku: string) =>
+					sku.toLocaleLowerCase().startsWith(skuValue.toLocaleLowerCase())
+				)
+			: skus;
+	});
 
 	let matchedBracket = $derived.by(() => {
 		if (!costValue || costValue <= 0) return null;
@@ -228,7 +237,7 @@
 						<div class="flex flex-col gap-6">
 							<div class="space-y-2">
 								<Label>Item Code / SKU</Label>
-								<div>
+								<div class="relative">
 									<Input
 										disabled={!!product && !edit}
 										bind:value={skuValue}
@@ -238,8 +247,26 @@
 										]}
 										type="text"
 										name="sku"
+										onkeydown={() => {
+											skuOpen = true;
+										}}
+										onblur={() => {
+											skuOpen = false;
+										}}
 										placeholder="e.g. WH-2025-0001"
 									/>
+									{#if skuOpen && skuValue}
+										<div
+											class="absolute top-9 left-0 z-10 flex w-full transform flex-col gap-1 rounded border bg-white p-2"
+										>
+											{#if productSkus.length == 0}
+												<p class="text-sm text-foreground">No matches found</p>
+											{/if}
+											{#each productSkus as sku (sku)}
+												<p class="text-sm text-foreground">{sku}</p>
+											{/each}
+										</div>
+									{/if}
 									{#if errors?.properties?.sku}
 										<small class="text-red-500">{errors.properties.sku.errors[0]}</small>
 									{/if}
