@@ -239,6 +239,7 @@
 								<Label>Item Code / SKU</Label>
 								<div class="relative">
 									<Input
+										autocomplete="off"
 										disabled={!!product && !edit}
 										bind:value={skuValue}
 										class={[
@@ -247,7 +248,7 @@
 										]}
 										type="text"
 										name="sku"
-										onkeydown={() => {
+										onfocus={() => {
 											skuOpen = true;
 										}}
 										onblur={() => {
@@ -255,7 +256,7 @@
 										}}
 										placeholder="e.g. WH-2025-0001"
 									/>
-									{#if skuOpen && skuValue}
+									{#if skuOpen}
 										<div
 											class="absolute top-9 left-0 z-10 flex w-full transform flex-col gap-1 rounded border bg-white p-2"
 										>
