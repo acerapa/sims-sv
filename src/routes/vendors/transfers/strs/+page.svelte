@@ -1,6 +1,6 @@
 <script lang="ts">
 	import STRForm from '$lib/components/pages/vendors/transfers/strs/STRForm.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -17,14 +17,24 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, Search } from '@lucide/svelte';
+	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { setContext } from 'svelte';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
 
 	let { data, form }: PageProps = $props();
 	const stores = $derived(data?.stores || []);
 	const products = $derived(data?.products || []);
 	const strs = $derived(data?.strs || []);
+
+	const onViewStr = (id: number) => {
+		console.log('View', id);
+	};
 
 	setContext('products', () => products);
 </script>
@@ -68,9 +78,17 @@
 						</TableCell>
 						<TableCell class="text-center">{str.items_count}</TableCell>
 						<TableCell>
-							<Button variant="ghost">
-								<Ellipsis />
-							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+									<Ellipsis />
+								</DropdownMenuTrigger>
+								<DropdownMenuContent>
+									<DropdownMenuItem onSelect={() => onViewStr(str.id)} class="space-x-2">
+										<Eye />
+										<span>View</span>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</TableCell>
 					</TableRow>
 				{/each}
