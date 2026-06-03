@@ -9,10 +9,11 @@
 	interface Props {
 		parent_id?: number | null;
 		open?: boolean;
+		onSubmitted?: () => void;
 	}
 
 	let form = $derived(page.form);
-	let { parent_id = null, open = $bindable(false) }: Props = $props();
+	let { parent_id = null, open = $bindable(false), onSubmitted }: Props = $props();
 	let errors = $derived(form?.errors);
 	let submitting = $state(false);
 
@@ -33,6 +34,7 @@
 		return async ({ update }) => {
 			await update();
 			submitting = false;
+			if (onSubmitted) onSubmitted();
 		};
 	}}
 	class="ml-4 flex items-center gap-3"

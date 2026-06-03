@@ -228,17 +228,14 @@ export const getProductsPaginated = async (
 
 	// Build search condition
 	const searchCondition = search
-		? or(
-				ilike(products.sku, `%${search}%`),
-				ilike(products.purchase_description, `%${search}%`)
-			)
+		? or(ilike(products.sku, `%${search}%`), ilike(products.purchase_description, `%${search}%`))
 		: undefined;
 
 	// Get total count
 	const [{ total }] = await db.select({ total: count() }).from(products).where(searchCondition);
 
 	// Get paginated products with relations
-	const paginatedProducts = await db.query.products.findMany({
+	let paginatedProducts = await db.query.products.findMany({
 		where: searchCondition,
 		orderBy: [orderFn(sortColumn)],
 		limit,
@@ -265,6 +262,11 @@ export const getProductsPaginated = async (
 			}
 		}
 	});
+
+	// sorting by category name in alphabetical order
+	paginatedProducts = paginatedProducts.sort((a, b) =>
+		a.category.name.localeCompare(b.category.name)
+	);
 
 	return {
 		products: paginatedProducts,

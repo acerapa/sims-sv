@@ -107,9 +107,7 @@
 		const params = new URLSearchParams(page.url.searchParams);
 		params.set('id', String(productId));
 		await goto(`?${params.toString()}`);
-		preSelectedSuppliers = (product?.productToSuppliers ?? []).map((s) =>
-			s.supplier_id.toString()
-		);
+		preSelectedSuppliers = (product?.productToSuppliers ?? []).map((s) => s.supplier_id.toString());
 		openProductForm = true;
 	};
 

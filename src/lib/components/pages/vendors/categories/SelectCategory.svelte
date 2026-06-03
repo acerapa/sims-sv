@@ -7,6 +7,7 @@
 	import SelectCategoryItem from './SelectCategoryItem.svelte';
 	import { filterCategories, groupedCategories } from '$lib/utils/categories';
 	import { Input } from '$lib/components/ui/input';
+	import CategoryCommandInput from './CategoryCommandInput.svelte';
 
 	let {
 		error,
@@ -65,7 +66,7 @@
 	</PopoverTrigger>
 	<PopoverContent class="w-[var(--bits-floating-anchor-width)] p-0">
 		<Command shouldFilter={false}>
-			<CommandInput bind:value={searchQuery} type="search" placeholder="Search category..." />
+			<CategoryCommandInput bind:searchQuery />
 			<CommandList>
 				{#each treeCategories as category (category.id)}
 					<SelectCategoryItem {selectedCategory} {itemHandler} {category} hasInput={true} />
