@@ -26,14 +26,19 @@
 		DropdownMenuItem,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let { data, form }: PageProps = $props();
+	const str = $derived(data?.str || null);
 	const stores = $derived(data?.stores || []);
 	const products = $derived(data?.products || []);
 	const strs = $derived(data?.strs || []);
+	let openStrForm = $state(false);
 
-	const onViewStr = (id: number) => {
-		console.log('View', id);
+	const onViewStr = async (id: number) => {
+		openStrForm = true;
+		await goto(resolve(`/vendors/transfers/strs?id=${id}` as `/vendors/transfers/strs`));
 	};
 
 	setContext('products', () => products);
@@ -46,7 +51,7 @@
 				<CardTitle>Stock Transfer Requests</CardTitle>
 				<CardDescription>Track and manage inventory transfers between locations</CardDescription>
 			</div>
-			<STRForm {form} {stores} />
+			<STRForm bind:open={openStrForm} {str} {form} {stores} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">

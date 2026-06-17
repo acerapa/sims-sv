@@ -88,3 +88,21 @@ export const getStrs = async () => {
 		.groupBy(strs.id, strs.store_id, strs.transfer_date, strs.notes, strs.created_at, stores.name)
 		.orderBy(desc(strs.created_at));
 };
+
+export const getStrById = async (id: number) => {
+	const [str] = await db
+		.select({
+			id: strs.id,
+			store_id: strs.store_id,
+			transfer_date: strs.transfer_date,
+			notes: strs.notes,
+			store_name: stores.name,
+			items_count: count(strItems.id)
+		})
+		.from(strs)
+		.leftJoin(stores, eq(stores.id, strs.store_id))
+		.leftJoin(strItems, eq(strItems.str_id, strs.id))
+		.where(eq(strs.id, id))
+		.groupBy(strs.id, strs.store_id, strs.transfer_date, strs.notes, strs.created_at, stores.name);
+	return str;
+};

@@ -20,11 +20,14 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { applyAction, enhance } from '$app/forms';
 	import { toast } from 'svelte-sonner';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import StoresForm from '$lib/components/pages/settings/stores/StoresForm.svelte';
+	import { resolve } from '$app/paths';
 
-	let { stores, form = null, open = $bindable(false) } = $props();
-	let storeId = $state('');
+	let { stores, form = null, open = $bindable(false), str = $bindable(null) } = $props();
+	let storeId = $derived(str?.store_id ?? '');
+	let transferDate = $derived(str?.transfer_date ?? '');
+	let notes = $derived(str?.notes ?? '');
 	let selectedStore = $derived.by(() => stores.find((store) => store.id === parseInt(storeId)));
 	let errors = $derived(form?.errors);
 	let showStoresForm = $state(false);
@@ -46,6 +49,7 @@
 		if (!state) {
 			storeId = '';
 			errors = null;
+			goto(resolve('/vendors/transfers/strs'));
 		}
 	};
 
@@ -100,6 +104,7 @@
 									<DatePicker
 										error={errors?.properties?.transfer_date ? true : false}
 										name="transfer_date"
+										bind:value={transferDate}
 									/>
 									{#if errors?.properties?.transfer_date}
 										<small class="text-red-500">
@@ -112,6 +117,7 @@
 								<Label>Notes</Label>
 								<Textarea
 									name="notes"
+									bind:value={notes}
 									placeholder="Add any additional notes about this transfer..."
 								/>
 							</div>

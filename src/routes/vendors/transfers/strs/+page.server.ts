@@ -2,12 +2,17 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { fail } from '@sveltejs/kit';
-import { createStr, getStrs, type CreateSTRData } from '$lib/server/db/queries/strs';
+import { createStr, getStrById, getStrs, type CreateSTRData } from '$lib/server/db/queries/strs';
 
-export const load: PageServerLoad = async ({ depends }) => {
+export const load: PageServerLoad = async ({ url, depends }) => {
 	depends('transfers:strs');
+	const strId = url.searchParams.get('id');
+	let str = null;
+	if (strId) {
+		str = await getStrById(Number(strId));
+	}
 	const strs = await getStrs();
-	return { strs };
+	return { strs, str };
 };
 
 export const actions: Actions = {
