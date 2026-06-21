@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import IBRRForm from '$lib/components/pages/vendors/transfers/ibrrs/IBRRForm.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -21,6 +23,13 @@
 	import { Ellipsis, Search } from '@lucide/svelte';
 
 	const ibrrs = $derived(page.data.ibrrs);
+	let openIbrrForm = $state(false);
+
+	const onViewIbrr = async (ibrrId: number) => {
+		console.log(ibrrId);
+		openIbrrForm = true;
+		await goto(resolve(`/vendors/transfers/ibrrs?id=${ibrrId}` as '/vendors/transfers/ibrrs'));
+	};
 </script>
 
 <Card>
@@ -65,7 +74,7 @@
 						</TableCell>
 						<TableCell class="text-center">{ibrr.items_count}</TableCell>
 						<TableCell>
-							<Button variant="ghost" size="icon">
+							<Button variant="ghost" size="icon" onclick={() => onViewIbrr(ibrr.id)}>
 								<Ellipsis class="size-4" />
 							</Button>
 						</TableCell>
