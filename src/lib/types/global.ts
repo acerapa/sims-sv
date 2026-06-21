@@ -4,13 +4,13 @@ export interface PurchaseOrder {
 	supplier_id: number;
 	date_received: Date;
 	notes: string;
-	items: PurchaseOrderItem[];
+	items: TransactionItem[];
 	discount: number;
 	subtotal: number;
 	total: number;
 }
 
-export interface PurchaseOrderItem {
+export interface TransactionItem {
 	id: number;
 	product_id: number;
 	quantity: number;

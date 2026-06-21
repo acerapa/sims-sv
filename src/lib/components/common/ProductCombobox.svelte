@@ -57,7 +57,9 @@
 			]}
 		>
 			{selectedProduct ? getLabel(selectedProduct) : placeholder}
-			<ChevronsUpDown class="opacity-50" />
+			{#if !disabled}
+				<ChevronsUpDown class="opacity-50" />
+			{/if}
 		</Button>
 	</PopoverTrigger>
 	<PopoverContent class="w-[var(--bits-floating-anchor-width)] p-0">

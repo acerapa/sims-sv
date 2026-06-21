@@ -31,6 +31,7 @@
 	let selectedStore = $derived.by(() => stores.find((store) => store.id === parseInt(storeId)));
 	let errors = $derived(form?.errors);
 	let showStoresForm = $state(false);
+	let isViewOnly = $derived(str?.id !== undefined);
 
 	const enhanceForm: SubmitFunction = async () => {
 		return async ({ result }) => {
@@ -124,12 +125,18 @@
 						</div>
 					</CardContent>
 				</Card>
-				<STRItems />
+				{#key str?.items}
+					<STRItems {isViewOnly} initialItems={str?.items} />
+				{/key}
 			</div>
-			<SheetFooter class="flex-row justify-end">
-				<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
-				<Button type="submit" variant="default">Add STR</Button>
-			</SheetFooter>
+			{#if !isViewOnly}
+				<SheetFooter class="flex-row justify-end">
+					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
+						Cancel
+					</SheetClose>
+					<Button type="submit" variant="default">Add STR</Button>
+				</SheetFooter>
+			{/if}
 		</form>
 	</SheetContent>
 </Sheet>

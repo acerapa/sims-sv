@@ -12,20 +12,30 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import type { Product } from '$lib/types/global';
+	import type { Product, TransactionItem } from '$lib/types/global';
 	import { Plus, Trash } from '@lucide/svelte';
 
+	type ProductItem = Omit<TransactionItem, 'id' | 'product_id'> & {
+		id?: number;
+		product_id: string;
+	};
+
+	let { isViewOnly = $bindable(false), initialItems = $bindable<ProductItem[]>([]) } = $props();
 	const products = $derived<Product[]>(page.data.products);
 	let errors: typeof page.form.errors = $derived(page.form?.errors?.properties?.items?.items);
 
-	const items = $state([
-		{
-			product_id: '',
-			quantity: 1,
-			cost: 0,
-			total_cost: 0
-		}
-	]);
+	const items = $state<ProductItem[]>(
+		initialItems.length
+			? initialItems
+			: [
+					{
+						product_id: '',
+						quantity: 1,
+						cost: 0,
+						total_cost: 0
+					}
+				]
+	);
 
 	const addItem = () => {
 		items.push({
@@ -70,10 +80,12 @@
 	<CardHeader>
 		<div class="flex items-center justify-between">
 			<CardTitle>Items</CardTitle>
-			<Button variant="outline" onclick={addItem}>
-				<Plus />
-				Add Item
-			</Button>
+			{#if !isViewOnly}
+				<Button variant="outline" onclick={addItem}>
+					<Plus />
+					Add Item
+				</Button>
+			{/if}
 		</div>
 	</CardHeader>
 	<CardContent>
@@ -94,6 +106,7 @@
 							<TableCell class="align-top">
 								<div>
 									<ProductCombobox
+										disabled={isViewOnly}
 										{products}
 										bind:value={items[ndx].product_id}
 										name={`items.${ndx}.product_id`}
@@ -112,6 +125,7 @@
 							<TableCell class="align-top">
 								<Input
 									type="number"
+									disabled={isViewOnly}
 									onchange={() => onQuantityUpdate(ndx)}
 									name={`items.${ndx}.quantity`}
 									bind:value={items[ndx].quantity}

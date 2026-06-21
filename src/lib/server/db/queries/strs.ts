@@ -89,20 +89,34 @@ export const getStrs = async () => {
 		.orderBy(desc(strs.created_at));
 };
 
-export const getStrById = async (id: number) => {
-	const [str] = await db
+export const getStrById = async (strId: number) => {
+	const rows = await db
 		.select({
 			id: strs.id,
 			store_id: strs.store_id,
 			transfer_date: strs.transfer_date,
 			notes: strs.notes,
 			store_name: stores.name,
-			items_count: count(strItems.id)
+			str_item_id: strItems.id,
+			product_id: strItems.product_id,
+			quantity: strItems.quantity,
+			cost: strItems.cost,
+			total_cost: strItems.total_cost
 		})
 		.from(strs)
 		.leftJoin(stores, eq(stores.id, strs.store_id))
 		.leftJoin(strItems, eq(strItems.str_id, strs.id))
-		.where(eq(strs.id, id))
-		.groupBy(strs.id, strs.store_id, strs.transfer_date, strs.notes, strs.created_at, stores.name);
-	return str;
+		.where(eq(strs.id, strId));
+
+	if (rows.length === 0) return undefined;
+
+	const { id, store_id, transfer_date, notes, store_name } = rows[0];
+	const items = rows.map((row) => ({
+		str_item_id: row.str_item_id,
+		product_id: row.product_id,
+		quantity: row.quantity,
+		cost: row.cost,
+		total_cost: row.total_cost
+	}));
+	return { id, store_id, transfer_date, notes, store_name, items_count: items.length, items };
 };
