@@ -81,7 +81,7 @@
 							<div class="space-y-2">
 								<Label>Destination</Label>
 								<div>
-									<Select type="single" name="store_id" bind:value={storeId}>
+									<Select disabled={isViewOnly} type="single" name="store_id" bind:value={storeId}>
 										<SelectTrigger
 											class={['w-full', errors?.properties?.store_id ? 'border-red-500' : '']}
 										>
@@ -103,6 +103,7 @@
 								<Label>Transfer date</Label>
 								<div>
 									<DatePicker
+										disabled={isViewOnly}
 										error={errors?.properties?.transfer_date ? true : false}
 										name="transfer_date"
 										bind:value={transferDate}
@@ -117,6 +118,7 @@
 							<div class="space-y-2">
 								<Label>Notes</Label>
 								<Textarea
+									readonly={isViewOnly}
 									name="notes"
 									bind:value={notes}
 									placeholder="Add any additional notes about this transfer..."

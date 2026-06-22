@@ -27,7 +27,10 @@
 	let { open = $bindable(false), isViewOnly = $bindable(false), rma = $bindable(null) } = $props();
 	const suppliers = $derived(page.data.suppliers);
 	const errors = $derived(page.form?.errors);
-	let supplierId = $state('');
+
+	let notes = $state(rma?.notes || '');
+	let transferDate = $state(rma?.date_returned || '');
+	let supplierId = $state(rma?.supplier_id || '');
 	const selectedSupplier = $derived(
 		suppliers.find((supplier) => supplier.id === parseInt(supplierId))
 	);
@@ -84,6 +87,7 @@
 								<Label>Supplier</Label>
 								<div>
 									<Select
+										disabled={isViewOnly}
 										onValueChange={handleSupplierIdChange}
 										type="single"
 										name="supplier_id"
@@ -109,6 +113,8 @@
 								<Label>Transfer date</Label>
 								<div>
 									<DatePicker
+										disabled={isViewOnly}
+										bind:value={transferDate}
 										error={errors?.properties?.date_returned ? true : false}
 										name="date_returned"
 									/>
@@ -122,6 +128,8 @@
 							<div class="space-y-2">
 								<Label>Notes</Label>
 								<Textarea
+									readonly={isViewOnly}
+									bind:value={notes}
 									name="notes"
 									placeholder="Add any additional notes about this transfer..."
 								/>
@@ -129,12 +137,18 @@
 						</div>
 					</CardContent>
 				</Card>
-				<RMAItems />
+				{#key rma?.items}
+					<RMAItems initialItems={rma?.items} {isViewOnly} />
+				{/key}
 			</div>
-			<SheetFooter class="flex-row justify-end">
-				<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
-				<Button type="submit" variant="default">Add RMA</Button>
-			</SheetFooter>
+			{#if !isViewOnly}
+				<SheetFooter class="flex-row justify-end">
+					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}
+						>Cancel</SheetClose
+					>
+					<Button type="submit" variant="default">Add RMA</Button>
+				</SheetFooter>
+			{/if}
 		</form>
 	</SheetContent>
 </Sheet>

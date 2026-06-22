@@ -45,7 +45,9 @@
 				<CardTitle>Return Merchandise Authorization</CardTitle>
 				<CardDescription>Manage returns to suppliers</CardDescription>
 			</div>
-			<RMAForm bind:open={openRmaForm} bind:rma isViewOnly={rma !== null} />
+			{#key rma}
+				<RMAForm bind:open={openRmaForm} bind:rma isViewOnly={rma !== null} />
+			{/key}
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">

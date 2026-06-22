@@ -12,21 +12,32 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import type { Product } from '$lib/types/global';
+	import type { Product, TransactionItem } from '$lib/types/global';
 	import { Plus, Trash } from '@lucide/svelte';
 
+	type ProductItem = Omit<TransactionItem, 'id' | 'product_id'> & {
+		id?: number;
+		product_id: string;
+		serial_number: string;
+	};
+
+	let { initialItems = $bindable<ProductItem[]>([]), isViewOnly = $bindable(false) } = $props();
 	const products = $derived<Product[]>(page.data.products ?? []);
 	let errors: typeof page.form.errors = $derived(page.form?.errors?.properties?.items?.items);
 
-	const items = $state([
-		{
-			product_id: '',
-			quantity: 1,
-			cost: 0,
-			total_cost: 0,
-			serial_number: ''
-		}
-	]);
+	const items = $state<ProductItem[]>(
+		initialItems.length
+			? initialItems
+			: [
+					{
+						product_id: '',
+						quantity: 1,
+						cost: 0,
+						total_cost: 0,
+						serial_number: ''
+					}
+				]
+	);
 
 	const addItem = () => {
 		items.push({
@@ -72,10 +83,12 @@
 	<CardHeader>
 		<div class="flex items-center justify-between">
 			<CardTitle>Items</CardTitle>
-			<Button variant="outline" onclick={addItem}>
-				<Plus />
-				Add Item
-			</Button>
+			{#if !isViewOnly}
+				<Button variant="outline" onclick={addItem}>
+					<Plus />
+					Add Item
+				</Button>
+			{/if}
 		</div>
 	</CardHeader>
 	<CardContent>
@@ -97,6 +110,7 @@
 							<div>
 								<ProductCombobox
 									{products}
+									disabled={isViewOnly}
 									bind:value={items[ndx].product_id}
 									name={`items.${ndx}.product_id`}
 									getLabel={(p) => p.purchase_description ?? ''}
@@ -114,6 +128,7 @@
 						<TableCell class="align-top">
 							<Input
 								type="text"
+								readonly={isViewOnly}
 								placeholder="Serial Number"
 								name={`items.${ndx}.serial_number`}
 								bind:value={items[ndx].serial_number}
@@ -122,6 +137,7 @@
 						<TableCell class="align-top">
 							<Input
 								type="number"
+								readonly={isViewOnly}
 								onchange={() => onQuantityUpdate(ndx)}
 								name={`items.${ndx}.quantity`}
 								bind:value={items[ndx].quantity}
@@ -144,7 +160,11 @@
 							/>
 						</TableCell>
 						<TableCell class="align-top">
-							<Button disabled={items.length === 1} variant="ghost" onclick={() => removeItem(ndx)}>
+							<Button
+								disabled={items.length === 1 || isViewOnly}
+								variant="ghost"
+								onclick={() => removeItem(ndx)}
+							>
 								<Trash class="text-red-500" />
 							</Button>
 						</TableCell>
