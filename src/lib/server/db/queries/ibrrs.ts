@@ -91,3 +91,46 @@ export const getIBRRs = async () => {
 		.groupBy(ibrrs.id, ibrrs.source_store_id, ibrrs.str_id, ibrrs.received_date, stores.name)
 		.orderBy(desc(ibrrs.received_date));
 };
+
+export const getIBRRById = async (ibrrId: number) => {
+	const rows = await db
+		.select({
+			id: ibrrs.id,
+			source_store_id: ibrrs.source_store_id,
+			source_store_name: stores.name,
+			str_id: ibrrs.str_id,
+			notes: ibrrs.notes,
+			received_date: ibrrs.received_date,
+			ibrr_item_id: ibrrItems.id,
+			product_id: ibrrItems.product_id,
+			quantity: ibrrItems.quantity,
+			cost: ibrrItems.cost,
+			total_cost: ibrrItems.total_cost
+		})
+		.from(ibrrs)
+		.leftJoin(stores, eq(stores.id, ibrrs.source_store_id))
+		.leftJoin(ibrrItems, eq(ibrrItems.ibrr_id, ibrrs.id))
+		.where(eq(ibrrs.id, ibrrId));
+
+	if (rows.length === 0) return undefined;
+
+	const { id, source_store_id, source_store_name, str_id, received_date, notes } = rows[0];
+	const items = rows.map((row) => ({
+		ibrr_item_id: row.ibrr_item_id,
+		product_id: row.product_id,
+		quantity: row.quantity,
+		cost: row.cost,
+		total_cost: row.total_cost
+	}));
+
+	return {
+		id,
+		source_store_id,
+		source_store_name,
+		str_id,
+		notes,
+		received_date,
+		items_count: items.length,
+		items
+	};
+};

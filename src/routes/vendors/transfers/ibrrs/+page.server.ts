@@ -1,14 +1,25 @@
-import { createIBRR, getIBRRs, type CreateIBRRData } from '$lib/server/db/queries/ibrrs';
+import {
+	createIBRR,
+	getIBRRById,
+	getIBRRs,
+	type CreateIBRRData
+} from '$lib/server/db/queries/ibrrs';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { fail } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ depends }) => {
+export const load: PageServerLoad = async ({ depends, url }) => {
 	depends('transfers:ibrrs');
+	const ibrrId = url.searchParams.get('id');
+	let ibrr = null;
+	if (ibrrId) {
+		ibrr = await getIBRRById(Number(ibrrId));
+	}
 	const ibrrs = await getIBRRs();
 	return {
-		ibrrs
+		ibrrs,
+		ibrr
 	};
 };
 

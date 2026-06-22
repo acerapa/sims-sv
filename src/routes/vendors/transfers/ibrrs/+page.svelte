@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import IBRRForm from '$lib/components/pages/vendors/transfers/ibrrs/IBRRForm.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -11,6 +11,12 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
 	import {
 		Table,
@@ -20,13 +26,13 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, Search } from '@lucide/svelte';
+	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 
 	const ibrrs = $derived(page.data.ibrrs);
+	let ibrr = $derived(page.data.ibrr);
 	let openIbrrForm = $state(false);
 
 	const onViewIbrr = async (ibrrId: number) => {
-		console.log(ibrrId);
 		openIbrrForm = true;
 		await goto(resolve(`/vendors/transfers/ibrrs?id=${ibrrId}` as '/vendors/transfers/ibrrs'));
 	};
@@ -39,7 +45,9 @@
 				<CardTitle>Inter-Branch Receiving Reports</CardTitle>
 				<CardDescription>Track and manage inventory receipts from other locations</CardDescription>
 			</div>
-			<IBRRForm />
+			{#key ibrr}
+				<IBRRForm bind:open={openIbrrForm} bind:ibrr isViewOnly={ibrr !== null} />
+			{/key}
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -74,13 +82,21 @@
 						</TableCell>
 						<TableCell class="text-center">{ibrr.items_count}</TableCell>
 						<TableCell>
-							<Button variant="ghost" size="icon" onclick={() => onViewIbrr(ibrr.id)}>
-								<Ellipsis class="size-4" />
-							</Button>
+							<DropdownMenu>
+								<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+									<Ellipsis />
+								</DropdownMenuTrigger>
+								<DropdownMenuContent>
+									<DropdownMenuItem onSelect={() => onViewIbrr(ibrr.id)} class="space-x-2">
+										<Eye />
+										<span>View</span>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</TableCell>
 					</TableRow>
 				{/each}
-				{#if ibrrs.length === 0}
+				{#if ibrrs?.length === 0}
 					<TableRow>
 						<TableCell colspan={5} class="text-center text-muted-foreground">
 							No inter-branch receiving reports found!

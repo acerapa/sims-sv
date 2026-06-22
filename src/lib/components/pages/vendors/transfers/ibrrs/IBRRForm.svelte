@@ -21,12 +21,16 @@
 	import IBRRItems from './IBRRItems.svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+	import { resolve } from '$app/paths';
 
-	let { open = $bindable(false) } = $props();
+	let { open = $bindable(false), ibrr = $bindable(null), isViewOnly = $bindable(false) } = $props();
 
-	let storeId = $state('');
+	let storeId = $state(ibrr?.source_store_id || '');
+	let receivedDate = $state(ibrr?.received_date || '');
+	let strRef = $state(ibrr?.str_id || '');
+	let notes = $state(ibrr?.notes || '');
 
 	const stores = $derived(page.data.stores);
 	const selectedStore = $derived.by(() => stores.find((store) => store.id === parseInt(storeId)));
@@ -45,10 +49,12 @@
 		};
 	};
 
-	const onOpenChangeComplete = (state: boolean) => {
+	const onOpenChangeComplete = async (state: boolean) => {
 		if (!state) {
 			storeId = '';
 			errors = null;
+
+			await goto(resolve('/vendors/transfers/ibrrs'));
 		}
 	};
 </script>
@@ -103,6 +109,7 @@
 									<DatePicker
 										error={errors?.properties?.received_date ? true : false}
 										name="received_date"
+										bind:value={receivedDate}
 									/>
 									{#if errors?.properties?.received_date}
 										<small class="text-red-500">
@@ -117,6 +124,7 @@
 									<Input
 										class={[errors?.properties?.str_id ? 'border-red-500' : '']}
 										name="str_id"
+										bind:value={strRef}
 										placeholder="Enter STR Reference"
 									/>
 									{#if errors?.properties?.str_id}
@@ -128,6 +136,7 @@
 								<Label>Notes</Label>
 								<Textarea
 									name="notes"
+									bind:value={notes}
 									placeholder="Add any additional notes about this transfer..."
 								/>
 							</div>
