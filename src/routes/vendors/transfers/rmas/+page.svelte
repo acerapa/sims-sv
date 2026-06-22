@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import RMAForm from '$lib/components/pages/vendors/transfers/rmas/RMAForm.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import {
 		Card,
 		CardContent,
@@ -9,6 +11,12 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
 	import {
 		Table,
@@ -18,9 +26,16 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Ellipsis, Search } from '@lucide/svelte';
+	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 
 	const rmas = $derived(page.data.rmas);
+	let rma = $derived(page.data.rma || null);
+	let openRmaForm = $state(false);
+
+	const onViewRma = async (rmaId: number) => {
+		openRmaForm = true;
+		await goto(resolve(`/vendors/transfers/rmas?id=${rmaId}` as '/vendors/transfers/rmas'));
+	};
 </script>
 
 <Card>
@@ -30,7 +45,7 @@
 				<CardTitle>Return Merchandise Authorization</CardTitle>
 				<CardDescription>Manage returns to suppliers</CardDescription>
 			</div>
-			<RMAForm />
+			<RMAForm bind:open={openRmaForm} bind:rma isViewOnly={rma !== null} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -69,9 +84,17 @@
 							</TableCell>
 							<TableCell class="text-center">{rma.items_count}</TableCell>
 							<TableCell>
-								<Button variant="ghost" size="icon">
-									<Ellipsis />
-								</Button>
+								<DropdownMenu>
+									<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+										<Ellipsis />
+									</DropdownMenuTrigger>
+									<DropdownMenuContent>
+										<DropdownMenuItem onSelect={() => onViewRma(rma.id)} class="space-x-2">
+											<Eye />
+											<span>View</span>
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</TableCell>
 						</TableRow>
 					{/each}

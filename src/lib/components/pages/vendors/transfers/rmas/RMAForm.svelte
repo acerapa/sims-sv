@@ -24,7 +24,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
-	let { open = $bindable(false) } = $props();
+	let { open = $bindable(false), isViewOnly = $bindable(false), rma = $bindable(null) } = $props();
 	const suppliers = $derived(page.data.suppliers);
 	const errors = $derived(page.form?.errors);
 	let supplierId = $state('');
