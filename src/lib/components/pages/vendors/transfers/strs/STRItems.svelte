@@ -149,7 +149,7 @@
 							</TableCell>
 							<TableCell class="align-top">
 								<Button
-									disabled={items.length === 1}
+									disabled={items.length === 1 || isViewOnly}
 									variant="ghost"
 									onclick={() => removeItem(ndx)}
 								>

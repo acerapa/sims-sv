@@ -143,12 +143,18 @@
 						</div>
 					</CardContent>
 				</Card>
-				<IBRRItems />
+				{#key ibrr?.items}
+					<IBRRItems initialItems={ibrr?.items} {isViewOnly} />
+				{/key}
 			</div>
-			<SheetFooter class="flex-row justify-end">
-				<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
-				<Button type="submit" variant="default">Add IBRR</Button>
-			</SheetFooter>
+			{#if !isViewOnly}
+				<SheetFooter class="flex-row justify-end">
+					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}
+						>Cancel</SheetClose
+					>
+					<Button type="submit" variant="default">Add IBRR</Button>
+				</SheetFooter>
+			{/if}
 		</form>
 	</SheetContent>
 </Sheet>
