@@ -14,7 +14,7 @@
 		SheetTitle,
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
-	import { Plus } from '@lucide/svelte';
+	import { Plus, Printer } from '@lucide/svelte';
 	import STRItems from './STRItems.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -54,6 +54,10 @@
 		}
 	};
 
+	const printSTR = async () => {
+		await goto(resolve(`/vendors/transfers/strs/print/${str?.id}`));
+	};
+
 	const openStoresForm = () => {
 		showStoresForm = true;
 	};
@@ -66,15 +70,27 @@
 	</SheetTrigger>
 	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:max-w-3xl">
 		<SheetHeader>
-			<SheetTitle>New Stock Transfer Request</SheetTitle>
-			<SheetDescription>Fill in the details to add a new str</SheetDescription>
+			<SheetTitle>
+				{`${str?.id ? 'View' : 'New'} Stock Transfer Request`}
+			</SheetTitle>
+			<SheetDescription>
+				{str?.id
+					? 'View the details of this stock transfer request.'
+					: 'Fill in the details to create a new stock transfer request.'}
+			</SheetDescription>
 		</SheetHeader>
 
 		<form action="/vendors/transfers/strs?/createStr" method="post" use:enhance={enhanceForm}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
-					<CardHeader>
+					<CardHeader class="flex items-center justify-between">
 						<CardTitle>STR Information</CardTitle>
+						{#if str?.id}
+							<Button type="button" class="cursor-pointer" variant="outline" onclick={printSTR}>
+								<Printer size={16} />
+								Print
+							</Button>
+						{/if}
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-col gap-6">
