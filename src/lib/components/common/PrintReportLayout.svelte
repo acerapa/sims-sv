@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { Printer } from '@lucide/svelte';
+	import type { DateRange } from '$lib/types/global';
 
 	let {
 		reportTitle,
@@ -8,7 +9,7 @@
 		children
 	}: {
 		reportTitle: string;
-		dateRange?: { from?: string; to?: string };
+		dateRange?: DateRange;
 		children: Snippet;
 	} = $props();
 
@@ -47,18 +48,20 @@
 
 	<div class="report-title-section">
 		<h2 class="report-title">{reportTitle}</h2>
-		{#if dateRange?.from || dateRange?.to}
-			<p class="date-range">
-				{#if dateRange.from && dateRange.to}
-					{formatDateLabel(dateRange.from)} — {formatDateLabel(dateRange.to)}
-				{:else if dateRange.from}
-					From {formatDateLabel(dateRange.from)}
-				{:else if dateRange.to}
-					Up to {formatDateLabel(dateRange.to)}
-				{/if}
-			</p>
-		{:else}
-			<p class="date-range">All Dates</p>
+		{#if dateRange}
+			{#if dateRange?.from || dateRange?.to}
+				<p class="date-range">
+					{#if dateRange.from && dateRange.to}
+						{formatDateLabel(dateRange.from)} — {formatDateLabel(dateRange.to)}
+					{:else if dateRange.from}
+						From {formatDateLabel(dateRange.from)}
+					{:else if dateRange.to}
+						Up to {formatDateLabel(dateRange.to)}
+					{/if}
+				</p>
+			{:else}
+				<p class="date-range">All Dates</p>
+			{/if}
 		{/if}
 	</div>
 
@@ -67,7 +70,13 @@
 	</div>
 
 	<div class="report-footer">
-		<p>Generated on {new Date().toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' })} at {new Date().toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' })}</p>
+		<p>
+			Generated on {new Date().toLocaleDateString('default', {
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			})} at {new Date().toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' })}
+		</p>
 	</div>
 </div>
 

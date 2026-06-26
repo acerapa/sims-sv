@@ -175,3 +175,8 @@ export interface InvoicePayment {
 	reference_number: string | null;
 	notes: string | null;
 }
+
+export interface DateRange {
+	from?: string;
+	to?: string;
+}
