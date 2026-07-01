@@ -3,38 +3,32 @@
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import { formatCurrency } from '$lib/utils/common';
 
-	const str = $derived(page.data?.str);
+	const ibrr = $derived(page.data?.ibrr);
 </script>
 
-<PrintReportLayout reportTitle="Stock Transfer Report">
+<PrintReportLayout reportTitle="Inter-Branch Receiving Report">
 	<section class="flex flex-col gap-3">
 		<div class="flex gap-5">
 			<div class="flex-1 border-b border-muted-foreground py-1">
-				<p class="text-xs font-bold text-muted-foreground">STR REFERENCE NO.</p>
-				<p>STR-{str?.id}</p>
+				<p class="text-xs font-bold text-muted-foreground">IBRR REFERENCE NO.</p>
+				<p>IBRR-{ibrr?.id}</p>
 			</div>
 			<div class="flex-1 border-b border-muted-foreground py-1">
-				<p class="text-xs font-bold text-muted-foreground">TRANSFER DATE</p>
-				<p>
-					{str?.transfer_date.toLocaleDateString('en-US', {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					})}
-				</p>
+				<p class="text-xs font-bold text-muted-foreground">STR REFERENCE NO.</p>
+				<p>STR-{ibrr?.str_id}</p>
 			</div>
 		</div>
 		<div class="flex gap-5">
 			<div class="w-[calc(50%_-_10px)] border-b border-muted-foreground py-1">
-				<p class="text-xs font-bold text-muted-foreground">DESTINATION</p>
-				<p>{str?.store_name}</p>
+				<p class="text-xs font-bold text-muted-foreground">SOURCE STORE</p>
+				<p>{ibrr?.source_store_name}</p>
 			</div>
 		</div>
 		<div class="flex gap-5">
 			<div class="flex-1 py-1">
 				<p class="text-xs font-bold text-muted-foreground">NOTES</p>
 				<div class="min-h-12 rounded border border-muted-foreground p-2">
-					{str?.notes ? str?.notes : '---'}
+					{ibrr?.notes ? ibrr?.notes : '---'}
 				</div>
 			</div>
 		</div>
@@ -51,14 +45,14 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#if str?.items?.length === 0}
+				{#if ibrr?.items?.length === 0}
 					<tr>
 						<td colspan="4" style="text-align: center; color: #666;">
 							No items found for the selected Stock Transfer Request.
 						</td>
 					</tr>
 				{:else}
-					{#each str.items as item (item.product_id)}
+					{#each ibrr.items as item (item.product_id)}
 						<tr>
 							<td>{item.purchase_description}</td>
 							<td class="text-right">{item.quantity}</td>

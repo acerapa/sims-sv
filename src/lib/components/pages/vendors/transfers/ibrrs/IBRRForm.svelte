@@ -17,7 +17,7 @@
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Plus } from '@lucide/svelte';
+	import { Plus, Printer } from '@lucide/svelte';
 	import IBRRItems from './IBRRItems.svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -57,6 +57,10 @@
 			await goto(resolve('/vendors/transfers/ibrrs'));
 		}
 	};
+
+	const printIBRR = async () => {
+		await goto(resolve(`/vendors/transfers/ibrrs/print/${ibrr?.id}`));
+	};
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
@@ -73,8 +77,14 @@
 		<form method="post" action="/vendors/transfers/ibrrs?/createIBRR" use:enhance={enhanceForm}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
-					<CardHeader>
+					<CardHeader class="flex items-center justify-between">
 						<CardTitle>IBRR Information</CardTitle>
+						{#if ibrr?.id}
+							<Button type="button" class="cursor-pointer" variant="outline" onclick={printIBRR}>
+								<Printer size={16} />
+								Print
+							</Button>
+						{/if}
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-col gap-6">
