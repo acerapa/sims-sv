@@ -17,7 +17,7 @@
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Plus } from '@lucide/svelte';
+	import { Plus, Printer } from '@lucide/svelte';
 	import RMAItems from './RMAItems.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
@@ -62,6 +62,10 @@
 			goto(resolve('/vendors/transfers/rmas'));
 		}
 	};
+
+	const printRMA = async () => {
+		await goto(resolve(`/vendors/transfers/rmas/print/${rma?.id}`));
+	};
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
@@ -78,8 +82,14 @@
 		<form action="/vendors/transfers/rmas?/createRMA" method="post" use:enhance={enhanceForm}>
 			<div class="flex flex-col gap-6 px-6">
 				<Card>
-					<CardHeader>
+					<CardHeader class="flex items-center justify-between">
 						<CardTitle>RMA Information</CardTitle>
+						{#if rma?.id}
+							<Button type="button" class="cursor-pointer" variant="outline" onclick={printRMA}>
+								<Printer size={16} />
+								Print
+							</Button>
+						{/if}
 					</CardHeader>
 					<CardContent>
 						<div class="flex flex-col gap-6">

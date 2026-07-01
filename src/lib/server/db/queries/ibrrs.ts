@@ -105,11 +105,13 @@ export const getIBRRById = async (ibrrId: number) => {
 			product_id: ibrrItems.product_id,
 			quantity: ibrrItems.quantity,
 			cost: ibrrItems.cost,
-			total_cost: ibrrItems.total_cost
+			total_cost: ibrrItems.total_cost,
+			purchase_description: products.purchase_description
 		})
 		.from(ibrrs)
 		.leftJoin(stores, eq(stores.id, ibrrs.source_store_id))
 		.leftJoin(ibrrItems, eq(ibrrItems.ibrr_id, ibrrs.id))
+		.leftJoin(products, eq(products.id, ibrrItems.product_id))
 		.where(eq(ibrrs.id, ibrrId));
 
 	if (rows.length === 0) return undefined;
@@ -120,7 +122,8 @@ export const getIBRRById = async (ibrrId: number) => {
 		product_id: row.product_id,
 		quantity: row.quantity,
 		cost: row.cost,
-		total_cost: row.total_cost
+		total_cost: row.total_cost,
+		purchase_description: row.purchase_description
 	}));
 
 	return {

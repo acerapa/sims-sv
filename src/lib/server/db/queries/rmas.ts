@@ -1,6 +1,6 @@
 import { count, desc, eq } from 'drizzle-orm';
 import { db } from '..';
-import { rmaItems, rmas, suppliers } from '../schema';
+import { products, rmaItems, rmas, suppliers } from '../schema';
 
 export interface CreateRMAData {
 	supplier_id: number;
@@ -74,11 +74,13 @@ export const getRMAById = async (rmaId: number) => {
 			quantity: rmaItems.quantity,
 			cost: rmaItems.cost,
 			serial_number: rmaItems.serial_number,
-			total_cost: rmaItems.total_cost
+			total_cost: rmaItems.total_cost,
+			purchase_description: products.purchase_description
 		})
 		.from(rmas)
 		.leftJoin(suppliers, eq(suppliers.id, rmas.supplier_id))
 		.leftJoin(rmaItems, eq(rmaItems.rma_id, rmas.id))
+		.leftJoin(products, eq(products.id, rmaItems.product_id))
 		.where(eq(rmas.id, rmaId));
 
 	if (rows.length === 0) return null;
@@ -88,7 +90,8 @@ export const getRMAById = async (rmaId: number) => {
 		quantity: row.quantity,
 		cost: row.cost,
 		total_cost: row.total_cost,
-		serial_number: row.serial_number
+		serial_number: row.serial_number,
+		purchase_description: row.purchase_description
 	}));
 
 	return {
