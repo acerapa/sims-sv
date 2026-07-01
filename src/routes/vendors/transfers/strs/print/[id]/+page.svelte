@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
+	import { formatCurrency } from '$lib/utils/common';
 
 	const str = $derived(page.data?.str);
 </script>
@@ -37,5 +38,34 @@
 				</div>
 			</div>
 		</div>
+
+		<table class="print-table">
+			<thead>
+				<tr>
+					<th>Product</th>
+					<th class="text-right">Quantity</th>
+					<th class="text-right">Cost</th>
+					<th class="text-right">Total Cost</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#if str?.items?.length === 0}
+					<tr>
+						<td colspan="4" style="text-align: center; color: #666;">
+							No items found for the selected Stock Transfer Request.
+						</td>
+					</tr>
+				{:else}
+					{#each str.items as item (item.product_id)}
+						<tr>
+							<td>{item.purchase_description}</td>
+							<td class="text-right">{item.quantity}</td>
+							<td class="text-right">{formatCurrency(item.cost)}</td>
+							<td class="text-right">{formatCurrency(item.total_cost)}</td>
+						</tr>
+					{/each}
+				{/if}
+			</tbody>
+		</table>
 	</section>
 </PrintReportLayout>

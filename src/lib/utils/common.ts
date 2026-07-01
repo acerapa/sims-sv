@@ -11,3 +11,8 @@ export function findErrorByKey(
 	if (!issues) return undefined;
 	return issues.filter((issue) => issue.path[0] === key);
 }
+
+export function formatCurrency(value: string | number) {
+	const num = typeof value === 'string' ? parseFloat(value || '0') : value;
+	return `₱${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}

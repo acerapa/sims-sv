@@ -2,6 +2,8 @@
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
 	import type { CustomerDetailRow } from '$lib/server/db/queries/reports';
+	import { formatCurrency } from '$lib/utils/common';
+	import { formatDate } from '$lib/utils/printables';
 
 	let { data }: PageProps = $props();
 
@@ -71,29 +73,13 @@
 		}
 
 		for (const customer of customers) {
-			customer.subtotal = customer.orders.reduce(
-				(sum, order) => sum + (order.order_total || 0),
-				0
-			);
+			customer.subtotal = customer.orders.reduce((sum, order) => sum + (order.order_total || 0), 0);
 		}
 
 		return customers;
 	}
 
 	let detailGrouped = $derived(groupDetailByCustomer(detail));
-
-	function formatCurrency(value: string | number) {
-		const num = typeof value === 'string' ? parseFloat(value || '0') : value;
-		return `₱${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-	}
-
-	function formatDate(dateStr: string) {
-		return new Date(dateStr).toLocaleDateString('default', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric'
-		});
-	}
 </script>
 
 <svelte:head>
@@ -101,7 +87,11 @@
 </svelte:head>
 
 <PrintReportLayout
-	reportTitle={view === 'detail' ? 'Sales by Customer — Detail' : view === 'both' ? 'Sales by Customer' : 'Sales by Customer — Summary'}
+	reportTitle={view === 'detail'
+		? 'Sales by Customer — Detail'
+		: view === 'both'
+			? 'Sales by Customer'
+			: 'Sales by Customer — Summary'}
 	dateRange={data.filters}
 >
 	{#if view === 'summary' || view === 'both'}

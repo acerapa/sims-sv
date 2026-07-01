@@ -101,11 +101,13 @@ export const getStrById = async (strId: number) => {
 			product_id: strItems.product_id,
 			quantity: strItems.quantity,
 			cost: strItems.cost,
-			total_cost: strItems.total_cost
+			total_cost: strItems.total_cost,
+			purchase_description: products.purchase_description
 		})
 		.from(strs)
 		.leftJoin(stores, eq(stores.id, strs.store_id))
 		.leftJoin(strItems, eq(strItems.str_id, strs.id))
+		.leftJoin(products, eq(products.id, strItems.product_id))
 		.where(eq(strs.id, strId));
 
 	if (rows.length === 0) return undefined;
@@ -116,7 +118,8 @@ export const getStrById = async (strId: number) => {
 		product_id: row.product_id,
 		quantity: row.quantity,
 		cost: row.cost,
-		total_cost: row.total_cost
+		total_cost: row.total_cost,
+		purchase_description: row.purchase_description
 	}));
 	return { id, store_id, transfer_date, notes, store_name, items_count: items.length, items };
 };
