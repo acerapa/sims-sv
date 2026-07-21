@@ -24,6 +24,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { resolve } from '$app/paths';
+	import StoresForm from '$lib/components/pages/settings/stores/StoresForm.svelte';
 
 	let { open = $bindable(false), ibrr = $bindable(null), isViewOnly = $bindable(false) } = $props();
 
@@ -31,6 +32,7 @@
 	let receivedDate = $state(ibrr?.received_date || '');
 	let strRef = $state(ibrr?.str_id || '');
 	let notes = $state(ibrr?.notes || '');
+	let showStoresForm = $state(false);
 
 	const stores = $derived(page.data.stores);
 	const selectedStore = $derived.by(() => stores.find((store) => store.id === parseInt(storeId)));
@@ -60,6 +62,10 @@
 
 	const printIBRR = async () => {
 		await goto(resolve(`/vendors/transfers/ibrrs/print/${ibrr?.id}`));
+	};
+
+	const openStoresForm = () => {
+		showStoresForm = true;
 	};
 </script>
 
@@ -106,6 +112,7 @@
 											{selectedStore ? selectedStore.name : 'Select Store'}
 										</SelectTrigger>
 										<SelectContent>
+										    <SelectItem value="0" onclick={openStoresForm}>Add Store</SelectItem>
 											{#each stores as store (store.id)}
 												<SelectItem value={store.id}>{store.name}</SelectItem>
 											{/each}
@@ -176,3 +183,4 @@
 		</form>
 	</SheetContent>
 </Sheet>
+<StoresForm hasTrigger={false} bind:open={showStoresForm} />
