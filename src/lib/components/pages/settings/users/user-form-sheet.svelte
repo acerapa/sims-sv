@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance, applyAction } from '$app/forms';
-	import { invalidate } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardDescription, CardTitle } from '$lib/components/ui/card';
@@ -41,7 +41,7 @@
 			if (result.type === 'success') {
 				open = false;
 				toast.success('User added successfully');
-				await invalidate('settings:users');
+				await invalidateAll();
 				onSuccess(result?.data ? result?.data[0].lastInsertedId : null);
 			} else {
 				console.error(result);

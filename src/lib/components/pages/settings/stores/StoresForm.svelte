@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Card, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
@@ -20,6 +20,7 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 	import { page } from '$app/state';
+	import UserFormSheet from '../users/user-form-sheet.svelte';
 
 	let {
 		open = $bindable(false),
@@ -29,6 +30,7 @@
 	let errors = $derived(page.form?.errors);
 	let managers = $derived(page.data?.managers || []);
 	let isActive = $state(false);
+	let showUserForm = $state(false);
 
 	let selectedManagerId = $state('');
 	let selectedManager = $derived(managers.find((m) => m.id === selectedManagerId));
@@ -39,7 +41,7 @@
 			if (result.type === 'success') {
 				open = false;
 				toast.success('Store added successfully');
-				await invalidate('settings:stores');
+				await invalidateAll();
 			} else {
 				toast.error('Failed to add store');
 			}
@@ -51,6 +53,10 @@
 			errors = null;
 		}
 	};
+
+	const openUserForm = () => {
+		showUserForm = true;
+	}
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
@@ -131,6 +137,7 @@
 								{/if}
 							</SelectTrigger>
 							<SelectContent>
+								<SelectItem value="0" onclick={openUserForm}>Add Manager</SelectItem>
 								{#each managers as manager (manager.id)}
 									<SelectItem value={manager.id}>{manager.name}</SelectItem>
 								{/each}
@@ -161,3 +168,4 @@
 		</form>
 	</SheetContent>
 </Sheet>
+<UserFormSheet hasTrigger={false} open={showUserForm} preset={{ role: 'inventory-manager' }} />

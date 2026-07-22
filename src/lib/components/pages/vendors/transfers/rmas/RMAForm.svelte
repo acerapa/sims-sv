@@ -23,6 +23,7 @@
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import SupplierForm from '../../suppliers/supplier-form.svelte';
 
 	let { open = $bindable(false), isViewOnly = $bindable(false), rma = $bindable(null) } = $props();
 	const suppliers = $derived(page.data.suppliers);
@@ -34,6 +35,7 @@
 	const selectedSupplier = $derived(
 		suppliers.find((supplier) => supplier.id === parseInt(supplierId))
 	);
+	let showSupplierForm = $state(false);
 
 	const handleSupplierIdChange = async (value: string) => {
 		if (value) {
@@ -66,6 +68,10 @@
 	const printRMA = async () => {
 		await goto(resolve(`/vendors/transfers/rmas/print/${rma?.id}`));
 	};
+
+	const openSupplierForm = () => {
+      showSupplierForm = true;
+	}
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
@@ -109,6 +115,7 @@
 											{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
 										</SelectTrigger>
 										<SelectContent>
+										    <SelectItem value="0" onclick={openSupplierForm}>Add Supplier</SelectItem>
 											{#each suppliers as supplier (supplier.id)}
 												<SelectItem value={supplier.id}>{supplier.name}</SelectItem>
 											{/each}
@@ -162,3 +169,4 @@
 		</form>
 	</SheetContent>
 </Sheet>
+<SupplierForm hasTrigger={false} open={showSupplierForm} />
