@@ -1,6 +1,7 @@
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { db } from '../..';
 import { customers, salesOrderItems, salesOrders } from '../../schema';
+import { SalesOrderStatus } from '$lib/const';
 
 export const getOpenSalesGroupedByCustomer = async () => {
   const result = await db.select({
@@ -13,6 +14,10 @@ export const getOpenSalesGroupedByCustomer = async () => {
     .from(salesOrders)
     .leftJoin(salesOrderItems, eq(salesOrders.id, salesOrderItems.sales_order_id))
     .leftJoin(customers, eq(salesOrders.customer_id, customers.id))
+    .where(or(
+      eq(salesOrders.order_status, SalesOrderStatus.OPEN),
+      eq(salesOrders.order_status, SalesOrderStatus.PARTIALLY_INVOICED),
+    ))
 
   const grouped = Object.groupBy(result, (item) => item?.customer_name || "")
 

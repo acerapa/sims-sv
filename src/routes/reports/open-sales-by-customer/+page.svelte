@@ -25,6 +25,11 @@
 	);
 	let toDate = $state<Date | undefined>(data.filters.to ? new Date(data.filters.to) : undefined);
 
+	let grandTotal = $derived.by(() => {
+		const combinedSales = openSalesSummary.map((item) => item.sales).flat();
+		return combinedSales.reduce((acc, sales) => acc + (sales ? sales?.total_cost : 0), 0);
+	});
+
 	const applyFilter = () => {};
 	const clearFilter = () => {};
 	const openPrint = () => {};
@@ -93,7 +98,7 @@
 							{#each openSalesSummary as sale (sale)}
 								<TableRow>
 									<TableCell colspan={5}>
-									    <p class="font-bold">{sale.customer}</p>
+										<p class="font-bold">{sale.customer}</p>
 									</TableCell>
 								</TableRow>
 								{#each sale.sales as saleItem (saleItem)}
@@ -113,18 +118,22 @@
 								{/each}
 								<TableRow>
 									<TableCell colspan={4}>
-									    <p class="font-bold">{sale.customer} Total:</p>
+										<p class="font-bold">{sale.customer} Total:</p>
 									</TableCell>
 									<TableCell>
-									    <p class="font-bold">{formatCurrency(sale.total)}</p>
+										<p class="font-bold">{formatCurrency(sale.total)}</p>
 									</TableCell>
 								</TableRow>
 								<TableRow>
-								    <TableCell colspan={5}></TableCell>
+									<TableCell colspan={5}></TableCell>
 								</TableRow>
 							{/each}
 						</TableBody>
 					</Table>
+					<div class="flex items-center justify-between">
+						<p class="text-md font-bold">Grand Total:</p>
+						<p class="text-md font-bold">{formatCurrency(grandTotal)}</p>
+					</div>
 				</CardContent>
 			</Card>
 		</TabsContent>

@@ -1,3 +1,4 @@
+import { SalesOrderStatus } from '$lib/const';
 import { relations } from 'drizzle-orm';
 import {
 	boolean,
@@ -19,10 +20,10 @@ export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
 export const physicalInventoryStatus = pgEnum('physical_inventory_status', ['draft', 'finalized']);
 export const salesOrderType = pgEnum('sales_order_type', ['onetime', 'installment']);
 export const salesOrderStatus = pgEnum('sales_order_status', [
-	'open',
-	'partially_invoiced',
-	'cancelled',
-	'invoiced'
+	SalesOrderStatus.OPEN,
+	SalesOrderStatus.PARTIALLY_INVOICED,
+	SalesOrderStatus.CANCELLED,
+	SalesOrderStatus.INVOICED
 ]);
 export const invoiceStatus = pgEnum('invoice_status', [
 	'unpaid',
