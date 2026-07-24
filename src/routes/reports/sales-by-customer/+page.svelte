@@ -2,7 +2,7 @@
 	import PageTitle from '$lib/components/layout/PageTitle.svelte';
 	import DatePicker from '$lib/components/common/DatePicker.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Printer } from '@lucide/svelte';
+	import { ArrowLeft, Printer } from '@lucide/svelte';
 	import {
 		Card,
 		CardContent,
@@ -21,10 +21,9 @@
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import type { PageProps } from './$types';
 	import type { CustomerDetailRow } from '$lib/server/db/queries/reports';
 
-	let { data }: PageProps = $props();
+	let data = $derived(page.data)
 
 	let fromDate = $state<Date | undefined>(
 		data.filters.from ? new Date(data.filters.from) : undefined
@@ -159,13 +158,19 @@
 </svelte:head>
 
 <section class="flex flex-col gap-6">
-	<PageTitle
-		title="Sales by Customer"
-		subTitle="View sales order totals and details grouped by customer."
-	/>
+    <div class="flex flex-col gap-1">
+        <Button href="/reports" variant="ghost" class="w-fit text-muted-foreground hover:bg-slate-50 hover:text-black !pl-0 cursor-pointer ">
+            <ArrowLeft />
+            <span class="text-sm">Back to Reports</span>
+        </Button>
+    	<PageTitle
+    		title="Sales by Customer"
+    		subTitle="View sales order totals and details grouped by customer."
+    	/>
+    </div>
 
 	<Card>
-		<CardContent class="flex items-end gap-4 pt-6">
+		<CardContent class="flex items-end gap-4">
 			<div class="flex flex-col gap-1">
 				<span class="text-sm font-medium text-muted-foreground">From</span>
 				<DatePicker bind:value={fromDate} />

@@ -16,24 +16,19 @@
 		],
 		sales: [
 			{
-				title: 'Daily Sales Summary',
-				subtitle: 'Detailed breakdown of daily sales performance and trends',
-				href: ''
+				title: 'Sales by Customer',
+				subtitle: 'Customer purchase history and analytics',
+				href: '/reports/sales-by-customer'
 			},
 			{
-				title: 'Monthly Revenue Report',
-				subtitle: 'Comprehensive monthly revenue analysis with comparisons',
-				href: ''
+				title: 'Open Sales by Customer',
+				subtitle: 'Open purchases history and analytics',
+				href: '/reports/open-sales-by-customer'
 			},
 			{
 				title: 'Sales by Product',
 				subtitle: 'Product-wise sales performance and ranking',
 				href: ''
-			},
-			{
-				title: 'Sales by Customer',
-				subtitle: 'Customer purchase history and analytics',
-				href: '/reports/sales-by-customer'
 			}
 		],
 		inventory: [
