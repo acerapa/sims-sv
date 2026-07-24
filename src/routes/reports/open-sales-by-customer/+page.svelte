@@ -4,7 +4,6 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { ArrowLeft, Printer } from '@lucide/svelte';
-	import type { PageProps } from './$types';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import {
 		Table,
@@ -15,6 +14,11 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { formatCurrency } from '$lib/utils/common';
+	import { page } from '$app/state';
+	import type { PageProps } from './$types';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let { data }: PageProps = $props();
 	let activeTab = $state('summary');
@@ -30,8 +34,22 @@
 		return combinedSales.reduce((acc, sales) => acc + (sales ? sales?.total_cost : 0), 0);
 	});
 
-	const applyFilter = () => {};
-	const clearFilter = () => {};
+	const applyFilter = () => {
+		const params = new SvelteURLSearchParams(page.url.searchParams);
+
+		if (fromDate) params.set('from', fromDate.toISOString());
+		else params.delete('from');
+
+		if (toDate) params.set('to', toDate.toISOString());
+		else params.delete('to');
+
+		goto(resolve(`/reports/open-sales-by-customer?${params.toString()}` as '/reports/open-sales-by-customer'), {replaceState: true})
+	};
+	const clearFilter = () => {
+		fromDate = undefined;
+		toDate = undefined;
+		goto(resolve(`/reports/open-sales-by-customer?` as '/reports/open-sales-by-customer'), {replaceState: true})
+	};
 	const openPrint = () => {};
 </script>
 
@@ -40,7 +58,7 @@
 	<meta name="description" content="OpenSales by Customer Report" />
 </svelte:head>
 
-<section class="flex flex-col gap-6">
+<section class="flex flex-col gap-6 pb-10">
 	<div class="flex flex-col gap-1">
 		<Button
 			href="/reports"
