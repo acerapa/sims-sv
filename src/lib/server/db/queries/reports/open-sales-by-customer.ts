@@ -1,9 +1,9 @@
-import { eq, or } from 'drizzle-orm';
+import { and, eq, gte, or } from 'drizzle-orm';
 import { db } from '../..';
 import { customers, salesOrderItems, salesOrders } from '../../schema';
 import { SalesOrderStatus } from '$lib/const';
 
-export const getOpenSalesGroupedByCustomer = async () => {
+export const getOpenSalesGroupedByCustomer = async (from?: string, to?: string) => {
   const result = await db.select({
     sales_order_id: salesOrders.id,
     customer_name: customers.name,
@@ -14,10 +14,16 @@ export const getOpenSalesGroupedByCustomer = async () => {
     .from(salesOrders)
     .leftJoin(salesOrderItems, eq(salesOrders.id, salesOrderItems.sales_order_id))
     .leftJoin(customers, eq(salesOrders.customer_id, customers.id))
-    .where(or(
-      eq(salesOrders.order_status, SalesOrderStatus.OPEN),
-      eq(salesOrders.order_status, SalesOrderStatus.PARTIALLY_INVOICED),
-    ))
+    .where(
+      and(
+        or(
+          eq(salesOrders.order_status, SalesOrderStatus.OPEN),
+          eq(salesOrders.order_status, SalesOrderStatus.PARTIALLY_INVOICED),
+        ),
+        from ? gte(salesOrders.date_ordered, new Date(from)) : undefined,
+        to ? gte(salesOrders.date_ordered, new Date(to)) : undefined,
+      )
+    )
 
   const grouped = Object.groupBy(result, (item) => item?.customer_name || "")
 

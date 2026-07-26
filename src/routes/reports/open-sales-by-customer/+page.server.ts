@@ -4,7 +4,7 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ url }) => {
 	const from = url.searchParams.get('from') || undefined;
   const to = url.searchParams.get('to') || undefined;
-  const summary = await getOpenSalesGroupedByCustomer();
+  const summary = await getOpenSalesGroupedByCustomer(from, to);
 
   return {
     summary,

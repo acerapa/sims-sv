@@ -108,7 +108,7 @@
 					class="flex cursor-pointer items-center gap-3 rounded-md px-3 py-1 text-sm font-medium hover:bg-slate-100"
 				>
 					<Avatar>
-						<Image src="/avatar.png" alt="Avatar" />
+						<Image src="#" alt="Avatar" />
 						<Fallback>{nameInitials}</Fallback>
 					</Avatar>
 					<p>{auth_user?.name}</p>
