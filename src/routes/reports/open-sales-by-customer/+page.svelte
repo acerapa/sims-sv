@@ -23,6 +23,7 @@
 	let { data }: PageProps = $props();
 	let activeTab = $state('summary');
 	let openSalesSummary = $derived(data.summary || []);
+	let openSalesDetailed = $derived(data.detailed || []);
 
 	let fromDate = $state<Date | undefined>(
 		data.filters.from ? new Date(data.filters.from) : undefined
@@ -43,13 +44,22 @@
 		if (toDate) params.set('to', toDate.toISOString());
 		else params.delete('to');
 
-		goto(resolve(`/reports/open-sales-by-customer?${params.toString()}` as '/reports/open-sales-by-customer'), {replaceState: true})
+		goto(
+			resolve(
+				`/reports/open-sales-by-customer?${params.toString()}` as '/reports/open-sales-by-customer'
+			),
+			{ replaceState: true }
+		);
 	};
+
 	const clearFilter = () => {
 		fromDate = undefined;
 		toDate = undefined;
-		goto(resolve(`/reports/open-sales-by-customer?` as '/reports/open-sales-by-customer'), {replaceState: true})
+		goto(resolve(`/reports/open-sales-by-customer?` as '/reports/open-sales-by-customer'), {
+			replaceState: true
+		});
 	};
+
 	const openPrint = () => {};
 </script>
 
@@ -89,7 +99,7 @@
 		<div class="flex items-center justify-between">
 			<TabsList>
 				<TabsTrigger value="summary">Summary</TabsTrigger>
-				<TabsTrigger value="detail">Detail</TabsTrigger>
+				<TabsTrigger value="detailed">Detail</TabsTrigger>
 			</TabsList>
 			<Button variant="outline" onclick={openPrint}>
 				<Printer size={16} />
@@ -102,69 +112,147 @@
 					<CardTitle>Open Sales Summary by Customer</CardTitle>
 				</CardHeader>
 				<CardContent>
-				    {#if openSalesSummary.length }
-    					<Table>
-    						<TableHeader>
-    							<TableRow>
-    								<TableHead>Customer</TableHead>
-    								<TableHead>Date</TableHead>
-    								<TableHead>SO Num</TableHead>
-    								<TableHead>Notes</TableHead>
-    								<TableHead class="text-end">Amount</TableHead>
-    							</TableRow>
-    						</TableHeader>
-    						<TableBody>
-    							{#each openSalesSummary as sale (sale)}
-    								<TableRow>
-    									<TableCell colspan={5}>
-    										<p class="font-bold">{sale.customer}</p>
-    									</TableCell>
-    								</TableRow>
-    								{#each sale.sales as saleItem (saleItem)}
-    									<TableRow>
-    										<TableCell class="pl-5">Sales Order</TableCell>
-    										<TableCell>
-    											{new Date(saleItem.date_ordered).toLocaleDateString('default', {
-    												day: 'numeric',
-    												month: 'long',
-    												year: 'numeric'
-    											})}
-    										</TableCell>
-    										<TableCell>{saleItem.sales_order_id}</TableCell>
-    										<TableCell>{saleItem.notes}</TableCell>
-    										<TableCell class="text-end">{formatCurrency(saleItem.total_cost)}</TableCell>
-    									</TableRow>
-    								{/each}
-    								<TableRow>
-    									<TableCell colspan={4}>
-    										<p class="font-bold">{sale.customer} Total:</p>
-    									</TableCell>
-    									<TableCell>
-    										<p class="font-bold text-end">{formatCurrency(sale.total)}</p>
-    									</TableCell>
-    								</TableRow>
-    								<TableRow>
-    									<TableCell colspan={5}></TableCell>
-    								</TableRow>
-    							{/each}
-    						</TableBody>
-    					</Table>
-    					<div class="flex items-center justify-between">
-    						<p class="text-md font-bold">Grand Total:</p>
-    						<p class="text-md font-bold">{formatCurrency(grandTotal)}</p>
-    					</div>
-                    {:else}
-                        <p class="text-center">No Data!</p>
+					{#if openSalesSummary.length}
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Customer</TableHead>
+									<TableHead>Date</TableHead>
+									<TableHead>SO Num</TableHead>
+									<TableHead>Notes</TableHead>
+									<TableHead class="text-end">Amount</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{#each openSalesSummary as sale (sale)}
+									<TableRow>
+										<TableCell colspan={5}>
+											<p class="font-bold">{sale.customer}</p>
+										</TableCell>
+									</TableRow>
+									{#each sale.sales as saleItem (saleItem)}
+										<TableRow>
+											<TableCell class="pl-5">Sales Order</TableCell>
+											<TableCell>
+												{new Date(saleItem.date_ordered).toLocaleDateString('default', {
+													day: 'numeric',
+													month: 'long',
+													year: 'numeric'
+												})}
+											</TableCell>
+											<TableCell>{saleItem.sales_order_id}</TableCell>
+											<TableCell>{saleItem.notes}</TableCell>
+											<TableCell class="text-end">{formatCurrency(saleItem.total_cost)}</TableCell>
+										</TableRow>
+									{/each}
+									<TableRow>
+										<TableCell colspan={4}>
+											<p class="font-bold">{sale.customer} Total:</p>
+										</TableCell>
+										<TableCell>
+											<p class="text-end font-bold">{formatCurrency(sale.total)}</p>
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell colspan={5}></TableCell>
+									</TableRow>
+								{/each}
+							</TableBody>
+						</Table>
+						<div class="flex items-center justify-between">
+							<p class="text-md font-bold">Grand Total:</p>
+							<p class="text-md font-bold">{formatCurrency(grandTotal)}</p>
+						</div>
+					{:else}
+						<p class="text-center">No Data!</p>
 					{/if}
 				</CardContent>
 			</Card>
 		</TabsContent>
-		<TabsContent value="detail">
+		<TabsContent value="detailed">
 			<Card>
 				<CardHeader>
 					<CardTitle>Open Sales Detailed by Customer</CardTitle>
 				</CardHeader>
-				<CardContent></CardContent>
+				<CardContent>
+					{#if openSalesDetailed.length}
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Item</TableHead>
+									<TableHead class="text-end">Quantity</TableHead>
+									<TableHead class="text-end">Cost</TableHead>
+									<TableHead class="text-end">Total</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{#each openSalesDetailed as openSale (openSale)}
+									<TableRow class="border-none">
+										<TableCell colspan={4}>
+											<div>
+												<p class="font-bold">{openSale.customer}</p>
+											</div>
+										</TableCell>
+									</TableRow>
+									{#each openSale.sales as sale (sale)}
+										<TableRow class="border-none">
+											<TableCell colspan={4} class="pl-3">
+												<div>
+													<p class="font-medium text-muted-foreground">
+														Sales Order #{sale.sales_order_id}
+														<span class="ml-3 font-normal">
+															{sale.date_ordered
+																? new Date(sale.date_ordered).toLocaleDateString('default', {
+																		day: 'numeric',
+																		month: 'long',
+																		year: 'numeric'
+																	})
+																: ''}
+														</span>
+													</p>
+												</div>
+											</TableCell>
+										</TableRow>
+										{#each sale.items as item (item)}
+											<TableRow class="border-none">
+												<TableCell class="pl-6">{item.item_name}</TableCell>
+												<TableCell class="text-end">{item.item_quantity}</TableCell>
+												<TableCell class="text-end">
+													{formatCurrency(item.item_cost ?? 0)}
+												</TableCell>
+												<TableCell class="text-end">
+													{formatCurrency(item.item_total_price ?? 0)}
+												</TableCell>
+											</TableRow>
+										{/each}
+										<TableRow class="border-t border-b-0">
+											<TableCell class="pl-3 font-medium" colspan={3}>
+												SO #{sale.sales_order_id}
+											</TableCell>
+											<TableCell class="text-end font-medium"
+												>{formatCurrency(sale.total)}</TableCell
+											>
+										</TableRow>
+									{/each}
+									<TableRow class="border-none bg-blue-50">
+										<TableCell class="font-bold" colspan={3}>
+											{openSale.customer} Total:
+										</TableCell>
+										<TableCell class="text-end font-bold"
+											>{formatCurrency(openSale.total)}</TableCell
+										>
+									</TableRow>
+								{/each}
+							</TableBody>
+						</Table>
+						<div class="flex items-center justify-between">
+							<p class="text-md font-bold">Grand Total:</p>
+							<p class="text-md font-bold">{formatCurrency(grandTotal)}</p>
+						</div>
+					{:else}
+						<p class="text-center">No Data.</p>
+					{/if}
+				</CardContent>
 			</Card>
 		</TabsContent>
 	</Tabs>
