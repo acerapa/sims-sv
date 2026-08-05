@@ -8,7 +8,7 @@
 	let { data }: PageProps = $props();
 
 	let summary = $derived(data.summary);
-	let detail = $derived(data.detail);
+	let detailed = $derived(data.detailed);
 	let view = $derived(data.view);
 
 	let grandTotals = $derived({
@@ -17,69 +17,6 @@
 		total_amount: summary.reduce((sum, row) => sum + parseFloat(row.total_amount || '0'), 0)
 	});
 
-	interface GroupedCustomer {
-		customer_id: number | null;
-		customer_name: string;
-		orders: {
-			order_id: number;
-			date_ordered: string;
-			order_status: string;
-			order_total: number;
-			items: {
-				product_name: string;
-				product_sku: string;
-				quantity: number;
-				unit_price: string;
-				total_price: string;
-			}[];
-		}[];
-		subtotal: number;
-	}
-
-	function groupDetailByCustomer(rows: CustomerDetailRow[]): GroupedCustomer[] {
-		const customers: GroupedCustomer[] = [];
-
-		for (const row of rows) {
-			let customer = customers.find((c) => c.customer_id === row.customer_id);
-			if (!customer) {
-				customer = {
-					customer_id: row.customer_id,
-					customer_name: row.customer_name,
-					orders: [],
-					subtotal: 0
-				};
-				customers.push(customer);
-			}
-
-			let order = customer.orders.find((o) => o.order_id === row.order_id);
-			if (!order) {
-				order = {
-					order_id: row.order_id,
-					date_ordered: row.date_ordered,
-					order_status: row.order_status,
-					order_total: row.order_total,
-					items: []
-				};
-				customer.orders.push(order);
-			}
-
-			order.items.push({
-				product_name: row.product_name,
-				product_sku: row.product_sku,
-				quantity: row.quantity,
-				unit_price: row.unit_price,
-				total_price: row.total_price
-			});
-		}
-
-		for (const customer of customers) {
-			customer.subtotal = customer.orders.reduce((sum, order) => sum + (order.order_total || 0), 0);
-		}
-
-		return customers;
-	}
-
-	let detailGrouped = $derived(groupDetailByCustomer(detail));
 </script>
 
 <svelte:head>
@@ -112,12 +49,12 @@
 						</td>
 					</tr>
 				{:else}
-					{#each summary as row (row.customer_id)}
+					{#each summary as row (row.customer_name)}
 						<tr>
 							<td>{row.customer_name}</td>
-							<td class="text-right">{row.order_count}</td>
+							<td class="text-right">{row.total_orders}</td>
 							<td class="text-right">{row.total_items}</td>
-							<td class="text-right">{formatCurrency(row.total_amount)}</td>
+							<td class="text-right">{formatCurrency(row.total_sales)}</td>
 						</tr>
 					{/each}
 				{/if}
@@ -126,9 +63,17 @@
 				<tfoot>
 					<tr>
 						<td>Grand Total</td>
-						<td class="text-right">{grandTotals.order_count}</td>
-						<td class="text-right">{grandTotals.total_items}</td>
-						<td class="text-right">{formatCurrency(grandTotals.total_amount)}</td>
+						<td class="text-right">
+							{summary.reduce((acc, row) => Number(acc) + Number(row.total_orders), 0)}
+						</td>
+						<td class="text-right">
+							{summary.reduce((acc, row) => Number(acc) + Number(row.total_items), 0)}
+						</td>
+						<td class="text-right">
+							{formatCurrency(
+								summary.reduce((acc, row) => Number(acc) + Number(row.total_sales), 0)
+							)}
+						</td>
 					</tr>
 				</tfoot>
 			{/if}
@@ -141,20 +86,20 @@
 	{/if}
 
 	{#if view === 'detail' || view === 'both'}
-		{#if detailGrouped.length === 0}
+		{#if detailed.length === 0}
 			<p style="text-align: center; color: #666; padding: 2rem 0;">
 				No sales orders found for the selected date range.
 			</p>
 		{:else}
-			{#each detailGrouped as customer, cIdx (customer.customer_id)}
+			{#each detailed as customer, cIdx (customer.customer_name)}
 				<h3 class="print-section-title" class:page-break={cIdx > 0 && view === 'detail'}>
 					{customer.customer_name}
 				</h3>
 
-				{#each customer.orders as order (order.order_id)}
+				{#each customer.orders as order (order.sales_order_id)}
 					<div class="print-po-header">
-						<span class="po-ref">SO-{order.order_id}</span>
-						<span>{formatDate(order.date_ordered)}</span>
+						<span class="po-ref">SO-{order.sales_order_id}</span>
+						<span>{formatDate(order.date_ordered.toLocaleString())}</span>
 						<span style="text-transform: capitalize;">{order.order_status}</span>
 					</div>
 					<table class="print-table">
@@ -167,12 +112,12 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each order.items as item}
+							{#each order.items as item (item.product_name)}
 								<tr>
 									<td>{item.product_name}</td>
-									<td class="text-right">{item.quantity}</td>
-									<td class="text-right">{formatCurrency(item.unit_price)}</td>
-									<td class="text-right">{formatCurrency(item.total_price)}</td>
+									<td class="text-right">{item.item_quantity}</td>
+									<td class="text-right">{formatCurrency(item.item_price)}</td>
+									<td class="text-right">{formatCurrency(item.item_total)}</td>
 								</tr>
 							{/each}
 						</tbody>

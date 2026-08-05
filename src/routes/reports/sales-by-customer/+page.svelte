@@ -21,9 +21,11 @@
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import type { CustomerDetailRow } from '$lib/server/db/queries/reports';
+	import type { PageProps } from './$types';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { formatCurrency } from '$lib/utils/common';
 
-	let data = $derived(page.data)
+	let { data }: PageProps = $props();
 
 	let fromDate = $state<Date | undefined>(
 		data.filters.from ? new Date(data.filters.from) : undefined
@@ -35,87 +37,10 @@
 	let activeTab = $state('summary');
 
 	let summary = $derived(data.summary);
-	let detail = $derived(data.detail);
-
-	let grandTotals = $derived({
-		order_count: summary.reduce((sum, row) => sum + row.order_count, 0),
-		total_items: summary.reduce((sum, row) => sum + row.total_items, 0),
-		total_amount: summary.reduce((sum, row) => sum + parseFloat(row.total_amount || '0'), 0)
-	});
-
-	interface GroupedCustomer {
-		customer_id: number | null;
-		customer_name: string;
-		orders: {
-			order_id: number;
-			date_ordered: string;
-			order_status: string;
-			order_total: number;
-			items: {
-				product_name: string;
-				product_sku: string;
-				quantity: number;
-				unit_price: string;
-				total_price: string;
-			}[];
-		}[];
-		subtotal: number;
-	}
-
-	function groupDetailByCustomer(rows: CustomerDetailRow[]): GroupedCustomer[] {
-		const customers: GroupedCustomer[] = [];
-
-		for (const row of rows) {
-			let customer = customers.find((c) => c.customer_id === row.customer_id);
-			if (!customer) {
-				customer = {
-					customer_id: row.customer_id,
-					customer_name: row.customer_name,
-					orders: [],
-					subtotal: 0
-				};
-				customers.push(customer);
-			}
-
-			let order = customer.orders.find((o) => o.order_id === row.order_id);
-			if (!order) {
-				order = {
-					order_id: row.order_id,
-					date_ordered: row.date_ordered,
-					order_status: row.order_status,
-					order_total: row.order_total,
-					items: []
-				};
-				customer.orders.push(order);
-			}
-
-			order.items.push({
-				product_name: row.product_name,
-				product_sku: row.product_sku,
-				quantity: row.quantity,
-				unit_price: row.unit_price,
-				total_price: row.total_price
-			});
-		}
-
-		for (const customer of customers) {
-			customer.subtotal = customer.orders.reduce(
-				(sum, order) => sum + (order.order_total || 0),
-				0
-			);
-		}
-
-		return customers;
-	}
-
-	let detailGrouped = $derived(groupDetailByCustomer(detail));
-
-	let detailGrandTotal = $derived(
-		detailGrouped.reduce((sum, c) => sum + c.subtotal, 0)
-	);
+	let detailed = $derived(data.detailed);
 
 	function applyFilter() {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new SvelteURLSearchParams(page.url.searchParams);
 
 		if (fromDate) {
 			params.set('from', fromDate.toISOString().split('T')[0]);
@@ -139,16 +64,11 @@
 	}
 
 	function openPrint() {
-		const params = new URLSearchParams();
+		const params = new SvelteURLSearchParams();
 		params.set('view', activeTab);
 		if (fromDate) params.set('from', fromDate.toISOString().split('T')[0]);
 		if (toDate) params.set('to', toDate.toISOString().split('T')[0]);
 		window.open(`/reports/sales-by-customer/print?${params.toString()}`, '_blank');
-	}
-
-	function formatCurrency(value: string | number) {
-		const num = typeof value === 'string' ? parseFloat(value || '0') : value;
-		return `₱${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 	}
 </script>
 
@@ -219,13 +139,13 @@
 									</TableCell>
 								</TableRow>
 							{:else}
-								{#each summary as row (row.customer_id)}
+								{#each summary as row (row.customer_name)}
 									<TableRow>
 										<TableCell class="font-medium">{row.customer_name}</TableCell>
-										<TableCell class="text-right">{row.order_count}</TableCell>
+										<TableCell class="text-right">{row.total_orders}</TableCell>
 										<TableCell class="text-right">{row.total_items}</TableCell>
 										<TableCell class="text-right">
-											{formatCurrency(row.total_amount)}
+											{formatCurrency(row.total_sales)}
 										</TableCell>
 									</TableRow>
 								{/each}
@@ -235,10 +155,14 @@
 							<TableFooter>
 								<TableRow class="font-bold">
 									<TableCell>Grand Total</TableCell>
-									<TableCell class="text-right">{grandTotals.order_count}</TableCell>
-									<TableCell class="text-right">{grandTotals.total_items}</TableCell>
 									<TableCell class="text-right">
-										{formatCurrency(grandTotals.total_amount)}
+										{summary.reduce((acc, row) => Number(acc) + Number(row.total_orders), 0)}
+									</TableCell>
+									<TableCell class="text-right">
+										{summary.reduce((acc, row) => Number(acc) + Number(row.total_items), 0)}
+									</TableCell>
+									<TableCell class="text-right">
+										{formatCurrency(summary.reduce((acc, row) => Number(acc) + Number(row.total_sales), 0))}
 									</TableCell>
 								</TableRow>
 							</TableFooter>
@@ -267,21 +191,21 @@
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{#if detailGrouped.length === 0}
+							{#if detailed.length === 0}
 								<TableRow>
 									<TableCell colspan={7} class="text-center text-muted-foreground">
 										No sales orders found for the selected date range.
 									</TableCell>
 								</TableRow>
 							{:else}
-								{#each detailGrouped as customer (customer.customer_id)}
+								{#each detailed as customer (customer.customer_name)}
 									<TableRow class="bg-muted/50 hover:bg-muted/50">
 										<TableCell colspan={7} class="py-2 font-bold">
 											{customer.customer_name}
 										</TableCell>
 									</TableRow>
-									{#each customer.orders as order (order.order_id)}
-										{#each order.items as item}
+									{#each customer.orders as order (order.sales_order_id)}
+										{#each order.items as item (item.product_name)}
 											<TableRow>
 												<TableCell class="pl-8 text-muted-foreground">Invoice</TableCell>
 												<TableCell>
@@ -291,14 +215,14 @@
 														year: 'numeric'
 													})}
 												</TableCell>
-												<TableCell>{order.order_id}</TableCell>
+												<TableCell>{order.sales_order_id}</TableCell>
 												<TableCell>{item.product_name}</TableCell>
-												<TableCell class="text-right">{item.quantity}</TableCell>
+												<TableCell class="text-right">{item.item_quantity}</TableCell>
 												<TableCell class="text-right">
-													{formatCurrency(item.unit_price)}
+													{formatCurrency(item.item_price)}
 												</TableCell>
 												<TableCell class="text-right">
-													{formatCurrency(item.total_price)}
+													{formatCurrency(item.item_total)}
 												</TableCell>
 											</TableRow>
 										{/each}
@@ -314,12 +238,12 @@
 								{/each}
 							{/if}
 						</TableBody>
-						{#if detailGrouped.length > 0}
+						{#if detailed.length > 0}
 							<TableFooter>
 								<TableRow class="font-bold">
 									<TableCell colspan={6}>TOTAL</TableCell>
 									<TableCell class="text-right">
-										{formatCurrency(detailGrandTotal)}
+										{formatCurrency(detailed.reduce((acc, order) => Number(acc) + Number(order.subtotal), 0))}
 									</TableCell>
 								</TableRow>
 							</TableFooter>
