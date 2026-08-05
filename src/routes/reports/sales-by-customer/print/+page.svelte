@@ -1,7 +1,6 @@
 <script lang="ts">
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import type { CustomerDetailRow } from '$lib/server/db/queries/reports';
 	import { formatCurrency } from '$lib/utils/common';
 	import { formatDate } from '$lib/utils/printables';
 
@@ -10,12 +9,6 @@
 	let summary = $derived(data.summary);
 	let detailed = $derived(data.detailed);
 	let view = $derived(data.view);
-
-	let grandTotals = $derived({
-		order_count: summary.reduce((sum, row) => sum + row.order_count, 0),
-		total_items: summary.reduce((sum, row) => sum + row.total_items, 0),
-		total_amount: summary.reduce((sum, row) => sum + parseFloat(row.total_amount || '0'), 0)
-	});
 
 </script>
 
