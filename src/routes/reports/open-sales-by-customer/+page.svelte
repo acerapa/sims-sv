@@ -60,7 +60,13 @@
 		});
 	};
 
-	const openPrint = () => {};
+	const openPrint = () => {
+	  const params = new SvelteURLSearchParams(page.url.searchParams);
+	  params.set('view', activeTab);
+	  if (fromDate) params.set('from', fromDate.toISOString().split('T')[0]);
+	  if (toDate) params.set('to', toDate.toISOString().split('T')[0]);
+	  window.open(resolve(`/reports/open-sales-by-customer/print?${params.toString()}` as '/reports/open-sales-by-customer/print'), '_blank');
+	};
 </script>
 
 <svelte:head>
@@ -141,7 +147,7 @@
 												})}
 											</TableCell>
 											<TableCell>{saleItem.sales_order_id}</TableCell>
-											<TableCell>{saleItem.notes}</TableCell>
+											<TableCell>{saleItem.notes || "-"}</TableCell>
 											<TableCell class="text-end">{formatCurrency(saleItem.total_cost)}</TableCell>
 										</TableRow>
 									{/each}
