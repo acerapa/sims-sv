@@ -4,13 +4,17 @@ import { packages, packagesToProducts } from '../schema';
 
 export interface PackageProductItem {
 	product_id: number;
-	quantity: number;
+  quantity: number;
+  serial_number: string | null;
+  price: string;
+  total_price: string;
 }
 
 export interface CreatePackageData {
 	name: string;
 	description: string | null;
-	products: PackageProductItem[];
+  products: PackageProductItem[];
+	total_price: string;
 }
 
 export interface UpdatePackageData extends CreatePackageData {
@@ -23,7 +27,8 @@ export const createPackage = async (data: CreatePackageData) => {
 			.insert(packages)
 			.values({
 				name: data.name,
-				description: data.description
+				description: data.description,
+				total_price: data.total_price,
 			})
 			.returning({
 				id: packages.id,
@@ -36,7 +41,10 @@ export const createPackage = async (data: CreatePackageData) => {
 				data.products.map((p) => ({
 					package_id: pkg.id,
 					product_id: p.product_id,
-					quantity: p.quantity
+					quantity: p.quantity,
+					serial_number: p.serial_number,
+					price: p.price,
+					total_price: p.total_price
 				}))
 			);
 		}
@@ -51,13 +59,15 @@ export const updatePackage = async (data: UpdatePackageData) => {
 			.update(packages)
 			.set({
 				name: data.name,
-				description: data.description
+        description: data.description,
+				total_price: data.total_price,
 			})
 			.where(eq(packages.id, data.id))
 			.returning({
 				id: packages.id,
 				name: packages.name,
-				description: packages.description
+        description: packages.description,
+				total_price: packages.total_price
 			});
 
 		await tx.delete(packagesToProducts).where(eq(packagesToProducts.package_id, data.id));
@@ -67,7 +77,10 @@ export const updatePackage = async (data: UpdatePackageData) => {
 				data.products.map((p) => ({
 					package_id: data.id,
 					product_id: p.product_id,
-					quantity: p.quantity
+					quantity: p.quantity,
+					serial_number: p.serial_number,
+					price: p.price,
+					total_price: p.total_price,
 				}))
 			);
 		}

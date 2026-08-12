@@ -22,6 +22,9 @@
 	interface Row {
 		product_id: string;
 		quantity: number | null;
+		serial_number: string | null;
+		price: number | null;
+		total_price: number | null;
 	}
 
 	interface Props {
@@ -31,12 +34,7 @@
 		rows: Row[];
 	}
 
-	let {
-		disabled = false,
-		issues,
-		products,
-		rows = $bindable()
-	}: Props = $props();
+	let { disabled = false, issues, products, rows = $bindable() }: Props = $props();
 
 	let groupedIssues = $derived.by(() => {
 		const grouped: Record<string, string>[] = [];
@@ -53,7 +51,7 @@
 	});
 
 	export const addRow = () => {
-		rows.push({ product_id: '', quantity: 1 });
+		rows.push({ product_id: '', quantity: 1, serial_number: null, price: null, total_price: null });
 	};
 
 	const removeRow = (ndx: number) => {
@@ -67,7 +65,10 @@
 		<TableHeader>
 			<TableRow>
 				<TableHead>Product</TableHead>
+				<TableHead>SN Number</TableHead>
 				<TableHead>Quantity</TableHead>
+				<TableHead>Price</TableHead>
+				<TableHead>Total Price</TableHead>
 				<TableHead></TableHead>
 			</TableRow>
 		</TableHeader>
@@ -93,6 +94,17 @@
 							{/if}
 						</div>
 					</TableCell>
+					<TableCell>
+						<div>
+							<Input
+								type="text"
+								class="w-full"
+								name={`products.${ndx}.serial_number`}
+								placeholder="Enter serial number"
+								{disabled}
+							/>
+						</div>
+					</TableCell>
 					<TableCell class="align-top">
 						<div>
 							<Input
@@ -112,6 +124,45 @@
 							{/if}
 						</div>
 					</TableCell>
+					<TableCell class="align-top">
+						<div>
+							<Input
+								type="number"
+								min="0"
+								class={[
+									'disabled:opacity-100',
+									groupedIssues[ndx]?.price ? 'border-red-500' : ''
+								]}
+								name={`products.${ndx}.price`}
+								bind:value={rows[ndx].price}
+								placeholder="Enter price"
+								{disabled}
+							/>
+							{#if groupedIssues[ndx]?.price}
+								<small class="text-red-500">{groupedIssues[ndx]?.price}</small>
+							{/if}
+						</div>
+					</TableCell>
+					<TableCell class="align-top">
+						<div>
+							<Input
+								type="number"
+								min="0"
+								class={[
+									'disabled:opacity-100',
+									groupedIssues[ndx]?.total_price ? 'border-red-500' : ''
+								]}
+								name={`products.${ndx}.total_price`}
+								bind:value={rows[ndx].total_price}
+								placeholder="Enter total price"
+								{disabled}
+							/>
+							{#if groupedIssues[ndx]?.total_price}
+								<small class="text-red-500">{groupedIssues[ndx]?.total_price}</small>
+							{/if}
+						</div>
+					</TableCell>
+
 					<TableCell class="align-top">
 						<Button
 							type="button"

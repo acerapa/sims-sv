@@ -123,7 +123,7 @@
 	<SheetContent
 		trapFocus={false}
 		side="right"
-		class="overflow-x-hidden overflow-y-auto sm:!max-w-2xl"
+		class="overflow-x-hidden overflow-y-auto sm:max-w-3xl"
 	>
 		<SheetHeader class="mt-5 flex-row items-center justify-between">
 			<div class="space-y-1">

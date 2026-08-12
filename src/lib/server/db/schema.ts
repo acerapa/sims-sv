@@ -1,4 +1,4 @@
-import { SalesOrderStatus } from '$lib/const';
+import { SalesOrderStatus } from '../../const';
 import { relations } from 'drizzle-orm';
 import {
 	boolean,
@@ -137,7 +137,7 @@ export const purchaseOrderItems = pgTable('purchase_order_items', {
 	quantity: integer().notNull(),
 	cost: decimal().notNull(),
 	total_cost: decimal().notNull(),
-	sale_price: decimal().notNull().default(0),
+	sale_price: decimal().notNull().default('0'),
 	purchase_order_id: integer()
 		.notNull()
 		.references(() => purchaseOrders.id)
@@ -371,7 +371,8 @@ export const sellingBrackets = pgTable('selling_brackets', {
 export const packages = pgTable('packages', {
 	id: serial().primaryKey(),
 	name: varchar().notNull(),
-	description: text(),
+  description: text(),
+	total_price: decimal().default('0'),
 	...timestamps
 });
 
@@ -382,6 +383,9 @@ export const packagesToProducts = pgTable('packages_to_products', {
 	product_id: integer()
 		.notNull()
 		.references(() => products.id),
+  serial_number: varchar(),
+  price: decimal().default('0'),
+	total_price: decimal().default('0'),
 	quantity: integer().notNull().default(1)
 });
 
