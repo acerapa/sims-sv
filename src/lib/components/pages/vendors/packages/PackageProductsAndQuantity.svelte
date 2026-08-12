@@ -17,6 +17,7 @@
 		id: number;
 		sku: string;
 		sales_description: string;
+		sale_price: string;
 	}
 
 	interface Row {
@@ -58,6 +59,21 @@
 		rows.splice(ndx, 1);
 		groupedIssues.splice(ndx, 1);
 	};
+
+	const onSelectProduct = (product: typeof products[0]) => {
+		const row = rows.find((r) => Number(r.product_id) == product.id);
+		if (row) {
+			row.price = Number(product.sale_price);
+			row.total_price = row.quantity ? row.quantity * row.price : null;
+		}
+	}
+
+	const onChangeQuantity = () => {
+		const row = rows.find((r) => Number(r.product_id) == product.id);
+		if (row) {
+			row.total_price = row.quantity ? row.quantity * (row.price || 0) : null;
+		}
+	}
 </script>
 
 <div class="space-x-2">
@@ -73,7 +89,7 @@
 			</TableRow>
 		</TableHeader>
 		<TableBody>
-			{#each rows as row, ndx (ndx)}
+			{#each rows as _, ndx (ndx)}
 				<TableRow>
 					<TableCell class="align-top">
 						<div>
@@ -88,6 +104,7 @@
 									.filter((_, i) => i !== ndx)
 									.map((r) => parseInt(r.product_id))
 									.filter(Boolean)}
+								onSelect={onSelectProduct}
 							/>
 							{#if groupedIssues[ndx]?.product_id}
 								<small class="text-red-500">{groupedIssues[ndx]?.product_id}</small>

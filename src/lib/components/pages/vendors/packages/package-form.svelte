@@ -28,6 +28,8 @@
 		id: number;
 		sku: string;
 		sales_description: string;
+		sale_price: string;
+		cost: string;
 	}
 
 	let {
@@ -47,9 +49,15 @@
 	let edit = $state(false);
 	let name = $state<string>('');
 	let description = $state<string>('');
-	let productRows = $state<{ product_id: string; quantity: number | null }[]>([
-		{ product_id: '', quantity: 1 }
-	]);
+	let productRows = $state<
+		{
+			product_id: string;
+			quantity: number | null;
+			serial_number: string | null;
+			price: string | null;
+			total_price: string | null;
+		}[]
+	>([{ product_id: '', quantity: 1, serial_number: null, price: null, total_price: null }]);
 	let productsPickerRef: PackageProductsAndQuantity;
 
 	const errors = $derived(form?.errors);
@@ -72,7 +80,7 @@
 		if (!open) {
 			name = '';
 			description = '';
-			productRows = [{ product_id: '', quantity: 1 }];
+			productRows = [{ product_id: '', quantity: 1, serial_number: null, price: null, total_price: null }];
 			edit = false;
 			if (form) form = null;
 		}

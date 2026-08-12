@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 	}
 
 	const paginatedData = await getPackagesPaginated({ page, limit, sortBy, sortOrder, search });
-	const products = await getProducts();
+    const products = await getProducts();
 
 	return {
 		...paginatedData,

@@ -33,6 +33,7 @@
 	import { toast } from 'svelte-sonner';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let { data, form }: PageProps = $props();
 
@@ -45,10 +46,12 @@
 	let currentParams = $derived(data.currentParams);
 
 	let productsForForm = $derived(
-		data.products.map((p: any) => ({
+		data.products.map((p: typeof data.products[0]) => ({
 			id: p.id,
 			sku: p.sku,
-			sales_description: p.sales_description
+			sales_description: p.sales_description,
+			sale_price: p.sale_price,
+			cost: p.cost,
 		}))
 	);
 
@@ -57,7 +60,7 @@
 	let searchTimeout: ReturnType<typeof setTimeout>;
 
 	function updateSearchParams(updates: Record<string, string | number | null>) {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new SvelteURLSearchParams(page.url.searchParams);
 		for (const [key, value] of Object.entries(updates)) {
 			if (value === null || value === '') {
 				params.delete(key);
@@ -91,7 +94,7 @@
 		updateSearchParams({ limit: newLimit, page: 1 });
 
 	const onView = async (packageId: number) => {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new SvelteURLSearchParams(page.url.searchParams);
 		params.set('id', String(packageId));
 		await goto(`?${params.toString()}`);
 		openPackageForm = true;

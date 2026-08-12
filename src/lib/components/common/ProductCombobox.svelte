@@ -20,7 +20,7 @@
 		disabled?: boolean;
 		hasError?: boolean;
 		disabledIds?: number[];
-		onSelect?: () => void;
+		onSelect?: (value: T) => void;
 		onAddNew?: () => void;
 		addNewLabel?: string;
 	}
@@ -88,7 +88,7 @@
 						disabled={disabledIds.includes(product.id)}
 						onclick={() => {
 							value = product.id.toString();
-							onSelect?.();
+							onSelect?.(product);
 							open = false;
 						}}
 					>
