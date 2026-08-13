@@ -21,7 +21,7 @@
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { findErrorByKey } from '$lib/utils/common';
+	import { findErrorByKey, formatCurrency } from '$lib/utils/common';
 	import PackageProductsAndQuantity from './PackageProductsAndQuantity.svelte';
 
 	interface ProductOption {
@@ -88,6 +88,8 @@
 			if (form) form = null;
 		}
 	});
+
+	const packagePrice = $derived(productRows.reduce((acc, row) => acc + (Number(row.total_price) || 0), 0));
 
 	const clearPackageId = async () => {
 		if (page.url.pathname === '/vendors/packages') {
@@ -224,6 +226,10 @@
 						{#if errors?.properties?.products?.errors?.[0]}
 							<small class="text-red-500">{errors.properties.products.errors[0]}</small>
 						{/if}
+						<div class="flex flex-row justify-end py-3">
+						    <input type="hidden" name="total_price" value={packagePrice} />
+						    <p>Package total: <b>{formatCurrency(packagePrice)}</b></p>
+						</div>
 					</CardContent>
 				</Card>
 				<Separator />

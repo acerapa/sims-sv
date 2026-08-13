@@ -117,7 +117,7 @@
 						<div>
 							<Input
 								type="text"
-								class="field-sizing-content"
+								class="w-full"
 								name={`products.${ndx}.serial_number`}
 								bind:value={rows[ndx].serial_number}
 								placeholder="Enter serial number"
