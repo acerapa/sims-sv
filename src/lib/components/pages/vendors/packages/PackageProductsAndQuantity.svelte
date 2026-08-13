@@ -24,8 +24,8 @@
 		product_id: string;
 		quantity: number | null;
 		serial_number: string | null;
-		price: number | null;
-		total_price: number | null;
+		price: string | null;
+		total_price: string | null;
 	}
 
 	interface Props {
@@ -52,7 +52,7 @@
 	});
 
 	export const addRow = () => {
-		rows.push({ product_id: '', quantity: 1, serial_number: null, price: 0, total_price: 0 });
+		rows.push({ product_id: '', quantity: 1, serial_number: null, price: '0', total_price: '0' });
 	};
 
 	const removeRow = (ndx: number) => {
@@ -63,8 +63,8 @@
 	const onSelectProduct = (product: (typeof products)[0]) => {
 		const row = rows.find((r) => Number(r.product_id) == product.id);
 		if (row) {
-			row.price = Number(product.sale_price);
-			row.total_price = row.quantity ? row.quantity * row.price : null;
+			row.price = product.sale_price;
+			row.total_price = row.quantity ? (row.quantity * Number(row.price)).toString() : null;
 		}
 	};
 
@@ -72,7 +72,7 @@
 		if (productId) {
 			const row = rows.find((r) => r.product_id == productId);
 			if (row) {
-				row.total_price = row.quantity ? row.quantity * (row.price || 0) : null;
+				row.total_price = row.quantity ? (row.quantity * Number(row.price)).toString() : null;
 			}
 		}
 	};
@@ -113,11 +113,11 @@
 							{/if}
 						</div>
 					</TableCell>
-					<TableCell>
+					<TableCell class="w-40">
 						<div>
 							<Input
 								type="text"
-								class="w-full"
+								class="field-sizing-content"
 								name={`products.${ndx}.serial_number`}
 								bind:value={rows[ndx].serial_number}
 								placeholder="Enter serial number"
@@ -145,12 +145,12 @@
 							{/if}
 						</div>
 					</TableCell>
-					<TableCell class="align-top">
+					<TableCell class="align-top w-24">
 						<div>
 							<Input
 								type="number"
 								min="0"
-								class={['disabled:opacity-100', groupedIssues[ndx]?.price ? 'border-red-500' : '']}
+								class={['disabled:opacity-100 field-sizing-content', groupedIssues[ndx]?.price ? 'border-red-500' : '']}
 								name={`products.${ndx}.price`}
 								bind:value={rows[ndx].price}
 								placeholder="Enter price"
@@ -167,7 +167,7 @@
 								type="number"
 								min="0"
 								class={[
-									'disabled:opacity-100',
+									'disabled:opacity-100 field-sizing-content',
 									groupedIssues[ndx]?.total_price ? 'border-red-500' : ''
 								]}
 								name={`products.${ndx}.total_price`}

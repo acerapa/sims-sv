@@ -107,7 +107,7 @@ export const getPackage = async (id: number) => {
 							id: true,
 							sku: true,
 							sales_description: true,
-							sale_price: true
+              sale_price: true,
 						}
 					}
 				}
