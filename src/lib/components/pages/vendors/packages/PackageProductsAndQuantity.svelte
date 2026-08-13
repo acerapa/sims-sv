@@ -52,7 +52,7 @@
 	});
 
 	export const addRow = () => {
-		rows.push({ product_id: '', quantity: 1, serial_number: null, price: null, total_price: null });
+		rows.push({ product_id: '', quantity: 1, serial_number: null, price: 0, total_price: 0 });
 	};
 
 	const removeRow = (ndx: number) => {
@@ -60,23 +60,25 @@
 		groupedIssues.splice(ndx, 1);
 	};
 
-	const onSelectProduct = (product: typeof products[0]) => {
+	const onSelectProduct = (product: (typeof products)[0]) => {
 		const row = rows.find((r) => Number(r.product_id) == product.id);
 		if (row) {
 			row.price = Number(product.sale_price);
 			row.total_price = row.quantity ? row.quantity * row.price : null;
 		}
-	}
+	};
 
-	const onChangeQuantity = () => {
-		const row = rows.find((r) => Number(r.product_id) == product.id);
-		if (row) {
-			row.total_price = row.quantity ? row.quantity * (row.price || 0) : null;
+	const onChangeQuantity = (productId: string) => {
+		if (productId) {
+			const row = rows.find((r) => r.product_id == productId);
+			if (row) {
+				row.total_price = row.quantity ? row.quantity * (row.price || 0) : null;
+			}
 		}
-	}
+	};
 </script>
 
-<div class="space-x-2">
+<div class="space-x-2 border">
 	<Table>
 		<TableHeader>
 			<TableRow>
@@ -117,6 +119,7 @@
 								type="text"
 								class="w-full"
 								name={`products.${ndx}.serial_number`}
+								bind:value={rows[ndx].serial_number}
 								placeholder="Enter serial number"
 								{disabled}
 							/>
@@ -134,6 +137,7 @@
 								name={`products.${ndx}.quantity`}
 								bind:value={rows[ndx].quantity}
 								placeholder="Enter quantity"
+								onchange={() => onChangeQuantity(rows[ndx].product_id)}
 								{disabled}
 							/>
 							{#if groupedIssues[ndx]?.quantity}
@@ -146,10 +150,7 @@
 							<Input
 								type="number"
 								min="0"
-								class={[
-									'disabled:opacity-100',
-									groupedIssues[ndx]?.price ? 'border-red-500' : ''
-								]}
+								class={['disabled:opacity-100', groupedIssues[ndx]?.price ? 'border-red-500' : '']}
 								name={`products.${ndx}.price`}
 								bind:value={rows[ndx].price}
 								placeholder="Enter price"

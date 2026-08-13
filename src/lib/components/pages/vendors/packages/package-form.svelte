@@ -57,7 +57,7 @@
 			price: string | null;
 			total_price: string | null;
 		}[]
-	>([{ product_id: '', quantity: 1, serial_number: null, price: null, total_price: null }]);
+	>([{ product_id: '', quantity: 1, serial_number: null, price: '0', total_price: '0' }]);
 	let productsPickerRef: PackageProductsAndQuantity;
 
 	const errors = $derived(form?.errors);
@@ -70,9 +70,12 @@
 			productRows = pkg.packagesToProducts?.length
 				? pkg.packagesToProducts.map((row: any) => ({
 						product_id: row.product_id.toString(),
-						quantity: row.quantity
+						quantity: row.quantity,
+						serial_number: row.serial_number,
+						price: row.price,
+						total_price: row.total_price
 					}))
-				: [{ product_id: '', quantity: 1 }];
+				: [{ product_id: '', quantity: 1, serial_number: null, price: 0, total_price: 0 }];
 		}
 	});
 
@@ -80,7 +83,7 @@
 		if (!open) {
 			name = '';
 			description = '';
-			productRows = [{ product_id: '', quantity: 1, serial_number: null, price: null, total_price: null }];
+			productRows = [{ product_id: '', quantity: 1, serial_number: null, price: '0', total_price: '0' }];
 			edit = false;
 			if (form) form = null;
 		}

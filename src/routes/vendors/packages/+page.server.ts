@@ -50,7 +50,10 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 
 const packageProductSchema = z.object({
 	product_id: z.number('Product is required').min(1, 'Product is required'),
-	quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1')
+  quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
+	serial_number: z.string().optional().nullable(),
+	price: z.number().optional().nullable(),
+	total_price: z.number().optional().nullable(),
 });
 
 export const actions: Actions = {
@@ -58,8 +61,9 @@ export const actions: Actions = {
 		try {
 			const body = await request.formData();
 			const formValues = decode(body, {
-				arrays: ['products'],
-				numbers: ['products.$.product_id', 'products.$.quantity']
+        arrays: ['products'],
+        strings: ['products.$.serial_number'],
+				numbers: ['products.$.product_id', 'products.$.quantity', 'products.$.price', 'products.$.total_price']
 			}) as CreatePackageData;
 
 			const schema = z.object({
