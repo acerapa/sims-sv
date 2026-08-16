@@ -1,6 +1,6 @@
 import { desc, eq, sql, count, sum, and, gte, lt } from 'drizzle-orm';
 import { db } from '..';
-import { customers, products, salesOrderItems, salesOrders, users } from '../schema';
+import { customers, products, salesOrderItems, salesOrders, users, packagesToProducts, packages } from '../schema';
 
 export interface CreateSalesOrder {
 	customer_id: number;
@@ -10,7 +10,7 @@ export interface CreateSalesOrder {
 	notes?: string;
 	total_cost: number;
 	products: {
-		product_id: number;
+		product_id?: number | null;
 		package_id?: number | null;
 		quantity: number;
 		unit_price: number;
@@ -35,29 +35,77 @@ export const createSalesOrder = async (data: CreateSalesOrder) => {
 			)
 			.returning({ lastInsertedId: salesOrders.id });
 
-		await tx.insert(salesOrderItems).values(
-			data.products.map((product) => {
+		// Prepare sales order item rows: package lines will have product_id = null and package_id set
+		const rows = data.products.map((product) => {
+			const pidRaw = (product as any).product_id;
+			const pkgRaw = (product as any).package_id;
+			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
+			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
+
+			if (!pid && pkg) {
 				return Object({
 					sales_order_id: order.lastInsertedId,
-					...product
+					product_id: null,
+					package_id: pkg,
+					quantity: product.quantity,
+					unit_price: product.unit_price,
+					total_price: product.total_price,
+					serial_number: product.serial_number ?? ''
 				});
-			})
-		);
+			}
 
+			return Object({
+				sales_order_id: order.lastInsertedId,
+				product_id: pid,
+				package_id: pkg,
+				quantity: product.quantity,
+				unit_price: product.unit_price,
+				total_price: product.total_price,
+				serial_number: product.serial_number ?? ''
+			});
+		});
+
+		await tx.insert(salesOrderItems).values(rows);
+
+		// Fetch current product quantities and package components
 		const pds = await tx.select({ id: products.id, quantity: products.quantity }).from(products);
+		const pkgComps = await tx
+			.select({ package_id: packagesToProducts.package_id, product_id: packagesToProducts.product_id, quantity: packagesToProducts.quantity })
+			.from(packagesToProducts);
 
-		await Promise.all(
-			data.products.map(async (product) => {
-				const p = pds.find((prod) => prod.id === product.product_id);
+		// Update product quantities: individual products or package components
+		for (const product of data.products) {
+			const pidRaw = (product as any).product_id;
+			const pkgRaw = (product as any).package_id;
+			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
+			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
+
+			if (pid) {
+				const p = pds.find((prod) => prod.id === pid);
 				if (!p) {
-					throw new Error(`Product with ID ${product.product_id} not found`);
+					throw new Error(`Product with ID ${pid} not found`);
 				}
-				return await tx
+				await tx
 					.update(products)
 					.set({ quantity: (p.quantity ? p.quantity : 0) - product.quantity })
-					.where(eq(products.id, product.product_id));
-			})
-		);
+					.where(eq(products.id, pid));
+			} else if (pkg) {
+				const comps = pkgComps.filter((c) => c.package_id === pkg);
+				await Promise.all(
+					comps.map(async (comp) => {
+						const p = pds.find((prod) => prod.id === comp.product_id);
+						if (!p) {
+							throw new Error(`Product with ID ${comp.product_id} not found`);
+						}
+						const deduct = comp.quantity * product.quantity;
+						return await tx
+							.update(products)
+							.set({ quantity: (p.quantity ? p.quantity : 0) - deduct })
+							.where(eq(products.id, comp.product_id));
+					})
+				);
+			}
+		}
 
 		return order;
 	});
@@ -97,6 +145,9 @@ export const getSalesOrder = async (id: number) => {
 				with: {
 					product: {
 						columns: { id: true, sales_description: true }
+					},
+					package: {
+						columns: { id: true, name: true }
 					}
 				}
 			}

@@ -143,8 +143,10 @@ export interface SalesOrder {
 export interface SalesOrderWithItems extends SalesOrder {
 	items: {
 		id: number;
-		product_id: number;
-		product_name: string;
+		product_id?: number | null;
+		product_name?: string | null;
+		package_id?: number | null;
+		package_name?: string | null;
 		quantity: number;
 		invoiced_quantity: number;
 		unit_price: number;

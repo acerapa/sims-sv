@@ -351,6 +351,13 @@
       "when": 1786525376211,
       "tag": "0049_careless_tinkerer",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1786897840009,
+      "tag": "0050_easy_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

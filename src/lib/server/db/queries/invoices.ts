@@ -7,7 +7,8 @@ import {
 	invoices,
 	products,
 	salesOrderItems,
-	salesOrders
+	salesOrders,
+	packages
 } from '../schema';
 
 export interface CreateInvoiceData {
@@ -18,7 +19,8 @@ export interface CreateInvoiceData {
 	total_amount: number;
 	items: {
 		sales_order_item_id: number;
-		product_id: number;
+		product_id?: number | null;
+		package_id?: number | null;
 		quantity: number;
 		unit_price: number;
 		total_price: number;
@@ -50,14 +52,23 @@ export const createInvoice = async (data: CreateInvoiceData) => {
 			)
 			.returning({ lastInsertedId: invoices.id });
 
-		await tx.insert(invoiceItems).values(
-			data.items.map((item) => {
-				return Object({
-					invoice_id: invoice.lastInsertedId,
-					...item
-				});
-			})
-		);
+		const rows = data.items.map((item) => {
+			const pidRaw = (item as any).product_id;
+			const pkgRaw = (item as any).package_id;
+			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
+			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
+			return Object({
+				invoice_id: invoice.lastInsertedId,
+				sales_order_item_id: item.sales_order_item_id,
+				product_id: pid,
+				package_id: pkg,
+				quantity: item.quantity,
+				unit_price: item.unit_price,
+				total_price: item.total_price
+			});
+		});
+
+		await tx.insert(invoiceItems).values(rows);
 
 		// Update sales order status based on invoiced quantities
 		await updateSalesOrderStatus(tx, data.sales_order_id);
@@ -205,12 +216,15 @@ export const getInvoice = async (invoiceId: number) => {
 			sales_order_item_id: invoiceItems.sales_order_item_id,
 			product_id: invoiceItems.product_id,
 			product_name: products.sales_description,
+			package_id: invoiceItems.package_id,
+			package_name: packages.name,
 			quantity: invoiceItems.quantity,
 			unit_price: invoiceItems.unit_price,
 			total_price: invoiceItems.total_price
 		})
 		.from(invoiceItems)
-		.innerJoin(products, eq(invoiceItems.product_id, products.id))
+		.leftJoin(products, eq(invoiceItems.product_id, products.id))
+		.leftJoin(packages, eq(invoiceItems.package_id, packages.id))
 		.where(eq(invoiceItems.invoice_id, invoiceId));
 
 	const payments = await db
@@ -256,6 +270,8 @@ export const getSalesOrderForInvoice = async (salesOrderId: number) => {
 			id: salesOrderItems.id,
 			product_id: salesOrderItems.product_id,
 			product_name: products.sales_description,
+			package_id: salesOrderItems.package_id,
+			package_name: packages.name,
 			quantity: salesOrderItems.quantity,
 			unit_price: salesOrderItems.unit_price,
 			total_price: salesOrderItems.total_price,
@@ -267,7 +283,8 @@ export const getSalesOrderForInvoice = async (salesOrderId: number) => {
 			), 0)`
 		})
 		.from(salesOrderItems)
-		.innerJoin(products, eq(salesOrderItems.product_id, products.id))
+		.leftJoin(products, eq(salesOrderItems.product_id, products.id))
+		.leftJoin(packages, eq(salesOrderItems.package_id, packages.id))
 		.where(eq(salesOrderItems.sales_order_id, salesOrderId));
 
 	return { ...order, items };

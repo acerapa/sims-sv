@@ -51,28 +51,32 @@
 			value: `₱${stats.todaySales.toLocaleString()}`,
 			icon: DollarSign,
 			description: `${stats.todayOrders} order(s) today`,
-			variant: 'success'
+			variant: 'success',
+			diff: ''
 		},
 		{
 			title: 'Total Orders',
 			value: stats.totalOrders.toLocaleString(),
 			icon: ShoppingCart,
 			description: `${stats.openOrders} open`,
-			variant: 'success'
+			variant: 'success',
+			diff: ''
 		},
 		{
 			title: 'Total Customers',
 			value: stats.totalCustomers.toLocaleString(),
 			icon: Users,
 			description: 'registered customers',
-			variant: 'success'
+			variant: 'success',
+			diff: ''
 		},
 		{
 			title: 'Total Sales',
 			value: `₱${stats.totalSales.toLocaleString()}`,
 			icon: TrendingUp,
 			description: 'all-time revenue',
-			variant: 'success'
+			variant: 'success',
+			diff: ''
 		}
 	]);
 

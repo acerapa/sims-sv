@@ -121,7 +121,7 @@
 				<TableBody>
 					{#each order.items as item (item.id)}
 						<TableRow>
-							<TableCell>{item.product?.sales_description || '—'}</TableCell>
+							<TableCell>{item.package?.name || item.product?.sales_description || '—'}</TableCell>
 							<TableCell>{item.serial_number || '—'}</TableCell>
 							<TableCell>{item.quantity}</TableCell>
 							<TableCell>₱{parseFloat(item.unit_price as string).toFixed(2)}</TableCell>

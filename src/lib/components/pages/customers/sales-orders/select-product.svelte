@@ -112,33 +112,22 @@
 		const pkg = packages.find((p) => p.id.toString() === selectedPackageId);
 		if (!pkg) return;
 
-		for (const entry of pkg.packagesToProducts) {
-			const price = parseFloat(entry.product.sale_price ?? '0');
-			const existingIndex = items.findIndex(
-				(item) => parseInt(item.product_id) === entry.product_id
-			);
+		// Add a single package line (package-as-single-line)
+		const emptyIndex = items.findIndex((item) => !item.product_id && !item.package_id);
+		const price = parseFloat(pkg.total_price ?? '0');
+		const newRow = {
+			product_id: '',
+			package_id: pkg.id,
+			quantity: 1,
+			unit_price: price,
+			total_price: price,
+			serial_number: ''
+		};
 
-			if (existingIndex !== -1) {
-				items[existingIndex].quantity += entry.quantity;
-				items[existingIndex].total_price =
-					items[existingIndex].quantity * items[existingIndex].unit_price;
-				items[existingIndex].package_id = pkg.id;
-			} else {
-				const emptyIndex = items.findIndex((item) => !item.product_id);
-				const newRow = {
-					product_id: entry.product_id.toString(),
-					package_id: pkg.id,
-					quantity: entry.quantity,
-					unit_price: price,
-					total_price: price * entry.quantity,
-					serial_number: ''
-				};
-				if (emptyIndex !== -1) {
-					items[emptyIndex] = { id: items[emptyIndex].id, ...newRow };
-				} else {
-					items.push({ id: items.length + 1, ...newRow });
-				}
-			}
+		if (emptyIndex !== -1) {
+			items[emptyIndex] = { id: items[emptyIndex].id, ...newRow };
+		} else {
+			items.push({ id: items.length + 1, ...newRow });
 		}
 
 		toast.success(`Added package "${pkg.name}"`);
@@ -293,29 +282,26 @@
 									value={items[i].package_id ?? ''}
 								/>
 								<div>
-									<ProductCombobox
-										{products}
-										bind:value={items[i].product_id}
-										name={`products.${i}.product_id`}
-										getLabel={(p) => p.sales_description ?? ''}
-										hasError={!!groupedIssues[i]?.product_id}
-										disabledIds={items.map((it) => parseInt(it.product_id)).filter(Boolean)}
-										onSelect={() => onSelectProduct(i)}
-									/>
-									{#if groupedIssues[i]?.product_id}
-										<small class="text-red-500">
-											{groupedIssues[i]?.product_id}
-										</small>
-									{/if}
 									{#if items[i].package_id}
 										{@const pkg = packages.find((p) => p.id === items[i].package_id)}
-										{#if pkg}
-											<span
-												class="mt-1 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600"
-											>
-												<Package class="size-3" />
-												From package: {pkg.name}
-											</span>
+										<div class="mt-1">
+											<div class="font-medium">{pkg ? pkg.name : '—'}</div>
+											<small class="text-muted-foreground text-xs">Package</small>
+										</div>
+									{:else}
+										<ProductCombobox
+											{products}
+											bind:value={items[i].product_id}
+											name={`products.${i}.product_id`}
+											getLabel={(p) => p.sales_description ?? ''}
+											hasError={!!groupedIssues[i]?.product_id}
+											disabledIds={items.map((it) => parseInt(it.product_id)).filter(Boolean)}
+											onSelect={() => onSelectProduct(i)}
+										/>
+										{#if groupedIssues[i]?.product_id}
+											<small class="text-red-500">
+												{groupedIssues[i]?.product_id}
+											</small>
 										{/if}
 									{/if}
 								</div>

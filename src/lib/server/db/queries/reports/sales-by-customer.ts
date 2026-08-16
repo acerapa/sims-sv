@@ -1,6 +1,6 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
 import { db } from '../..';
-import { customers, products, salesOrderItems, salesOrders } from '../../schema';
+import { customers, products, salesOrderItems, salesOrders, packages } from '../../schema';
 import { SalesOrderStatus } from '$lib/const';
 
 export const getSalesByCustomer = async (from?: string, to?: string) => {
@@ -11,7 +11,7 @@ export const getSalesByCustomer = async (from?: string, to?: string) => {
 			customer_name: customers.name,
       date_ordered: salesOrders.date_ordered,
 			order_status: salesOrders.order_status,
-			item_name: products.sales_description,
+			item_name: products.sales_description || packages.name,
 			item_quantity: salesOrderItems.quantity,
 			item_total: salesOrderItems.total_price,
 			item_price: salesOrderItems.unit_price

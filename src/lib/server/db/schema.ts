@@ -304,7 +304,6 @@ export const salesOrderItems = pgTable('sales_order_items', {
 		.notNull()
 		.references(() => salesOrders.id),
 	product_id: integer()
-		.notNull()
 		.references(() => products.id),
 	package_id: integer().references(() => packages.id),
 	quantity: integer().notNull(),
@@ -337,7 +336,6 @@ export const invoiceItems = pgTable('invoice_items', {
 		.notNull()
 		.references(() => salesOrderItems.id),
 	product_id: integer()
-		.notNull()
 		.references(() => products.id),
 	package_id: integer().references(() => packages.id),
 	quantity: integer().notNull(),

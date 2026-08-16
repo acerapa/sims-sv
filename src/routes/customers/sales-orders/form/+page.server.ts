@@ -45,7 +45,7 @@ export const actions: Actions = {
 				products: z
 					.array(
 						z.object({
-							product_id: z.number('Product is required'),
+							product_id: z.number().nullable().optional(),
 							package_id: z.number().nullable().optional(),
 							quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
 							unit_price: z.number('Unit price is required'),
@@ -54,6 +54,12 @@ export const actions: Actions = {
 						})
 					)
 					.min(1, 'At least one product is required')
+			}).superRefine((val, ctx) => {
+				(val.products || []).forEach((p: any, idx: number) => {
+					if (!p.product_id && !p.package_id) {
+					ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Either product or package is required', path: ['products', idx] });
+					}
+				});
 			});
 
 			const { success, error } = salesOrderSchema.safeParse(formValues);
