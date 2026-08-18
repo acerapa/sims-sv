@@ -1302,6 +1302,11 @@ devalue@^5.3.2:
   resolved "https://registry.yarnpkg.com/devalue/-/devalue-5.3.2.tgz#1d9a00f0d126a2f768589f236da8b67d6988d285"
   integrity sha512-UDsjUbpQn9kvm68slnrs+mfxwFkIflOhkanmyabZ8zOYk8SMEIbJ3TK+88g70hSIeytu4y18f0z/hYHMTrXIWw==
 
+dotenv@^17.4.2:
+  version "17.4.2"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-17.4.2.tgz#c07e54a746e11eba021dd9e1047ced5afdc1c034"
+  integrity sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==
+
 drizzle-kit@^0.31.4:
   version "0.31.5"
   resolved "https://registry.yarnpkg.com/drizzle-kit/-/drizzle-kit-0.31.5.tgz#a875f053e759fcc03adc0e09b96af7fbef325c91"
