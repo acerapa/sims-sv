@@ -35,6 +35,7 @@
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import SellingBracketForm from './selling-bracket-form.svelte';
 
 	let {
 		form,
@@ -63,6 +64,9 @@
 	let skuValue = $state<string>(product?.sku ?? '');
 	let costValue = $state<number>(0);
 	let salePriceValue = $state<number>(0);
+
+	let showSellingBracketForm = $state(false);
+
 	let selectedBracketId = $derived<string>(
 		product ? product?.selling_bracket_id?.toString() : 'auto'
 	);
@@ -144,6 +148,11 @@
 		if (isSameDescription) {
 			purchase_description = sales_description;
 		}
+	};
+
+	const openSellingBracketForm = () => {
+		showSellingBracketForm = true;
+		selectedBracketId = 'auto';
 	};
 
 	const clearProductId = async () => {
@@ -411,42 +420,43 @@
 									</div>
 								</div>
 							</div>
-							{#if sellingBrackets.length > 0}
-								<div class="space-y-2">
-									<Label>Selling Bracket</Label>
-									<div class="flex items-center gap-3">
-										<Select
+
+							<div class="space-y-2">
+								<Label>Selling Bracket</Label>
+								<div class="flex items-center gap-3">
+									<Select
+										disabled={!!product && !edit}
+										name="selling_bracket_id"
+										type="single"
+										bind:value={selectedBracketId}
+									>
+										<SelectTrigger
+											class="w-full disabled:opacity-100"
 											disabled={!!product && !edit}
-											name="selling_bracket_id"
-											type="single"
-											bind:value={selectedBracketId}
 										>
-											<SelectTrigger
-												class="w-full disabled:opacity-100"
-												disabled={!!product && !edit}
-											>
-												{bracketLabel}
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup>
-													<SelectItem value="auto">Auto-detect</SelectItem>
-													{#each sellingBrackets as bracket (bracket.id)}
-														<SelectItem value={bracket.id?.toString() ?? ''}>
-															BRACKET-{bracket.id} (₱{bracket.start_price} - ₱{bracket.end_price}, {bracket.discount_percentage}%)
-														</SelectItem>
-													{/each}
-													<SelectItem value="custom">Custom</SelectItem>
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-										{#if activeBracket}
-											<span class="text-sm whitespace-nowrap text-muted-foreground">
-												+{activeBracket.discount_percentage}% markup
-											</span>
-										{/if}
-									</div>
+											{bracketLabel}
+										</SelectTrigger>
+										<SelectContent>
+											<SelectGroup>
+												<SelectItem value="" onclick={openSellingBracketForm}>Add new</SelectItem>
+												<SelectItem value="auto">Auto-detect</SelectItem>
+												{#each sellingBrackets as bracket (bracket.id)}
+													<SelectItem value={bracket.id?.toString() ?? ''}>
+														BRACKET-{bracket.id} (₱{bracket.start_price} - ₱{bracket.end_price}, {bracket.discount_percentage}%)
+													</SelectItem>
+												{/each}
+												<SelectItem value="custom">Custom</SelectItem>
+											</SelectGroup>
+										</SelectContent>
+									</Select>
+									{#if activeBracket}
+										<span class="text-sm whitespace-nowrap text-muted-foreground">
+											+{activeBracket.discount_percentage}% markup
+										</span>
+									{/if}
 								</div>
-							{/if}
+							</div>
+
 							<div class="flex items-start gap-1">
 								<div class="flex-1 space-y-2">
 									<Label class={isSameDescription ? 'opacity-50' : ''}
@@ -515,3 +525,4 @@
 		</form>
 	</SheetContent>
 </Sheet>
+<SellingBracketForm bind:open={showSellingBracketForm} />

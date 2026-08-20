@@ -1,5 +1,5 @@
 import type { Bracket } from '$lib/types/global';
-import { eq, inArray, isNotNull, sql } from 'drizzle-orm';
+import { inArray, isNotNull, sql } from 'drizzle-orm';
 import { db } from '..';
 import { products, sellingBrackets } from '../schema';
 
@@ -61,3 +61,16 @@ export const updateCreateSellingBrackets = async (data: Bracket[]) => {
 		}
 	});
 };
+
+export const addOneSellingBracket = async (data: Bracket) => {
+	const res = await db
+		.insert(sellingBrackets)
+		.values({
+			id: data.id ?? undefined,
+			start_price: data.start_price,
+			end_price: data.end_price,
+			discount_percentage: data.discount_percentage
+		});
+
+  return res;
+}
