@@ -295,7 +295,6 @@
 											name={`products.${i}.product_id`}
 											getLabel={(p) => p.sales_description ?? ''}
 											hasError={!!groupedIssues[i]?.product_id}
-											disabledIds={items.map((it) => parseInt(it.product_id)).filter(Boolean)}
 											onSelect={() => onSelectProduct(i)}
 										/>
 										{#if groupedIssues[i]?.product_id}
@@ -312,21 +311,37 @@
 									placeholder="Optional"
 									name={`products.${i}.serial_number`}
 									bind:value={items[i].serial_number}
+									onchange={() => {
+										if (items[i].serial_number && items[i].serial_number.trim()) {
+											items[i].quantity = 1;
+											items[i].total_price = 1 * items[i].unit_price;
+										}
+									}}
 								/>
 							</TableCell>
 							<TableCell class="align-top">
 								<div>
-									<Input
-										oninput={() => onQuantityChange(i)}
-										type="number"
-										name={`products.${i}.quantity`}
-										bind:value={items[i].quantity}
-										class={[groupedIssues[i]?.quantity ? 'border-red-500' : '']}
-									/>
-									{#if groupedIssues[i]?.quantity}
-										<small class="text-red-500">
-											{groupedIssues[i]?.quantity}
-										</small>
+									{#if items[i].serial_number && items[i].serial_number.trim()}
+										<Input
+											type="number"
+											name={`products.${i}.quantity`}
+											value="1"
+											disabled
+											class="disabled:opacity-50"
+										/>
+									{:else}
+										<Input
+											oninput={() => onQuantityChange(i)}
+											type="number"
+											name={`products.${i}.quantity`}
+											bind:value={items[i].quantity}
+											class={[groupedIssues[i]?.quantity ? 'border-red-500' : '']}
+										/>
+										{#if groupedIssues[i]?.quantity}
+											<small class="text-red-500">
+												{groupedIssues[i]?.quantity}
+											</small>
+										{/if}
 									{/if}
 								</div>
 							</TableCell>
