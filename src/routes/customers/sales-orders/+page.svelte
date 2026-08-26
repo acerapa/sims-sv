@@ -30,6 +30,7 @@
 		Eye,
 		FileText,
 		Funnel,
+		Pencil,
 		Plus,
 		Search,
 		ShoppingCart,
@@ -211,6 +212,12 @@
 										>
 											<Eye />
 											<span>View</span>
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											class="space-x-2"
+										>
+											<Pencil />
+											<span>Edit</span>
 										</DropdownMenuItem>
 										{#if order.order_status !== 'invoiced' && order.order_status !== 'cancelled'}
 											<DropdownMenuItem

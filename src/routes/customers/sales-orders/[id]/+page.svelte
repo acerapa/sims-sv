@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -51,6 +53,11 @@
 				return status;
 		}
 	};
+
+	const onEdit = () => {
+	  const salesOrderId = data.salesOrder.id
+      goto(resolve(`/customers/sales-orders/${salesOrderId}/form`));
+	}
 </script>
 
 <svelte:head>
@@ -65,9 +72,12 @@
 				<CardTitle class="text-lg">Sales Order SO-{order.id}</CardTitle>
 				<CardDescription>Order details and items</CardDescription>
 			</div>
-			<Badge variant={getStatusVariant(order.order_status || 'open')}>
-				{getStatusLabel(order.order_status || 'open')}
-			</Badge>
+			<div class="flex items-center gap-3">
+    			<Badge variant={getStatusVariant(order.order_status || 'open')}>
+    				{getStatusLabel(order.order_status || 'open')}
+    			</Badge>
+                <Button variant="outline" onclick={onEdit}>Edit</Button>
+			</div>
 		</CardHeader>
 		<CardContent>
 			<div class="grid grid-cols-2 gap-6 md:grid-cols-4">

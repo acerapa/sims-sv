@@ -184,16 +184,6 @@
 	preset={{ role: userRoles.SALES_PERSON }}
 />
 <div class="mb-6 flex flex-col gap-6">
-	{#if isEditMode && salesOrder}
-		<Card class="border-blue-200 bg-blue-50">
-			<CardContent class="pt-6">
-				<div class="flex items-center gap-2 text-sm text-blue-900">
-					<AlertCircle class="h-4 w-4" />
-					<span>Editing Sales Order #{salesOrder.id} • Status: <strong>{salesOrder.order_status}</strong></span>
-				</div>
-			</CardContent>
-		</Card>
-	{/if}
 	<form
 		class="flex flex-col gap-6"
 		method="post"

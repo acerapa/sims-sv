@@ -19,6 +19,24 @@ export interface CreateSalesOrder {
 	}[];
 }
 
+export interface UpdateSalesOrder {
+	customer_id: number;
+	staff_user_id: number;
+	date_ordered: Date;
+	order_type: string;
+	notes?: string;
+	total_cost: number;
+	products: {
+		id?: number;
+		product_id?: number | null;
+		package_id?: number | null;
+		quantity: number;
+		unit_price: number;
+		total_price: number;
+		serial_number?: string;
+	}[];
+}
+
 export const createSalesOrder = async (data: CreateSalesOrder) => {
 	return await db.transaction(async (tx) => {
 		const [order] = await tx
@@ -189,4 +207,178 @@ export const getSalesOrderStats = async () => {
 		openOrders: parseInt(stats.openOrders ?? '0'),
 		totalCustomers: customerStats.totalCustomers ?? 0
 	};
+};
+
+export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) => {
+	return await db.transaction(async (tx) => {
+		const existingOrder = await tx.query.salesOrders.findFirst({
+			where: eq(salesOrders.id, orderId)
+		});
+
+		if (!existingOrder) {
+			throw new Error(`Sales order with ID ${orderId} not found`);
+		}
+
+		if (existingOrder.order_status !== 'open') {
+			throw new Error(`Cannot update ${existingOrder.order_status} sales orders`);
+		}
+
+		await tx
+			.update(salesOrders)
+			.set({
+				staff_user_id: data.staff_user_id,
+				notes: data.notes,
+				total_cost: data.total_cost,
+				updated_at: new Date()
+			})
+			.where(eq(salesOrders.id, orderId));
+
+		const existingItems = await tx
+			.select()
+			.from(salesOrderItems)
+			.where(eq(salesOrderItems.sales_order_id, orderId));
+
+		const incomingItemIds = data.products
+			.map((p: any) => p.id)
+			.filter((id): id is number => typeof id === 'number');
+
+		const itemsToDelete = existingItems.filter(
+			(item) => !incomingItemIds.includes(item.id)
+		);
+
+		const pds = await tx.select({ id: products.id, quantity: products.quantity }).from(products);
+		const pkgComps = await tx
+			.select({
+				package_id: packagesToProducts.package_id,
+				product_id: packagesToProducts.product_id,
+				quantity: packagesToProducts.quantity
+			})
+			.from(packagesToProducts);
+
+		for (const item of itemsToDelete) {
+			const pidRaw = item.product_id;
+			const pkgRaw = item.package_id;
+
+			if (pidRaw) {
+				const p = pds.find((prod) => prod.id === pidRaw);
+				if (p) {
+					await tx
+						.update(products)
+						.set({ quantity: (p.quantity ? p.quantity : 0) + item.quantity })
+						.where(eq(products.id, pidRaw));
+				}
+			} else if (pkgRaw) {
+				const comps = pkgComps.filter((c) => c.package_id === pkgRaw);
+				await Promise.all(
+					comps.map(async (comp) => {
+						const p = pds.find((prod) => prod.id === comp.product_id);
+						if (p) {
+							const addBack = comp.quantity * item.quantity;
+							return await tx
+								.update(products)
+								.set({ quantity: (p.quantity ? p.quantity : 0) + addBack })
+								.where(eq(products.id, comp.product_id));
+						}
+					})
+				);
+			}
+
+			await tx.delete(salesOrderItems).where(eq(salesOrderItems.id, item.id));
+		}
+
+		for (const product of data.products) {
+			const pidRaw = (product as any).product_id;
+			const pkgRaw = (product as any).package_id;
+			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
+			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
+			const itemId = (product as any).id;
+
+			if (itemId) {
+				const existingItem = existingItems.find((item) => item.id === itemId);
+				if (existingItem) {
+					const quantityDiff = product.quantity - existingItem.quantity;
+					await tx
+						.update(salesOrderItems)
+						.set({
+							product_id: pid,
+							package_id: pkg,
+							quantity: product.quantity,
+							unit_price: product.unit_price,
+							total_price: product.total_price,
+							serial_number: product.serial_number ?? '',
+							updated_at: new Date()
+						})
+						.where(eq(salesOrderItems.id, itemId));
+
+					if (quantityDiff !== 0) {
+						if (pid) {
+							const p = pds.find((prod) => prod.id === pid);
+							if (!p) {
+								throw new Error(`Product with ID ${pid} not found`);
+							}
+							await tx
+								.update(products)
+								.set({ quantity: (p.quantity ? p.quantity : 0) - quantityDiff })
+								.where(eq(products.id, pid));
+						} else if (pkg) {
+							const comps = pkgComps.filter((c) => c.package_id === pkg);
+							await Promise.all(
+								comps.map(async (comp) => {
+									const p = pds.find((prod) => prod.id === comp.product_id);
+									if (!p) {
+										throw new Error(`Product with ID ${comp.product_id} not found`);
+									}
+									const deduct = comp.quantity * quantityDiff;
+									return await tx
+										.update(products)
+										.set({ quantity: (p.quantity ? p.quantity : 0) - deduct })
+										.where(eq(products.id, comp.product_id));
+								})
+							);
+						}
+					}
+				}
+			} else {
+				const newRow = Object({
+					sales_order_id: orderId,
+					product_id: pid,
+					package_id: pkg,
+					quantity: product.quantity,
+					unit_price: product.unit_price,
+					total_price: product.total_price,
+					serial_number: product.serial_number ?? ''
+				});
+
+				await tx.insert(salesOrderItems).values(newRow);
+
+				if (pid) {
+					const p = pds.find((prod) => prod.id === pid);
+					if (!p) {
+						throw new Error(`Product with ID ${pid} not found`);
+					}
+					await tx
+						.update(products)
+						.set({ quantity: (p.quantity ? p.quantity : 0) - product.quantity })
+						.where(eq(products.id, pid));
+				} else if (pkg) {
+					const comps = pkgComps.filter((c) => c.package_id === pkg);
+					await Promise.all(
+						comps.map(async (comp) => {
+							const p = pds.find((prod) => prod.id === comp.product_id);
+							if (!p) {
+								throw new Error(`Product with ID ${comp.product_id} not found`);
+							}
+							const deduct = comp.quantity * product.quantity;
+							return await tx
+								.update(products)
+								.set({ quantity: (p.quantity ? p.quantity : 0) - deduct })
+								.where(eq(products.id, comp.product_id));
+						})
+					);
+				}
+			}
+		}
+
+		return { orderId };
+	});
 };
