@@ -7,7 +7,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, Search } from '@lucide/svelte';
+	import { Plus, Printer, Search } from '@lucide/svelte';
 	import CategoryItem from '$lib/components/pages/vendors/categories/CategoryItem.svelte';
 	import type { Category } from '$lib/types/global';
 	import { Button } from '$lib/components/ui/button';
@@ -32,10 +32,16 @@
 				<CardTitle>Categories</CardTitle>
 				<CardDescription>Browse category hierarchy</CardDescription>
 			</div>
-			<Button onclick={handleOpenForm}>
-				<Plus class="text-white" />
-				Add Category
-			</Button>
+			<div class="flex items-center gap-2">
+			    <Button variant="outline">
+					<Printer />
+					Print
+				</Button>
+    			<Button onclick={handleOpenForm}>
+    				<Plus class="text-white" />
+    				Add Category
+    			</Button>
+			</div>
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
