@@ -11,6 +11,10 @@
 			path: '/customers/sales-orders'
 		},
 		{
+			name: 'Daily Sales',
+			path: '/customers/daily-sales'
+		},
+		{
 			name: 'Invoices',
 			path: '/customers/invoices'
 		},

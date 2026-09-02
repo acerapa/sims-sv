@@ -1,4 +1,4 @@
-import { SalesOrderStatus } from '../../const';
+import { SalesChannel, SalesOrderStatus } from '../../const';
 import { relations } from 'drizzle-orm';
 import {
 	boolean,
@@ -25,6 +25,7 @@ export const salesOrderStatus = pgEnum('sales_order_status', [
 	SalesOrderStatus.CANCELLED,
 	SalesOrderStatus.INVOICED
 ]);
+export const salesChannel = pgEnum('sales_channel', [SalesChannel.POS, SalesChannel.MANUAL]);
 export const invoiceStatus = pgEnum('invoice_status', [
 	'unpaid',
 	'partially_paid',
@@ -294,7 +295,8 @@ export const salesOrders = pgTable('sales_orders', {
 	order_type: salesOrderType().default('onetime'),
 	order_status: salesOrderStatus().default('open'),
 	notes: text(),
-	total_cost: integer().notNull(),
+  total_cost: integer().notNull(),
+	sales_channel: salesChannel(),
 	...timestamps
 });
 

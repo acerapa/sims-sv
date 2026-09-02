@@ -4,3 +4,8 @@ export const SalesOrderStatus = {
   CANCELLED: 'cancelled',
   INVOICED: 'invoiced',
 }
+
+export const SalesChannel = {
+  POS: 'pos',
+  MANUAL: 'manual',
+}

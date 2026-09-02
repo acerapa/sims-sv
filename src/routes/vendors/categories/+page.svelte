@@ -14,8 +14,6 @@
 	import CategoryForm from '$lib/components/pages/vendors/categories/CategoryForm.svelte';
 	import type { PageProps } from './$types';
 	import { groupedCategories } from '$lib/utils/categories';
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 
 	const { form, data }: PageProps = $props();
 
@@ -27,7 +25,7 @@
 	};
 
 	const onPrint = () => {
-		goto(resolve('/vendors/categories/print'))
+		window.open(`/vendors/categories/print`, '_blank');
 	}
 </script>
 
