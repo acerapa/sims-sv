@@ -14,6 +14,8 @@
 	import CategoryForm from '$lib/components/pages/vendors/categories/CategoryForm.svelte';
 	import type { PageProps } from './$types';
 	import { groupedCategories } from '$lib/utils/categories';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	const { form, data }: PageProps = $props();
 
@@ -23,6 +25,10 @@
 	const handleOpenForm = () => {
 		openForm = true;
 	};
+
+	const onPrint = () => {
+		goto(resolve('/vendors/categories/print'))
+	}
 </script>
 
 <Card>
@@ -33,7 +39,7 @@
 				<CardDescription>Browse category hierarchy</CardDescription>
 			</div>
 			<div class="flex items-center gap-2">
-			    <Button variant="outline">
+			    <Button variant="outline" onclick={onPrint}>
 					<Printer />
 					Print
 				</Button>
