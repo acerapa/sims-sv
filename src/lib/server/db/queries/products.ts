@@ -1,4 +1,4 @@
-import { desc, eq, asc, ilike, or, count, sql, sum, and, lte, gt } from 'drizzle-orm';
+import { desc, eq, asc, ilike, or, count, sql, sum } from 'drizzle-orm';
 import { db } from '..';
 import { products, productsToSupplier } from '../schema';
 
@@ -105,7 +105,7 @@ export const updateProduct = async (data: UpdateProductData) => {
 	});
 };
 
-export const getProducts = async () => {
+export const getProducts = async (query: string | null = null) => {
 	return await db.query.products.findMany({
 		orderBy: [desc(products.created_at)],
 		columns: {
@@ -130,7 +130,11 @@ export const getProducts = async () => {
 					supplier_id: true
 				}
 			}
-		}
+    },
+    where: or(
+      query ? ilike(products.sales_description, `%${query}%`) : undefined,
+      query ? eq(products.sku, query) : undefined
+    )
 	});
 };
 
