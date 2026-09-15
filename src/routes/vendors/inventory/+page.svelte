@@ -43,6 +43,7 @@
 	import type { Category, Supplier } from '$lib/types/global';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { formatCurrency } from '$lib/utils/common';
 
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
@@ -261,7 +262,7 @@
 								<TableCell class="text-muted-foreground">{prod.sku}</TableCell>
 								<TableCell>{prod.category.name}</TableCell>
 								<TableCell class="font-semibold">
-									₱{parseFloat(prod.sale_price || '0').toFixed(2)}
+									{formatCurrency(prod.sale_price || 0)}
 								</TableCell>
 								<TableCell>
 									<span

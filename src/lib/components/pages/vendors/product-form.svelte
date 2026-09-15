@@ -216,9 +216,27 @@
 	>
 		<SheetHeader class="mt-5 flex-row items-center justify-between">
 			<div class="space-y-1">
-				<SheetTitle>Add New Product</SheetTitle>
+				<SheetTitle>
+					{#if product}
+						{#if edit}
+							Edit Product
+						{:else}
+							View Product
+						{/if}
+					{:else}
+						Add New Product
+					{/if}
+				</SheetTitle>
 				<SheetDescription>
-					Fill in the details to add a new product to your inventory
+					{#if product}
+						{#if edit}
+							Editing product: {product?.sku}
+						{:else}
+							Viewing product: {product?.sku}
+						{/if}
+					{:else}
+						Fill in the details to add a new product to your inventory
+					{/if}
 				</SheetDescription>
 			</div>
 			{#if product}

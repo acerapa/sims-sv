@@ -16,7 +16,7 @@
 		if (quantity > minimum_quantity!) {
 			badgeText = 'In Stock';
 			badgeBg = 'bg-green-500';
-		} else if (quantity <= minimum_quantity! && quantity != 0) {
+		} else if (quantity <= minimum_quantity! && quantity > 0) {
 			badgeText = 'Low Stock';
 			badgeBg = 'bg-yellow-500';
 		} else {
