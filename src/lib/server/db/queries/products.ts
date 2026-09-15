@@ -322,3 +322,6 @@ export const getInventoryStats = async () => {
 		totalValue: parseFloat(stats.totalValue ?? '0')
 	};
 };
+
+
+export type getProducts = Awaited<ReturnType<typeof getProducts>>;

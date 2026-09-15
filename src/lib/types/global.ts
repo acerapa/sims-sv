@@ -18,6 +18,15 @@ export interface TransactionItem {
 	total_cost: number;
 }
 
+export interface DailySalesItem {
+	name: string;
+	product_id: number;
+	quantity: number;
+  total_cost: number;
+  stock: number;
+  sale_price: number;
+}
+
 export interface Product {
 	id: number;
 	purchase_description: string;
