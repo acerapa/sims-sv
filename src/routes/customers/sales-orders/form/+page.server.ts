@@ -55,9 +55,9 @@ export const actions: Actions = {
 					)
 					.min(1, 'At least one product is required')
 			}).superRefine((val, ctx) => {
-				(val.products || []).forEach((p: any, idx: number) => {
+				(val.products || []).forEach((p: typeof val.products[0], idx: number) => {
 					if (!p.product_id && !p.package_id) {
-					ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Either product or package is required', path: ['products', idx] });
+					ctx.addIssue({ code: 'custom', message: 'Either product or package is required', path: ['products', idx] });
 					}
 				});
 			});

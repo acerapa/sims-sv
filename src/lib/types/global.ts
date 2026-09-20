@@ -20,11 +20,13 @@ export interface TransactionItem {
 
 export interface DailySalesItem {
 	name: string;
-	product_id: number;
+  product_id?: number;
+  package_id?: number;
 	quantity: number;
   total_cost: number;
   stock: number;
   sale_price: number;
+  serial_number?: string;
 }
 
 export interface Product {
