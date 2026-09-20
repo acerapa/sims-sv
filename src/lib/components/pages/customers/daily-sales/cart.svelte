@@ -5,7 +5,7 @@
 	import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "$lib/components/ui/table";
 	import type { DailySalesItem } from "$lib/types/global";
 	import { formatCurrency } from "$lib/utils/common";
-	import { ChevronLeft, ChevronRight } from "@lucide/svelte";
+	import { ChevronLeft, ChevronRight, Trash } from "@lucide/svelte";
 
 	const { items = $bindable<DailySalesItem[]>() } = $props();
 	const onIncreaseQuantity = (productId: number) => {
@@ -24,6 +24,12 @@
 			}
 		}
 	};
+	const onRemoveItem = (productId: number) => {
+		const index = items.findIndex((item: DailySalesItem) => item.product_id === productId);
+		if (index !== -1) {
+			items.splice(index, 1);
+		}
+	};
 
 </script>
 <Card class="w-full">
@@ -36,6 +42,7 @@
                     <TableHead class="text-muted-foreground">Quantity</TableHead>
                     <TableHead class="text-muted-foreground">Price</TableHead>
                     <TableHead class="text-muted-foreground">Total Price</TableHead>
+                    <TableHead class="text-muted-foreground">Actions</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -51,8 +58,13 @@
                                 <ChevronRight />
                             </Button>
                         </TableCell>
-                        <TableCell>{formatCurrency(item.sale_price)}</TableCell>
-                        <TableCell>{formatCurrency(item.total_cost)}</TableCell>
+                        <TableCell>{formatCurrency(item.sale_price || 0)}</TableCell>
+                        <TableCell>{formatCurrency(item.total_cost || 0)}</TableCell>
+                        <TableCell>
+                            <Button variant="ghost" size="icon" class="cursor-pointer" onclick={() => onRemoveItem(item.product_id)}>
+                                <Trash class="text-red-500" />
+                            </Button>
+                        </TableCell>
                     </TableRow>
                 {/each}
                 {#if !items || items?.length === 0}

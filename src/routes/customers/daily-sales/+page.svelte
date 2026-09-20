@@ -15,5 +15,5 @@
 <section class="flex gap-1">
 	<ProductSearch bind:items={cartProducts} />
 	<Cart bind:items={cartProducts} />
-	<Summary />
+	<Summary bind:items={cartProducts} />
 </section>

@@ -46,12 +46,16 @@
 				name: product.sales_description,
 				product_id: product.id,
 				quantity: 1,
-				total_cost: product.sale_price,
-				sale_price: product.sale_price,
+				total_cost: parseFloat(product.sale_price || '0'),
+				sale_price: parseFloat(product.sale_price || '0'),
 				stock: product.quantity
 			});
 		}
 	}
+
+	const isProductDisabled = (productId: number) => {
+		return items.some((item: DailySalesItem) => item.product_id === productId);
+	};
 
 </script>
 <Card>
@@ -65,7 +69,7 @@
             <div class="flex gap-2 cursor-pointer flex-col h-[calc(100vh_-_408px)] overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {#if searchText}
                     {#each page.data.products as product (product.id)}
-                        <button onclick={() => onSelectProduct(product.id)}>
+                        <button onclick={() => onSelectProduct(product.id)} disabled={isProductDisabled(product.id)} class="disabled:opacity-50">
                             <div class="flex gap-2 p-2 justify-between w-full border rounded-lg items-center">
                                 <div>
                                     <p class="text-sm font-medium">{product.sales_description}</p>
