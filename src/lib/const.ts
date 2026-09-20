@@ -9,3 +9,5 @@ export const SalesChannel = {
   POS: 'pos',
   MANUAL: 'manual',
 }
+
+export const WalkInCustomerName = 'Walk-in Customer';

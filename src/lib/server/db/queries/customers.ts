@@ -1,4 +1,6 @@
+import { WalkInCustomerName } from '$lib/const';
 import type { Customer } from '$lib/types/global';
+import { eq } from 'drizzle-orm';
 import { db } from '..';
 import { customers } from '../schema';
 
@@ -25,3 +27,10 @@ export const createCustomer = async (customer: Customer) => {
 		fb_account: customers.fb_account
 	});
 };
+
+export const getWalkInCustomer = async () => {
+  return db
+    .select({id: customers.id})
+    .from(customers)
+    .where(eq(customers.name, WalkInCustomerName))
+}
