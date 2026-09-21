@@ -5,8 +5,7 @@ import { decode } from 'decode-formdata';
 import { getWalkInCustomer } from '$lib/server/db/queries/customers';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
-import type { CreateSalesOrder } from '$lib/server/db/queries/sales-orders';
-import { createDailySales } from '$lib/server/db/queries/daily-sales';
+import { createDailySales, type CreateDailySalesData } from '$lib/server/db/queries/daily-sales';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const search = new SvelteURLSearchParams(url.searchParams);
@@ -38,7 +37,7 @@ export const actions = {
           'products.$.package_id'
         ],
         dates: ['date_ordered']
-      }) as CreateSalesOrder;
+      }) as CreateDailySalesData;
 
       const salesOrderSchema = z
         .object({

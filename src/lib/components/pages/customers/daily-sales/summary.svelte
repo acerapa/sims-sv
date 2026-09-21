@@ -7,7 +7,7 @@
 	import Label from "$lib/components/ui/label/label.svelte";
 	import type { DailySalesItem } from "$lib/types/global";
 	import { formatCurrency } from "$lib/utils/common";
-	import { SalesChannel } from "$lib/const";
+	import { InvoicePaymentType, SalesChannel } from "$lib/const";
 
 	let { items = $bindable<DailySalesItem[]>() } = $props();
 	let walkInCustomerId = $derived(page.data.walkInCustomerId);
@@ -72,6 +72,8 @@
                 <input type="hidden" name="staff_user_id" value={staffUserId} />
                 <input type="hidden" name="date_ordered" value={dateOrdered} />
                 <input type="hidden" name="notes" value="" />
+                <input type="hidden" name="payment_amount" value={amountReceived} />
+                <input type="hidden" name="payment_type" value={InvoicePaymentType.CASH} />
                 {#each items as item, i (item.product_id)}
                     <input type="hidden" name={`products.${i}.product_id`} value={item.product_id} />
                     <input type="hidden" name={`products.${i}.package_id`} value={item.package_id} />

@@ -10,4 +10,10 @@ export const SalesChannel = {
   MANUAL: 'manual',
 }
 
+export const InvoicePaymentType = {
+  CASH: 'cash',
+  CHECK: 'check',
+  BANK_TRANSFER: 'bank_transfer',
+}
+
 export const WalkInCustomerName = 'Walk-in Customer';

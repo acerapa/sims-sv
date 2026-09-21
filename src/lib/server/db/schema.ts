@@ -1,4 +1,4 @@
-import { SalesChannel, SalesOrderStatus } from '../../const';
+import { InvoicePaymentType, SalesChannel, SalesOrderStatus } from '../../const';
 import { relations } from 'drizzle-orm';
 import {
 	boolean,
@@ -33,9 +33,9 @@ export const invoiceStatus = pgEnum('invoice_status', [
 	'cancelled'
 ]);
 export const invoicePaymentType = pgEnum('invoice_payment_type', [
-	'cash',
-	'check',
-	'bank_transfer'
+	InvoicePaymentType.CASH,
+	InvoicePaymentType.CHECK,
+	InvoicePaymentType.BANK_TRANSFER
 ]);
 
 const timestamps = {
