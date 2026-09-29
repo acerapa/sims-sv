@@ -40,6 +40,7 @@
 	import type { PageProps } from './$types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { SalesOrderStatus } from '$lib/const';
 
 	let { data }: PageProps = $props();
 
@@ -213,13 +214,15 @@
 											<Eye />
 											<span>View</span>
 										</DropdownMenuItem>
-										<DropdownMenuItem
-											class="space-x-2"
-										>
-											<Pencil />
-											<span>Edit</span>
-										</DropdownMenuItem>
-										{#if order.order_status !== 'invoiced' && order.order_status !== 'cancelled'}
+										{#if order.order_status !== SalesOrderStatus.INVOICED && order.order_status !== SalesOrderStatus.CANCELLED}
+    										<DropdownMenuItem
+    											class="space-x-2"
+    										>
+    											<Pencil />
+    											<span>Edit</span>
+    										</DropdownMenuItem>
+										{/if}
+										{#if order.order_status !== SalesOrderStatus.INVOICED && order.order_status !== SalesOrderStatus.CANCELLED}
 											<DropdownMenuItem
 												onSelect={() => onCreateInvoice(order.id)}
 												class="space-x-2"

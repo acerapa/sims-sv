@@ -382,3 +382,11 @@ export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) 
 		return { orderId };
 	});
 };
+
+export const updateSalesOrderStatus = async (orderId: number, status: string) => {
+  await db.update(salesOrders)
+    .set({
+      order_status: status
+    })
+    .where(eq(salesOrders.id, orderId));
+}

@@ -33,6 +33,10 @@
 	const onCancel = () => {
 		items = [];
 	}
+
+	const onPrint = () => {
+		alert('Coming soon!');
+	}
 </script>
 <Card>
     <CardContent class="w-[280px]">
@@ -86,7 +90,7 @@
             </form>
             <div class="flex gap-2 [&>button]:flex-1">
                 <Button variant="outline" onclick={onCancel}>Cancel</Button>
-                <Button variant="outline" class="invisible">Print</Button>
+                <Button variant="outline" type="button" onclick={onPrint}>Print</Button>
             </div>
         </div>
     </CardContent>

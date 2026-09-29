@@ -293,7 +293,7 @@ export const salesOrders = pgTable('sales_orders', {
 		.references(() => users.id),
 	date_ordered: timestamp().notNull(),
 	order_type: salesOrderType().default('onetime'),
-	order_status: salesOrderStatus().default('open'),
+	order_status: salesOrderStatus().default(SalesOrderStatus.OPEN),
 	notes: text(),
   total_cost: integer().notNull(),
 	sales_channel: salesChannel(),

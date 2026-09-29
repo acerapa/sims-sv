@@ -18,6 +18,7 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
+	import { SalesOrderStatus } from '$lib/const';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -76,7 +77,9 @@
     			<Badge variant={getStatusVariant(order.order_status || 'open')}>
     				{getStatusLabel(order.order_status || 'open')}
     			</Badge>
-                <Button variant="outline" onclick={onEdit}>Edit</Button>
+                {#if order.order_status != SalesOrderStatus.INVOICED && order.order_status != SalesOrderStatus.CANCELLED}
+                    <Button variant="outline" onclick={onEdit}>Edit</Button>
+                {/if}
 			</div>
 		</CardHeader>
 		<CardContent>
