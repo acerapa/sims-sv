@@ -17,6 +17,12 @@
 	import { resolve } from '$app/paths';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidate } from '$app/navigation';
+	import {
+		Tooltip,
+		TooltipContent,
+		TooltipProvider,
+		TooltipTrigger
+	} from '$lib/components/ui/tooltip';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
@@ -110,66 +116,88 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent>
-			<form method="post" bind:this={physicalInventorySheetForm} use:enhance={enhanceForm}>
-				<input type="hidden" name="status" value={status} />
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>Item</TableHead>
-							<TableHead>SKU/Item code</TableHead>
-							<TableHead>Category</TableHead>
-							<TableHead>Sys count</TableHead>
-							<TableHead>Counted</TableHead>
-							<TableHead>Difference</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{#each items as item, ndx (item.product_id)}
+			<TooltipProvider>
+				<form method="post" bind:this={physicalInventorySheetForm} use:enhance={enhanceForm}>
+					<input type="hidden" name="status" value={status} />
+					<Table>
+						<TableHeader>
 							<TableRow>
-								<TableCell>
-									{#if physicalInventory.status === 'draft'}
-										{#if item.id}
-											<input type="hidden" name={`items.${ndx}.id`} value={item.id} />
-										{/if}
-										<input
-											type="hidden"
-											value={physicalInventory.id}
-											name={`items.${ndx}.physical_inventory_id`}
-										/>
-										<input type="hidden" value={item.product_id} name={`items.${ndx}.product_id`} />
-										<input
-											type="hidden"
-											value={item.system_count}
-											name={`items.${ndx}.system_count`}
-										/>
-										<input type="hidden" value={item.difference} name={`items.${ndx}.difference`} />
-									{/if}
-									{item.purchase_description}
-								</TableCell>
-								<TableCell>{item.sku}</TableCell>
-								<TableCell>{item.category}</TableCell>
-								<TableCell class="px-5">{item.system_count}</TableCell>
-								<TableCell class={[physicalInventory.status === 'finalized' ? 'px-5 !py-3' : '']}>
-									{#if physicalInventory.status === 'draft'}
-										<Input
-											type="number"
-											class="max-w-32"
-											name={`items.${ndx}.actual_count`}
-											bind:value={item.actual_count}
-											onchange={() => handleInputChange(ndx)}
-										/>
-									{:else}
-										{item.actual_count}
-									{/if}
-								</TableCell>
-								<TableCell class={['px-5', getDiffTextColor(item.difference)]}>
-									{item.difference > 0 ? `+${item.difference}` : item.difference}
-								</TableCell>
+								<TableHead>Item</TableHead>
+								<TableHead>SKU/Item code</TableHead>
+								<TableHead>Category</TableHead>
+								<TableHead>Sys count</TableHead>
+								<TableHead>Counted</TableHead>
+								<TableHead>Difference</TableHead>
 							</TableRow>
-						{/each}
-					</TableBody>
-				</Table>
-			</form>
+						</TableHeader>
+						<TableBody>
+							{#each items as item, ndx (item.product_id)}
+								<TableRow>
+									<Tooltip>
+										<TableCell>
+											{#if physicalInventory.status === 'draft'}
+												{#if item.id}
+													<input type="hidden" name={`items.${ndx}.id`} value={item.id} />
+												{/if}
+												<input
+													type="hidden"
+													value={physicalInventory.id}
+													name={`items.${ndx}.physical_inventory_id`}
+												/>
+												<input
+													type="hidden"
+													value={item.product_id}
+													name={`items.${ndx}.product_id`}
+												/>
+												<input
+													type="hidden"
+													value={item.system_count}
+													name={`items.${ndx}.system_count`}
+												/>
+												<input
+													type="hidden"
+													value={item.difference}
+													name={`items.${ndx}.difference`}
+												/>
+											{/if}
+
+											<TooltipTrigger>
+												<p class="line-clamp-2 max-w-52 text-wrap text-left">
+													{item.purchase_description}
+												</p>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p class="max-w-52 text-wrap">
+													{item.purchase_description}
+												</p>
+											</TooltipContent>
+										</TableCell>
+									</Tooltip>
+									<TableCell>{item.sku}</TableCell>
+									<TableCell>{item.category}</TableCell>
+									<TableCell class="px-5">{item.system_count}</TableCell>
+									<TableCell class={[physicalInventory.status === 'finalized' ? 'px-5 !py-3' : '']}>
+										{#if physicalInventory.status === 'draft'}
+											<Input
+												type="number"
+												class="max-w-32"
+												name={`items.${ndx}.actual_count`}
+												bind:value={item.actual_count}
+												onchange={() => handleInputChange(ndx)}
+											/>
+										{:else}
+											{item.actual_count}
+										{/if}
+									</TableCell>
+									<TableCell class={['px-5', getDiffTextColor(item.difference)]}>
+										{item.difference > 0 ? `+${item.difference}` : item.difference}
+									</TableCell>
+								</TableRow>
+							{/each}
+						</TableBody>
+					</Table>
+				</form>
+			</TooltipProvider>
 		</CardContent>
 	</Card>
 </div>
