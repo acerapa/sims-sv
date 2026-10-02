@@ -70,6 +70,7 @@
 					<Label for="password">Password</Label>
 					<div class="relative">
 						<Button
+						    tabindex={-1}
 							variant="ghost"
 							size="icon"
 							class="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:bg-transparent"

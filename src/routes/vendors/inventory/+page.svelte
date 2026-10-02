@@ -44,6 +44,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { formatCurrency } from '$lib/utils/common';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
@@ -105,7 +106,7 @@
 	}
 
 	let onEditOrView = async (productId: number) => {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new SvelteURLSearchParams(page.url.searchParams);
 		params.set('id', String(productId));
 		await goto(`?${params.toString()}`);
 		preSelectedSuppliers = (product?.productToSuppliers ?? []).map((s) => s.supplier_id.toString());
@@ -134,28 +135,32 @@
 			value: stats.totalItems.toLocaleString(),
 			icon: Package,
 			description: 'products in inventory',
-			variant: 'success'
+			variant: 'success',
+			diff: ''
 		},
 		{
 			title: 'Low Stock Items',
 			value: stats.lowStockItems.toLocaleString(),
 			icon: TriangleAlert,
 			description: 'below minimum quantity',
-			variant: stats.lowStockItems > 0 ? 'warning' : 'success'
+			variant: stats.lowStockItems > 0 ? 'warning' : 'success',
+			diff: ''
 		},
 		{
 			title: 'Out of Stock',
 			value: stats.outOfStock.toLocaleString(),
 			icon: TrendingDown,
 			description: 'items with zero stock',
-			variant: stats.outOfStock > 0 ? 'error' : 'success'
+			variant: stats.outOfStock > 0 ? 'error' : 'success',
+			diff: ''
 		},
 		{
 			title: 'Total Value',
 			value: `₱${stats.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
 			icon: Package,
 			description: 'inventory value at cost',
-			variant: 'success'
+			variant: 'success',
+			diff: ''
 		}
 	]);
 </script>
