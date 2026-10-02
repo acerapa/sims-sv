@@ -119,6 +119,12 @@
 			resolve(`/customers/invoices/form?sales_order_id=${orderId}` as '/customers/invoices/form')
 		);
 	};
+
+	const onEdit = (orderId: number) => {
+		goto(
+			resolve(`/customers/sales-orders/${orderId}/form`)
+		);
+	};
 </script>
 
 <svelte:head>
@@ -216,6 +222,7 @@
 										</DropdownMenuItem>
 										{#if order.order_status !== SalesOrderStatus.INVOICED && order.order_status !== SalesOrderStatus.CANCELLED}
     										<DropdownMenuItem
+    											onSelect={() => onEdit(order.id)}
     											class="space-x-2"
     										>
     											<Pencil />

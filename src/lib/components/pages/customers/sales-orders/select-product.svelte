@@ -311,12 +311,6 @@
 									placeholder="Optional"
 									name={`products.${i}.serial_number`}
 									bind:value={items[i].serial_number}
-									onchange={() => {
-										if (items[i].serial_number && items[i].serial_number.trim()) {
-											items[i].quantity = 1;
-											items[i].total_price = 1 * items[i].unit_price;
-										}
-									}}
 								/>
 							</TableCell>
 							<TableCell class="align-top">
@@ -326,8 +320,8 @@
 											type="number"
 											name={`products.${i}.quantity`}
 											value="1"
-											disabled
-											class="disabled:opacity-50"
+											readonly
+											class="read-only:opacity-50"
 										/>
 									{:else}
 										<Input
