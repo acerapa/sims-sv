@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { applyAction, enhance } from '$app/forms';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import ConfirmSalesOrderCancel from '$lib/components/pages/customers/sales-orders/ConfirmSalesOrderCancel.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -19,11 +21,15 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { SalesOrderStatus } from '$lib/const';
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
 
 	let { data }: PageProps = $props();
 
 	let order = $derived(data.salesOrder);
+	let isConfirmDialogOpen = $state(false);
+	let cancelForm = $state<HTMLFormElement | null>(null);
 
 	const getStatusVariant = (status: string) => {
 		switch (status) {
@@ -56,9 +62,30 @@
 	};
 
 	const onEdit = () => {
-	  const salesOrderId = data.salesOrder.id
-      goto(resolve(`/customers/sales-orders/${salesOrderId}/form`));
-	}
+		const salesOrderId = data.salesOrder.id;
+		goto(resolve(`/customers/sales-orders/${salesOrderId}/form`));
+	};
+
+	const onCancel = () => {
+		if (cancelForm) {
+			cancelForm.requestSubmit();
+		} else {
+			console.warn('cancelForm is null');
+		}
+	};
+
+	const enhanceForm: SubmitFunction = () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				isConfirmDialogOpen = false;
+				await invalidateAll();
+				toast.success('Order cancelled successfully!');
+			} else {
+				toast.error('Failed to cancel order!');
+			}
+		};
+	};
 </script>
 
 <svelte:head>
@@ -67,6 +94,16 @@
 </svelte:head>
 
 <div class="flex flex-col gap-6">
+	<!-- Cancel order form -->
+	<form
+		method="post"
+		action={`/customers/sales-orders/${order.id}?/cancelSalesOrder`}
+		bind:this={cancelForm}
+		use:enhance={enhanceForm}
+	>
+		<input type="hidden" name="sales_order_id" value={order.id} />
+	</form>
+
 	<Card class="rounded-lg">
 		<CardHeader class="flex items-center justify-between">
 			<div class="space-y-1">
@@ -74,12 +111,14 @@
 				<CardDescription>Order details and items</CardDescription>
 			</div>
 			<div class="flex items-center gap-3">
-    			<Badge variant={getStatusVariant(order.order_status || 'open')}>
-    				{getStatusLabel(order.order_status || 'open')}
-    			</Badge>
-                {#if order.order_status != SalesOrderStatus.INVOICED && order.order_status != SalesOrderStatus.CANCELLED}
-                    <Button variant="outline" onclick={onEdit}>Edit</Button>
-                {/if}
+				<Badge variant={getStatusVariant(order.order_status || 'open')}>
+					{getStatusLabel(order.order_status || 'open')}
+				</Badge>
+				{#if order.order_status != SalesOrderStatus.INVOICED && order.order_status != SalesOrderStatus.CANCELLED}
+					<ConfirmSalesOrderCancel soId={order.id} bind:open={isConfirmDialogOpen} {onCancel} />
+
+					<Button variant="outline" onclick={onEdit}>Edit</Button>
+				{/if}
 			</div>
 		</CardHeader>
 		<CardContent>

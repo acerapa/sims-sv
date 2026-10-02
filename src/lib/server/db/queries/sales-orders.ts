@@ -1,6 +1,7 @@
 import { desc, eq, sql, count, sum, and, gte, lt } from 'drizzle-orm';
 import { db } from '..';
 import { customers, products, salesOrderItems, salesOrders, users, packagesToProducts, packages } from '../schema';
+import { SalesOrderStatus } from '$lib/const';
 
 export interface CreateSalesOrder {
 	customer_id: number;
@@ -387,6 +388,14 @@ export const updateSalesOrderStatus = async (orderId: number, status: string) =>
   await db.update(salesOrders)
     .set({
       order_status: status
+    })
+    .where(eq(salesOrders.id, orderId));
+}
+
+export const cancelSalesOrderById = async (orderId: number) => {
+  await db.update(salesOrders)
+    .set({
+      order_status: SalesOrderStatus.CANCELLED
     })
     .where(eq(salesOrders.id, orderId));
 }
