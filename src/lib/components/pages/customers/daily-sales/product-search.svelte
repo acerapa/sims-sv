@@ -72,7 +72,7 @@
                         <button onclick={() => onSelectProduct(product.id)} disabled={isProductDisabled(product.id)} class="disabled:opacity-50">
                             <div class="flex gap-2 p-2 justify-between w-full border rounded-lg items-center">
                                 <div>
-                                    <p class="text-sm font-medium">{product.sales_description}</p>
+                                    <p class="text-sm font-medium line-clamp-2">{product.sales_description}</p>
                                     <small class="text-xs text-muted-foreground">SKU: {product.sku}</small>
                                 </div>
                                 <span class="text-sm font-medium">{formatCurrency(Number(product.sale_price))}</span>
