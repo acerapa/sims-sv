@@ -2,7 +2,7 @@ import { getProducts } from '$lib/server/db/queries/products';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 import type { PageServerLoad } from './$types';
 import { decode } from 'decode-formdata';
-import { getWalkInCustomer } from '$lib/server/db/queries/customers';
+import { getCustomers } from '$lib/server/db/queries/customers';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
 import { createDailySales, type CreateDailySalesData } from '$lib/server/db/queries/daily-sales';
@@ -10,14 +10,14 @@ import { createDailySales, type CreateDailySalesData } from '$lib/server/db/quer
 export const load: PageServerLoad = async ({ url }) => {
 	const search = new SvelteURLSearchParams(url.searchParams);
 	const query = search.get('search') ?? '';
-	const [walkInCustomer] = await getWalkInCustomer();
+	const customers = await getCustomers()
 
 	let products;
 	if (query) {
 		products = await getProducts(query);
 	}
 
-	return { products: products ?? [], walkInCustomerId: walkInCustomer?.id ?? null };
+	return { products: products ?? [], customers };
 };
 
 export const actions = {

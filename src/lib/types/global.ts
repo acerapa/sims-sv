@@ -193,3 +193,8 @@ export interface DateRange {
 	from?: string;
 	to?: string;
 }
+
+export interface LabelValueProps {
+	label: string;
+	value: string | number;
+}

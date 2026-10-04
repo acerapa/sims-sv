@@ -71,7 +71,7 @@
                     {#each page.data.products as product (product.id)}
                         <button onclick={() => onSelectProduct(product.id)} disabled={isProductDisabled(product.id)} class="disabled:opacity-50">
                             <div class="flex gap-2 p-2 justify-between w-full border rounded-lg items-center">
-                                <div>
+                                <div class="text-left">
                                     <p class="text-sm font-medium line-clamp-2">{product.sales_description}</p>
                                     <small class="text-xs text-muted-foreground">SKU: {product.sku}</small>
                                 </div>

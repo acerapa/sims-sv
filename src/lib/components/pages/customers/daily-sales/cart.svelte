@@ -2,8 +2,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ButtonGroup } from '$lib/components/ui/button-group';
 	import { Card, CardContent } from '$lib/components/ui/card';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Input } from '$lib/components/ui/input';
 	import { Item, ItemContent, ItemDescription, ItemTitle } from '$lib/components/ui/item';
+	import { Label } from '$lib/components/ui/label';
+	import { Separator } from '$lib/components/ui/separator';
 	import type { DailySalesItem } from '$lib/types/global';
 	import { formatCurrency } from '$lib/utils/common';
 	import { Minus, Plus, Trash } from '@lucide/svelte';
@@ -80,9 +83,21 @@
 							</ButtonGroup>
 							<p class="font-semibold">{formatCurrency(item.total_cost || 0)}</p>
 						</div>
+
+						<div class="mt-2 border-t border-dashed pt-2">
+							<div class="flex items-center gap-2">
+								<Checkbox />
+								<Label class="font-light text-sm">Check if this item needs serial tracking</Label>
+							</div>
+						</div>
 					</ItemContent>
 				</Item>
 			{/each}
+
+			{#if items.length === 0}
+				<Separator />
+				<p class="text-center text-sm text-muted-foreground">No items in cart</p>
+			{/if}
 		</div>
 	</CardContent>
 </Card>
