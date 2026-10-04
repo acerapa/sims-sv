@@ -1,24 +1,12 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { ButtonGroup } from '$lib/components/ui/button-group';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
-	import {
-		Table,
-		TableBody,
-		TableCell,
-		TableHead,
-		TableHeader,
-		TableRow
-	} from '$lib/components/ui/table';
-	import {
-		Tooltip,
-		TooltipContent,
-		TooltipProvider,
-		TooltipTrigger
-	} from '$lib/components/ui/tooltip';
+	import { Item, ItemContent, ItemDescription, ItemTitle } from '$lib/components/ui/item';
 	import type { DailySalesItem } from '$lib/types/global';
 	import { formatCurrency } from '$lib/utils/common';
-	import { ChevronLeft, ChevronRight, Trash } from '@lucide/svelte';
+	import { Minus, Plus, Trash } from '@lucide/svelte';
 
 	const { items = $bindable<DailySalesItem[]>() } = $props();
 	const onIncreaseQuantity = (productId: number) => {
@@ -45,76 +33,56 @@
 	};
 </script>
 
-<TooltipProvider>
-	<Card class="w-full">
-		<CardContent>
-			<p class="font-medium">Cart</p>
-			<Table>
-				<TableHeader>
-					<TableRow class="hover:[&,&>svelte-css-wrapper]:[&>th,td]:bg-white">
-						<TableHead class="text-muted-foreground">Item</TableHead>
-						<TableHead class="text-muted-foreground">Quantity</TableHead>
-						<TableHead class="text-muted-foreground">Price</TableHead>
-						<TableHead class="text-muted-foreground">Total Price</TableHead>
-						<TableHead class="text-muted-foreground">Actions</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{#each items as item (item)}
-						<TableRow>
-							<Tooltip>
-								<TableCell>
-									<TooltipTrigger>
-										<p class="line-clamp-2 max-w-40 text-left text-wrap text-ellipsis">
-											{item.name}
-										</p>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>{item.name}</p>
-									</TooltipContent>
-								</TableCell>
-							</Tooltip>
-							<TableCell>
-								<div class="flex items-center gap-2">
-									<Button
-										onclick={() => onIncreaseQuantity(item.product_id)}
-										variant="outline"
-										size="icon"
-									>
-										<ChevronLeft />
-									</Button>
-									<Input min="1" class="field-sizing-content max-w-16" bind:value={item.quantity} />
-									<Button
-										disabled={item.quantity === 1}
-										onclick={() => onDecreaseQuantity(item.product_id)}
-										variant="outline"
-										size="icon"
-									>
-										<ChevronRight />
-									</Button>
-								</div>
-							</TableCell>
-							<TableCell>{formatCurrency(item.sale_price || 0)}</TableCell>
-							<TableCell>{formatCurrency(item.total_cost || 0)}</TableCell>
-							<TableCell>
+<Card class="w-full">
+	<CardContent>
+		<p class="font-medium">Cart</p>
+		<div class="mt-2 flex flex-col gap-2">
+			{#each items as item (item)}
+				<Item variant="outline">
+					<ItemContent>
+						<div class="flex gap-3">
+							<div class="flex-1">
+								<ItemTitle>{item.name}</ItemTitle>
+								<ItemDescription>{formatCurrency(item.sale_price || 0)} each</ItemDescription>
+							</div>
+							<Button
+								variant="ghost"
+								size="icon"
+								class="cursor-pointer"
+								onclick={() => onRemoveItem(item.product_id)}
+							>
+								<Trash class="text-red-500" />
+							</Button>
+						</div>
+
+						<div class="mt-4 flex items-center justify-between">
+							<ButtonGroup>
 								<Button
-									variant="ghost"
-									size="icon"
-									class="cursor-pointer"
-									onclick={() => onRemoveItem(item.product_id)}
+									disabled={item.quantity === 1}
+									onclick={() => onDecreaseQuantity(item.product_id)}
+									variant="outline"
+									size="icon-sm"
 								>
-									<Trash class="text-red-500" />
+									<Minus />
 								</Button>
-							</TableCell>
-						</TableRow>
-					{/each}
-					{#if !items || items?.length === 0}
-						<TableRow>
-							<TableCell colspan={4} class="text-center text-slate-400">No items in cart</TableCell>
-						</TableRow>
-					{/if}
-				</TableBody>
-			</Table>
-		</CardContent>
-	</Card>
-</TooltipProvider>
+								<Input
+									type="number"
+									value={item.quantity}
+									class="field-sizing-content h-auto w-fit [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+								/>
+								<Button
+									variant="outline"
+									size="icon-sm"
+									onclick={() => onIncreaseQuantity(item.product_id)}
+								>
+									<Plus />
+								</Button>
+							</ButtonGroup>
+							<p class="font-semibold">{formatCurrency(item.total_cost || 0)}</p>
+						</div>
+					</ItemContent>
+				</Item>
+			{/each}
+		</div>
+	</CardContent>
+</Card>
