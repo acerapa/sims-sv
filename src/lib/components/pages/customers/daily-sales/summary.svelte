@@ -20,6 +20,35 @@
 		return items.reduce((acc: number, item: DailySalesItem) => acc + item.total_cost, 0);
 	});
 
+	let itemsToSubmit = $derived.by(() => {
+		return items
+			.map((item: DailySalesItem) => {
+				if (item.serial_numbers.length) {
+					let productWithSerianumbers = [];
+					for (let serialNumber of item.serial_numbers) {
+						productWithSerianumbers.push({
+							product_id: item.product_id,
+							package_id: item.package_id,
+							quantity: 1,
+							total_price: item.sale_price || 0,
+							unit_price: item.sale_price || 0,
+							serial_number: serialNumber
+						});
+					}
+					return productWithSerianumbers;
+				} else {
+					return {
+						product_id: item.product_id,
+						package_id: item.package_id,
+						quantity: 1,
+						total_price: item.total_cost || 0,
+						unit_price: item.sale_price || 0
+					};
+				}
+			})
+			.flat();
+	});
+
 	// This part is to be added. Depending on client request.
 	let discount = $state(0);
 
@@ -34,7 +63,7 @@
 
 	const onSuccess = () => {
 		emptyCart();
-	}
+	};
 
 	let enhanceForm: SubmitFunction = () => {
 		return async ({ result }) => {
@@ -42,7 +71,7 @@
 			if (result.type === 'success') {
 				await invalidateAll();
 				toast.success('Daily sales added successfully');
-				onSuccess()
+				onSuccess();
 			} else {
 				toast.error('Failed to add daily sales');
 			}
@@ -51,6 +80,7 @@
 
 	const emptyCart = () => {
 		items = [];
+		customerId = ''
 	};
 </script>
 
@@ -63,8 +93,13 @@
 				<p class="text-sm font-medium">{formatCurrency(subtotal)}</p>
 			</div>
 			<div class="flex flex-col">
-				<p class="text-sm text-muted-foreground text-left w-full">Discount:</p>
-				<Input type="number" placeholder="0.00" bind:value={discount} class="text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+				<p class="w-full text-left text-sm text-muted-foreground">Discount:</p>
+				<Input
+					type="number"
+					placeholder="0.00"
+					bind:value={discount}
+					class="[appearance:textfield] text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+				/>
 			</div>
 		</div>
 		<hr class="my-2" />
@@ -98,23 +133,13 @@
 				<input type="hidden" name="notes" value="" />
 				<input type="hidden" name="payment_amount" value={amountReceived} />
 				<input type="hidden" name="payment_type" value={InvoicePaymentType.CASH} />
-				{#each items as item, i (item.product_id)}
-					{#if item.serial_numbers.length}
-						{#each item.serial_numbers as serialNumber, index (serialNumber)}
-							<input type="hidden" name={`products.${(items.length - 1) + index}.product_id`} value={item.product_id} />
-							<input type="hidden" name={`products.${(items.length - 1) + index}.package_id`} value={item.package_id} />
-							<input type="hidden" name={`products.${(items.length - 1) + index}.quantity`} value={1} />
-							<input type="hidden" name={`products.${(items.length - 1) + index}.total_price`} value={item.sale_price} />
-							<input type="hidden" name={`products.${(items.length - 1) + index}.unit_price`} value={item.sale_price} />
-							<input type="hidden" name={`products.${(items.length - 1) + index}.serial_number`} value={serialNumber} />
-						{/each}
-					{:else}
-						<input type="hidden" name={`products.${i}.product_id`} value={item.product_id} />
-						<input type="hidden" name={`products.${i}.package_id`} value={item.package_id} />
-						<input type="hidden" name={`products.${i}.quantity`} value={item.quantity} />
-						<input type="hidden" name={`products.${i}.total_price`} value={item.total_cost} />
-						<input type="hidden" name={`products.${i}.unit_price`} value={item.sale_price} />
-					{/if}
+				{#each itemsToSubmit as item, i (item)}
+					<input type="hidden" name={`products.${i}.product_id`} value={item.product_id} />
+					<input type="hidden" name={`products.${i}.package_id`} value={item.package_id} />
+					<input type="hidden" name={`products.${i}.quantity`} value={item.quantity} />
+					<input type="hidden" name={`products.${i}.total_price`} value={item.total_price} />
+					<input type="hidden" name={`products.${i}.unit_price`} value={item.unit_price} />
+					<input type="hidden" name={`products.${i}.serial_number`} value={item.serial_number} />
 				{/each}
 				<Button type="submit" class="w-full" disabled={items.length === 0}>Save Sale</Button>
 			</form>
