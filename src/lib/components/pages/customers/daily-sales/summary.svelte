@@ -32,19 +32,24 @@
 		return amountReceived ? total - amountReceived : 0;
 	});
 
+	const onSuccess = () => {
+		emptyCart();
+	}
+
 	let enhanceForm: SubmitFunction = () => {
 		return async ({ result }) => {
 			await applyAction(result);
 			if (result.type === 'success') {
 				await invalidateAll();
 				toast.success('Daily sales added successfully');
+				onSuccess()
 			} else {
 				toast.error('Failed to add daily sales');
 			}
 		};
 	};
 
-	const onCancel = () => {
+	const emptyCart = () => {
 		items = [];
 	};
 </script>
@@ -117,7 +122,7 @@
 				<Button
 					variant="outline"
 					class="border-red-500 text-red-500 hover:text-red-500"
-					onclick={onCancel}
+					onclick={emptyCart}
 				>
 					Discard
 				</Button>
