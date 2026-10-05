@@ -79,7 +79,11 @@
 		</div>
 
 		<div class="mt-4 flex flex-col gap-2">
-			<form method="post" action="/customers/daily-sales?/createDailySales" use:enhance={enhanceForm}>
+			<form
+				method="post"
+				action="/customers/daily-sales?/createDailySales"
+				use:enhance={enhanceForm}
+			>
 				<input type="hidden" name="customer_id" value={customerId} />
 				<input type="hidden" name="total_cost" value={total} />
 				<input type="hidden" name="order_type" value="onetime" />
@@ -90,19 +94,33 @@
 				<input type="hidden" name="payment_amount" value={amountReceived} />
 				<input type="hidden" name="payment_type" value={InvoicePaymentType.CASH} />
 				{#each items as item, i (item.product_id)}
-					<input type="hidden" name={`products.${i}.product_id`} value={item.product_id} />
-					<input type="hidden" name={`products.${i}.package_id`} value={item.package_id} />
-					<input type="hidden" name={`products.${i}.quantity`} value={item.quantity} />
-					<input type="hidden" name={`products.${i}.total_price`} value={item.total_cost} />
-					<input type="hidden" name={`products.${i}.unit_price`} value={item.sale_price} />
-					<input type="hidden" name={`products.${i}.serial_number`} value={item.serial_number} />
+					{#if item.serial_numbers.length}
+						{#each item.serial_numbers as serialNumber, index (serialNumber)}
+							<input type="hidden" name={`products.${(items.length - 1) + index}.product_id`} value={item.product_id} />
+							<input type="hidden" name={`products.${(items.length - 1) + index}.package_id`} value={item.package_id} />
+							<input type="hidden" name={`products.${(items.length - 1) + index}.quantity`} value={1} />
+							<input type="hidden" name={`products.${(items.length - 1) + index}.total_price`} value={item.sale_price} />
+							<input type="hidden" name={`products.${(items.length - 1) + index}.unit_price`} value={item.sale_price} />
+							<input type="hidden" name={`products.${(items.length - 1) + index}.serial_number`} value={serialNumber} />
+						{/each}
+					{:else}
+						<input type="hidden" name={`products.${i}.product_id`} value={item.product_id} />
+						<input type="hidden" name={`products.${i}.package_id`} value={item.package_id} />
+						<input type="hidden" name={`products.${i}.quantity`} value={item.quantity} />
+						<input type="hidden" name={`products.${i}.total_price`} value={item.total_cost} />
+						<input type="hidden" name={`products.${i}.unit_price`} value={item.sale_price} />
+					{/if}
 				{/each}
 				<Button type="submit" class="w-full" disabled={items.length === 0}>Save Sale</Button>
 			</form>
 			<div class="flex gap-2 [&>button]:flex-1">
-				<Button variant="outline" class="border-red-500 text-red-500" onclick={onCancel}
-					>Discard</Button
+				<Button
+					variant="outline"
+					class="border-red-500 text-red-500 hover:text-red-500"
+					onclick={onCancel}
 				>
+					Discard
+				</Button>
 			</div>
 		</div>
 	</CardContent>

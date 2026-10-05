@@ -26,7 +26,8 @@ export interface DailySalesItem {
   total_cost: number;
   stock: number;
   sale_price: number;
-  serial_number?: string;
+  has_sn: boolean;
+  serial_numbers: string[];
 }
 
 export interface Product {

@@ -48,7 +48,9 @@
 				quantity: 1,
 				total_cost: parseFloat(product.sale_price || '0'),
 				sale_price: parseFloat(product.sale_price || '0'),
-				stock: product.quantity
+				stock: product.quantity,
+				has_sn: false,
+				serial_numbers: [],
 			});
 		}
 	}
