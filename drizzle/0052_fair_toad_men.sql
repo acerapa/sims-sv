@@ -1,0 +1,1 @@
+ALTER TABLE "sales_orders" ADD COLUMN "discount" numeric DEFAULT 0 NOT NULL;

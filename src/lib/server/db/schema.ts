@@ -296,6 +296,7 @@ export const salesOrders = pgTable('sales_orders', {
 	order_status: salesOrderStatus().default(SalesOrderStatus.OPEN),
 	notes: text(),
   total_cost: integer().notNull(),
+  discount: decimal().notNull().default(0),
 	sales_channel: salesChannel(),
 	...timestamps
 });

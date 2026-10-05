@@ -21,7 +21,7 @@
 	});
 
 	// This part is to be added. Depending on client request.
-	let discount = 0;
+	let discount = $state(0);
 
 	let total = $derived.by(() => {
 		return subtotal - discount;
@@ -57,9 +57,9 @@
 				<p class="text-sm text-muted-foreground">Subtotal:</p>
 				<p class="text-sm font-medium">{formatCurrency(subtotal)}</p>
 			</div>
-			<div class="flex items-center justify-between">
-				<p class="text-sm text-muted-foreground">Discount:</p>
-				<p class="text-sm font-medium">{formatCurrency(discount)}</p>
+			<div class="flex flex-col">
+				<p class="text-sm text-muted-foreground text-left w-full">Discount:</p>
+				<Input type="number" placeholder="0.00" bind:value={discount} class="text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
 			</div>
 		</div>
 		<hr class="my-2" />
