@@ -24,6 +24,8 @@
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
+	import { formatCurrency } from '$lib/utils/common';
+	import { Separator } from '$lib/components/ui/separator';
 
 	let { data }: PageProps = $props();
 
@@ -86,6 +88,10 @@
 			}
 		};
 	};
+
+	const subTotal = $derived(
+		order.items.reduce((acc, item) => acc + Number(item.total_price || '0'), 0)
+	);
 </script>
 
 <svelte:head>
@@ -166,8 +172,8 @@
 						<TableHead>Product</TableHead>
 						<TableHead>S/N</TableHead>
 						<TableHead>Quantity</TableHead>
-						<TableHead>Unit Price (₱)</TableHead>
-						<TableHead>Total (₱)</TableHead>
+						<TableHead class="text-right">Unit Price (₱)</TableHead>
+						<TableHead class="text-right">Total (₱)</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -176,8 +182,8 @@
 							<TableCell>{item.package?.name || item.product?.sales_description || '—'}</TableCell>
 							<TableCell>{item.serial_number || '—'}</TableCell>
 							<TableCell>{item.quantity}</TableCell>
-							<TableCell>₱{parseFloat(item.unit_price as string).toFixed(2)}</TableCell>
-							<TableCell class="font-medium">
+							<TableCell class="text-right">₱{parseFloat(item.unit_price as string).toFixed(2)}</TableCell>
+							<TableCell class="font-medium text-right">
 								₱{parseFloat(item.total_price as string).toFixed(2)}
 							</TableCell>
 						</TableRow>
@@ -187,8 +193,17 @@
 
 			<div class="mt-4 ml-auto w-1/2 space-y-2">
 				<div class="flex items-center justify-between">
-					<span class="font-bold">Total:</span>
-					<span class="font-bold">₱{order.total_cost.toLocaleString()}</span>
+					<span class="font-bold text-sm">Sub Total:</span>
+					<span class="font-bold text-sm">{formatCurrency(subTotal)}</span>
+				</div>
+				<div class="flex items-center justify-between">
+					<span class="font-bold text-sm">Discount:</span>
+					<span class="font-bold text-sm">{formatCurrency(order.discount)}</span>
+				</div>
+				<Separator />
+				<div class="flex items-center justify-between">
+					<span class="font-bold text-sm">Total:</span>
+					<span class="font-bold text-sm">{formatCurrency(order.total_cost)}</span>
 				</div>
 			</div>
 		</CardContent>
