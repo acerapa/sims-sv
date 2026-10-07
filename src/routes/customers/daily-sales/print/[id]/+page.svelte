@@ -7,7 +7,6 @@
 
 	let { data }: PageProps = $props();
 	let order = $derived(data.salesOrder);
-	let payment = $derived(order.invoices[0]?.payments[0]);
 	let subtotal = $derived(
 		order.items.reduce((sum, item) => sum + Number(item.total_price || 0), 0)
 	);
@@ -28,7 +27,9 @@
 
 <div class="receipt-page">
 	<div class="no-print mb-4 flex justify-between">
-		<Button variant="outline" onclick={() => goto('/customers/daily-sales')}>Back to Daily Sales</Button>
+		<Button variant="outline" onclick={() => goto('/customers/daily-sales')}
+			>Back to Daily Sales</Button
+		>
 		<Button onclick={printReceipt}>Print</Button>
 	</div>
 
@@ -70,8 +71,8 @@
 				<th>Project</th>
 			</tr>
 			<tr>
-				<td>{payment?.check_number || ''}</td>
-				<td class="capitalize">{payment?.payment_type?.replaceAll('_', ' ') || '—'}</td>
+				<td>{data.payment?.check_number || ''}</td>
+				<td class="capitalize">{data.payment?.payment_type?.replaceAll('_', ' ') || '—'}</td>
 				<td>{order.staff?.name || ''}</td>
 				<td></td>
 			</tr>
@@ -109,7 +110,9 @@
 		{#if Number(order.discount) > 0}
 			<div><strong>Discount</strong><span>-{formatCurrency(order.discount)}</span></div>
 		{/if}
-		<div class="grand-total"><strong>Total</strong><span>{formatCurrency(order.total_cost)}</span></div>
+		<div class="grand-total">
+			<strong>Total</strong><span>{formatCurrency(order.total_cost)}</span>
+		</div>
 	</div>
 
 	<div class="signature">SIGNATURE OVER PRINTED NAME</div>
@@ -231,11 +234,21 @@
 		text-align: center;
 	}
 
-	.item-column { width: 55%; }
-	.quantity-column { width: 7%; }
-	.rate-column { width: 10%; }
-	.serial-column { width: 16%; }
-	.amount-column { width: 12%; }
+	.item-column {
+		width: 55%;
+	}
+	.quantity-column {
+		width: 7%;
+	}
+	.rate-column {
+		width: 10%;
+	}
+	.serial-column {
+		width: 16%;
+	}
+	.amount-column {
+		width: 12%;
+	}
 
 	.items-table tbody td {
 		height: 8mm;
@@ -291,6 +304,11 @@
 			max-width: none !important;
 			height: auto !important;
 			padding: 0 !important;
+		}
+
+		:global(.overflow-y-auto) {
+			height: auto !important;
+			overflow: visible !important;
 		}
 
 		:global(main > section) {

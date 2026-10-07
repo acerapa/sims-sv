@@ -172,11 +172,6 @@ export const getSalesOrder = async (id: number) => {
 						columns: { id: true, name: true }
 					}
 				}
-			},
-			invoices: {
-				with: {
-					payments: true
-				}
 			}
 		}
 	});
@@ -237,7 +232,7 @@ export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) 
 			.set({
 				staff_user_id: data.staff_user_id,
 				notes: data.notes,
-        total_cost: data.total_cost,
+				total_cost: data.total_cost,
 				updated_at: new Date()
 			})
 			.where(eq(salesOrders.id, orderId));

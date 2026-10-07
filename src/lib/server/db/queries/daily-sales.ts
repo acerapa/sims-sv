@@ -1,3 +1,6 @@
+import { eq } from "drizzle-orm";
+import { db } from "..";
+import { invoicePayments, invoices } from "../schema";
 import { createInvoice, createPayment, type CreateInvoiceData, type CreatePaymentData } from "./invoices";
 import { createSalesOrder, getSalesOrder, type CreateSalesOrder } from "./sales-orders";
 
@@ -45,3 +48,17 @@ export const createDailySales = async (dailySalesData: CreateDailySalesData) => 
 
   return res;
 }
+
+export const getDailySalesPayment = async (salesOrderId: number) => {
+  const [payment] = await db
+    .select({
+      payment_type: invoicePayments.payment_type,
+      check_number: invoicePayments.check_number
+    })
+    .from(invoicePayments)
+    .innerJoin(invoices, eq(invoicePayments.invoice_id, invoices.id))
+    .where(eq(invoices.sales_order_id, salesOrderId))
+    .limit(1);
+
+  return payment;
+};

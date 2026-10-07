@@ -76,7 +76,7 @@
 
 	const emptyCart = () => {
 		items = [];
-		customerId = ''
+		customerId = '';
 	};
 </script>
 

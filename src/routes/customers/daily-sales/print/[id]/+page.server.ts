@@ -1,3 +1,4 @@
+import { getDailySalesPayment } from '$lib/server/db/queries/daily-sales';
 import { getSalesOrder } from '$lib/server/db/queries/sales-orders';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -13,5 +14,6 @@ export const load: PageServerLoad = async ({ params }) => {
 		error(404, 'Sales order not found');
 	}
 
-	return { salesOrder };
+	const payment = await getDailySalesPayment(id);
+	return { salesOrder, payment };
 };
