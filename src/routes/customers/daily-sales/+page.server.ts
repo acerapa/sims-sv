@@ -30,6 +30,7 @@ export const actions = {
           'customer_id',
           'total_cost',
           'staff_user_id',
+          'discount',
           'products.$.quantity',
           'products.$.total_price',
           'products.$.unit_price',
@@ -46,6 +47,7 @@ export const actions = {
           date_ordered: z.date('Order date is required'),
           order_type: z.enum(['onetime', 'installment'], 'Must be either "onetime" or "installment"'),
           notes: z.string().optional(),
+          discount: z.number().optional(),
           products: z
             .array(
               z.object({

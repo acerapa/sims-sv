@@ -1,6 +1,6 @@
-import { desc, eq, sql, count, sum, and, gte, lt } from 'drizzle-orm';
+import { desc, eq, sql, count, sum } from 'drizzle-orm';
 import { db } from '..';
-import { customers, products, salesOrderItems, salesOrders, users, packagesToProducts, packages } from '../schema';
+import { customers, products, salesOrderItems, salesOrders, users, packagesToProducts } from '../schema';
 import { SalesOrderStatus } from '$lib/const';
 
 export interface CreateSalesOrder {
@@ -9,7 +9,8 @@ export interface CreateSalesOrder {
 	date_ordered: Date;
 	order_type: string;
 	notes?: string;
-	total_cost: number;
+  total_cost: number;
+	discount?: number;
 	products: {
 		product_id?: number | null;
 		package_id?: number | null;
@@ -27,6 +28,7 @@ export interface UpdateSalesOrder {
 	order_type: string;
 	notes?: string;
 	total_cost: number;
+	discount?: number;
 	products: {
 		id?: number;
 		product_id?: number | null;
@@ -49,7 +51,8 @@ export const createSalesOrder = async (data: CreateSalesOrder) => {
 					date_ordered: data.date_ordered,
 					order_type: data.order_type,
 					notes: data.notes,
-					total_cost: data.total_cost
+          total_cost: data.total_cost,
+					discount: data.discount
 				})
 			)
 			.returning({ lastInsertedId: salesOrders.id });
@@ -229,7 +232,7 @@ export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) 
 			.set({
 				staff_user_id: data.staff_user_id,
 				notes: data.notes,
-				total_cost: data.total_cost,
+        total_cost: data.total_cost,
 				updated_at: new Date()
 			})
 			.where(eq(salesOrders.id, orderId));

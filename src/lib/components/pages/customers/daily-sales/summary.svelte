@@ -133,6 +133,7 @@
 				<input type="hidden" name="notes" value="" />
 				<input type="hidden" name="payment_amount" value={amountReceived} />
 				<input type="hidden" name="payment_type" value={InvoicePaymentType.CASH} />
+				<input type="hidden" name="discount" value={discount} />
 				{#each itemsToSubmit as item, i (item)}
 					<input type="hidden" name={`products.${i}.product_id`} value={item.product_id} />
 					<input type="hidden" name={`products.${i}.package_id`} value={item.package_id} />
