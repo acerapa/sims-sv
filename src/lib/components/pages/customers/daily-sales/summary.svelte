@@ -9,7 +9,7 @@
 	import { formatCurrency } from '$lib/utils/common';
 	import { InvoicePaymentType, SalesChannel } from '$lib/const';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 
 	let { items = $bindable<DailySalesItem[]>(), customerId = $bindable() } = $props();
@@ -61,17 +61,13 @@
 		return amountReceived ? total - amountReceived : 0;
 	});
 
-	const onSuccess = () => {
-		emptyCart();
-	};
-
 	let enhanceForm: SubmitFunction = () => {
 		return async ({ result }) => {
 			await applyAction(result);
-			if (result.type === 'success') {
-				await invalidateAll();
+			if (result.type === 'success' && result.data?.lastInsertedId) {
 				toast.success('Daily sales added successfully');
-				onSuccess();
+				emptyCart();
+				await goto(`/customers/daily-sales/print/${result.data.lastInsertedId}`);
 			} else {
 				toast.error('Failed to add daily sales');
 			}

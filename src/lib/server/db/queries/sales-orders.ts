@@ -161,7 +161,7 @@ export const getSalesOrder = async (id: number) => {
 	const order = await db.query.salesOrders.findFirst({
 		where: eq(salesOrders.id, id),
 		with: {
-			customer: { columns: { id: true, name: true } },
+			customer: { columns: { id: true, name: true, address: true } },
 			staff: { columns: { id: true, name: true } },
 			items: {
 				with: {
@@ -171,6 +171,11 @@ export const getSalesOrder = async (id: number) => {
 					package: {
 						columns: { id: true, name: true }
 					}
+				}
+			},
+			invoices: {
+				with: {
+					payments: true
 				}
 			}
 		}

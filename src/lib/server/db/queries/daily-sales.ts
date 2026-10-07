@@ -42,4 +42,6 @@ export const createDailySales = async (dailySalesData: CreateDailySalesData) => 
 
     await createPayment(createPaymentData);
   }
+
+  return res;
 }
