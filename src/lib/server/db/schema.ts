@@ -273,6 +273,30 @@ export const rmaItems = pgTable('rma_items', {
 	total_cost: integer().notNull()
 });
 
+export const fixAssets = pgTable('fix_assests', {
+	id: serial().primaryKey(),
+	date_transfered: timestamp().notNull(),
+	notes: text(),
+	staff_user_id: integer()
+		.notNull()
+		.references(() => users.id),
+	...timestamps
+});
+
+export const fixAssetItems = pgTable('fix_assets_items', {
+	id: serial().primaryKey(),
+	fix_asset_id: integer()
+		.notNull()
+		.references(() => fixAssets.id),
+	product_id: integer()
+		.notNull()
+		.references(() => products.id),
+	serial_number: varchar(),
+	quantity: integer().notNull(),
+	cost: integer().notNull(),
+	total_cost: integer().notNull()
+});
+
 export const customers = pgTable('customers', {
 	id: serial().primaryKey(),
 	name: varchar().notNull(),
@@ -295,8 +319,8 @@ export const salesOrders = pgTable('sales_orders', {
 	order_type: salesOrderType().default('onetime'),
 	order_status: salesOrderStatus().default(SalesOrderStatus.OPEN),
 	notes: text(),
-  total_cost: integer().notNull(),
-  discount: decimal().notNull().default(0),
+	total_cost: integer().notNull(),
+	discount: decimal().notNull().default(0),
 	sales_channel: salesChannel(),
 	...timestamps
 });
@@ -306,8 +330,7 @@ export const salesOrderItems = pgTable('sales_order_items', {
 	sales_order_id: integer()
 		.notNull()
 		.references(() => salesOrders.id),
-	product_id: integer()
-		.references(() => products.id),
+	product_id: integer().references(() => products.id),
 	package_id: integer().references(() => packages.id),
 	quantity: integer().notNull(),
 	unit_price: decimal().notNull(),
@@ -338,8 +361,7 @@ export const invoiceItems = pgTable('invoice_items', {
 	sales_order_item_id: integer()
 		.notNull()
 		.references(() => salesOrderItems.id),
-	product_id: integer()
-		.references(() => products.id),
+	product_id: integer().references(() => products.id),
 	package_id: integer().references(() => packages.id),
 	quantity: integer().notNull(),
 	unit_price: decimal().notNull(),
@@ -372,7 +394,7 @@ export const sellingBrackets = pgTable('selling_brackets', {
 export const packages = pgTable('packages', {
 	id: serial().primaryKey(),
 	name: varchar().notNull(),
-  description: text(),
+	description: text(),
 	total_price: decimal().default('0'),
 	...timestamps
 });
@@ -384,8 +406,8 @@ export const packagesToProducts = pgTable('packages_to_products', {
 	product_id: integer()
 		.notNull()
 		.references(() => products.id),
-  serial_number: varchar(),
-  price: decimal().default('0'),
+	serial_number: varchar(),
+	price: decimal().default('0'),
 	total_price: decimal().default('0'),
 	quantity: integer().notNull().default(1)
 });
