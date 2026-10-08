@@ -97,6 +97,9 @@
 						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/rmas'))}>
 							Return Merchandise Authorization (RMA)
 						</DropdownMenuItem>
+						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/fix-assets'))}>
+							Fix Assets
+						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			{:else}

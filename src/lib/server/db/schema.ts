@@ -273,7 +273,7 @@ export const rmaItems = pgTable('rma_items', {
 	total_cost: integer().notNull()
 });
 
-export const fixAssets = pgTable('fix_assests', {
+export const fixAssets = pgTable('fix_assets', {
 	id: serial().primaryKey(),
 	date_transfered: timestamp().notNull(),
 	notes: text(),
