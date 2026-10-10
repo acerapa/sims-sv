@@ -16,6 +16,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Plus } from '@lucide/svelte';
 	import FixAssetsItems from './fix-assets-items.svelte';
+	import LineItem from '../line-item.svelte';
 
 	let { open = $bindable(false) } = $props();
 </script>
@@ -54,6 +55,8 @@
 						</div>
 					</CardContent>
 				</Card>
+
+				<LineItem />
 			</div>
 
 			<SheetFooter class="flex-row justify-end">

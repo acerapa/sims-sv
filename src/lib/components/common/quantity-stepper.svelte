@@ -30,7 +30,12 @@
 </script>
 
 <ButtonGroup>
-	<Button onclick={() => onDecreaseValue()} variant="outline" size="icon-sm">
+	<Button
+		disabled={min != null ? value <= min : false}
+		onclick={() => onDecreaseValue()}
+		variant="outline"
+		size="icon-sm"
+	>
 		<Minus />
 	</Button>
 	<Input
@@ -38,7 +43,12 @@
 		{value}
 		class="field-sizing-content h-auto w-fit [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 	/>
-	<Button variant="outline" size="icon-sm" onclick={() => onIncreaseValue()}>
+	<Button
+		disabled={max != null ? value >= max : false}
+		variant="outline"
+		size="icon-sm"
+		onclick={() => onIncreaseValue()}
+	>
 		<Plus />
 	</Button>
 </ButtonGroup>
