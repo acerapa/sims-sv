@@ -17,6 +17,7 @@
 	} from '$lib/components/ui/table';
 	import { Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
+	import FixAssetsForm from '$lib/components/pages/vendors/transfers/fix-assets/fix-assets-form.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -38,6 +39,8 @@
 				<CardTitle>Fix Assets</CardTitle>
 				<CardDescription>Track inventories that are converted to assets</CardDescription>
 			</div>
+
+			<FixAssetsForm />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
