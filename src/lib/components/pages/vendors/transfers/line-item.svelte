@@ -7,15 +7,18 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import { Trash } from '@lucide/svelte';
 
-	let { quantity = $bindable<number>(4) } = $props();
-	let trackSerialNumber = $state(true);
+	let { quantity = $bindable<number>(0), serialNumbers = $bindable<string[]>([]) } = $props();
+	let trackSerialNumber = $state(false);
 	let snInput = $state<HTMLInputElement | null>(null);
 	let snValue = $state<string>();
+	const isFullfilled = $derived(serialNumbers.length === quantity);
 
 	const onInputInter = async (event: KeyboardEvent) => {
 		if (event.key === 'Enter') {
 			event.preventDefault();
-			console.log(snValue);
+
+			// TODO: add validation here
+			serialNumbers.push(snValue);
 
 			snValue = '';
 			snInput?.focus();
@@ -53,8 +56,13 @@
 			<div class="grid justify-items-end gap-3">
 				<Switch bind:checked={trackSerialNumber} />
 				{#if trackSerialNumber}
-					<Badge variant="outline" class="border-amber-400 bg-amber-50 text-amber-600">
-						0 0f 0 serials
+					<Badge
+						variant="outline"
+						class={isFullfilled
+							? 'border-green-500 bg-green-50 text-green-500'
+							: 'border-amber-500 bg-amber-50 text-amber-500'}
+					>
+						{serialNumbers.length} of {quantity} serials
 					</Badge>
 				{/if}
 			</div>
@@ -72,11 +80,13 @@
 			</div>
 		{/if}
 
-		<Input
-			bind:ref={snInput}
-			bind:value={snValue}
-			placeholder="Type serial numbers here..."
-			onkeydown={onInputInter}
-		/>
+		{#if !isFullfilled && trackSerialNumber}
+			<Input
+				bind:ref={snInput}
+				bind:value={snValue}
+				placeholder="Type serial numbers here..."
+				onkeydown={onInputInter}
+			/>
+		{/if}
 	</ItemContent>
 </Item>

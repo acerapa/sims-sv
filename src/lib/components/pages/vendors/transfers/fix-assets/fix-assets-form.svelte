@@ -56,7 +56,7 @@
 					</CardContent>
 				</Card>
 
-				<LineItem />
+				<LineItem quantity={4} />
 			</div>
 
 			<SheetFooter class="flex-row justify-end">
