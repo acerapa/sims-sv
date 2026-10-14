@@ -1,3 +1,5 @@
+import type { getProducts } from "$lib/server/db/queries/products";
+
 export interface PurchaseOrder {
 	id: number;
 	po_reference: string;
@@ -199,3 +201,5 @@ export interface LabelValueProps {
 	label: string;
 	value: string | number;
 }
+
+export type ProductItem = Awaited<ReturnType<typeof getProducts>>[number];
