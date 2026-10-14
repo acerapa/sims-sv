@@ -17,6 +17,7 @@
 	import { Plus } from '@lucide/svelte';
 	import FixAssetsItems from './fix-assets-items.svelte';
 	import LineItem from '../line-item.svelte';
+	import ProductSelectWithSearch from '$lib/components/common/product-select-with-search.svelte';
 
 	let { open = $bindable(false) } = $props();
 </script>
@@ -56,7 +57,15 @@
 					</CardContent>
 				</Card>
 
-				<LineItem quantity={4} />
+				<Card>
+					<CardHeader>
+						<CardTitle>Items</CardTitle>
+					</CardHeader>
+					<CardContent class="space-y-4">
+					    <ProductSelectWithSearch />
+						<LineItem quantity={4} />
+					</CardContent>
+				</Card>
 			</div>
 
 			<SheetFooter class="flex-row justify-end">
