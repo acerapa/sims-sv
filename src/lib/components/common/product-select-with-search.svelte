@@ -5,14 +5,17 @@
 	import type { ProductItem } from '$lib/types/global';
 
 	const products = $derived(page.data.products as ProductItem[]);
-	let { selected = $bindable<ProductItem[]>([]) } = $props();
+	let { selected = $bindable([]), handleSelectProduct = $bindable<(p: ProductItem) => void>() } =
+		$props();
 	let search = $state('');
 	const filteredProducts = $derived(
 		products.filter((p) => p.purchase_description.toLowerCase().includes(search.toLowerCase()))
 	);
 
 	const onSelectProduct = (product: ProductItem) => {
-		selected.push(product);
+		if (handleSelectProduct) {
+			handleSelectProduct(product);
+		}
 
 		search = '';
 		const active = document.activeElement;
@@ -20,7 +23,7 @@
 	};
 
 	const isProductSelected = (productId: number) => {
-		return selected.some((p: ProductItem) => p.id == productId);
+		return selected.some((p) => p.product_id == productId);
 	};
 </script>
 

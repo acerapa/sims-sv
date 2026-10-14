@@ -5,10 +5,14 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Item, ItemContent, ItemDescription, ItemTitle } from '$lib/components/ui/item';
 	import { Switch } from '$lib/components/ui/switch';
+	import { formatCurrency } from '$lib/utils/common';
 	import { Trash, X } from '@lucide/svelte';
 
 	let {
-		quantity = $bindable<number>(0),
+		quantity = $bindable<number>(),
+		cost = $bindable<number>(),
+		total_cost = $bindable<number>(),
+		itemDescription = $bindable<string>(),
 		serialNumbers = $bindable<string[]>([]),
 		handleRemoveItem = $bindable<() => void>()
 	} = $props();
@@ -22,6 +26,7 @@
 		if (event.key === 'Enter') {
 			event.preventDefault();
 
+			errorMessage = '';
 			if (serialNumbers.includes(snValue)) {
 				errorMessage = `Duplicate sn number for: ${snValue}.`;
 				return;
@@ -43,22 +48,26 @@
 			handleRemoveItem();
 		}
 	};
+
+	const onQuantityChange = () => {
+		total_cost = cost * quantity;
+	};
 </script>
 
 <Item variant="outline">
 	<ItemContent class="space-y-2">
 		<div class="flex gap-3">
 			<div class="flex-1">
-				<ItemTitle>Laptop 05</ItemTitle>
-				<ItemDescription>₱520 each</ItemDescription>
+				<ItemTitle>{itemDescription}</ItemTitle>
+				<ItemDescription>{formatCurrency(cost)} each</ItemDescription>
 			</div>
 			<Button variant="ghost" size="icon" class="cursor-pointer" onclick={onRemoveItem}>
 				<Trash class="text-red-500" />
 			</Button>
 		</div>
 		<div class="flex items-center justify-between">
-			<QuantityStepper min={0} />
-			<p class="text-sm font-bold">₱2000.00</p>
+			<QuantityStepper bind:value={quantity} min={0} onValueChange={onQuantityChange} />
+			<p class="text-sm font-bold">{formatCurrency(total_cost)}</p>
 		</div>
 
 		<hr />
@@ -116,18 +125,18 @@
 		{/if}
 
 		{#if !isFullfilled && trackSerialNumber}
-		<div class="space-y-1">
-			<Input
-				bind:ref={snInput}
-				bind:value={snValue}
-				placeholder="Type serial numbers here..."
-				onkeydown={onInputInter}
-				class={errorMessage ? '!border-red-500 bg-red-50' : ''}
-			/>
-			{#if errorMessage}
-			    <small class="text-red-500">{errorMessage}</small>
-			{/if}
-		</div>
+			<div class="space-y-1">
+				<Input
+					bind:ref={snInput}
+					bind:value={snValue}
+					placeholder="Type serial numbers here..."
+					onkeydown={onInputInter}
+					class={errorMessage ? '!border-red-500 bg-red-50' : ''}
+				/>
+				{#if errorMessage}
+					<small class="text-red-500">{errorMessage}</small>
+				{/if}
+			</div>
 		{/if}
 	</ItemContent>
 </Item>

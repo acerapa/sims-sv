@@ -8,6 +8,7 @@
 		value = $bindable<number>(0),
 		onDecrease = $bindable<() => void>(),
 		onIncrease = $bindable<() => void>(),
+		onValueChange = $bindable<() => void>(),
 		min = $bindable<number | null>(null),
 		max = $bindable<number | null>(null)
 	} = $props();
@@ -18,6 +19,7 @@
 		} else {
 			value--;
 		}
+		onValueChange(value);
 	};
 
 	const onIncreaseValue = () => {
@@ -26,6 +28,7 @@
 		} else {
 			value++;
 		}
+		onValueChange(value);
 	};
 </script>
 

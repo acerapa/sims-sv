@@ -1,4 +1,4 @@
-import type { getProducts } from "$lib/server/db/queries/products";
+import type { getProducts } from '$lib/server/db/queries/products';
 
 export interface PurchaseOrder {
 	id: number;
@@ -22,14 +22,14 @@ export interface TransactionItem {
 
 export interface DailySalesItem {
 	name: string;
-  product_id?: number;
-  package_id?: number;
+	product_id?: number;
+	package_id?: number;
 	quantity: number;
-  total_cost: number;
-  stock: number;
-  sale_price: number;
-  has_sn: boolean;
-  serial_numbers: string[];
+	total_cost: number;
+	stock: number;
+	sale_price: number;
+	has_sn: boolean;
+	serial_numbers: string[];
 }
 
 export interface Product {
@@ -203,3 +203,8 @@ export interface LabelValueProps {
 }
 
 export type ProductItem = Awaited<ReturnType<typeof getProducts>>[number];
+
+export type FixAssetItem = Omit<TransactionItem, 'id'> & {
+  serial_number: string[];
+  item_description: string;
+};
