@@ -5,23 +5,42 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Item, ItemContent, ItemDescription, ItemTitle } from '$lib/components/ui/item';
 	import { Switch } from '$lib/components/ui/switch';
-	import { Trash } from '@lucide/svelte';
+	import { Trash, X } from '@lucide/svelte';
 
-	let { quantity = $bindable<number>(0), serialNumbers = $bindable<string[]>([]) } = $props();
+	let {
+		quantity = $bindable<number>(0),
+		serialNumbers = $bindable<string[]>([]),
+		handleRemoveItem = $bindable<() => void>()
+	} = $props();
 	let trackSerialNumber = $state(false);
 	let snInput = $state<HTMLInputElement | null>(null);
 	let snValue = $state<string>();
 	const isFullfilled = $derived(serialNumbers.length === quantity);
+	let errorMessage = $state();
 
 	const onInputInter = async (event: KeyboardEvent) => {
 		if (event.key === 'Enter') {
 			event.preventDefault();
 
-			// TODO: add validation here
-			serialNumbers.push(snValue);
+			if (serialNumbers.includes(snValue)) {
+				errorMessage = `Duplicate sn number for: ${snValue}.`;
+				return;
+			} else {
+				serialNumbers.push(snValue);
+			}
 
 			snValue = '';
 			snInput?.focus();
+		}
+	};
+
+	const onRemoveSerialNumber = (index: number) => {
+		serialNumbers.splice(index, 1);
+	};
+
+	const onRemoveItem = () => {
+		if (handleRemoveItem) {
+			handleRemoveItem();
 		}
 	};
 </script>
@@ -33,7 +52,7 @@
 				<ItemTitle>Laptop 05</ItemTitle>
 				<ItemDescription>₱520 each</ItemDescription>
 			</div>
-			<Button variant="ghost" size="icon" class="cursor-pointer">
+			<Button variant="ghost" size="icon" class="cursor-pointer" onclick={onRemoveItem}>
 				<Trash class="text-red-500" />
 			</Button>
 		</div>
@@ -72,21 +91,43 @@
 			<div class="space-y-2">
 				<div class="flex gap-1">
 					{#each { length: quantity }, i}
-						<div class="rounded-md border border-dashed px-2 py-1 text-xs text-muted-foreground">
-							Unit {i + 1}
-						</div>
+						{#if serialNumbers[i]}
+							<div
+								class="flex items-center justify-between gap-1 rounded-md border border-gray-500 bg-gray-50 pt-1 pb-1.5 pl-2 text-xs text-gray-500"
+							>
+								{serialNumbers[i]}
+								<Button
+									variant="ghost"
+									size="icon-sm"
+									class="h-4 w-6 cursor-pointer"
+									onclick={() => onRemoveSerialNumber(i)}
+								>
+									<X class="mt-0.5 size-3.5" />
+								</Button>
+							</div>
+						{:else}
+							<div class="rounded-md border border-dashed px-2 py-1 text-xs text-muted-foreground">
+								Unit {i + 1}
+							</div>
+						{/if}
 					{/each}
 				</div>
 			</div>
 		{/if}
 
 		{#if !isFullfilled && trackSerialNumber}
+		<div class="space-y-1">
 			<Input
 				bind:ref={snInput}
 				bind:value={snValue}
 				placeholder="Type serial numbers here..."
 				onkeydown={onInputInter}
+				class={errorMessage ? '!border-red-500 bg-red-50' : ''}
 			/>
+			{#if errorMessage}
+			    <small class="text-red-500">{errorMessage}</small>
+			{/if}
+		</div>
 		{/if}
 	</ItemContent>
 </Item>
