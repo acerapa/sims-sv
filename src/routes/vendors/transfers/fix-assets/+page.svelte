@@ -58,11 +58,17 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#each assetTransfers as assetTransfer (assetTransfer.no)}
+				{#each fixAssets as fixAsset (fixAsset.id)}
 					<TableRow>
-						<TableCell>{assetTransfer.no}</TableCell>
-						<TableCell>{assetTransfer.transferDate}</TableCell>
-						<TableCell class="text-center">{assetTransfer.itemsCount}</TableCell>
+						<TableCell>FA-{fixAsset.id}</TableCell>
+						<TableCell>
+							{new Date(fixAsset.date_transfered).toLocaleDateString('default', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							})}
+						</TableCell>
+						<TableCell class="text-center">{fixAsset.items_count}</TableCell>
 						<TableCell class="text-muted-foreground">—</TableCell>
 					</TableRow>
 				{/each}
