@@ -63,7 +63,7 @@ export const createStr = async (data: CreateSTRData) => {
 				}
 				return await tx
 					.update(products)
-					.set({ quantity: p.quantity - item.quantity })
+					.set({ quantity: (p.quantity || 0) - item.quantity })
 					.where(eq(products.id, item.product_id));
 			})
 		);

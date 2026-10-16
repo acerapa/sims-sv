@@ -5,13 +5,9 @@
 
 	import type { FixAssetItem, ProductItem } from '$lib/types/global';
 
-	type FixAssetWithSingleSN = FixAssetItem & {
-		serial_number?: string;
-	};
-
 	let fixAssetItems = $state<FixAssetItem[]>([]);
 	let fixAssetItemsFormatted = $derived.by(() => {
-		let faItems: FixAssetWithSingleSN[] = [];
+		let faItems: FixAssetItem[] = [];
 		fixAssetItems.forEach((f: FixAssetItem) => {
 			if (f.serial_numbers.length) {
 				f.serial_numbers.forEach((sn: string) => {

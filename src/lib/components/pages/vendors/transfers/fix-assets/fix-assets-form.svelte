@@ -16,8 +16,10 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Plus } from '@lucide/svelte';
 	import FixAssetsItems from './fix-assets-items.svelte';
+	import { page } from '$app/state';
 
 	let { open = $bindable(false) } = $props();
+	let auth = $derived(page.data?.auth_user);
 </script>
 
 <Sheet bind:open>
@@ -57,6 +59,7 @@
 									/>
 								</div>
 							</div>
+							<input name="staff_user_id" type="hidden" value={auth?.id} />
 						</CardContent>
 					</Card>
 

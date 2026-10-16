@@ -207,4 +207,5 @@ export type ProductItem = Awaited<ReturnType<typeof getProducts>>[number];
 export type FixAssetItem = Omit<TransactionItem, 'id'> & {
   serial_numbers: string[];
   item_description: string;
+  serial_number?: string
 };
