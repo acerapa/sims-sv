@@ -205,7 +205,12 @@ export interface LabelValueProps {
 export type ProductItem = Awaited<ReturnType<typeof getProducts>>[number];
 
 export type FixAssetItem = Omit<TransactionItem, 'id'> & {
-  serial_numbers: string[];
-  item_description: string;
-  serial_number?: string
+	serial_numbers: string[];
+	item_description: string;
+	serial_number?: string;
+};
+
+export type STRItem = Omit<TransactionItem, 'id'> & {
+	serial_numbers: string[];
+	serial_number?: string;
 };

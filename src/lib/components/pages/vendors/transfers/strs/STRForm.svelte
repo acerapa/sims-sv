@@ -23,6 +23,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import StoresForm from '$lib/components/pages/settings/stores/StoresForm.svelte';
 	import { resolve } from '$app/paths';
+	import StrsItems from './strs-items.svelte';
 
 	let { stores, form = null, open = $bindable(false), str = $bindable(null) } = $props();
 	let storeId = $derived(str?.store_id ?? '');
@@ -143,6 +144,7 @@
 						</div>
 					</CardContent>
 				</Card>
+				<StrsItems />
 				{#key str?.items}
 					<STRItems {isViewOnly} initialItems={str?.items} />
 				{/key}
