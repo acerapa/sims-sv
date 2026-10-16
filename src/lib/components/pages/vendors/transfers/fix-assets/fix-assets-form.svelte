@@ -25,40 +25,46 @@
 		<Plus />
 		Add Fix Assets
 	</SheetTrigger>
-	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:max-w-3xl">
-		<SheetHeader>
+	<SheetContent side="right" class="flex flex-col gap-0 p-0 sm:max-w-3xl">
+		<SheetHeader class="shrink-0 p-6">
 			<SheetTitle>New Fix Assets</SheetTitle>
 			<SheetDescription>Fill in the details to create a new fix assets</SheetDescription>
 		</SheetHeader>
 
-		<form>
-			<div class="flex flex-col gap-6 px-6">
-				<Card>
-					<CardHeader class="flex items-center justify-between">
-						<CardTitle>Fix Asset Information</CardTitle>
-					</CardHeader>
-
-					<CardContent>
-						<div class="flex flex-col gap-6">
-							<div class="space-y-2">
-								<Label>Date Transfer</Label>
-								<DatePicker />
+		<form
+			class="flex min-h-0 flex-1 flex-col"
+			method="POST"
+			action="/vendors/transfers/fix-assets?/submitFixAsset"
+		>
+			<!-- Only this area scrolls -->
+			<div class="flex-1 overflow-y-auto">
+				<div class="flex flex-col gap-6 px-6 pb-6">
+					<Card>
+						<CardHeader class="flex items-center justify-between">
+							<CardTitle>Fix Asset Information</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div class="flex flex-col gap-6">
+								<div class="space-y-2">
+									<Label>Date Transfer</Label>
+									<DatePicker name="date_transfered" />
+								</div>
+								<div class="space-y-2">
+									<Label>Notes</Label>
+									<Textarea
+										name="notes"
+										placeholder="Add any additional notes about this transfer..."
+									/>
+								</div>
 							</div>
-							<div class="space-y-2">
-								<Label>Notes</Label>
-								<Textarea
-									name="notes"
-									placeholder="Add any additional notes about this transfer..."
-								/>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
+						</CardContent>
+					</Card>
 
-				<FixAssetsItems />
+					<FixAssetsItems />
+				</div>
 			</div>
 
-			<SheetFooter class="flex-row justify-end">
+			<SheetFooter class="shrink-0 flex-row justify-end border-t bg-white p-4">
 				<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
 				<Button type="submit" variant="default">Add Fix Asset</Button>
 			</SheetFooter>

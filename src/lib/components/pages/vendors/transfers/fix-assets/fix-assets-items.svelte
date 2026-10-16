@@ -5,7 +5,30 @@
 
 	import type { FixAssetItem, ProductItem } from '$lib/types/global';
 
+	type FixAssetWithSingleSN = FixAssetItem & {
+		serial_number?: string;
+	};
+
 	let fixAssetItems = $state<FixAssetItem[]>([]);
+	let fixAssetItemsFormatted = $derived.by(() => {
+		let faItems: FixAssetWithSingleSN[] = [];
+		fixAssetItems.forEach((f: FixAssetItem) => {
+			if (f.serial_numbers.length) {
+				f.serial_numbers.forEach((sn: string) => {
+					faItems.push({
+						...f,
+						quantity: 1,
+						total_cost: f.cost,
+						serial_number: sn
+					});
+				});
+			} else {
+				faItems.push(f);
+			}
+		});
+
+		return faItems;
+	});
 
 	const handleSelectProduct = (product: ProductItem) => {
 		fixAssetItems.push({
@@ -14,11 +37,13 @@
 			total_cost: Number(product.cost || '0'),
 			product_id: product.id,
 			quantity: 1,
-			serial_number: []
+			serial_numbers: []
 		});
 	};
 
-	$inspect(fixAssetItems);
+	const handleRemoveProduct = (productId: number) => {
+		fixAssetItems = fixAssetItems.filter((p) => p.product_id != productId);
+	};
 </script>
 
 <Card>
@@ -29,14 +54,27 @@
 		<ProductSelectWithSearch selected={fixAssetItems} {handleSelectProduct} />
 
 		<div class="space-y-2">
-			{#each fixAssetItems as item (item.product_id)}
+			{#each fixAssetItems.toReversed() as item (item.product_id)}
 				<LineItem
-				    bind:cost={item.cost}
+					bind:cost={item.cost}
 					bind:total_cost={item.total_cost}
 					itemDescription={item.item_description}
 					bind:quantity={item.quantity}
-					bind:serialNumbers={item.serial_number}
+					bind:serialNumbers={item.serial_numbers}
+					handleRemoveItem={() => handleRemoveProduct(item.product_id)}
 				/>
+			{:else}
+				<p class="text-muted-foreground text-sm text-center">No products selected.</p>
+			{/each}
+		</div>
+
+		<div class="invisible">
+			{#each fixAssetItemsFormatted as item, ndx (item)}
+				<input name={`items.${ndx}.product_id`} type="hidden" value={item.product_id} />
+				<input name={`items.${ndx}.serial_number`} type="hidden" value={item.serial_number} />
+				<input name={`items.${ndx}.quantity`} type="hidden" value={item.quantity} />
+				<input name={`items.${ndx}.cost`} type="hidden" value={item.cost} />
+				<input name={`items.${ndx}.total_cost`} type="hidden" value={item.total_cost} />
 			{/each}
 		</div>
 	</CardContent>
