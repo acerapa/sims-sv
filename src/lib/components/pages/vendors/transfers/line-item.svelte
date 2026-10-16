@@ -66,7 +66,7 @@
 			</Button>
 		</div>
 		<div class="flex items-center justify-between">
-			<QuantityStepper bind:value={quantity} min={0} onValueChange={onQuantityChange} />
+			<QuantityStepper bind:value={quantity} min={1} onValueChange={onQuantityChange} />
 			<p class="text-sm font-bold">{formatCurrency(total_cost)}</p>
 		</div>
 

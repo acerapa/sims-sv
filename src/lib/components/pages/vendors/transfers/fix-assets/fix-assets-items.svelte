@@ -4,11 +4,11 @@
 	import LineItem from '../line-item.svelte';
 
 	import type { FixAssetItem, ProductItem } from '$lib/types/global';
+	let { items = $bindable<FixAssetItem[]>([]) } = $props();
 
-	let fixAssetItems = $state<FixAssetItem[]>([]);
 	let fixAssetItemsFormatted = $derived.by(() => {
 		let faItems: FixAssetItem[] = [];
-		fixAssetItems.forEach((f: FixAssetItem) => {
+		items.forEach((f: FixAssetItem) => {
 			if (f.serial_numbers.length) {
 				f.serial_numbers.forEach((sn: string) => {
 					faItems.push({
@@ -27,7 +27,7 @@
 	});
 
 	const handleSelectProduct = (product: ProductItem) => {
-		fixAssetItems.push({
+		items.push({
 			item_description: product.purchase_description,
 			cost: Number(product.cost || '0'),
 			total_cost: Number(product.cost || '0'),
@@ -38,7 +38,7 @@
 	};
 
 	const handleRemoveProduct = (productId: number) => {
-		fixAssetItems = fixAssetItems.filter((p) => p.product_id != productId);
+		items = items.filter((p) => p.product_id != productId);
 	};
 </script>
 
@@ -47,10 +47,10 @@
 		<CardTitle>Items</CardTitle>
 	</CardHeader>
 	<CardContent class="space-y-4">
-		<ProductSelectWithSearch selected={fixAssetItems} {handleSelectProduct} />
+		<ProductSelectWithSearch selected={items} {handleSelectProduct} />
 
 		<div class="space-y-2">
-			{#each fixAssetItems.toReversed() as item (item.product_id)}
+			{#each items.toReversed() as item (item.product_id)}
 				<LineItem
 					bind:cost={item.cost}
 					bind:total_cost={item.total_cost}

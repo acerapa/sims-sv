@@ -17,9 +17,30 @@
 	import { Plus } from '@lucide/svelte';
 	import FixAssetsItems from './fix-assets-items.svelte';
 	import { page } from '$app/state';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { toast } from 'svelte-sonner';
+	import { invalidateAll } from '$app/navigation';
+	import { applyAction, enhance } from '$app/forms';
+	import type { FixAssetItem } from '$lib/types/global';
 
 	let { open = $bindable(false) } = $props();
 	let auth = $derived(page.data?.auth_user);
+	let errors = $derived(page.form?.errors?.properties || {});
+
+	let items = $state<FixAssetItem[]>([]);
+
+	const enhanceForm: SubmitFunction = () => {
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+				toast.success('Fix asset successfully submitted!');
+				await invalidateAll();
+				open = false;
+			} else {
+				toast.error('Error submitting fix assets!');
+			}
+		};
+	};
 </script>
 
 <Sheet bind:open>
@@ -37,6 +58,7 @@
 			class="flex min-h-0 flex-1 flex-col"
 			method="POST"
 			action="/vendors/transfers/fix-assets?/submitFixAsset"
+			use:enhance={enhanceForm}
 		>
 			<!-- Only this area scrolls -->
 			<div class="flex-1 overflow-y-auto">
@@ -49,7 +71,15 @@
 							<div class="flex flex-col gap-6">
 								<div class="space-y-2">
 									<Label>Date Transfer</Label>
-									<DatePicker name="date_transfered" />
+									<div>
+										<DatePicker
+											error={errors?.date_transfered ? true : false}
+											name="date_transfered"
+										/>
+										{#if errors?.date_transfered}
+											<small class="text-red-500">{errors?.date_transfered.errors[0]}</small>
+										{/if}
+									</div>
 								</div>
 								<div class="space-y-2">
 									<Label>Notes</Label>
@@ -63,13 +93,13 @@
 						</CardContent>
 					</Card>
 
-					<FixAssetsItems />
+					<FixAssetsItems bind:items={items} />
 				</div>
 			</div>
 
 			<SheetFooter class="shrink-0 flex-row justify-end border-t bg-white p-4">
 				<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
-				<Button type="submit" variant="default">Add Fix Asset</Button>
+				<Button type="submit" disabled={!items.length} variant="default">Add Fix Asset</Button>
 			</SheetFooter>
 		</form>
 	</SheetContent>
