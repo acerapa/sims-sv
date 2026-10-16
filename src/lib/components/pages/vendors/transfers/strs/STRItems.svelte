@@ -52,8 +52,8 @@
 
 		if (product) {
 			items[ndx].product_id = product.id.toString();
-			items[ndx].cost = product.sale_price;
-			items[ndx].total_cost = items[ndx].quantity * product.sale_price;
+			items[ndx].cost = Number(product.cost || '0');
+			items[ndx].total_cost = items[ndx].quantity * Number(product.cost || '0');
 		}
 	};
 
