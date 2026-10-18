@@ -15,7 +15,6 @@
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Plus, Printer } from '@lucide/svelte';
-	import STRItems from './STRItems.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { applyAction, enhance } from '$app/forms';
@@ -24,6 +23,7 @@
 	import StoresForm from '$lib/components/pages/settings/stores/StoresForm.svelte';
 	import { resolve } from '$app/paths';
 	import StrsItems from './strs-items.svelte';
+	import type { STRItem } from '$lib/types/global';
 
 	let { stores, form = null, open = $bindable(false), str = $bindable(null) } = $props();
 	let storeId = $derived(str?.store_id ?? '');
@@ -33,6 +33,8 @@
 	let errors = $derived(form?.errors);
 	let showStoresForm = $state(false);
 	let isViewOnly = $derived(str?.id !== undefined);
+
+	let items = $state<STRItem[]>([]);
 
 	const enhanceForm: SubmitFunction = async () => {
 		return async ({ result }) => {
@@ -81,80 +83,89 @@
 			</SheetDescription>
 		</SheetHeader>
 
-		<form action="/vendors/transfers/strs?/createStr" method="post" use:enhance={enhanceForm}>
-			<div class="flex flex-col gap-6 px-6">
-				<Card>
-					<CardHeader class="flex items-center justify-between">
-						<CardTitle>STR Information</CardTitle>
-						{#if str?.id}
-							<Button type="button" class="cursor-pointer" variant="outline" onclick={printSTR}>
-								<Printer size={16} />
-								Print
-							</Button>
-						{/if}
-					</CardHeader>
-					<CardContent>
-						<div class="flex flex-col gap-6">
-							<div class="space-y-2">
-								<Label>Destination</Label>
-								<div>
-									<Select disabled={isViewOnly} type="single" name="store_id" bind:value={storeId}>
-										<SelectTrigger
-											class={['w-full', errors?.properties?.store_id ? 'border-red-500' : '']}
+		<form
+			action="/vendors/transfers/strs?/createStr"
+			method="post"
+			use:enhance={enhanceForm}
+			class="flex min-h-0 flex-1 flex-col"
+		>
+			<div class="flex-1 overflow-y-auto">
+				<div class="flex flex-col gap-6 px-6 pb-6">
+					<Card>
+						<CardHeader class="flex items-center justify-between">
+							<CardTitle>STR Information</CardTitle>
+							{#if str?.id}
+								<Button type="button" class="cursor-pointer" variant="outline" onclick={printSTR}>
+									<Printer size={16} />
+									Print
+								</Button>
+							{/if}
+						</CardHeader>
+						<CardContent>
+							<div class="flex flex-col gap-6">
+								<div class="space-y-2">
+									<Label>Destination</Label>
+									<div>
+										<Select
+											disabled={isViewOnly}
+											type="single"
+											name="store_id"
+											bind:value={storeId}
 										>
-											{selectedStore ? selectedStore.name : 'Select Store'}
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="0" onclick={openStoresForm}>Add Store</SelectItem>
-											{#each stores as store (store.id)}
-												<SelectItem value={store.id}>{store.name}</SelectItem>
-											{/each}
-										</SelectContent>
-									</Select>
-									{#if errors?.properties?.store_id}
-										<small class="text-red-500">{errors.properties.store_id.errors[0]}</small>
-									{/if}
+											<SelectTrigger
+												class={['w-full', errors?.properties?.store_id ? 'border-red-500' : '']}
+											>
+												{selectedStore ? selectedStore.name : 'Select Store'}
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="0" onclick={openStoresForm}>Add Store</SelectItem>
+												{#each stores as store (store.id)}
+													<SelectItem value={store.id}>{store.name}</SelectItem>
+												{/each}
+											</SelectContent>
+										</Select>
+										{#if errors?.properties?.store_id}
+											<small class="text-red-500">{errors.properties.store_id.errors[0]}</small>
+										{/if}
+									</div>
 								</div>
-							</div>
-							<div class="space-y-2">
-								<Label>Transfer date</Label>
-								<div>
-									<DatePicker
-										disabled={isViewOnly}
-										error={errors?.properties?.transfer_date ? true : false}
-										name="transfer_date"
-										bind:value={transferDate}
+								<div class="space-y-2">
+									<Label>Transfer date</Label>
+									<div>
+										<DatePicker
+											disabled={isViewOnly}
+											error={errors?.properties?.transfer_date ? true : false}
+											name="transfer_date"
+											bind:value={transferDate}
+										/>
+										{#if errors?.properties?.transfer_date}
+											<small class="text-red-500">
+												{errors.properties.transfer_date.errors[0]}
+											</small>
+										{/if}
+									</div>
+								</div>
+								<div class="space-y-2">
+									<Label>Notes</Label>
+									<Textarea
+										readonly={isViewOnly}
+										name="notes"
+										bind:value={notes}
+										placeholder="Add any additional notes about this transfer..."
 									/>
-									{#if errors?.properties?.transfer_date}
-										<small class="text-red-500">
-											{errors.properties.transfer_date.errors[0]}
-										</small>
-									{/if}
 								</div>
 							</div>
-							<div class="space-y-2">
-								<Label>Notes</Label>
-								<Textarea
-									readonly={isViewOnly}
-									name="notes"
-									bind:value={notes}
-									placeholder="Add any additional notes about this transfer..."
-								/>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-				<StrsItems />
-				{#key str?.items}
-					<STRItems {isViewOnly} initialItems={str?.items} />
-				{/key}
+						</CardContent>
+					</Card>
+					<StrsItems bind:items />
+				</div>
 			</div>
 			{#if !isViewOnly}
-				<SheetFooter class="flex-row justify-end">
+				<SheetFooter class="shrink-0 flex-row justify-end border-t bg-white p-4">
 					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
 						Cancel
 					</SheetClose>
-					<Button type="submit" variant="default">Add STR</Button>
+					<Button type="submit" variant="default" disabled={!items.length}>Add STR</Button>
 				</SheetFooter>
 			{/if}
 		</form>

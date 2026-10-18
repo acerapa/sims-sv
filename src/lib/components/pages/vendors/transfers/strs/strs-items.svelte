@@ -6,6 +6,26 @@
 
 	let { items = $bindable<STRItem[]>([]) } = $props();
 
+	let strItemsFormatted = $derived.by(() => {
+		let faItems: STRItem[] = [];
+		items.forEach((f: STRItem) => {
+			if (f.serial_numbers.length) {
+				f.serial_numbers.forEach((sn: string) => {
+					faItems.push({
+						...f,
+						quantity: 1,
+						total_cost: f.cost,
+						serial_number: sn
+					});
+				});
+			} else {
+				faItems.push(f);
+			}
+		});
+
+		return faItems;
+	});
+
 	const handleSelectProduct = (product: ProductItem) => {
 		items.push({
 			item_description: product.purchase_description,
@@ -41,6 +61,16 @@
 				/>
 			{:else}
 				<p class="text-muted-foreground text-sm text-center">No products selected.</p>
+			{/each}
+		</div>
+
+		<div class="invisible">
+			{#each strItemsFormatted as item, ndx (item)}
+				<input name={`items.${ndx}.product_id`} type="hidden" value={item.product_id} />
+				<input name={`items.${ndx}.serial_number`} type="hidden" value={item.serial_number} />
+				<input name={`items.${ndx}.quantity`} type="hidden" value={item.quantity} />
+				<input name={`items.${ndx}.cost`} type="hidden" value={item.cost} />
+				<input name={`items.${ndx}.total_cost`} type="hidden" value={item.total_cost} />
 			{/each}
 		</div>
 	</CardContent>
