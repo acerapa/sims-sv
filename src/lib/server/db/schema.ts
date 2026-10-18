@@ -1,4 +1,4 @@
-import { InvoicePaymentType, SalesChannel, SalesOrderStatus } from '../../const';
+import { FixAssetUser, InvoicePaymentType, SalesChannel, SalesOrderStatus } from '../../const';
 import { relations } from 'drizzle-orm';
 import {
 	boolean,
@@ -36,6 +36,14 @@ export const invoicePaymentType = pgEnum('invoice_payment_type', [
 	InvoicePaymentType.CASH,
 	InvoicePaymentType.CHECK,
 	InvoicePaymentType.BANK_TRANSFER
+]);
+export const fixAssetUsers = pgEnum('fix_asset_users', [
+	FixAssetUser.ACCOUNTING,
+	FixAssetUser.AUDIT,
+	FixAssetUser.CASHIER,
+	FixAssetUser.INVENTORY,
+	FixAssetUser.MANAGER,
+	FixAssetUser.TECHNICIAN
 ]);
 
 const timestamps = {
@@ -276,7 +284,8 @@ export const rmaItems = pgTable('rma_items', {
 export const fixAssets = pgTable('fix_assets', {
 	id: serial().primaryKey(),
 	date_transfered: timestamp().notNull(),
-	notes: text(),
+  notes: text(),
+	user: fixAssetUsers(),
 	staff_user_id: integer()
 		.notNull()
 		.references(() => users.id),

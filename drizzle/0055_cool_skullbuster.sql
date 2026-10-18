@@ -1,0 +1,2 @@
+CREATE TYPE "public"."fix_asset_users" AS ENUM('accounting', 'audit', 'cashier', 'inventory', 'manager', 'technician');--> statement-breakpoint
+ALTER TABLE "fix_assets" ADD COLUMN "user" "fix_asset_users";
