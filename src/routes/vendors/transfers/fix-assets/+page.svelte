@@ -18,18 +18,11 @@
 	import { Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import FixAssetsForm from '$lib/components/pages/vendors/transfers/fix-assets/fix-assets-form.svelte';
+	import { capitalizeFirstLetter } from '$lib/utils/common';
 
 	let { data }: PageProps = $props();
 
 	let fixAssets = $derived(data?.fixAssets || []);
-
-	const assetTransfers = [
-		{ no: 'FA-001', transferDate: 'January 15, 2025', itemsCount: 3 },
-		{ no: 'FA-002', transferDate: 'February 4, 2025', itemsCount: 6 },
-		{ no: 'FA-003', transferDate: 'March 21, 2025', itemsCount: 2 },
-		{ no: 'FA-004', transferDate: 'April 9, 2025', itemsCount: 5 },
-		{ no: 'FA-005', transferDate: 'May 16, 2025', itemsCount: 4 }
-	];
 </script>
 
 <Card>
@@ -52,6 +45,7 @@
 			<TableHeader>
 				<TableRow>
 					<TableHead>No.</TableHead>
+					<TableHead>User</TableHead>
 					<TableHead>Transfer Date</TableHead>
 					<TableHead class="text-center"># of Items</TableHead>
 					<TableHead>Actions</TableHead>
@@ -61,6 +55,7 @@
 				{#each fixAssets as fixAsset (fixAsset.id)}
 					<TableRow>
 						<TableCell>FA-{fixAsset.id}</TableCell>
+						<TableCell>{fixAsset.user ? capitalizeFirstLetter(fixAsset.user) : '—'}</TableCell>
 						<TableCell>
 							{new Date(fixAsset.date_transfered).toLocaleDateString('default', {
 								day: 'numeric',

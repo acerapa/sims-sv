@@ -5,7 +5,8 @@ import type { FixAssetItem } from '$lib/types/global';
 
 export interface CreateFixAsset {
 	date_transfered: Date;
-	notes?: string;
+  notes?: string;
+  user: string;
 	staff_user_id: number;
 	items: FixAssetItem[];
 }
@@ -15,7 +16,8 @@ export const getFixAssets = async () => {
 		.select({
 			id: fixAssets.id,
 			date_transfered: fixAssets.date_transfered,
-			notes: fixAssets.notes,
+      notes: fixAssets.notes,
+			user: fixAssets.user,
 			items_count: count(fixAssetItems.id)
 		})
 		.from(fixAssets)
@@ -31,7 +33,8 @@ export const createFixAsset = async (data: CreateFixAsset) => {
 			.values(
 				Object({
 					date_transfered: data.date_transfered,
-					notes: data.notes,
+          notes: data.notes,
+					user: data.user,
 					staff_user_id: data.staff_user_id
 				})
 			)

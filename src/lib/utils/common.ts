@@ -24,3 +24,8 @@ export function debounce<T extends (...args: unknown[]) => void>(func: T, wait: 
 		timeout = setTimeout(() => func(...args), wait);
 	};
 }
+
+export function capitalizeFirstLetter(word: string): string {
+  if (!word) return word;
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}

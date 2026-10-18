@@ -7,6 +7,7 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
+import { FixAssetUser } from '$lib/const';
 
 export const load: PageServerLoad = async () => {
 	const fixAssets = await getFixAssets();
@@ -33,6 +34,7 @@ export const actions: Actions = {
 				date_transfered: z.date('Date transfered is required'),
 				staff_user_id: z.number('Staff user is required'),
 				notes: z.string().optional(),
+				user: z.enum(Object.values(FixAssetUser)),
 				items: z
 					.array(
 						z.object({

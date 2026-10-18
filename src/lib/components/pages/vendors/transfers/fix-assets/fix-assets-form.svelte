@@ -22,10 +22,14 @@
 	import { invalidateAll } from '$app/navigation';
 	import { applyAction, enhance } from '$app/forms';
 	import type { FixAssetItem } from '$lib/types/global';
+	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import { FixAssetUser } from '$lib/const';
+	import { capitalizeFirstLetter } from '$lib/utils/common';
 
 	let { open = $bindable(false) } = $props();
 	let auth = $derived(page.data?.auth_user);
 	let errors = $derived(page.form?.errors?.properties || {});
+	let fixAssetUser = $state<string>();
 
 	let items = $state<FixAssetItem[]>([]);
 
@@ -41,9 +45,15 @@
 			}
 		};
 	};
+
+	const onOpenChangeComplete = () => {
+		if (!open) {
+			fixAssetUser = '';
+		}
+	};
 </script>
 
-<Sheet bind:open>
+<Sheet bind:open {onOpenChangeComplete}>
 	<SheetTrigger class={buttonVariants({ variant: 'default' })}>
 		<Plus />
 		Add Fix Assets
@@ -82,6 +92,24 @@
 									</div>
 								</div>
 								<div class="space-y-2">
+									<Label>User</Label>
+									<div>
+										<Select type="single" name="user" bind:value={fixAssetUser}>
+											<SelectTrigger class="w-full">
+												{fixAssetUser ? capitalizeFirstLetter(fixAssetUser) : 'Select user'}
+											</SelectTrigger>
+											<SelectContent>
+												{#each Object.values(FixAssetUser) as user (user)}
+													<SelectItem value={user}>{capitalizeFirstLetter(user)}</SelectItem>
+												{/each}
+											</SelectContent>
+										</Select>
+										{#if errors?.user}
+											<small class="text-red-500">{errors?.user.errors[0]}</small>
+										{/if}
+									</div>
+								</div>
+								<div class="space-y-2">
 									<Label>Notes</Label>
 									<Textarea
 										name="notes"
@@ -93,7 +121,7 @@
 						</CardContent>
 					</Card>
 
-					<FixAssetsItems bind:items={items} />
+					<FixAssetsItems bind:items />
 				</div>
 			</div>
 
