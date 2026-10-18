@@ -2,11 +2,12 @@ import { count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '..';
 import { fixAssetItems, fixAssets, products } from '../schema';
 import type { FixAssetItem } from '$lib/types/global';
+type FixAssetItemWithId = FixAssetItem & { id: number };
 
 export interface CreateFixAsset {
 	date_transfered: Date;
-  notes?: string;
-  user: string;
+	notes?: string;
+	user: string;
 	staff_user_id: number;
 	items: FixAssetItem[];
 }
@@ -16,7 +17,7 @@ export const getFixAssets = async () => {
 		.select({
 			id: fixAssets.id,
 			date_transfered: fixAssets.date_transfered,
-      notes: fixAssets.notes,
+			notes: fixAssets.notes,
 			user: fixAssets.user,
 			items_count: count(fixAssetItems.id)
 		})
@@ -26,6 +27,46 @@ export const getFixAssets = async () => {
 		.orderBy(desc(fixAssets.created_at));
 };
 
+export const getFixAssetById = async (fixAssetId: number) => {
+	const rows = await db
+		.select({
+			id: fixAssets.id,
+			date_transfered: fixAssets.date_transfered,
+			notes: fixAssets.notes,
+			user: fixAssets.user,
+			item_id: fixAssetItems.id,
+			item_product_id: fixAssetItems.product_id,
+			item_quantity: fixAssetItems.quantity,
+			item_cost: fixAssetItems.cost,
+			item_total_cost: fixAssetItems.total_cost,
+			item_serial_number: fixAssetItems.serial_number
+		})
+		.from(fixAssets)
+		.leftJoin(fixAssetItems, eq(fixAssetItems.fix_asset_id, fixAssetId))
+		.where(eq(fixAssets.id, fixAssetId));
+
+	if (rows.length === 0) return undefined;
+
+	const { id, date_transfered, user, notes } = rows[0];
+
+	const items = groupItemsByProduct(
+		rows.map(
+			(row) =>
+				({
+					id: row.item_id,
+					product_id: row.item_product_id,
+					quantity: row.item_quantity,
+					cost: row.item_cost,
+					total_cost: row.item_total_cost,
+					serial_number: row.item_serial_number,
+					serial_numbers: [row.item_serial_number]
+				}) as FixAssetItemWithId
+		)
+	);
+
+	return { id, date_transfered, user, notes, items };
+};
+
 export const createFixAsset = async (data: CreateFixAsset) => {
 	return await db.transaction(async (tx) => {
 		const [fixAsset] = await tx
@@ -33,7 +74,7 @@ export const createFixAsset = async (data: CreateFixAsset) => {
 			.values(
 				Object({
 					date_transfered: data.date_transfered,
-          notes: data.notes,
+					notes: data.notes,
 					user: data.user,
 					staff_user_id: data.staff_user_id
 				})
@@ -74,11 +115,31 @@ export const createFixAsset = async (data: CreateFixAsset) => {
 				}
 				return await tx
 					.update(products)
-					.set({ quantity: (p.quantity || 0)  - item.quantity })
+					.set({ quantity: (p.quantity || 0) - item.quantity })
 					.where(eq(products.id, item.product_id));
 			})
 		);
 
 		return fixAsset;
 	});
+};
+
+const groupItemsByProduct = (items: FixAssetItemWithId[]): FixAssetItemWithId[] => {
+	const groupedItems: FixAssetItemWithId[] = [];
+
+	for (const item of items) {
+		// check if item exist in grouped items
+		const itm = groupedItems.find((i) => i.product_id === item.product_id);
+		if (itm) {
+			itm.quantity++;
+			itm.total_cost = itm.cost * itm.quantity;
+			if (itm.serial_number) {
+				itm.serial_numbers.push(itm.serial_number);
+			}
+		} else {
+			groupedItems.push(item);
+		}
+	}
+
+	return groupedItems;
 };

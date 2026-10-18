@@ -15,14 +15,30 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { Search } from '@lucide/svelte';
+	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import FixAssetsForm from '$lib/components/pages/vendors/transfers/fix-assets/fix-assets-form.svelte';
 	import { capitalizeFirstLetter } from '$lib/utils/common';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 
 	let { data }: PageProps = $props();
-
 	let fixAssets = $derived(data?.fixAssets || []);
+	let openFixAssetForm = $state(false);
+
+	const onViewFixAsset = async (id: number) => {
+		openFixAssetForm = true;
+		await goto(
+			resolve(`/vendors/transfers/fix-assets?id=${id}` as `/vendors/transfers/fix-assets`)
+		);
+	};
 </script>
 
 <Card>
@@ -33,7 +49,7 @@
 				<CardDescription>Track inventories that are converted to assets</CardDescription>
 			</div>
 
-			<FixAssetsForm />
+			<FixAssetsForm bind:open={openFixAssetForm} />
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -64,7 +80,19 @@
 							})}
 						</TableCell>
 						<TableCell class="text-center">{fixAsset.items_count}</TableCell>
-						<TableCell class="text-muted-foreground">—</TableCell>
+						<TableCell class="text-muted-foreground">
+							<DropdownMenu>
+								<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+									<Ellipsis />
+								</DropdownMenuTrigger>
+								<DropdownMenuContent>
+									<DropdownMenuItem onSelect={() => onViewFixAsset(fixAsset.id)} class="space-x-2">
+										<Eye />
+										<span>View</span>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</TableCell>
 					</TableRow>
 				{/each}
 			</TableBody>

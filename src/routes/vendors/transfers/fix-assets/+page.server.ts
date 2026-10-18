@@ -1,5 +1,6 @@
 import {
 	createFixAsset,
+	getFixAssetById,
 	getFixAssets,
 	type CreateFixAsset
 } from '$lib/server/db/queries/fix-assets';
@@ -8,11 +9,19 @@ import type { Actions, PageServerLoad } from './$types';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
 import { FixAssetUser } from '$lib/const';
+import { SvelteURLSearchParams } from 'svelte/reactivity';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
 	const fixAssets = await getFixAssets();
+	const search = new SvelteURLSearchParams(url.searchParams);
 
-	return { fixAssets };
+	let fixAsset = null;
+	const id = Number(search.get('id'));
+	if (id) {
+		fixAsset = await getFixAssetById(id);
+	}
+
+	return { fixAssets, fixAsset };
 };
 
 export const actions: Actions = {
