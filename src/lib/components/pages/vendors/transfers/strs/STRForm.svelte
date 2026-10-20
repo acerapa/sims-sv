@@ -34,6 +34,7 @@
 	let showStoresForm = $state(false);
 	let isViewOnly = $derived(str?.id !== undefined);
 
+	// eslint-disable-next-line svelte/prefer-writable-derived -- items is a mutable form buffer, not a pure derivation
 	let items = $state<STRItem[]>([]);
 
 	const enhanceForm: SubmitFunction = async () => {
@@ -64,6 +65,11 @@
 	const openStoresForm = () => {
 		showStoresForm = true;
 	};
+
+	// Effects
+	$effect(() => {
+		items = str?.items ? structuredClone(str.items) : [];
+	});
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
@@ -157,7 +163,7 @@
 							</div>
 						</CardContent>
 					</Card>
-					<StrsItems bind:items />
+					<StrsItems bind:items isView={isViewOnly} />
 				</div>
 			</div>
 			{#if !isViewOnly}

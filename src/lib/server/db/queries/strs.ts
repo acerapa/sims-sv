@@ -1,6 +1,9 @@
 import { count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '..';
 import { products, stores, strItems, strs } from '../schema';
+// import type { STRItem } from '$lib/types/global';
+
+// type STRItemWithId = STRItem & { id: number };
 
 export interface CreateSTRData {
 	store_id: number;
@@ -120,6 +123,27 @@ export const getStrById = async (strId: number) => {
 		cost: row.cost,
 		total_cost: row.total_cost,
 		purchase_description: row.purchase_description
-	}));
+  }));
+
 	return { id, store_id, transfer_date, notes, store_name, items_count: items.length, items };
 };
+
+// const groupItemsByProduct = (items: STRItemWithId[]): STRItemWithId[] => {
+// 	const groupedItems: STRItemWithId[] = [];
+
+// 	for (const item of items) {
+// 		// check if item exist in grouped items
+// 		const itm = groupedItems.find((i) => i.product_id === item.product_id);
+// 		if (itm) {
+// 			itm.quantity++;
+// 			itm.total_cost = itm.cost * itm.quantity;
+// 			if (itm.serial_number) {
+// 				itm.serial_numbers.push(itm.serial_number);
+// 			}
+// 		} else {
+// 			groupedItems.push(item);
+// 		}
+// 	}
+
+// 	return groupedItems;
+// };

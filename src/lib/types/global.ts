@@ -212,5 +212,6 @@ export type FixAssetItem = Omit<TransactionItem, 'id'> & {
 
 export type STRItem = Omit<TransactionItem, 'id'> & {
 	serial_numbers: string[];
-	serial_number?: string;
+  serial_number?: string;
+  item_description: string;
 };

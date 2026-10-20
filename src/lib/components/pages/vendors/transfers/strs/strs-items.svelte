@@ -4,7 +4,7 @@
 	import type { ProductItem, STRItem } from '$lib/types/global';
 	import LineItem from '../line-item.svelte';
 
-	let { items = $bindable<STRItem[]>([]) } = $props();
+	let { items = $bindable<STRItem[]>([]), isView = $bindable<boolean>(false) } = $props();
 
 	let strItemsFormatted = $derived.by(() => {
 		let faItems: STRItem[] = [];
@@ -52,6 +52,7 @@
 		<div class="space-y-2">
 			{#each items.toReversed() as item (item.product_id)}
 				<LineItem
+					{isView}
 					bind:cost={item.cost}
 					bind:total_cost={item.total_cost}
 					itemDescription={item.item_description}
