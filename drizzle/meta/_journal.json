@@ -393,6 +393,13 @@
       "when": 1792288128016,
       "tag": "0055_cool_skullbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1792475824846,
+      "tag": "0056_spicy_iron_lad",
+      "breakpoints": true
     }
   ]
 }
