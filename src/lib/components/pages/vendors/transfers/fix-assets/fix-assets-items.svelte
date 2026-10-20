@@ -4,7 +4,7 @@
 	import LineItem from '../line-item.svelte';
 
 	import type { FixAssetItem, ProductItem } from '$lib/types/global';
-	let { items = $bindable<FixAssetItem[]>([]) } = $props();
+	let { items = $bindable<FixAssetItem[]>([]), isView = $bindable<boolean>(false) } = $props();
 
 	let fixAssetItemsFormatted = $derived.by(() => {
 		let faItems: FixAssetItem[] = [];
@@ -52,6 +52,7 @@
 		<div class="space-y-2">
 			{#each items.toReversed() as item (item.product_id)}
 				<LineItem
+					bind:isView
 					bind:cost={item.cost}
 					bind:total_cost={item.total_cost}
 					itemDescription={item.item_description}

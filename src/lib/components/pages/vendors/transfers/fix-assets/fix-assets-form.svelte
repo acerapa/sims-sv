@@ -19,19 +19,26 @@
 	import { page } from '$app/state';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { applyAction, enhance } from '$app/forms';
 	import type { FixAssetItem } from '$lib/types/global';
 	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
 	import { FixAssetUser } from '$lib/const';
 	import { capitalizeFirstLetter } from '$lib/utils/common';
+	import { resolve } from '$app/paths';
 
 	let { open = $bindable(false) } = $props();
 	let auth = $derived(page.data?.auth_user);
 	let errors = $derived(page.form?.errors?.properties || {});
-	let fixAssetUser = $state<string>();
+	let fixAsset = $derived(page.data?.fixAsset);
+	let isView = $derived(fixAsset ? true : false);
 
+	// eslint-disable-next-line svelte/prefer-writable-derived -- items is a mutable form buffer, not a pure derivation
 	let items = $state<FixAssetItem[]>([]);
+
+	let dateTransfered = $derived(fixAsset?.date_transfered);
+	let fixAssetUser = $derived<string>(fixAsset?.user);
+	let notes = $derived<string>(fixAsset?.notes);
 
 	const enhanceForm: SubmitFunction = () => {
 		return async ({ result }) => {
@@ -46,11 +53,21 @@
 		};
 	};
 
-	const onOpenChangeComplete = () => {
+	const onOpenChangeComplete = async () => {
 		if (!open) {
 			fixAssetUser = '';
+			items = [];
+			dateTransfered = '';
+			notes = '';
+
+			await goto(resolve('/vendors/transfers/fix-assets'));
 		}
 	};
+
+	// Effects
+	$effect(() => {
+		items = fixAsset?.items ? structuredClone(fixAsset.items) : [];
+	});
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
@@ -85,6 +102,7 @@
 										<DatePicker
 											error={errors?.date_transfered ? true : false}
 											name="date_transfered"
+											bind:value={dateTransfered}
 										/>
 										{#if errors?.date_transfered}
 											<small class="text-red-500">{errors?.date_transfered.errors[0]}</small>
@@ -113,6 +131,7 @@
 									<Label>Notes</Label>
 									<Textarea
 										name="notes"
+										bind:value={notes}
 										placeholder="Add any additional notes about this transfer..."
 									/>
 								</div>
@@ -121,7 +140,7 @@
 						</CardContent>
 					</Card>
 
-					<FixAssetsItems bind:items />
+					<FixAssetsItems bind:items {isView} />
 				</div>
 			</div>
 

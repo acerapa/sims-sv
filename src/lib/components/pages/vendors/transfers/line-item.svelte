@@ -7,11 +7,13 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import { formatCurrency } from '$lib/utils/common';
 	import { Trash, X } from '@lucide/svelte';
+	import { untrack } from 'svelte';
 
 	let {
 		quantity = $bindable<number>(),
 		cost = $bindable<number>(),
 		total_cost = $bindable<number>(),
+		isView = $bindable<boolean>(false),
 		itemDescription = $bindable<string>(),
 		serialNumbers = $bindable<string[]>([]),
 		handleRemoveItem = $bindable<() => void>()
@@ -52,6 +54,14 @@
 	const onQuantityChange = () => {
 		total_cost = cost * quantity;
 	};
+
+	$effect(() => {
+		if (isView) {
+			untrack(() => {
+				trackSerialNumber = serialNumbers.filter((sn) => sn).length ? true : false;
+			});
+		}
+	});
 </script>
 
 <Item variant="outline">
