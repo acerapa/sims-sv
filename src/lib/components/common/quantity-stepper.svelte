@@ -10,7 +10,8 @@
 		onIncrease = $bindable<() => void>(),
 		onValueChange = $bindable<() => void>(),
 		min = $bindable<number | null>(null),
-		max = $bindable<number | null>(null)
+		max = $bindable<number | null>(null),
+		disabled = $bindable<boolean>(false)
 	} = $props();
 
 	const onDecreaseValue = () => {
@@ -34,7 +35,7 @@
 
 <ButtonGroup>
 	<Button
-		disabled={min != null ? value <= min : false}
+		disabled={disabled ? disabled : min != null ? value <= min : false}
 		onclick={() => onDecreaseValue()}
 		variant="outline"
 		size="icon-sm"
@@ -44,10 +45,11 @@
 	<Input
 		type="number"
 		{value}
+		readonly
 		class="field-sizing-content h-auto w-fit [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 	/>
 	<Button
-		disabled={max != null ? value >= max : false}
+		disabled={disabled ? disabled : max != null ? value >= max : false}
 		variant="outline"
 		size="icon-sm"
 		onclick={() => onIncreaseValue()}

@@ -103,6 +103,7 @@
 											error={errors?.date_transfered ? true : false}
 											name="date_transfered"
 											bind:value={dateTransfered}
+											disabled={isView}
 										/>
 										{#if errors?.date_transfered}
 											<small class="text-red-500">{errors?.date_transfered.errors[0]}</small>
@@ -112,7 +113,7 @@
 								<div class="space-y-2">
 									<Label>User</Label>
 									<div>
-										<Select type="single" name="user" bind:value={fixAssetUser}>
+										<Select disabled={isView} type="single" name="user" bind:value={fixAssetUser}>
 											<SelectTrigger class="w-full">
 												{fixAssetUser ? capitalizeFirstLetter(fixAssetUser) : 'Select user'}
 											</SelectTrigger>
@@ -131,6 +132,7 @@
 									<Label>Notes</Label>
 									<Textarea
 										name="notes"
+										readonly={isView}
 										bind:value={notes}
 										placeholder="Add any additional notes about this transfer..."
 									/>
@@ -144,10 +146,14 @@
 				</div>
 			</div>
 
-			<SheetFooter class="shrink-0 flex-row justify-end border-t bg-white p-4">
-				<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>Cancel</SheetClose>
-				<Button type="submit" disabled={!items.length} variant="default">Add Fix Asset</Button>
-			</SheetFooter>
+			{#if !isView}
+				<SheetFooter class="shrink-0 flex-row justify-end border-t bg-white p-4">
+					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
+						Cancel
+					</SheetClose>
+					<Button type="submit" disabled={!items.length} variant="default">Add Fix Asset</Button>
+				</SheetFooter>
+			{/if}
 		</form>
 	</SheetContent>
 </Sheet>

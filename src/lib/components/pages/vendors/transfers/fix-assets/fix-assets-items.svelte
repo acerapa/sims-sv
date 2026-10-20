@@ -47,8 +47,9 @@
 		<CardTitle>Items</CardTitle>
 	</CardHeader>
 	<CardContent class="space-y-4">
-		<ProductSelectWithSearch selected={items} {handleSelectProduct} />
-
+		{#if !isView}
+			<ProductSelectWithSearch selected={items} {handleSelectProduct} />
+		{/if}
 		<div class="space-y-2">
 			{#each items.toReversed() as item (item.product_id)}
 				<LineItem

@@ -71,12 +71,12 @@
 				<ItemTitle>{itemDescription}</ItemTitle>
 				<ItemDescription>{formatCurrency(cost)} each</ItemDescription>
 			</div>
-			<Button variant="ghost" size="icon" class="cursor-pointer" onclick={onRemoveItem}>
+			<Button disabled={isView} variant="ghost" size="icon" class="cursor-pointer" onclick={onRemoveItem}>
 				<Trash class="text-red-500" />
 			</Button>
 		</div>
 		<div class="flex items-center justify-between">
-			<QuantityStepper bind:value={quantity} min={1} onValueChange={onQuantityChange} />
+			<QuantityStepper disabled={isView} bind:value={quantity} min={1} onValueChange={onQuantityChange} />
 			<p class="text-sm font-bold">{formatCurrency(total_cost)}</p>
 		</div>
 
@@ -92,7 +92,7 @@
 				{/if}
 			</div>
 			<div class="grid justify-items-end gap-3">
-				<Switch bind:checked={trackSerialNumber} />
+				<Switch bind:checked={trackSerialNumber} disabled={isView} />
 				{#if trackSerialNumber}
 					<Badge
 						variant="outline"

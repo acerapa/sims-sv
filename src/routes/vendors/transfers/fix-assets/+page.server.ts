@@ -74,5 +74,5 @@ export const actions: Actions = {
 				error: e
 			});
 		}
-	}
+  }
 };
