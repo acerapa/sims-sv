@@ -94,6 +94,10 @@
 							</DropdownMenu>
 						</TableCell>
 					</TableRow>
+				{:else}
+					<TableRow>
+						<TableCell colspan={5} class="text-muted-foreground text-center">No fix assets items found!</TableCell>
+					</TableRow>
 				{/each}
 			</TableBody>
 		</Table>
