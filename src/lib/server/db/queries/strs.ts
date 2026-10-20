@@ -1,20 +1,15 @@
 import { count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '..';
 import { products, stores, strItems, strs } from '../schema';
-// import type { STRItem } from '$lib/types/global';
+import type { STRItem } from '$lib/types/global';
 
-// type STRItemWithId = STRItem & { id: number };
+type STRItemWithId = STRItem & { id: number };
 
 export interface CreateSTRData {
 	store_id: number;
 	transfer_date: Date;
 	notes?: string;
-	items: {
-		product_id: number;
-		quantity: number;
-		cost: number;
-		total_cost: number;
-	}[];
+	items: STRItem[];
 }
 
 export const createStr = async (data: CreateSTRData) => {
@@ -42,7 +37,8 @@ export const createStr = async (data: CreateSTRData) => {
 					product_id: item.product_id,
 					quantity: item.quantity,
 					cost: item.cost,
-					total_cost: item.total_cost
+					total_cost: item.total_cost,
+					serial_number: item.serial_number
 				});
 			})
 		);
@@ -105,7 +101,8 @@ export const getStrById = async (strId: number) => {
 			quantity: strItems.quantity,
 			cost: strItems.cost,
 			total_cost: strItems.total_cost,
-			purchase_description: products.purchase_description
+			item_description: products.purchase_description,
+			item_serial_number: strItems.serial_number
 		})
 		.from(strs)
 		.leftJoin(stores, eq(stores.id, strs.store_id))
@@ -116,34 +113,41 @@ export const getStrById = async (strId: number) => {
 	if (rows.length === 0) return undefined;
 
 	const { id, store_id, transfer_date, notes, store_name } = rows[0];
-	const items = rows.map((row) => ({
-		str_item_id: row.str_item_id,
-		product_id: row.product_id,
-		quantity: row.quantity,
-		cost: row.cost,
-		total_cost: row.total_cost,
-		purchase_description: row.purchase_description
-  }));
+	const items = groupItemsByProduct(
+		rows.map(
+			(row) =>
+				({
+					id: row.str_item_id,
+					product_id: row.product_id,
+					quantity: row.quantity,
+					cost: row.cost,
+					total_cost: row.total_cost,
+					item_description: row.item_description,
+					serial_number: row.item_serial_number,
+					serial_numbers: [row.item_serial_number]
+				}) as STRItemWithId
+		)
+	);
 
 	return { id, store_id, transfer_date, notes, store_name, items_count: items.length, items };
 };
 
-// const groupItemsByProduct = (items: STRItemWithId[]): STRItemWithId[] => {
-// 	const groupedItems: STRItemWithId[] = [];
+const groupItemsByProduct = (items: STRItemWithId[]): STRItemWithId[] => {
+	const groupedItems: STRItemWithId[] = [];
 
-// 	for (const item of items) {
-// 		// check if item exist in grouped items
-// 		const itm = groupedItems.find((i) => i.product_id === item.product_id);
-// 		if (itm) {
-// 			itm.quantity++;
-// 			itm.total_cost = itm.cost * itm.quantity;
-// 			if (itm.serial_number) {
-// 				itm.serial_numbers.push(itm.serial_number);
-// 			}
-// 		} else {
-// 			groupedItems.push(item);
-// 		}
-// 	}
+	for (const item of items) {
+		// check if item exist in grouped items
+		const itm = groupedItems.find((i) => i.product_id === item.product_id);
+		if (itm) {
+			itm.quantity++;
+			itm.total_cost = itm.cost * itm.quantity;
+			if (itm.serial_number) {
+				itm.serial_numbers.push(itm.serial_number);
+			}
+		} else {
+			groupedItems.push(item);
+		}
+	}
 
-// 	return groupedItems;
-// };
+	return groupedItems;
+};

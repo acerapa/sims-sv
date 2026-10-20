@@ -60,7 +60,7 @@
 				{:else}
 					{#each str.items as item (item.product_id)}
 						<tr>
-							<td>{item.purchase_description}</td>
+							<td>{item.item_description}</td>
 							<td class="text-right">{item.quantity}</td>
 							<td class="text-right">{formatCurrency(item.cost)}</td>
 							<td class="text-right">{formatCurrency(item.total_cost)}</td>

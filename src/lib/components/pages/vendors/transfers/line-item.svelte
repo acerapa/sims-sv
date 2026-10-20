@@ -71,12 +71,23 @@
 				<ItemTitle>{itemDescription}</ItemTitle>
 				<ItemDescription>{formatCurrency(cost)} each</ItemDescription>
 			</div>
-			<Button disabled={isView} variant="ghost" size="icon" class="cursor-pointer" onclick={onRemoveItem}>
+			<Button
+				disabled={isView}
+				variant="ghost"
+				size="icon"
+				class="cursor-pointer"
+				onclick={onRemoveItem}
+			>
 				<Trash class="text-red-500" />
 			</Button>
 		</div>
 		<div class="flex items-center justify-between">
-			<QuantityStepper disabled={isView} bind:value={quantity} min={1} onValueChange={onQuantityChange} />
+			<QuantityStepper
+				disabled={isView}
+				bind:value={quantity}
+				min={1}
+				onValueChange={onQuantityChange}
+			/>
 			<p class="text-sm font-bold">{formatCurrency(total_cost)}</p>
 		</div>
 
@@ -116,6 +127,7 @@
 							>
 								{serialNumbers[i]}
 								<Button
+									disabled={isView}
 									variant="ghost"
 									size="icon-sm"
 									class="h-4 w-6 cursor-pointer"

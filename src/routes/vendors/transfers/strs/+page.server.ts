@@ -34,14 +34,16 @@ export const actions: Actions = {
 			const strSchema = z.object({
 				store_id: z.number('Store is required!').int().positive(),
 				transfer_date: z.date('transfer_date is required!'),
-				notes: z.string().optional(),
+        notes: z.string().optional(),
+
 				items: z
 					.array(
 						z.object({
 							product_id: z.number('Product is required!').int().positive(),
 							quantity: z.number().int().min(1),
 							cost: z.number().min(0),
-							total_cost: z.number().min(0)
+              total_cost: z.number().min(0),
+							serial_number: z.string().optional()
 						})
 					)
 					.min(1)
