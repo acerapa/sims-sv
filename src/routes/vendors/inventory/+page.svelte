@@ -36,7 +36,8 @@
 		TriangleAlert,
 		Ellipsis,
 		Eye,
-		CirclePause
+		CirclePause,
+		Printer
 	} from '@lucide/svelte';
 	import { setContext } from 'svelte';
 	import type { PageProps } from './$types';
@@ -103,6 +104,14 @@
 
 	function handleLimitChange(newLimit: number) {
 		updateSearchParams({ limit: newLimit, page: 1 });
+	}
+
+	function openPrint() {
+		const params = new SvelteURLSearchParams();
+		if (currentParams.search) params.set('search', currentParams.search);
+		params.set('sort', currentParams.sortBy);
+		params.set('order', currentParams.sortOrder);
+		window.open(`/vendors/inventory/print?${params.toString()}`, '_blank');
 	}
 
 	let onEditOrView = async (productId: number) => {
@@ -190,6 +199,10 @@
 				<CardDescription>Track and manage your product inventory</CardDescription>
 			</div>
 			<div class="flex space-x-3">
+				<Button variant="outline" onclick={openPrint}>
+					<Printer />
+					Print
+				</Button>
 				<Button variant="outline" class="space-x-2">
 					<Funnel />
 					<span>Filter</span>

@@ -211,6 +211,21 @@ export interface PaginatedProductsResult {
 	totalPages: number;
 }
 
+// Build sort column mapping
+const sortColumnMap: Record<SortableColumn, typeof products.sku> = {
+	sku: products.sku,
+	purchase_description: products.purchase_description,
+	sale_price: products.sale_price,
+	quantity: products.quantity,
+	created_at: products.created_at
+};
+
+// Build search condition
+const buildSearchCondition = (search: string) =>
+	search
+		? or(ilike(products.sku, `%${search}%`), ilike(products.purchase_description, `%${search}%`))
+		: undefined;
+
 export const getProductsPaginated = async (
 	params: GetProductsPaginatedParams = {}
 ): Promise<PaginatedProductsResult> => {
@@ -218,22 +233,10 @@ export const getProductsPaginated = async (
 
 	const offset = (page - 1) * limit;
 
-	// Build sort column mapping
-	const sortColumnMap: Record<SortableColumn, typeof products.sku> = {
-		sku: products.sku,
-		purchase_description: products.purchase_description,
-		sale_price: products.sale_price,
-		quantity: products.quantity,
-		created_at: products.created_at
-	};
-
 	const sortColumn = sortColumnMap[sortBy] ?? products.created_at;
 	const orderFn = sortOrder === 'asc' ? asc : desc;
 
-	// Build search condition
-	const searchCondition = search
-		? or(ilike(products.sku, `%${search}%`), ilike(products.purchase_description, `%${search}%`))
-		: undefined;
+	const searchCondition = buildSearchCondition(search);
 
 	// Get total count
 	const [{ total }] = await db.select({ total: count() }).from(products).where(searchCondition);
@@ -279,6 +282,40 @@ export const getProductsPaginated = async (
 		limit,
 		totalPages: Math.ceil(total / limit)
 	};
+};
+
+export interface GetProductsForPrintParams {
+	search?: string;
+	sortBy?: SortableColumn;
+	sortOrder?: SortOrder;
+}
+
+export const getProductsForPrint = async (params: GetProductsForPrintParams = {}) => {
+	const { sortBy = 'created_at', sortOrder = 'desc', search = '' } = params;
+	const orderFn = sortOrder === 'asc' ? asc : desc;
+
+	const printProducts = await db.query.products.findMany({
+		where: buildSearchCondition(search),
+		orderBy: [orderFn(sortColumnMap[sortBy] ?? products.created_at)],
+		columns: {
+			id: true,
+			sku: true,
+			quantity: true,
+			sale_price: true,
+			purchase_description: true
+		},
+		with: {
+			category: {
+				columns: {
+					id: true,
+					name: true
+				}
+			}
+		}
+	});
+
+	// sorting by category name in alphabetical order
+	return printProducts.sort((a, b) => a.category.name.localeCompare(b.category.name));
 };
 
 export const updateProductQuantities = async (
