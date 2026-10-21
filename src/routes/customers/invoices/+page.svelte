@@ -19,6 +19,7 @@
 	} from '$lib/components/ui/table';
 	import { Funnel, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
 
 	let { data }: PageProps = $props();
 
@@ -111,11 +112,21 @@
 					{#each invoices as invoice (invoice.id)}
 						<TableRow>
 							<TableCell class="font-medium">
-								<a href="/customers/invoices/{invoice.id}" class="text-blue-500 hover:underline">
+								<a
+									href={resolve(`/customers/invoices/${invoice.id}`)}
+									class="text-blue-500 hover:underline"
+								>
 									INV-{invoice.id}
 								</a>
 							</TableCell>
-							<TableCell>SO-{invoice.sales_order_id}</TableCell>
+							<TableCell class="font-medium">
+								<a
+									href={resolve(`/customers/sales-orders/${invoice.sales_order_id}`)}
+									class="text-blue-500 hover:underline"
+								>
+									SO-{invoice.sales_order_id}
+								</a>
+							</TableCell>
 							<TableCell>{invoice.customer_name}</TableCell>
 							<TableCell>
 								{new Date(invoice.invoice_date).toLocaleDateString('default', {
