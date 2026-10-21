@@ -64,6 +64,8 @@
 		"decode-formdata": "^0.9.0",
 		"dotenv": "^17.4.2",
 		"jsbarcode": "^3.12.3",
+		"jspdf": "^4.2.1",
+		"jspdf-autotable": "^5.0.9",
 		"postgres": "^3.4.7",
 		"zod": "^4.1.12"
 	}

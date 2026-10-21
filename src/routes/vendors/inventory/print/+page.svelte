@@ -2,6 +2,8 @@
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
 	import { formatCurrency } from '$lib/utils/common';
+	import { openAndPrint } from '$lib/utils/pdf';
+	import { buildInventoryPdf } from './pdf';
 
 	let { data }: PageProps = $props();
 
@@ -13,7 +15,10 @@
 	<title>Print - Inventory</title>
 </svelte:head>
 
-<PrintReportLayout reportTitle="Inventory List">
+<PrintReportLayout
+	reportTitle="Inventory List"
+	onPrint={() => openAndPrint(buildInventoryPdf(products, data.total))}
+>
 	<table class="print-table">
 		<thead>
 			<tr>

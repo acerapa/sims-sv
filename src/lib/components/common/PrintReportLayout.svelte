@@ -6,10 +6,13 @@
 	let {
 		reportTitle,
 		dateRange,
+		onPrint,
 		children
 	}: {
 		reportTitle: string;
 		dateRange?: DateRange;
+		/** Optional custom print handler (e.g. PDF generation). Falls back to window.print(). */
+		onPrint?: () => void;
 		children: Snippet;
 	} = $props();
 
@@ -22,6 +25,10 @@
 	}
 
 	function handlePrint() {
+		if (onPrint) {
+			onPrint();
+			return;
+		}
 		window.print();
 	}
 </script>
@@ -130,7 +137,7 @@
 
 	.date-range {
 		font-size: 0.8rem;
-		color: #444;
+		color: #333;
 		margin: 0;
 	}
 
@@ -144,7 +151,7 @@
 		border-top: 1px solid #ccc;
 		text-align: right;
 		font-size: 0.7rem;
-		color: #666;
+		color: #333;
 	}
 
 	/* Print-specific styles */
@@ -160,11 +167,8 @@
 		}
 
 		.report-footer {
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			padding: 0.5rem 1rem;
+			margin-top: 2rem;
+			padding-top: 0.75rem;
 			border-top: 1px solid #ccc;
 			background: #fff;
 		}
@@ -175,6 +179,17 @@
 		width: 100%;
 		border-collapse: collapse;
 		font-size: 0.8rem;
+	}
+
+	/* Repeat the header on every printed page */
+	:global(.print-table thead) {
+		display: table-header-group;
+	}
+
+	/* Keep individual rows from being split across pages */
+	:global(.print-table tr) {
+		break-inside: avoid;
+		page-break-inside: avoid;
 	}
 
 	:global(.print-table th),
