@@ -1,9 +1,30 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
+	import type { STRItem } from '$lib/types/global';
 	import { formatCurrency } from '$lib/utils/common';
 
 	const str = $derived(page.data?.str);
+
+	const items = $derived.by(() => {
+		let faItems: STRItem[] = [];
+		str?.items.forEach((f: STRItem) => {
+			if (f.serial_numbers.length > 1) {
+				f.serial_numbers.forEach((sn: string) => {
+					faItems.push({
+						...f,
+						quantity: 1,
+						total_cost: f.cost,
+						serial_number: sn
+					});
+				});
+			} else {
+				faItems.push(f);
+			}
+		});
+
+		return faItems;
+	});
 </script>
 
 <PrintReportLayout reportTitle="Stock Transfer Report">
@@ -45,22 +66,24 @@
 			<thead>
 				<tr>
 					<th>Product</th>
+					<th>SN</th>
 					<th class="text-right">Quantity</th>
 					<th class="text-right">Cost</th>
 					<th class="text-right">Total Cost</th>
 				</tr>
 			</thead>
 			<tbody>
-				{#if str?.items?.length === 0}
+				{#if items.length === 0}
 					<tr>
 						<td colspan="4" style="text-align: center; color: #666;">
 							No items found for the selected Stock Transfer Request.
 						</td>
 					</tr>
 				{:else}
-					{#each str.items as item (item.product_id)}
+					{#each items as item (item)}
 						<tr>
 							<td>{item.item_description}</td>
+							<td>{item.serial_number || '--'}</td>
 							<td class="text-right">{item.quantity}</td>
 							<td class="text-right">{formatCurrency(item.cost)}</td>
 							<td class="text-right">{formatCurrency(item.total_cost)}</td>
