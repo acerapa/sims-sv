@@ -11,8 +11,8 @@
 	}: {
 		reportTitle: string;
 		dateRange?: DateRange;
-		/** Optional custom print handler (e.g. PDF generation). Falls back to window.print(). */
-		onPrint?: () => void;
+		/** Custom print handler (e.g. PDF generation) — every report routes through this. */
+		onPrint: () => void;
 		children: Snippet;
 	} = $props();
 
@@ -23,20 +23,12 @@
 			year: 'numeric'
 		});
 	}
-
-	function handlePrint() {
-		if (onPrint) {
-			onPrint();
-			return;
-		}
-		window.print();
-	}
 </script>
 
 <div class="print-page">
 	<div class="no-print mb-6 flex justify-end">
 		<button
-			onclick={handlePrint}
+			onclick={onPrint}
 			class="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
 		>
 			<Printer size={16} />

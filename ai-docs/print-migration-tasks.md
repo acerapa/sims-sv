@@ -50,7 +50,7 @@ Extracted from the two done routes (`$lib/utils/pdf.ts`, `src/routes/vendors/inv
 | 6 | Open Sales by Customer — `src/routes/reports/open-sales-by-customer/print` | `ai-docs/open-sales-by-customer-printable-spec.md` | ✅ done (2026-07-18: `pdf.ts`, canonical view value `detailed` (Q1), Grand Total = preview's summary-derived formula (Q2), broken `view === 'detail'` title check fixed, 10 tests, suite 65/65) |
 | 7 | Profit & Loss — `src/routes/reports/profit-loss/print` | `ai-docs/profit-loss-printable-spec.md` | ✅ done (2026-10-22: `pdf.ts` + shared formatters moved out of the preview, landscape when >8 month-columns (Q1), empty-state full-width fix, 16 tests, suite 81/81) |
 | 8 | Daily Sales receipt — `src/routes/customers/daily-sales/print/[id]` | `ai-docs/daily-sales-receipt-printable-spec.md` | ✅ done (2026-10-22: user chose **A — port**; `pdf.ts` builder with own anatomy (company box, Sold To, payment grid, items grid + blank rows, totals, signature), **no** `createReportDoc`, footer ON (Q4), helvetica (Q5), auto-print **removed** (Q2); 17 tests, suite 98/98 ×3) |
-| 9 | Cleanup — kill the legacy path | below | ⬜ **after all of 1–8** |
+| 9 | Cleanup — kill the legacy path | below | ✅ done (2026-10-22: `onPrint` made required in `PrintReportLayout` (all 9 call-sites already pass it — compile-verified), `window.print()` fallback removed, orphaned `PrintInternalLayout.svelte` deleted, sweep clean, suite 98/98 ×3) |
 
 ### Per-route checklist (repeats for 1–8)
 
@@ -63,10 +63,10 @@ For each route, in this order (per-route gate):
 
 ### Task 9 — cleanup (only after every route is on jsPDF)
 
-- [ ] Remove the `window.print()` fallback in `src/lib/components/common/PrintReportLayout.svelte` (make `onPrint` required) — or keep it and say why
-- [ ] Delete `src/lib/components/common/PrintInternalLayout.svelte` — **zero usages remain in `src/`** (verified by grep)
-- [ ] Sweep `src/` for any remaining `window.print` and confirm none on user-facing paths
-- [ ] `npm test && npm run check && npm run lint` green
+- [x] Remove the `window.print()` fallback in `src/lib/components/common/PrintReportLayout.svelte` (make `onPrint` required) — done: all 9 print pages already pass `onPrint` (verified by grep + svelte-check baseline unchanged), so the fallback was dead weight; only remaining `window.print` mention in `src/` is an explanatory comment in `$lib/utils/pdf.ts`
+- [x] Delete `src/lib/components/common/PrintInternalLayout.svelte` — zero usages in `src/` (verified by grep; only historical mentions in `ai-docs/` specs remain)
+- [x] Sweep `src/` for any remaining `window.print` — none on user-facing paths
+- [x] `npm test` (98/98 ×3) && `npm run check` (66/29 pre-existing baseline, 0 in touched files) && lint clean on touched files
 
 ## Global acceptance
 
