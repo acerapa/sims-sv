@@ -3,6 +3,8 @@
 	import type { PageProps } from './$types';
 	import { formatCurrency } from '$lib/utils/common';
 	import { formatDate } from '$lib/utils/printables';
+	import { openAndPrint } from '$lib/utils/pdf';
+	import { buildSalesByCustomerPdf, type SalesByCustomerView } from './pdf';
 
 	let { data }: PageProps = $props();
 
@@ -10,6 +12,15 @@
 	let detailed = $derived(data.detailed);
 	let view = $derived(data.view);
 
+	function handlePrint() {
+		openAndPrint(
+			buildSalesByCustomerPdf(
+				{ summary, detailed },
+				view as SalesByCustomerView,
+				data.filters
+			)
+		);
+	}
 </script>
 
 <svelte:head>
@@ -23,6 +34,7 @@
 			? 'Sales by Customer'
 			: 'Sales by Customer — Summary'}
 	dateRange={data.filters}
+	onPrint={handlePrint}
 >
 	{#if view === 'summary' || view === 'both'}
 		<table class="print-table">

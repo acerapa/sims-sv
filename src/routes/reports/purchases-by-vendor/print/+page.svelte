@@ -1,7 +1,8 @@
 <script lang="ts">
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import type { VendorDetailRow } from '$lib/server/db/queries/reports';
+	import { openAndPrint } from '$lib/utils/pdf';
+	import { groupDetailByVendor, buildPurchasesByVendorPdf, type PurchasesByVendorView } from './pdf';
 
 	let { data }: PageProps = $props();
 
@@ -15,72 +16,17 @@
 		total_amount: summary.reduce((sum, row) => sum + parseFloat(row.total_amount || '0'), 0)
 	});
 
-	interface GroupedVendor {
-		supplier_id: number | null;
-		supplier_name: string;
-		pos: {
-			po_id: number;
-			po_reference: string;
-			receive_date: string;
-			po_total: string;
-			items: {
-				product_name: string;
-				product_sku: string;
-				quantity: number;
-				cost: string;
-				total_cost: string;
-			}[];
-		}[];
-		subtotal: number;
-	}
-
-	function groupDetailByVendor(rows: VendorDetailRow[]): GroupedVendor[] {
-		const vendors: GroupedVendor[] = [];
-
-		for (const row of rows) {
-			let vendor = vendors.find((v) => v.supplier_id === row.supplier_id);
-			if (!vendor) {
-				vendor = {
-					supplier_id: row.supplier_id,
-					supplier_name: row.supplier_name,
-					pos: [],
-					subtotal: 0
-				};
-				vendors.push(vendor);
-			}
-
-			let po = vendor.pos.find((p) => p.po_id === row.po_id);
-			if (!po) {
-				po = {
-					po_id: row.po_id,
-					po_reference: row.po_reference,
-					receive_date: row.receive_date,
-					po_total: row.po_total,
-					items: []
-				};
-				vendor.pos.push(po);
-			}
-
-			po.items.push({
-				product_name: row.product_name,
-				product_sku: row.product_sku,
-				quantity: row.quantity,
-				cost: row.cost,
-				total_cost: row.total_cost
-			});
-		}
-
-		for (const vendor of vendors) {
-			vendor.subtotal = vendor.pos.reduce(
-				(sum, po) => sum + parseFloat(po.po_total || '0'),
-				0
-			);
-		}
-
-		return vendors;
-	}
-
 	let detailGrouped = $derived(groupDetailByVendor(detail));
+
+	function handlePrint() {
+		openAndPrint(
+			buildPurchasesByVendorPdf(
+				{ summary, detail },
+				view as PurchasesByVendorView,
+				data.filters
+			)
+		);
+	}
 
 	function formatCurrency(value: string | number) {
 		const num = typeof value === 'string' ? parseFloat(value || '0') : value;
@@ -103,6 +49,7 @@
 <PrintReportLayout
 	reportTitle={view === 'detail' ? 'Purchases by Vendor — Detail' : view === 'both' ? 'Purchases by Vendor' : 'Purchases by Vendor — Summary'}
 	dateRange={data.filters}
+	onPrint={handlePrint}
 >
 	{#if view === 'summary' || view === 'both'}
 		<table class="print-table">
@@ -176,7 +123,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each po.items as item}
+							{#each po.items as item, itemIdx (itemIdx)}
 								<tr>
 									<td>{item.product_name}</td>
 									<td class="text-right">{item.quantity}</td>
