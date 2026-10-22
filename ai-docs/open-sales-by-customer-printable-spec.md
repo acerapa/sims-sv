@@ -17,10 +17,10 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`.
 
 ## ⚠️ Decide before implementing
 
-| # | Question | Evidence | Proposed |
+| # | Question | Evidence | Decision |
 |---|---|---|---|
-| 1 | `view === 'detailed'` vs `detail` mismatch | `+page.svelte` detail block `view === 'detailed' \| 'both'`; server param documented as `detail` (compare `sales-by-customer/print/+page.svelte` which uses `'detail'`); links from lists should reveal which value is actually sent — **check the page that builds the print URL** before deciding | Make one value canonical across preview + PDF + PDF builder; keep the other as accepted alias for one release |
-| 2 | Grand Total source: `sum(sales[].total_cost)` vs `customer.total` | `+page.svelte grandTotal` reduces nested `total_cost`; per-customer rows show `sale.total` — if the DB precomputes `total` identically they should match; if not, which is right? | Use one source for preview **and** PDF; if the two differ today, flag to user and pick the DB `total` field |
+| 1 | `view === 'detailed'` vs `detail` mismatch | The list page sends `params.set('view', activeTab)` where `TabsTrigger value="detailed"` — **no sender emits `'detail'`**; the only `'detail'` user was the print preview's *title* ternary (so `?view=detail` rendered summary under a "— Detail" title and `?view=detailed` rendered detail under a "— Summary" title) | **`detailed` is canonical** (user decision, 2026-07-18) | Fixed the one wrong-word site (print page title check). No alias added — `'detail'` was never a working value for any sender. |
+| 2 | Grand Total source: `sum(sales[].total_cost)` vs `customer.total` | `+page.svelte grandTotal` reduces nested `total_cost`; per-customer rows show `sale.total` — if the DB precomputes `total` identically they should match; if not, which is right? | PDF mirrors the preview exactly: Grand Total in **both** tables = `Σ summary[].sales[].total_cost` (the preview uses that one derived value in both tfoots); per-customer rows keep DB `customer.total` as today. Any summary↔detail divergence is a data question to confirm in dev-check. |
 
 ## Target design
 

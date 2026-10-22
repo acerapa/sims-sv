@@ -2,6 +2,8 @@
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import { formatCurrency } from '$lib/utils/common';
 	import type { PageProps } from './$types';
+	import { openAndPrint } from '$lib/utils/pdf';
+	import { buildOpenSalesPdf, type OpenSalesView } from './pdf';
 	let { data }: PageProps = $props();
 
 	let summary = $derived(data.summary);
@@ -12,6 +14,10 @@
 		const combinedSales = summary.map((item) => item.sales).flat();
 		return combinedSales.reduce((acc, sales) => acc + (sales ? sales?.total_cost : 0), 0);
 	});
+
+	function handlePrint() {
+		openAndPrint(buildOpenSalesPdf({ summary, detailed }, view as OpenSalesView, data.filters));
+	}
 </script>
 
 <svelte:head>
@@ -19,12 +25,13 @@
 </svelte:head>
 
 <PrintReportLayout
-	reportTitle={view === 'detail'
+	reportTitle={view === 'detailed'
 		? 'Open Sales by Customer — Detail'
 		: view === 'both'
 			? 'Open Sales by Customer'
 			: 'Open Sales by Customer — Summary'}
 	dateRange={data.filters}
+	onPrint={handlePrint}
 >
 	{#if view === 'summary' || view === 'both'}
 		<table class="print-table border-none">
