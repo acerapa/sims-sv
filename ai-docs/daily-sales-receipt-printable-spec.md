@@ -44,16 +44,17 @@ The other routes get a branded RAM TECH report PDF. This receipt is a **fill-in 
 4. **Items grid**: header Item / Qty / Rate / S/N / Amount with the exact column ratios of the preview (55/7/10/16/12%); ≥8 data rows — pad with empty rows exactly like the preview (`Math.max(0, 8 - items.length)`); qty/rate/amount right-aligned, `Php …` (convention 4); item text = `package?.name || product?.sales_description || '—'` (same fallback chain).
 5. **Totals box** (right-anchored, ~40% width): Subtotal (sum of `total_price`), Discount `-Php …` only when > 0, ruled **Total** = `order.total_cost` (preview prints `order.total_cost`, not `subtotal - discount` — keep identical, flag if the two disagree in data).
 6. **Signature box**: bordered rect 48% width, `SIGNATURE OVER PRINTED NAME`.
-7. Footer: reuse `addReportFooter` **only if the user wants it on receipts** (Q4); otherwise leave the bottom band for the signature.
+7. Footer: **report footer included** (`Generated on…` + page x of y) for reference — user decision Q4 (deviates from the spec's original "no" proposal).
 
-### More decisions (after Q1 = A)
+### Decisions (user-confirmed 2026-10)
 
-| # | Question | Proposed |
+| # | Question | Decision |
 |---|---|---|
-| 2 | Auto-print on mount | **Remove** — consistent with every other route; user decides to print from the page (keeps the dialog, loses the surprise) |
-| 3 | Address text: receipt (`MAGSAYSAY BLVD`, `CALBAYOG CITY, SAMAR`) vs `createReportDoc` constants | Keep the **receipt's own text** in the PDF (it is this document's established content); do not silently "harmonize" without the user |
-| 4 | Report footer (`Generated on…`, page x of y) on this receipt | **No** — receipts are filled paper forms, not dated reports; ask user |
-| 5 | Font substitution (Georgia → `times`) | Accept; note it in the code comment |
+| 1 | Port or keep browser print | **A — port to jsPDF** |
+| 2 | Auto-print on mount | **Remove** — manual Print → `openAndPrint`, like every other route |
+| 3 | Address text | Keep the **receipt's own text** (`MAGSAYSAY BLVD`, `CALBAYOG CITY, SAMAR`) |
+| 4 | Report footer | **Yes — include** `Generated on…` + page x of y (reference purposes) |
+| 5 | Font substitution | **helvetica everywhere** (the font used across all printables — no `times`) |
 
 ### Acceptance criteria (Option A)
 
@@ -74,10 +75,10 @@ npm run check && npm run lint
 
 ## Tasks
 
-- [ ] **USER DECISION Q1** (A: port / B: keep browser print as documented exception) — then Q2–Q5 if A
-- [ ] `clean-code`: create `pdf.ts` (form anatomy 1–6 above); de-auto-print; wire Print button to `openAndPrint`
-- [ ] `tester`: `test/daily-sales-receipt-printable.spec.ts`; side-by-side dev check vs old browser print
-- [ ] `code-review`: diff, no 🔴 (watch: form geometry, filler-row math, `total_cost` vs computed subtotal)
+- [x] **USER DECISION Q1** — **A: port to jsPDF** (Q2 remove auto-print · Q3 keep receipt address · Q4 footer ON · Q5 helvetica)
+- [x] `clean-code`: `pdf.ts` created (form anatomy 1–6); auto-print removed; Print button → `openAndPrint`
+- [x] `tester`: `test/daily-sales-receipt-printable.spec.ts` (17 tests, green ×3); ⬜ **user side-by-side visual check** in `npm run dev` (signature-box height ≈20mm vs drawn 30pt, 15-line pagination, long rep names)
+- [x] `code-review`: no 🔴 (minor notes: 40-char value clip in payment grid; signature box shorter than preview)
 
 ## Related
 

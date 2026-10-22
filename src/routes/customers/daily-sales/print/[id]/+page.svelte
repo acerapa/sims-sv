@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { formatCurrency } from '$lib/utils/common';
+	import { openAndPrint } from '$lib/utils/pdf';
 	import type { PageProps } from './$types';
+	import { buildSalesReceiptPdf } from './pdf';
 
 	let { data }: PageProps = $props();
 	let order = $derived(data.salesOrder);
@@ -11,13 +12,8 @@
 		order.items.reduce((sum, item) => sum + Number(item.total_price || 0), 0)
 	);
 
-	onMount(() => {
-		const timeout = window.setTimeout(() => window.print(), 300);
-		return () => window.clearTimeout(timeout);
-	});
-
-	function printReceipt() {
-		window.print();
+	function handlePrint() {
+		openAndPrint(buildSalesReceiptPdf(order, data.payment));
 	}
 </script>
 
@@ -30,7 +26,7 @@
 		<Button variant="outline" onclick={() => goto('/customers/daily-sales')}
 			>Back to Daily Sales</Button
 		>
-		<Button onclick={printReceipt}>Print</Button>
+		<Button onclick={handlePrint}>Print</Button>
 	</div>
 
 	<header class="receipt-header">

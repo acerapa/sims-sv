@@ -20,7 +20,7 @@ Eight routes remain. They fall into three shapes:
 | Transfer forms | STR, IBRR, RMA | label fields (ref/date/store/notes) + one items table |
 | Customer reports | Sales by Customer, Open Sales by Customer, Purchases by Vendor | summary table + grouped detail (per-customer/per-vendor sections with PO sub-tables), `view = summary \| detail \| both` |
 | Wide reports | Profit & Loss | dynamic monthly breakdown (one column per month) + by-product table |
-| Receipt | Daily Sales receipt | letter-form receipt, auto-print on load, blank filler rows, signature box — **needs a user decision first** |
+| Receipt | Daily Sales receipt | letter-form receipt, own header anatomy, items grid + blank filler rows, signature box — ✅ done (task 8) |
 
 ## Shared conventions (apply to every route below)
 
@@ -49,7 +49,7 @@ Extracted from the two done routes (`$lib/utils/pdf.ts`, `src/routes/vendors/inv
 | 5 | Purchases by Vendor — `src/routes/reports/purchases-by-vendor/print` | `ai-docs/purchases-by-vendor-printable-spec.md` | ✅ done (2026-07-18: `pdf.ts` incl. moved `groupDetailByVendor`+`GroupedVendor`, page refactored, 9 tests, suite 55/55) |
 | 6 | Open Sales by Customer — `src/routes/reports/open-sales-by-customer/print` | `ai-docs/open-sales-by-customer-printable-spec.md` | ✅ done (2026-07-18: `pdf.ts`, canonical view value `detailed` (Q1), Grand Total = preview's summary-derived formula (Q2), broken `view === 'detail'` title check fixed, 10 tests, suite 65/65) |
 | 7 | Profit & Loss — `src/routes/reports/profit-loss/print` | `ai-docs/profit-loss-printable-spec.md` | ✅ done (2026-10-22: `pdf.ts` + shared formatters moved out of the preview, landscape when >8 month-columns (Q1), empty-state full-width fix, 16 tests, suite 81/81) |
-| 8 | Daily Sales receipt — `src/routes/customers/daily-sales/print/[id]` | `ai-docs/daily-sales-receipt-printable-spec.md` | ⬜ **blocked on user decision (Q1)** |
+| 8 | Daily Sales receipt — `src/routes/customers/daily-sales/print/[id]` | `ai-docs/daily-sales-receipt-printable-spec.md` | ✅ done (2026-10-22: user chose **A — port**; `pdf.ts` builder with own anatomy (company box, Sold To, payment grid, items grid + blank rows, totals, signature), **no** `createReportDoc`, footer ON (Q4), helvetica (Q5), auto-print **removed** (Q2); 17 tests, suite 98/98 ×3) |
 | 9 | Cleanup — kill the legacy path | below | ⬜ **after all of 1–8** |
 
 ### Per-route checklist (repeats for 1–8)
