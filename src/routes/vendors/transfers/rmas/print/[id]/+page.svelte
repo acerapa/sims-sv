@@ -2,11 +2,18 @@
 	import { page } from '$app/state';
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import { formatCurrency } from '$lib/utils/common';
+	import { openAndPrint } from '$lib/utils/pdf';
+	import { buildRmaPdf } from './pdf';
 
 	const rma = $derived(page.data?.rma);
+
+	function handlePrint() {
+		if (!rma) return;
+		openAndPrint(buildRmaPdf(rma));
+	}
 </script>
 
-<PrintReportLayout reportTitle="Inter-Branch Receiving Report">
+<PrintReportLayout reportTitle="Return Merchandise Authorization" onPrint={handlePrint}>
 	<section class="flex flex-col gap-3">
 		<div class="flex gap-5">
 			<div class="flex-1 border-b border-muted-foreground py-1">
@@ -54,15 +61,15 @@
 			<tbody>
 				{#if rma?.items?.length === 0}
 					<tr>
-						<td colspan="4" style="text-align: center; color: #666;">
-							No items found for the selected Stock Transfer Request.
+						<td colspan="5" style="text-align: center; color: #666;">
+							No items found for this RMA.
 						</td>
 					</tr>
 				{:else}
 					{#each rma.items as item (item.product_id)}
 						<tr>
 							<td>{item.purchase_description}</td>
-							<td>{item.serial_number}</td>
+							<td>{item.serial_number || '--'}</td>
 							<td class="text-right">{item.quantity}</td>
 							<td class="text-right">{formatCurrency(item.cost)}</td>
 							<td class="text-right">{formatCurrency(item.total_cost)}</td>

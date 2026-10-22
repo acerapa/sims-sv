@@ -43,8 +43,8 @@ Extracted from the two done routes (`$lib/utils/pdf.ts`, `src/routes/vendors/inv
 | # | Route | Spec | Status |
 |---|---|---|---|
 | 1 | STR — `src/routes/vendors/transfers/strs/print/[id]` | `ai-docs/str-printable-spec.md` | ✅ done (2026-07-18: `pdf.ts` + `onPrint` wired, 13 tests, suite 23/23) |
-| 2 | IBRR — `src/routes/vendors/transfers/ibrrs/print/[id]` | `ai-docs/ibrr-printable-spec.md` | ⬜ |
-| 3 | RMA — `src/routes/vendors/transfers/rmas/print/[id]` | `ai-docs/rma-printable-spec.md` | ⬜ |
+| 2 | IBRR — `src/routes/vendors/transfers/ibrrs/print/[id]` | `ai-docs/ibrr-printable-spec.md` | ✅ done (2026-07-18: `pdf.ts` + `onPrint` + approved empty-state wording in both, 8 tests, suite 31/31) |
+| 3 | RMA — `src/routes/vendors/transfers/rmas/print/[id]` | `ai-docs/rma-printable-spec.md` | ✅ done (2026-07-18: `pdf.ts` + `onPrint` + title→"Return Merchandise Authorization" + empty-state/colspan + serial `--`, 8 tests, suite 39/39) |
 | 4 | Sales by Customer — `src/routes/reports/sales-by-customer/print` | `ai-docs/sales-by-customer-printable-spec.md` | ⬜ |
 | 5 | Purchases by Vendor — `src/routes/reports/purchases-by-vendor/print` | `ai-docs/purchases-by-vendor-printable-spec.md` | ⬜ |
 | 6 | Open Sales by Customer — `src/routes/reports/open-sales-by-customer/print` | `ai-docs/open-sales-by-customer-printable-spec.md` | ⬜ |

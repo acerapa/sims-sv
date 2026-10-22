@@ -2,11 +2,18 @@
 	import { page } from '$app/state';
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import { formatCurrency } from '$lib/utils/common';
+	import { openAndPrint } from '$lib/utils/pdf';
+	import { buildIbrrPdf } from './pdf';
 
 	const ibrr = $derived(page.data?.ibrr);
+
+	function handlePrint() {
+		if (!ibrr) return;
+		openAndPrint(buildIbrrPdf(ibrr));
+	}
 </script>
 
-<PrintReportLayout reportTitle="Inter-Branch Receiving Report">
+<PrintReportLayout reportTitle="Inter-Branch Receiving Report" onPrint={handlePrint}>
 	<section class="flex flex-col gap-3">
 		<div class="flex gap-5">
 			<div class="flex-1 border-b border-muted-foreground py-1">
@@ -48,7 +55,7 @@
 				{#if ibrr?.items?.length === 0}
 					<tr>
 						<td colspan="4" style="text-align: center; color: #666;">
-							No items found for the selected Stock Transfer Request.
+							No items found for this Inter-Branch Receiving Report.
 						</td>
 					</tr>
 				{:else}
