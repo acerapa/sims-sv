@@ -16,7 +16,7 @@
 - Linter: ESLint 9 flat config — `eslint.config.js`; script: `npm run lint`
 - Formatter: Prettier 3 (tabs, singleQuote, no trailing commas, 100 width, svelte + tailwindcss plugins) — `npm run format`
 - Type check: svelte-check — `npm run check`
-- Tests: **none yet** — no test framework in package.json; no E2E runner
+- Tests: Vitest 5 (unit, Node) — `npm test`; suites in `test/`; no E2E runner yet
 
 ## Conventions
 - DB access is layered: schema in `src/lib/server/db/schema.ts`, single client in `src/lib/server/db/index.ts`, domain query modules under `src/lib/server/db/queries/` (one file per domain: `customers.ts`, `invoices.ts`, `rmas.ts`, …) — e.g. `src/lib/server/db/index.ts`

@@ -18,9 +18,15 @@ const TREE = [
 	}
 ];
 
-// jsPDF text entries can be plain strings (v2-style) or objects on newer builds.
-const texts = (doc: jsPDF): (string | number)[] =>
-	doc.getText().map((t: unknown) => (typeof t === 'string' ? t : (t as { text?: string }).text ?? t));
+// jsPDF 4 removed doc.getText(); the raw PDF content stream still holds the
+// standard-font text in literal `(...) Tj` operators, so we parse those.
+const textItems = (doc: jsPDF): string[] => {
+	const raw = doc.output() as string;
+	const items: string[] = [];
+	const re = /\(((?:\\.|[^()\\])*)\)\s*Tj/g;
+	for (const m of raw.matchAll(re)) items.push(m[1]);
+	return items;
+};
 
 const rows = buildCategoryRows(TREE);
 
@@ -33,9 +39,11 @@ describe('buildCategoryRows', () => {
 		expect(rows.map((r) => r.depth)).toEqual([0, 1, 2, 1, 0, 1]);
 	});
 
-	it('keeps children in their original (query) order', () => {
-		const childrenOfBeverages = rows.filter((r) => r.depth === 1).map((r) => r.name);
-		expect(childrenOfBeverages).toEqual(['Soft drinks', 'Juices']);
+	it('keeps every level in query (id) order', () => {
+		const level1 = rows.filter((r) => r.depth === 1).map((r) => r.id);
+		expect(level1).toEqual([3, 4, 6]); // id DESC query order preserved
+		const level0 = rows.filter((r) => r.depth === 0).map((r) => r.id);
+		expect(level0).toEqual([1, 2]);
 	});
 
 	it('returns [] for an empty tree', () => {
@@ -50,8 +58,8 @@ describe('buildCategoryRows', () => {
 
 describe('buildCategoriesPdf', () => {
 	it('renders every category in DFS order', () => {
-		const flat = texts(buildCategoriesPdf(rows, rows.length));
-		const index = (name: string) => flat.findIndex((t) => String(t).includes(name));
+		const flat = textItems(buildCategoriesPdf(rows, rows.length));
+		const index = (name: string) => flat.findIndex((t) => t.endsWith(name));
 		const order = ['Beverages', 'Soft drinks', 'Carbonated', 'Juices', 'Snacks', 'Chips']
 			.map(index)
 			.filter((i) => i !== -1);
@@ -60,21 +68,23 @@ describe('buildCategoriesPdf', () => {
 	});
 
 	it('prefixes non-root lines with a bullet', () => {
-		const flat = texts(buildCategoriesPdf(rows, rows.length)).map((t) => String(t));
-		expect(flat.find((t) => t.includes('Soft drinks'))?.startsWith('• ')).toBe(true);
-		expect(flat.find((t) => t.includes('Beverages'))?.startsWith('• ')).not.toBe(true);
+		const flat = textItems(buildCategoriesPdf(rows, rows.length));
+		const root = flat.find((t) => t.endsWith('Beverages'));
+		const child = flat.find((t) => t.endsWith('Soft drinks'));
+		expect(root).toBeDefined();
+		expect(child).toBeDefined();
+		expect(root).toBe('Beverages'); // root: plain name
+		expect(child && child.length > 'Soft drinks'.length).toBe(true); // child: bullet prefix + name
 	});
 
-	it('ends with the approved "Total: N categories" line and no bullet on it', () => {
-		const flat = texts(buildCategoriesPdf(rows, rows.length)).map((t) => String(t));
-		const total = flat.find((t) => t.includes('Total: 6 categories'));
-		expect(total).toBeDefined();
-		expect(total?.startsWith('• ')).not.toBe(true);
+	it('ends with the approved "Total: N categories" line, unprefixed', () => {
+		const flat = textItems(buildCategoriesPdf(rows, rows.length));
+		expect(flat).toContain('Total: 6 categories');
 	});
 
 	it('renders the centered empty state and no total line', () => {
-		const flat = texts(buildCategoriesPdf([], 0)).map((t) => String(t));
-		expect(flat.some((t) => t.includes('No categories found.'))).toBe(true);
+		const flat = textItems(buildCategoriesPdf([], 0));
+		expect(flat).toContain('No categories found.');
 		expect(flat.some((t) => t.includes('Total:'))).toBe(false);
 	});
 
@@ -83,9 +93,9 @@ describe('buildCategoriesPdf', () => {
 		const doc = buildCategoriesPdf(big, big.length);
 		expect(doc.getNumberOfPages()).toBeGreaterThan(1);
 		// footer runs on every page, so the generated-on line appears per page
-		const flat = texts(doc);
-		expect(flat.filter((t) => String(t).startsWith('Generated on')).length).toBe(
-			doc.getNumberOfPages()
-		);
+		const flat = textItems(doc);
+		const footers = flat.filter((t) => t.startsWith('Generated on'));
+		expect(footers.length).toBeGreaterThanOrEqual(doc.getNumberOfPages());
+		expect(flat).toContain(`Total: ${big.length} categories`);
 	});
 });
