@@ -39,10 +39,12 @@ export const getFixAssetById = async (fixAssetId: number) => {
 			item_quantity: fixAssetItems.quantity,
 			item_cost: fixAssetItems.cost,
 			item_total_cost: fixAssetItems.total_cost,
-			item_serial_number: fixAssetItems.serial_number
+			item_serial_number: fixAssetItems.serial_number,
+			item_description: products.purchase_description
 		})
 		.from(fixAssets)
 		.leftJoin(fixAssetItems, eq(fixAssetItems.fix_asset_id, fixAssetId))
+		.leftJoin(products, eq(products.id, fixAssetItems.product_id))
 		.where(eq(fixAssets.id, fixAssetId));
 
 	if (rows.length === 0) return undefined;
@@ -59,7 +61,8 @@ export const getFixAssetById = async (fixAssetId: number) => {
 					cost: row.item_cost,
 					total_cost: row.item_total_cost,
 					serial_number: row.item_serial_number,
-					serial_numbers: [row.item_serial_number]
+					serial_numbers: [row.item_serial_number],
+					item_description: row.item_description
 				}) as FixAssetItemWithId
 		)
 	);

@@ -14,7 +14,7 @@
 	} from '$lib/components/ui/sheet';
 	import SheetTitle from '$lib/components/ui/sheet/sheet-title.svelte';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Plus } from '@lucide/svelte';
+	import { Plus, Printer } from '@lucide/svelte';
 	import FixAssetsItems from './fix-assets-items.svelte';
 	import { page } from '$app/state';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -33,12 +33,25 @@
 	let fixAsset = $derived(page.data?.fixAsset);
 	let isView = $derived(fixAsset ? true : false);
 
-	// eslint-disable-next-line svelte/prefer-writable-derived -- items is a mutable form buffer, not a pure derivation
+	// Form buffers are writable state: seeded from the viewed record and reset on
+	// close, so they must not be derived.
+	let dateTransfered = $state<string>('');
+	let fixAssetUser = $state<string>('');
+	let notes = $state<string>('');
+
 	let items = $state<FixAssetItem[]>([]);
 
-	let dateTransfered = $derived(fixAsset?.date_transfered);
-	let fixAssetUser = $derived<string>(fixAsset?.user);
-	let notes = $derived<string>(fixAsset?.notes);
+	// Seed (or reset) the buffers whenever a different record is opened or closed.
+	let viewedAssetId = $state<number | null>(null);
+	$effect(() => {
+		const id = fixAsset?.id ?? null;
+		if (id === viewedAssetId) return;
+		viewedAssetId = id;
+		dateTransfered = fixAsset?.date_transfered ?? '';
+		fixAssetUser = fixAsset?.user ?? '';
+		notes = fixAsset?.notes ?? '';
+		items = fixAsset?.items ? structuredClone(fixAsset.items) : [];
+	});
 
 	const enhanceForm: SubmitFunction = () => {
 		return async ({ result }) => {
@@ -53,6 +66,10 @@
 		};
 	};
 
+	const printFixAsset = async () => {
+		await goto(resolve(`/vendors/transfers/fix-assets/print/${fixAsset?.id}`));
+	};
+
 	const onOpenChangeComplete = async () => {
 		if (!open) {
 			fixAssetUser = '';
@@ -63,11 +80,6 @@
 			await goto(resolve('/vendors/transfers/fix-assets'));
 		}
 	};
-
-	// Effects
-	$effect(() => {
-		items = fixAsset?.items ? structuredClone(fixAsset.items) : [];
-	});
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
@@ -93,6 +105,17 @@
 					<Card>
 						<CardHeader class="flex items-center justify-between">
 							<CardTitle>Fix Asset Information</CardTitle>
+							{#if fixAsset?.id}
+								<Button
+									type="button"
+									class="cursor-pointer"
+									variant="outline"
+									onclick={printFixAsset}
+								>
+									<Printer size={16} />
+									Print
+								</Button>
+							{/if}
 						</CardHeader>
 						<CardContent>
 							<div class="flex flex-col gap-6">
