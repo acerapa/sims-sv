@@ -33,10 +33,16 @@ export interface ReportOptions {
 	title: string;
 	/** Optional label shown right-aligned next to the title (e.g. a date range) */
 	subtitle?: string;
+	/** Orientation for all pages; defaults to portrait */
+	orientation?: 'portrait' | 'landscape';
 }
 
 export function createReportDoc(options: ReportOptions): ReportDoc {
-	const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+	const doc = new jsPDF({
+		orientation: options.orientation ?? 'portrait',
+		unit: 'pt',
+		format: 'letter'
+	});
 	const margin = REPORT_MARGIN;
 	const pageWidth = doc.internal.pageSize.getWidth();
 	const pageHeight = doc.internal.pageSize.getHeight();
@@ -100,7 +106,9 @@ export function addReportFooter(doc: jsPDF, margin = REPORT_MARGIN): void {
 		doc.setFont('helvetica', 'normal');
 		doc.setFontSize(8);
 		doc.setTextColor(51, 51, 51); // #333 — ≥4.5:1 contrast on white
-		doc.text(`Generated on ${generatedOn}`, pageWidth - margin, pageHeight - 20, { align: 'right' });
+		doc.text(`Generated on ${generatedOn}`, pageWidth - margin, pageHeight - 20, {
+			align: 'right'
+		});
 		doc.text(`Page ${i} of ${pageCount}`, margin, pageHeight - 20);
 		doc.setTextColor(0, 0, 0);
 	}
