@@ -42,7 +42,7 @@ Extracted from the two done routes (`$lib/utils/pdf.ts`, `src/routes/vendors/inv
 
 | # | Route | Spec | Status |
 |---|---|---|---|
-| 1 | STR — `src/routes/vendors/transfers/strs/print/[id]` | `ai-docs/str-printable-spec.md` | ⬜ |
+| 1 | STR — `src/routes/vendors/transfers/strs/print/[id]` | `ai-docs/str-printable-spec.md` | ✅ done (2026-07-18: `pdf.ts` + `onPrint` wired, 13 tests, suite 23/23) |
 | 2 | IBRR — `src/routes/vendors/transfers/ibrrs/print/[id]` | `ai-docs/ibrr-printable-spec.md` | ⬜ |
 | 3 | RMA — `src/routes/vendors/transfers/rmas/print/[id]` | `ai-docs/rma-printable-spec.md` | ⬜ |
 | 4 | Sales by Customer — `src/routes/reports/sales-by-customer/print` | `ai-docs/sales-by-customer-printable-spec.md` | ⬜ |

@@ -1,33 +1,21 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
-	import type { STRItem } from '$lib/types/global';
 	import { formatCurrency } from '$lib/utils/common';
+	import { openAndPrint } from '$lib/utils/pdf';
+	import { buildStrPdf, expandStrItems } from './pdf';
 
 	const str = $derived(page.data?.str);
 
-	const items = $derived.by(() => {
-		let faItems: STRItem[] = [];
-		str?.items.forEach((f: STRItem) => {
-			if (f.serial_numbers.length > 1) {
-				f.serial_numbers.forEach((sn: string) => {
-					faItems.push({
-						...f,
-						quantity: 1,
-						total_cost: f.cost,
-						serial_number: sn
-					});
-				});
-			} else {
-				faItems.push(f);
-			}
-		});
+	const items = $derived(expandStrItems(str?.items ?? []));
 
-		return faItems;
-	});
+	function handlePrint() {
+		if (!str) return;
+		openAndPrint(buildStrPdf(str));
+	}
 </script>
 
-<PrintReportLayout reportTitle="Stock Transfer Report">
+<PrintReportLayout reportTitle="Stock Transfer Report" onPrint={handlePrint}>
 	<section class="flex flex-col gap-3">
 		<div class="flex gap-5">
 			<div class="flex-1 border-b border-muted-foreground py-1">
