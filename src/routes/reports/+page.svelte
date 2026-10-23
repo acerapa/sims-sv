@@ -60,6 +60,11 @@
 				href: '/reports/purchases-by-vendor'
 			},
 			{
+				title: 'Purchases by Item',
+				subtitle: 'Purchase summary by item category, or every purchase line with a running balance',
+				href: '/reports/purchases-by-item'
+			},
+			{
 				title: 'Purchase Order Report',
 				subtitle: 'All purchase orders with status tracking',
 				href: ''

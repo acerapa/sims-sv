@@ -100,6 +100,90 @@ export const getPurchasesByVendorDetail = async (
 	return result as VendorDetailRow[];
 };
 
+export interface CategorySummaryRow {
+	category_id: number;
+	category_name: string;
+	po_count: number;
+	total_items: number;
+	total_amount: string;
+}
+
+export const getPurchasesByCategorySummary = async (
+	from?: string,
+	to?: string
+): Promise<CategorySummaryRow[]> => {
+	const dateParts = buildDateConditions(from, to);
+	const whereClause =
+		dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
+
+	const result = await db.execute<CategorySummaryRow>(sql`
+		SELECT
+			c.id AS category_id,
+			c.name AS category_name,
+			COUNT(DISTINCT po.id)::int AS po_count,
+			COALESCE(SUM(poi.quantity), 0)::int AS total_items,
+			COALESCE(SUM(poi.total_cost::numeric), 0)::text AS total_amount
+		FROM purhase_order po
+		INNER JOIN purchase_order_items poi ON po.id = poi.purchase_order_id
+		INNER JOIN products p ON poi.product_id = p.id
+		INNER JOIN categories c ON p.category_id = c.id
+		${whereClause}
+		GROUP BY c.id, c.name
+		ORDER BY c.name
+	`);
+
+	return result as CategorySummaryRow[];
+};
+
+export interface ItemDetailRow {
+	category_id: number;
+	category_name: string;
+	transaction_type: string;
+	po_reference: string;
+	receive_date: string;
+	memo: string;
+	supplier_name: string;
+	product_sku: string;
+	product_name: string;
+	quantity: number;
+	cost: string;
+	total_cost: string;
+}
+
+export const getPurchasesByItemDetail = async (
+	from?: string,
+	to?: string
+): Promise<ItemDetailRow[]> => {
+	const dateParts = buildDateConditions(from, to);
+	const whereClause =
+		dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
+
+	const result = await db.execute<ItemDetailRow>(sql`
+		SELECT
+			c.id AS category_id,
+			c.name AS category_name,
+			'Purchase Order' AS transaction_type,
+			po.reference AS po_reference,
+			po.receive_date,
+			COALESCE(po.notes, '') AS memo,
+			COALESCE(s.name, 'No Supplier') AS supplier_name,
+			p.sku AS product_sku,
+			p.purchase_description AS product_name,
+			poi.quantity::int AS quantity,
+			poi.cost,
+			poi.total_cost
+		FROM purhase_order po
+		LEFT JOIN suppliers s ON po.supplier_id = s.id
+		INNER JOIN purchase_order_items poi ON po.id = poi.purchase_order_id
+		INNER JOIN products p ON poi.product_id = p.id
+		INNER JOIN categories c ON p.category_id = c.id
+		${whereClause}
+		ORDER BY c.name, po.receive_date, po.reference, p.purchase_description
+	`);
+
+	return result as ItemDetailRow[];
+};
+
 // ─── Profit & Loss ────────────────────────────────────────────────
 
 export interface ProfitLossSummaryRow {
