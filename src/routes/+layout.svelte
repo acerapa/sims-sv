@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { LayoutParams } from './$types';
 	import Header from '$lib/components/layout/Header.svelte';
+	import TopLoader from '$lib/components/common/TopLoader.svelte';
 	import '../app.css';
 	import { page } from '$app/state';
 	import { Toaster } from 'svelte-sonner';
@@ -16,6 +17,7 @@
 	let { data, children }: CustomLayoutProps = $props() as CustomLayoutProps;
 </script>
 
+<TopLoader />
 <Toaster />
 <div class="flex min-h-screen flex-col">
 	{#if route && !route.startsWith('/auth')}
