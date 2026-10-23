@@ -1,5 +1,5 @@
 import autoTable from 'jspdf-autotable';
-import { addReportFooter, createReportDoc } from '$lib/utils/pdf';
+import { addReportFooter, createReportDoc, formatCurrencyPdf } from '$lib/utils/pdf';
 
 export interface InventoryProduct {
 	purchase_description: string;
@@ -7,15 +7,6 @@ export interface InventoryProduct {
 	quantity: string | number;
 	sale_price: string | number;
 	category?: { name: string } | null;
-}
-
-/**
- * Standard PDF fonts have no ₱ glyph, so the currency renders as "Php".
- * If the peso sign is required, embed a TTF font (see docs in $lib/utils/pdf.ts).
- */
-function formatCurrencyPdf(value: string | number) {
-	const num = typeof value === 'string' ? parseFloat(value || '0') : value;
-	return `Php ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function buildInventoryPdf(products: InventoryProduct[], total: number) {

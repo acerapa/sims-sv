@@ -1,28 +1,24 @@
 import autoTable, { type CellInput, type Styles } from 'jspdf-autotable';
 import type { jsPDF } from 'jspdf';
-import { addReportFooter, createReportDoc } from '$lib/utils/pdf';
+import {
+	addReportFooter,
+	createReportDoc,
+	dateRangeLabel,
+	formatCurrencyPdf,
+	safeNum,
+	tableFinalY
+} from '$lib/utils/pdf';
 
-// ── Shared pure formatters ────────────────────────────────────────
 // Single source of truth for the preview (+page.svelte) and the PDF:
 // both import these, so rounding/wording can never drift apart.
 
-function toAmount(value: string | number | null | undefined): number {
-	const num = typeof value === 'string' ? parseFloat(value || '0') : (value ?? 0);
-	return Number.isFinite(num) ? num : 0;
-}
-
-function formatAmount(num: number): string {
-	return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
 /** Preview money — keeps the ₱ glyph (browser fonts have it) */
 export function formatCurrency(value: string | number): string {
-	return `₱${formatAmount(toAmount(value))}`;
-}
-
-// Standard jsPDF fonts have no ₱ glyph, so PDF money renders as "Php" (same as other print routes)
-export function formatCurrencyPdf(value: string | number | null | undefined): string {
-	return `Php ${formatAmount(toAmount(value))}`;
+	const formatted = safeNum(value).toLocaleString(undefined, {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	});
+	return `₱${formatted}`;
 }
 
 export function formatMonth(monthStr: string): string {
@@ -34,25 +30,6 @@ export function formatMonth(monthStr: string): string {
 export function grossMarginPercent(income: number, grossProfit: number): string {
 	if (income === 0) return '0.0';
 	return ((grossProfit / income) * 100).toFixed(1);
-}
-
-function formatDate(value: string | null | undefined): string {
-	if (!value) return '';
-	return new Date(value).toLocaleDateString('default', {
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric'
-	});
-}
-
-// mirrors PrintReportLayout's .date-range label, including the "All Dates" fallback
-function dateRangeLabel(filters?: { from?: string | null; to?: string | null }): string {
-	const from = filters?.from || null;
-	const to = filters?.to || null;
-	if (from && to) return `${formatDate(from)} — ${formatDate(to)}`;
-	if (from) return `From ${formatDate(from)}`;
-	if (to) return `Up to ${formatDate(to)}`;
-	return 'All Dates';
 }
 
 // ── Data contracts ────────────────────────────────────────────────
@@ -129,12 +106,6 @@ const CENTER: Partial<Styles> = { halign: 'center', textColor: [102, 102, 102] }
 
 // ── Sections ──────────────────────────────────────────────────────
 
-function tableFinalY(doc: jsPDF, fallback: number): number {
-	return (
-		(doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? fallback
-	);
-}
-
 function pageWidthOf(doc: jsPDF): number {
 	return doc.internal.pageSize.getWidth();
 }
@@ -146,9 +117,9 @@ function drawOverallTotals(
 	margin: number,
 	y: number
 ): number {
-	const income = toAmount(summary.total_income);
-	const cogs = toAmount(summary.total_cogs);
-	const grossProfit = toAmount(summary.gross_profit);
+	const income = safeNum(summary.total_income);
+	const cogs = safeNum(summary.total_cogs);
+	const grossProfit = safeNum(summary.gross_profit);
 	const pairWidth = (pageWidthOf(doc) - 2 * margin) / 2;
 
 	autoTable(doc, {
@@ -202,9 +173,9 @@ function drawMonthlyTable(
 
 	const totals = monthly.reduce(
 		(acc, row) => {
-			acc.income += toAmount(row.income);
-			acc.cogs += toAmount(row.cogs);
-			acc.grossProfit += toAmount(row.gross_profit);
+			acc.income += safeNum(row.income);
+			acc.cogs += safeNum(row.cogs);
+			acc.grossProfit += safeNum(row.gross_profit);
 			return acc;
 		},
 		{ income: 0, cogs: 0, grossProfit: 0 }
@@ -231,7 +202,7 @@ function drawMonthlyTable(
 	const marginRow = [
 		{ content: 'Gross Margin %', styles: MUTED },
 		...monthly.map((row) => ({
-			content: `${grossMarginPercent(toAmount(row.income), toAmount(row.gross_profit))}%`,
+			content: `${grossMarginPercent(safeNum(row.income), safeNum(row.gross_profit))}%`,
 			styles: MUTED_RIGHT
 		})),
 		...(showTotalCol
@@ -288,9 +259,9 @@ function drawDetailTable(
 	const totals = detail.reduce(
 		(acc, row) => {
 			acc.quantitySold += row.quantity_sold;
-			acc.revenue += toAmount(row.total_revenue);
-			acc.cost += toAmount(row.total_cost);
-			acc.profit += toAmount(row.profit);
+			acc.revenue += safeNum(row.total_revenue);
+			acc.cost += safeNum(row.total_cost);
+			acc.profit += safeNum(row.profit);
 			return acc;
 		},
 		{ quantitySold: 0, revenue: 0, cost: 0, profit: 0 }
@@ -307,7 +278,7 @@ function drawDetailTable(
 					{ content: formatCurrencyPdf(row.total_cost), styles: RIGHT },
 					{ content: formatCurrencyPdf(row.profit), styles: RIGHT },
 					{
-						content: `${grossMarginPercent(toAmount(row.total_revenue), toAmount(row.profit))}%`,
+						content: `${grossMarginPercent(safeNum(row.total_revenue), safeNum(row.profit))}%`,
 						styles: RIGHT
 					}
 				]);

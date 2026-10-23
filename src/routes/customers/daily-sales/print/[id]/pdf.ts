@@ -1,12 +1,6 @@
 import autoTable, { type CellInput, type Styles } from 'jspdf-autotable';
 import { jsPDF } from 'jspdf';
-import { addReportFooter } from '$lib/utils/pdf';
-
-// Standard jsPDF fonts have no ₱ glyph, so money renders as "Php" (same as other print routes)
-function formatCurrencyPdf(value: number | string | null | undefined): string {
-	const num = typeof value === 'string' ? parseFloat(value || '0') : (value ?? 0);
-	return `Php ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+import { addReportFooter, formatCurrencyPdf, titleCase } from '$lib/utils/pdf';
 
 type Amount = number | string | null | undefined;
 
@@ -34,14 +28,6 @@ export interface SalesReceiptOrder {
 export interface SalesReceiptPayment {
 	check_number?: string | null;
 	payment_type?: string | null;
-}
-
-function titleCase(value: string): string {
-	return value
-		.split(' ')
-		.filter(Boolean)
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
 }
 
 const BASE_STYLES: Partial<Styles> = {

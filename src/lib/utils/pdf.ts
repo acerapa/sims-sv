@@ -113,3 +113,143 @@ export function addReportFooter(doc: jsPDF, margin = REPORT_MARGIN): void {
 		doc.setTextColor(0, 0, 0);
 	}
 }
+
+// ── Shared helpers for the per-report print/pdf.ts builders ─────────────────
+// Each report keeps its own table-drawing code; the small formatters and
+// pagination helpers below were copy-pasted across routes and are consolidated
+// here (see ai-docs/pdf-shared-helpers-spec.md).
+
+export const PDF_FOOTER_BAND = 48; // bottom band kept free for addReportFooter
+export const PDF_LABEL_COLOR: [number, number, number] = [102, 102, 102]; // #666 muted labels
+
+/** Standard PDF fonts have no ₱ glyph, so money renders as "Php …". */
+export function formatCurrencyPdf(value: string | number | null | undefined): string {
+	const num = typeof value === 'string' ? parseFloat(value || '0') : (value ?? 0);
+	return `Php ${num.toLocaleString(undefined, {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	})}`;
+}
+
+/** Coerces a DB amount (string or number) to a finite number, NaN/null → 0. */
+export function safeNum(value: unknown): number {
+	const n = typeof value === 'string' ? parseFloat(value) : Number(value as number);
+	return Number.isFinite(n) ? n : 0;
+}
+
+// 'en-US' (not 'default') so the rendered date doesn't depend on the
+// server/browser locale (decision D1, ai-docs/pdf-shared-helpers-spec.md)
+export function formatDatePdf(value: Date | string | number | null | undefined): string {
+	if (value == null || value === '') return '';
+	return new Date(value).toLocaleDateString('en-US', {
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric'
+	});
+}
+
+/** Mirrors PrintReportLayout's .date-range label, including the "All Dates" fallback. */
+export function dateRangeLabel(filters?: { from?: string | null; to?: string | null }): string {
+	const from = filters?.from || null;
+	const to = filters?.to || null;
+	if (from && to) return `${formatDatePdf(from)} — ${formatDatePdf(to)}`;
+	if (from) return `From ${formatDatePdf(from)}`;
+	if (to) return `Up to ${formatDatePdf(to)}`;
+	return 'All Dates';
+}
+
+/**
+ * Capitalizes the first letter of each whitespace-separated word, preserving
+ * interior case — mirrors CSS text-transform: capitalize (decision D2).
+ */
+export function titleCase(value: string): string {
+	return value
+		.split(' ')
+		.filter(Boolean)
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+}
+
+export function capitalizeFirst(value: string): string {
+	return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+/** Y coordinate where the last jspdf-autotable call ended (or `fallback`). */
+export function tableFinalY(doc: jsPDF, fallback: number): number {
+	return (
+		(doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? fallback
+	);
+}
+
+/** Page-breaks when the next draw would cross the footer band; returns the new Y. */
+export function ensureSpace(doc: jsPDF, y: number, needed: number, pageHeight: number): number {
+	if (y + needed > pageHeight - PDF_FOOTER_BAND) {
+		doc.addPage();
+		return PDF_FOOTER_BAND;
+	}
+	return y;
+}
+
+/** Draws a `LABEL` over a value with a muted underline (mirrors the preview's bordered fields). */
+export function drawField(
+	doc: jsPDF,
+	x: number,
+	width: number,
+	label: string,
+	value: string,
+	y: number
+): number {
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(7);
+	doc.setTextColor(...PDF_LABEL_COLOR);
+	doc.text(label, x, y);
+	doc.setTextColor(0, 0, 0);
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(10);
+	doc.text(value, x, y + 12);
+	doc.setDrawColor(153, 153, 153);
+	doc.setLineWidth(0.5);
+	doc.line(x, y + 16, x + width, y + 16);
+	doc.setDrawColor(0, 0, 0);
+	return y + 26;
+}
+
+export function drawNotesLine(
+	doc: jsPDF,
+	line: string,
+	margin: number,
+	y: number,
+	pageHeight: number
+): number {
+	if (y + 12 > pageHeight - PDF_FOOTER_BAND) {
+		doc.addPage();
+		y = PDF_FOOTER_BAND;
+	}
+	doc.text(line, margin, y);
+	return y + 12;
+}
+
+export function drawNotes(
+	doc: jsPDF,
+	notes: string,
+	margin: number,
+	y: number,
+	pageWidth: number,
+	pageHeight: number
+): number {
+	doc.setFont('helvetica', 'bold');
+	doc.setFontSize(7);
+	doc.setTextColor(...PDF_LABEL_COLOR);
+	doc.text('NOTES', margin, y);
+	doc.setTextColor(0, 0, 0);
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(10);
+	// falsy → '---', matching the preview's truthy check
+	const lines: string[] = doc.splitTextToSize(notes || '---', pageWidth - margin * 2);
+	y += 12;
+	for (const line of lines) {
+		// uncapped free text — paginate explicitly rather than rely on jsPDF's auto-paging
+		y = drawNotesLine(doc, line, margin, y, pageHeight);
+	}
+	return y + 8;
+}

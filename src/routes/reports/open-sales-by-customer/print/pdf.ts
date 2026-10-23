@@ -1,32 +1,14 @@
 import autoTable, { type CellInput, type Styles } from 'jspdf-autotable';
 import type { jsPDF } from 'jspdf';
-import { addReportFooter, createReportDoc } from '$lib/utils/pdf';
-
-// Standard jsPDF fonts have no ₱ glyph, so money renders as "Php" (same as inventory/print/pdf.ts)
-function formatCurrencyPdf(value: string | number | null | undefined): string {
-	const num = typeof value === 'string' ? parseFloat(value || '0') : (value ?? 0);
-	return `Php ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function safeNum(value: unknown): number {
-	const n = typeof value === 'string' ? parseFloat(value) : Number(value as number);
-	return Number.isFinite(n) ? n : 0;
-}
-
-function formatDate(value: Date | string | number | null | undefined): string {
-	if (value == null || value === '') return '';
-	return new Date(value).toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-// mirrors PrintReportLayout's .date-range label, including the "All Dates" fallback
-function dateRangeLabel(filters?: { from?: string | null; to?: string | null }): string {
-	const from = filters?.from || null;
-	const to = filters?.to || null;
-	if (from && to) return `${formatDate(from)} — ${formatDate(to)}`;
-	if (from) return `From ${formatDate(from)}`;
-	if (to) return `Up to ${formatDate(to)}`;
-	return 'All Dates';
-}
+import {
+	addReportFooter,
+	createReportDoc,
+	dateRangeLabel,
+	formatCurrencyPdf,
+	formatDatePdf,
+	safeNum,
+	tableFinalY
+} from '$lib/utils/pdf';
 
 const EMPTY_TEXT = 'No data available.';
 
@@ -101,10 +83,6 @@ const MUTED_BOLD_RIGHT: Partial<Styles> = { halign: 'right', fontStyle: 'bold', 
 const RIGHT: Partial<Styles> = { halign: 'right' };
 const CENTER: Partial<Styles> = { halign: 'center' };
 
-function tableFinalY(doc: jsPDF, fallback: number): number {
-	return (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? fallback;
-}
-
 // mirrors the preview's grandTotal derived — reduces the summary's nested total_cost
 function grandTotalOf(summary: OpenSaleSummaryCustomer[]): number {
 	return summary
@@ -123,7 +101,7 @@ function drawSummaryTable(doc: jsPDF, summary: OpenSaleSummaryCustomer[], margin
 			for (const item of sale.sales ?? []) {
 				rows.push([
 					'Sales Order',
-					formatDate(item.date_ordered),
+					formatDatePdf(item.date_ordered),
 					String(item.sales_order_id),
 					item.notes ? item.notes : '-',
 					{ content: formatCurrencyPdf(item.total_cost), styles: RIGHT }
@@ -169,7 +147,7 @@ function drawDetailTable(
 	for (const openSale of detailed) {
 		rows.push([{ content: openSale.customer, colSpan: 4, styles: BOLD }]);
 		for (const order of openSale.sales ?? []) {
-			const dateLabel = formatDate(order.date_ordered);
+			const dateLabel = formatDatePdf(order.date_ordered);
 			rows.push([
 				{
 					content: `Sales Order #${order.sales_order_id}${dateLabel ? `  —  ${dateLabel}` : ''}`,

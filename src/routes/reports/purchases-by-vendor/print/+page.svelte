@@ -1,7 +1,7 @@
 <script lang="ts">
 	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import { openAndPrint, formatDatePdf } from '$lib/utils/pdf';
 	import { groupDetailByVendor, buildPurchasesByVendorPdf, type PurchasesByVendorView } from './pdf';
 
 	let { data }: PageProps = $props();
@@ -31,14 +31,6 @@
 	function formatCurrency(value: string | number) {
 		const num = typeof value === 'string' ? parseFloat(value || '0') : value;
 		return `₱${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-	}
-
-	function formatDate(dateStr: string) {
-		return new Date(dateStr).toLocaleDateString('default', {
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric'
-		});
 	}
 </script>
 
@@ -111,7 +103,7 @@
 				{#each vendor.pos as po (po.po_id)}
 					<div class="print-po-header">
 						<span class="po-ref">{po.po_reference}</span>
-						<span>{formatDate(po.receive_date)}</span>
+						<span>{formatDatePdf(po.receive_date)}</span>
 					</div>
 					<table class="print-table">
 						<thead>

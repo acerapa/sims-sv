@@ -1,38 +1,18 @@
 import autoTable from 'jspdf-autotable';
 import type { jsPDF } from 'jspdf';
-import { addReportFooter, createReportDoc } from '$lib/utils/pdf';
-
-// Standard jsPDF fonts have no ₱ glyph, so money renders as "Php" (same as inventory/print/pdf.ts)
-function formatCurrencyPdf(value: string | number): string {
-	const num = typeof value === 'string' ? parseFloat(value || '0') : value;
-	return `Php ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function safeNum(value: unknown): number {
-	const n = typeof value === 'string' ? parseFloat(value) : Number(value as number);
-	return Number.isFinite(n) ? n : 0;
-}
+import {
+	addReportFooter,
+	createReportDoc,
+	dateRangeLabel,
+	ensureSpace,
+	formatCurrencyPdf,
+	formatDatePdf,
+	safeNum,
+	tableFinalY,
+	titleCase
+} from '$lib/utils/pdf';
 
 const EMPTY_RANGE_TEXT = 'No sales orders found for the selected date range.';
-
-// mirrors the print-preview CSS text-transform: capitalize (per spec decision 1)
-function titleCase(text: string): string {
-	return text.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function formatDate(value: Date | string | number): string {
-	return new Date(value).toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-// mirrors PrintReportLayout's .date-range label, including the "All Dates" fallback
-function dateRangeLabel(filters?: { from?: string | null; to?: string | null }): string {
-	const from = filters?.from || null;
-	const to = filters?.to || null;
-	if (from && to) return `${formatDate(from)} — ${formatDate(to)}`;
-	if (from) return `From ${formatDate(from)}`;
-	if (to) return `Up to ${formatDate(to)}`;
-	return 'All Dates';
-}
 
 export interface SbcSummaryRow {
 	customer_name: string;
@@ -72,15 +52,6 @@ function viewTitle(view: SalesByCustomerView): string {
 	if (view === 'detail') return 'Sales by Customer — Detail';
 	if (view === 'both') return 'Sales by Customer';
 	return 'Sales by Customer — Summary';
-}
-
-function ensureSpace(doc: jsPDF, y: number, needed: number, pageHeight: number): number {
-	// 48pt bottom band stays free for the report footer
-	if (y + needed > pageHeight - 48) {
-		doc.addPage();
-		return 48;
-	}
-	return y;
 }
 
 function drawSummaryTable(doc: jsPDF, summary: SbcSummaryRow[], margin: number, y: number): number {
@@ -126,7 +97,7 @@ function drawSummaryTable(doc: jsPDF, summary: SbcSummaryRow[], margin: number, 
 			3: { halign: 'right', cellWidth: 110 }
 		}
 	});
-	const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
+	const finalY = tableFinalY(doc, y);
 	return finalY + 10;
 }
 
@@ -158,7 +129,7 @@ function drawOrderItemsTable(doc: jsPDF, order: SbcOrder, margin: number, y: num
 			3: { halign: 'right', cellWidth: 100 }
 		}
 	});
-	const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
+	const finalY = tableFinalY(doc, y);
 	return finalY + 8;
 }
 
@@ -205,7 +176,7 @@ function drawDetailSections(
 			doc.setFont('helvetica', 'normal');
 			const status = order.order_status ? titleCase(order.order_status) : '';
 			doc.text(
-				`${formatDate(order.date_ordered)}  –  ${status}`,
+				`${formatDatePdf(order.date_ordered)}  –  ${status}`,
 				margin,
 				cursor + 18
 			);

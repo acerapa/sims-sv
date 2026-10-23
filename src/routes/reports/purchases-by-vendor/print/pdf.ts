@@ -1,26 +1,14 @@
 import autoTable from 'jspdf-autotable';
 import type { jsPDF } from 'jspdf';
-import { addReportFooter, createReportDoc } from '$lib/utils/pdf';
-
-// Standard jsPDF fonts have no ₱ glyph, so money renders as "Php" (same as inventory/print/pdf.ts)
-function formatCurrencyPdf(value: string | number): string {
-	const num = typeof value === 'string' ? parseFloat(value || '0') : value;
-	return `Php ${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function formatDate(value: Date | string | number): string {
-	return new Date(value).toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-// mirrors PrintReportLayout's .date-range label, including the "All Dates" fallback
-function dateRangeLabel(filters?: { from?: string | null; to?: string | null }): string {
-	const from = filters?.from || null;
-	const to = filters?.to || null;
-	if (from && to) return `${formatDate(from)} — ${formatDate(to)}`;
-	if (from) return `From ${formatDate(from)}`;
-	if (to) return `Up to ${formatDate(to)}`;
-	return 'All Dates';
-}
+import {
+	addReportFooter,
+	createReportDoc,
+	dateRangeLabel,
+	ensureSpace,
+	formatCurrencyPdf,
+	formatDatePdf,
+	tableFinalY
+} from '$lib/utils/pdf';
 
 const EMPTY_RANGE_TEXT = 'No purchase orders found for the selected date range.';
 
@@ -131,19 +119,6 @@ function viewTitle(view: PurchasesByVendorView): string {
 	if (view === 'detail') return 'Purchases by Vendor — Detail';
 	if (view === 'both') return 'Purchases by Vendor';
 	return 'Purchases by Vendor — Summary';
-}
-
-function ensureSpace(doc: jsPDF, y: number, needed: number, pageHeight: number): number {
-	// 48pt bottom band stays free for the report footer
-	if (y + needed > pageHeight - 48) {
-		doc.addPage();
-		return 48;
-	}
-	return y;
-}
-
-function tableFinalY(doc: jsPDF, fallback: number): number {
-	return (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? fallback;
 }
 
 function drawSummaryTable(
@@ -278,7 +253,7 @@ function drawDetailSections(
 			doc.setFontSize(9);
 			doc.text(po.po_reference, margin, cursor + 8);
 			doc.setFont('helvetica', 'normal');
-			doc.text(`${formatDate(po.receive_date)}`, margin, cursor + 18);
+			doc.text(`${formatDatePdf(po.receive_date)}`, margin, cursor + 18);
 			cursor += 28;
 
 			cursor = drawPoItemsTable(doc, po, margin, cursor);

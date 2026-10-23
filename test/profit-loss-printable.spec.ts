@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
 	buildProfitLossPdf,
 	formatCurrency,
-	formatCurrencyPdf,
 	formatMonth,
 	grossMarginPercent,
 	type ProfitLossData
 } from '../src/routes/reports/profit-loss/print/pdf';
+import { formatCurrencyPdf } from '../src/lib/utils/pdf';
 
 // jsPDF 4 removed getText()/getTextContent() — pull rendered strings out of the raw
 // content stream (same approach as test/categories-printable.spec.ts).
