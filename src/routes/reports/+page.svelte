@@ -26,6 +26,11 @@
 				href: '/reports/open-sales-by-customer'
 			},
 			{
+				title: 'Sales by Representative',
+				subtitle: 'Invoice totals and line details grouped by sales representative',
+				href: '/reports/sales-by-rep'
+			},
+			{
 				title: 'Sales by Product',
 				subtitle: 'Product-wise sales performance and ranking',
 				href: ''
