@@ -7,9 +7,9 @@
 
 	const ibrr = $derived(page.data?.ibrr);
 
-	function handlePrint() {
+	async function handlePrint() {
 		if (!ibrr) return;
-		openAndPrint(buildIbrrPdf(ibrr));
+		openAndPrint(await buildIbrrPdf(ibrr));
 	}
 </script>
 

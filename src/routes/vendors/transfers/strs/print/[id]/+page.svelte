@@ -9,9 +9,9 @@
 
 	const items = $derived(expandStrItems(str?.items ?? []));
 
-	function handlePrint() {
+	async function handlePrint() {
 		if (!str) return;
-		openAndPrint(buildStrPdf(str));
+		openAndPrint(await buildStrPdf(str));
 	}
 </script>
 

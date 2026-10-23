@@ -9,8 +9,8 @@ export interface InventoryProduct {
 	category?: { name: string } | null;
 }
 
-export function buildInventoryPdf(products: InventoryProduct[], total: number) {
-	const { doc, margin, startY } = createReportDoc({ title: 'Inventory List' });
+export async function buildInventoryPdf(products: InventoryProduct[], total: number) {
+	const { doc, margin, startY } = await createReportDoc({ title: 'Inventory List' });
 	const totalQuantity = products.reduce((acc, p) => acc + (Number(p.quantity) || 0), 0);
 
 	autoTable(doc, {

@@ -31,7 +31,7 @@ const STR = {
 };
 
 describe('expandStrItems', () => {
-	it('passes non-serial items through unchanged', () => {
+	it('passes non-serial items through unchanged', async () => {
 		const [row] = expandStrItems([item()]);
 		// the row carries exactly the print fields; serial_numbers is a source-only input
 		expect({
@@ -43,7 +43,7 @@ describe('expandStrItems', () => {
 		}).toEqual({ item_description: 'Wireless Keyboard', serial_number: undefined, quantity: 2, cost: 1500, total_cost: 3000 });
 	});
 
-	it('fans a multi-serial item out to one row per serial at quantity 1', () => {
+	it('fans a multi-serial item out to one row per serial at quantity 1', async () => {
 		const rows = expandStrItems([
 			item({ quantity: 3, serial_numbers: ['SN-001', 'SN-002', 'SN-003'], cost: 500, total_cost: 1500 })
 		]);
@@ -53,7 +53,7 @@ describe('expandStrItems', () => {
 		expect(rows.map((r) => r.total_cost)).toEqual([500, 500, 500]);
 	});
 
-	it('keeps items and their serials in order across a mixed list', () => {
+	it('keeps items and their serials in order across a mixed list', async () => {
 		const rows = expandStrItems([
 			item({ item_description: 'A', serial_numbers: ['S1', 'S2'] }),
 			item({ item_description: 'B' })
@@ -62,14 +62,14 @@ describe('expandStrItems', () => {
 		expect(rows[2].serial_number).toBeUndefined();
 	});
 
-	it('returns [] for an empty list', () => {
+	it('returns [] for an empty list', async () => {
 		expect(expandStrItems([])).toEqual([]);
 	});
 });
 
 describe('buildStrPdf', () => {
-	it('carries the report identity fields from the STR', () => {
-		const flat = textItems(buildStrPdf(STR));
+	it('carries the report identity fields from the STR', async () => {
+		const flat = textItems(await buildStrPdf(STR));
 		expect(flat).toContain('Stock Transfer Report');
 		expect(flat).toContain('STR-41');
 		expect(flat).toContain('TRANSFER DATE');
@@ -79,16 +79,16 @@ describe('buildStrPdf', () => {
 		expect(flat).toContain('Items Received');
 	});
 
-	it('still renders the notes when they are null', () => {
-		expect(textItems(buildStrPdf({ ...STR, notes: null }))).toContain('---');
+	it('still renders the notes when they are null', async () => {
+		expect(textItems(await buildStrPdf({ ...STR, notes: null }))).toContain('---');
 	});
 
-	it('matches the preview truthy check: empty-string notes also render ---', () => {
-		expect(textItems(buildStrPdf({ ...STR, notes: '' }))).toContain('---');
+	it('matches the preview truthy check: empty-string notes also render ---', async () => {
+		expect(textItems(await buildStrPdf({ ...STR, notes: '' }))).toContain('---');
 	});
 
-	it('renders every item row with right-hand money as Php, not the peso glyph', () => {
-		const flat = textItems(buildStrPdf(STR));
+	it('renders every item row with right-hand money as Php, not the peso glyph', async () => {
+		const flat = textItems(await buildStrPdf(STR));
 		for (const name of ['Wireless Keyboard', 'USB Cable']) expect(flat).toContain(name);
 		expect(flat).toContain('Php 1,500.00'); // keyboard unit cost
 		expect(flat).toContain('Php 3,000.00'); // keyboard line total
@@ -96,25 +96,25 @@ describe('buildStrPdf', () => {
 		expect(flat.some((t) => t.includes('₱'))).toBe(false);
 	});
 
-	it('shows -- when a row has no serial, and the serial verbatim when it does', () => {
+	it('shows -- when a row has no serial, and the serial verbatim when it does', async () => {
 		// getStrById always sets serial_number when an item carries exactly one serial
-		const flat = textItems(buildStrPdf({ ...STR, items: [item({ serial_numbers: ['SN-77'], serial_number: 'SN-77' })] }));
+		const flat = textItems(await buildStrPdf({ ...STR, items: [item({ serial_numbers: ['SN-77'], serial_number: 'SN-77' })] }));
 		expect(flat).toContain('SN-77');
-		const plainDoc = textItems(buildStrPdf({ ...STR, items: [item()] }));
+		const plainDoc = textItems(await buildStrPdf({ ...STR, items: [item()] }));
 		expect(plainDoc).toContain('--');
 	});
 
-	it('renders the empty state and never an item row', () => {
-		const flat = textItems(buildStrPdf({ ...STR, items: [] }));
+	it('renders the empty state and never an item row', async () => {
+		const flat = textItems(await buildStrPdf({ ...STR, items: [] }));
 		expect(flat).toContain('No items found for the selected Stock Transfer Request.');
 		expect(flat).not.toContain('Wireless Keyboard');
 		expect(flat).toContain('Product');
 		expect(flat).toContain('Total Cost');
 	});
 
-	it('footers every page with generated-on and page numbers', () => {
+	it('footers every page with generated-on and page numbers', async () => {
 		const many = Array.from({ length: 120 }, (_, i) => item({ item_description: `Inventory line ${i + 1}` }));
-		const doc = buildStrPdf({ ...STR, items: many });
+		const doc = await buildStrPdf({ ...STR, items: many });
 		const pages = doc.getNumberOfPages();
 		expect(pages).toBeGreaterThan(1);
 		const flat = textItems(doc);
@@ -123,13 +123,13 @@ describe('buildStrPdf', () => {
 		expect(flat).toContain(`Page ${pages} of ${pages}`);
 	});
 
-	it('keeps the note text when notes fit on the page', () => {
-		expect(textItems(buildStrPdf(STR))).toContain('Fragile cargo');
+	it('keeps the note text when notes fit on the page', async () => {
+		expect(textItems(await buildStrPdf(STR))).toContain('Fragile cargo');
 	});
 
-	it('page-breaks very long notes instead of running them into the footer band', () => {
+	it('page-breaks very long notes instead of running them into the footer band', async () => {
 		const longStr = { ...STR, notes: Array.from({ length: 120 }, (_, i) => `Packing instruction ${i + 1}`).join('\n') };
-		const doc = buildStrPdf(longStr);
+		const doc = await buildStrPdf(longStr);
 		const pages = doc.getNumberOfPages();
 		expect(pages).toBeGreaterThan(1); // the first page alone cannot hold 120 note lines + table
 		const flat = textItems(doc);

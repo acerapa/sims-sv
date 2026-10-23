@@ -193,12 +193,12 @@ function drawDetailTable(
 	return tableFinalY(doc, y) + 10;
 }
 
-export function buildOpenSalesPdf(
+export async function buildOpenSalesPdf(
 	data: OpenSalesData,
 	view: OpenSalesView,
 	filters?: { from?: string | null; to?: string | null }
-): jsPDF {
-	const { doc, margin, startY } = createReportDoc({
+): Promise<jsPDF> {
+	const { doc, margin, startY } = await createReportDoc({
 		title: viewTitle(view),
 		subtitle: dateRangeLabel(filters)
 	});

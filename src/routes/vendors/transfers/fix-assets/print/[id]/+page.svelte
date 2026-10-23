@@ -9,9 +9,9 @@
 
 	const items = $derived(expandFixAssetItems(fixAsset?.items ?? []));
 
-	function handlePrint() {
+	async function handlePrint() {
 		if (!fixAsset) return;
-		openAndPrint(buildFixAssetPdf(fixAsset));
+		openAndPrint(await buildFixAssetPdf(fixAsset));
 	}
 </script>
 

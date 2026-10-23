@@ -271,12 +271,12 @@ function drawDetailSections(
 	return cursor;
 }
 
-export function buildPurchasesByVendorPdf(
+export async function buildPurchasesByVendorPdf(
 	data: PbvPrintData,
 	view: PurchasesByVendorView,
 	filters?: { from?: string | null; to?: string | null }
-): jsPDF {
-	const { doc, margin, pageWidth, pageHeight, startY } = createReportDoc({
+): Promise<jsPDF> {
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({
 		title: viewTitle(view),
 		subtitle: dateRangeLabel(filters)
 	});

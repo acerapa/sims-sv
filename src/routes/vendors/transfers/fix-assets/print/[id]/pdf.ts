@@ -67,8 +67,8 @@ export function expandFixAssetItems(items: FixAssetItemSource[]): FixAssetItemRo
 	return rows;
 }
 
-export function buildFixAssetPdf(fixAsset: FixAssetPrintData): jsPDF {
-	const { doc, margin, pageWidth, pageHeight, startY } = createReportDoc({
+export async function buildFixAssetPdf(fixAsset: FixAssetPrintData): Promise<jsPDF> {
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({
 		title: 'Fixed Asset Transfer'
 	});
 	const colWidth = (pageWidth - margin * 2) / 2;

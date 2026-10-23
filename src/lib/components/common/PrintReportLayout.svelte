@@ -37,6 +37,7 @@
 	</div>
 
 	<div class="print-header">
+		<img src="/ramtech-logo.jpg" alt="RAM Tech Ventures Inc. logo" class="company-logo" />
 		<div class="company-info">
 			<h1 class="company-name">RAM TECH VENTURES INC.</h1>
 			<p>BARTOLOME BLDG. MAGSAYSAY ST.</p>
@@ -90,6 +91,15 @@
 
 	.print-header {
 		margin-bottom: 1.5rem;
+		display: flex;
+		align-items: start;
+		gap: 12px;
+	}
+
+	.company-logo {
+		height: 64px;
+		width: auto;
+		flex-shrink: 0;
 	}
 
 	.company-info {

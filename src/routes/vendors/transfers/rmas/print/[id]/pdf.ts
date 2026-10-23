@@ -28,8 +28,8 @@ export interface RmaPrintData {
 	items: RmaItem[];
 }
 
-export function buildRmaPdf(rma: RmaPrintData): jsPDF {
-	const { doc, margin, pageWidth, pageHeight, startY } = createReportDoc({
+export async function buildRmaPdf(rma: RmaPrintData): Promise<jsPDF> {
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({
 		title: 'Return Merchandise Authorization'
 	});
 	const colWidth = (pageWidth - margin * 2) / 2;

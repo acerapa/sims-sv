@@ -7,9 +7,9 @@
 
 	const rma = $derived(page.data?.rma);
 
-	function handlePrint() {
+	async function handlePrint() {
 		if (!rma) return;
-		openAndPrint(buildRmaPdf(rma));
+		openAndPrint(await buildRmaPdf(rma));
 	}
 </script>
 

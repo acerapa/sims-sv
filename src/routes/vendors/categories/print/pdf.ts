@@ -44,8 +44,8 @@ const FOOTER_CLEARANCE = 50;
  * Layout decisions (user-confirmed): DFS order per the grouped tree,
  * `Total: N categories` trailing line, no item counts, no subtitle.
  */
-export function buildCategoriesPdf(rows: CategoryRow[], total: number) {
-	const { doc, margin, pageWidth, pageHeight, startY } = createReportDoc({
+export async function buildCategoriesPdf(rows: CategoryRow[], total: number) {
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({
 		title: 'Product Categories'
 	});
 	doc.setFont('helvetica', 'normal');

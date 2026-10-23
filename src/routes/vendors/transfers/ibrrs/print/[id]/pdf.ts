@@ -25,8 +25,8 @@ export interface IbrrPrintData {
 	items: IbrrItem[];
 }
 
-export function buildIbrrPdf(ibrr: IbrrPrintData): jsPDF {
-	const { doc, margin, pageWidth, pageHeight, startY } = createReportDoc({
+export async function buildIbrrPdf(ibrr: IbrrPrintData): Promise<jsPDF> {
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({
 		title: 'Inter-Branch Receiving Report'
 	});
 	const colWidth = (pageWidth - margin * 2) / 2;

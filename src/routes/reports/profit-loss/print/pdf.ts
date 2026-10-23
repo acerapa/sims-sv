@@ -319,14 +319,14 @@ function drawDetailTable(
 
 // ── Builder ───────────────────────────────────────────────────────
 
-export function buildProfitLossPdf(
+export async function buildProfitLossPdf(
 	data: ProfitLossData,
 	view: ProfitLossView,
 	filters?: { from?: string | null; to?: string | null }
-): jsPDF {
+): Promise<jsPDF> {
 	const showMonthly = view === 'summary' || view === 'both';
 	const landscape = showMonthly && data.monthly.length > PORTRAIT_MONTH_LIMIT;
-	const { doc, margin, startY } = createReportDoc({
+	const { doc, margin, startY } = await createReportDoc({
 		title: viewTitle(view),
 		subtitle: dateRangeLabel(filters),
 		orientation: landscape ? 'landscape' : 'portrait'

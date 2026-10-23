@@ -71,8 +71,8 @@ const empty: OpenSalesData = { summary: [], detailed: [] };
 const filters = { from: '2026-07-01', to: '2026-08-31' };
 
 describe('buildOpenSalesPdf — summary view', () => {
-	it('renders title, both customers, SO rows with notes fallback, per-customer totals', () => {
-		const text = textIn(buildOpenSalesPdf(data, 'summary', filters));
+	it('renders title, both customers, SO rows with notes fallback, per-customer totals', async () => {
+		const text = textIn(await buildOpenSalesPdf(data, 'summary', filters));
 		expect(text).toContain('Open Sales by Customer — Summary');
 		expect(text).toContain('Customer');
 		expect(text).toContain('Acme Corp');
@@ -84,22 +84,22 @@ describe('buildOpenSalesPdf — summary view', () => {
 		expect(text).toContain('Beta Ltd Total:');
 	});
 
-	it('Grand Total reduces the summary sales total_cost (string numerics)', () => {
-		const lines = textIn(buildOpenSalesPdf(data, 'summary', filters)).split('\n');
+	it('Grand Total reduces the summary sales total_cost (string numerics)', async () => {
+		const lines = textIn(await buildOpenSalesPdf(data, 'summary', filters)).split('\n');
 		expect(lines).toContain('Grand Total:');
 		expect(lines).toContain('Php 6,800.00'); // 3500.50 + 2499.50 + 800 — the preview's formula
 	});
 
-	it('empty range renders "No data available."', () => {
-		const text = textIn(buildOpenSalesPdf(empty, 'summary', filters));
+	it('empty range renders "No data available."', async () => {
+		const text = textIn(await buildOpenSalesPdf(empty, 'summary', filters));
 		expect(text).toContain('No data available.');
 		expect(text).not.toContain('Acme Corp');
 	});
 });
 
 describe('buildOpenSalesPdf — detailed view', () => {
-	it('renders customer → SO header (with date) → items → SO Total → customer Total', () => {
-		const doc = buildOpenSalesPdf(data, 'detailed', filters);
+	it('renders customer → SO header (with date) → items → SO Total → customer Total', async () => {
+		const doc = await buildOpenSalesPdf(data, 'detailed', filters);
 		const text = textIn(doc);
 		expect(text).toContain('Open Sales by Customer — Detail');
 		expect(text).toContain('Sales Order #101');
@@ -110,14 +110,14 @@ describe('buildOpenSalesPdf — detailed view', () => {
 		expect(text).toContain('Php 3,500.50');
 	});
 
-	it('renders null item_name / item_quantity as blanks, not "null"', () => {
-		const doc = buildOpenSalesPdf(data, 'detailed', filters);
+	it('renders null item_name / item_quantity as blanks, not "null"', async () => {
+		const doc = await buildOpenSalesPdf(data, 'detailed', filters);
 		const lines = textIn(doc).split('\n');
 		expect(lines.every((l) => l !== 'null')).toBe(true);
 	});
 
-	it('empty detailed view renders an empty table (head + Grand Total foot, no data rows)', () => {
-		const text = textIn(buildOpenSalesPdf(empty, 'detailed', filters));
+	it('empty detailed view renders an empty table (head + Grand Total foot, no data rows)', async () => {
+		const text = textIn(await buildOpenSalesPdf(empty, 'detailed', filters));
 		expect(text).toContain('Item');
 		expect(text).toContain('Grand Total:');
 		expect(text).toContain('Php 0.00');
@@ -125,8 +125,8 @@ describe('buildOpenSalesPdf — detailed view', () => {
 });
 
 describe('buildOpenSalesPdf — both view', () => {
-	it('summary + forced page break + "Detail" heading + detailed sections', () => {
-		const doc = buildOpenSalesPdf(data, 'both', filters);
+	it('summary + forced page break + "Detail" heading + detailed sections', async () => {
+		const doc = await buildOpenSalesPdf(data, 'both', filters);
 		const lines = textIn(doc).split('\n');
 		expect(lines).toContain('Grand Total:');
 		const detailIdx = lines.indexOf('Detail');
@@ -138,15 +138,15 @@ describe('buildOpenSalesPdf — both view', () => {
 });
 
 describe('date range + view title', () => {
-	it('renders the date range subtitle from filters', () => {
-		expect(textIn(buildOpenSalesPdf(data, 'summary', filters))).toContain('July 1, 2026');
+	it('renders the date range subtitle from filters', async () => {
+		expect(textIn(await buildOpenSalesPdf(data, 'summary', filters))).toContain('July 1, 2026');
 	});
 
-	it('renders "All Dates" when no filters', () => {
-		expect(textIn(buildOpenSalesPdf(data, 'summary'))).toContain('All Dates');
+	it('renders "All Dates" when no filters', async () => {
+		expect(textIn(await buildOpenSalesPdf(data, 'summary'))).toContain('All Dates');
 	});
 
-	it('canonical view value is "detailed" (list page TabsTrigger)', () => {
-		expect(textIn(buildOpenSalesPdf(data, 'detailed'))).toContain('— Detail');
+	it('canonical view value is "detailed" (list page TabsTrigger)', async () => {
+		expect(textIn(await buildOpenSalesPdf(data, 'detailed'))).toContain('— Detail');
 	});
 });

@@ -25,60 +25,60 @@ const sample = {
 };
 
 describe('buildRmaPdf', () => {
-	it('renders the corrected title (not the IBRR copy-paste)', () => {
-		const text = textIn(buildRmaPdf(sample));
+	it('renders the corrected title (not the IBRR copy-paste)', async () => {
+		const text = textIn(await buildRmaPdf(sample));
 		expect(text).toContain('Return Merchandise Authorization');
 		expect(text).not.toContain('Inter-Branch Receiving Report');
 	});
 
-	it('renders the RMA reference, transfer date and supplier', () => {
-		const text = textIn(buildRmaPdf(sample));
+	it('renders the RMA reference, transfer date and supplier', async () => {
+		const text = textIn(await buildRmaPdf(sample));
 		expect(text).toContain('RMA-83');
 		expect(text).toContain('July 15, 2026');
 		expect(text).toContain('Acme Components');
 	});
 
-	it('renders blank serials as -- and entered serials verbatim', () => {
-		const lines = textIn(buildRmaPdf(sample)).split('\n');
+	it('renders blank serials as -- and entered serials verbatim', async () => {
+		const lines = textIn(await buildRmaPdf(sample)).split('\n');
 		expect(lines).toContain('SN-1001');
 		// exact cell match — a line-equality check so it can't be satisfied by the notes "---"
 		expect(lines).toContain('--');
 	});
 
-	it('renders notes exactly as entered, and the --- placeholder when empty or a blank string', () => {
-		const entered = textIn(buildRmaPdf({ ...sample, notes: 'Defective on arrival. One unit.' }));
+	it('renders notes exactly as entered, and the --- placeholder when empty or a blank string', async () => {
+		const entered = textIn(await buildRmaPdf({ ...sample, notes: 'Defective on arrival. One unit.' }));
 		expect(entered).toContain('Defective on arrival. One unit.');
 
-		const empty = textIn(buildRmaPdf({ ...sample, notes: null }));
+		const empty = textIn(await buildRmaPdf({ ...sample, notes: null }));
 		expect(empty).toContain('---');
 
 		// falsy (not just null) → '---', matching the preview's truthy check
-		const blank = textIn(buildRmaPdf({ ...sample, notes: '' }));
+		const blank = textIn(await buildRmaPdf({ ...sample, notes: '' }));
 		expect(blank).toContain('---');
 	});
 
-	it('renders the approved empty-state wording (and not the old STR copy-paste)', () => {
-		const text = textIn(buildRmaPdf({ ...sample, items: [] }));
+	it('renders the approved empty-state wording (and not the old STR copy-paste)', async () => {
+		const text = textIn(await buildRmaPdf({ ...sample, items: [] }));
 		expect(text).toContain('No items found for this RMA.');
 		expect(text).not.toContain('No items found for the selected Stock Transfer Request.');
 	});
 
-	it('renders the missing-supplier row as an empty value, not "null"', () => {
+	it('renders the missing-supplier row as an empty value, not "null"', async () => {
 		const text = textIn(
-			buildRmaPdf({ ...sample, supplier_name: null, items: [{ purchase_description: null, serial_number: null, quantity: 1, cost: 100, total_cost: 100 }] })
+			await buildRmaPdf({ ...sample, supplier_name: null, items: [{ purchase_description: null, serial_number: null, quantity: 1, cost: 100, total_cost: 100 }] })
 		);
 		expect(text).not.toMatch(/null/);
 	});
 
-	it('renders Php money for numeric and string values alike (Postgres numeric arrives as a string)', () => {
+	it('renders Php money for numeric and string values alike (Postgres numeric arrives as a string)', async () => {
 		const text = textIn(
-			buildRmaPdf({ ...sample, items: [{ purchase_description: 'X', serial_number: null, quantity: '1', cost: '1234.5', total_cost: '1234.5' }] })
+			await buildRmaPdf({ ...sample, items: [{ purchase_description: 'X', serial_number: null, quantity: '1', cost: '1234.5', total_cost: '1234.5' }] })
 		);
 		expect(text).toContain('Php 1,234.50');
 	});
 
-	it('uses the standard letter portrait size (shared scaffold) and a per-page footer', () => {
-		const doc = buildRmaPdf(sample);
+	it('uses the standard letter portrait size (shared scaffold) and a per-page footer', async () => {
+		const doc = await buildRmaPdf(sample);
 		expect(doc.internal.pageSize.getWidth()).toBeCloseTo(612); // letter pt, per createReportDoc
 		expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(1);
 		const text = textIn(doc);

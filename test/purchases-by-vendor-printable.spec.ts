@@ -68,19 +68,19 @@ const summary = [
 const filters = { from: '2026-07-01', to: '2026-07-31' };
 
 describe('groupDetailByVendor', () => {
-	it('groups rows into vendor → PO → item, dedupes, and keeps order of first appearance', () => {
+	it('groups rows into vendor → PO → item, dedupes, and keeps order of first appearance', async () => {
 		const grouped = groupDetailByVendor(detail);
 		expect(grouped.map((v) => v.supplier_name)).toEqual(['Acme Supplies', 'Beta Hardware']);
 		expect(grouped[0].pos.map((po) => po.po_id)).toEqual([11, 12]);
 	});
 
-	it('computes each vendor subtotal from PO totals (string numerics included)', () => {
+	it('computes each vendor subtotal from PO totals (string numerics included)', async () => {
 		const grouped = groupDetailByVendor(detail);
 		expect(grouped[0].subtotal).toBe(6899);
 		expect(grouped[1].subtotal).toBe(800);
 	});
 
-	it('sums multiple item rows into one PO and treats blank PO totals as zero', () => {
+	it('sums multiple item rows into one PO and treats blank PO totals as zero', async () => {
 		const grouped = groupDetailByVendor([
 			row({ po_id: 7, po_reference: 'PO-A', po_total: '0' }),
 			row({ po_id: 7, po_reference: 'PO-A', po_total: '0', product_sku: 'KB-002', product_name: '2nd row' }),
@@ -94,8 +94,8 @@ describe('groupDetailByVendor', () => {
 });
 
 describe('buildPurchasesByVendorPdf', () => {
-	it('summary view: title, both vendor rows, and the Grand Total reduces', () => {
-		const text = textIn(buildPurchasesByVendorPdf({ summary, detail }, 'summary', filters));
+	it('summary view: title, both vendor rows, and the Grand Total reduces', async () => {
+		const text = textIn(await buildPurchasesByVendorPdf({ summary, detail }, 'summary', filters));
 		expect(text).toContain('Purchases by Vendor — Summary');
 		expect(text).toContain('Vendor Name');
 		expect(text).toContain('Acme Supplies');
@@ -108,14 +108,14 @@ describe('buildPurchasesByVendorPdf', () => {
 		expect(lines).toContain('Php 7,699.00');
 	});
 
-	it('summary view: empty range renders the empty-state row and no Grand Total', () => {
-		const text = textIn(buildPurchasesByVendorPdf({ summary: [], detail: [] }, 'summary'));
+	it('summary view: empty range renders the empty-state row and no Grand Total', async () => {
+		const text = textIn(await buildPurchasesByVendorPdf({ summary: [], detail: [] }, 'summary'));
 		expect(text).toContain('No purchase orders found for the selected date range.');
 		expect(text).not.toContain('Grand Total');
 	});
 
-	it('detail view: vendors in order, PO headers, items, per-vendor subtotals', () => {
-		const text = textIn(buildPurchasesByVendorPdf({ summary, detail }, 'detail', filters));
+	it('detail view: vendors in order, PO headers, items, per-vendor subtotals', async () => {
+		const text = textIn(await buildPurchasesByVendorPdf({ summary, detail }, 'detail', filters));
 		expect(text).toContain('Purchases by Vendor — Detail');
 		const acmeIdx = text.indexOf('PO-2026-001');
 		const betaIdx = text.indexOf('PO-2026-010');
@@ -128,21 +128,21 @@ describe('buildPurchasesByVendorPdf', () => {
 		expect(text).toContain('Subtotal: Php 800.00');
 	});
 
-	it('detail view: page break before every vendor except the first', () => {
-		const doc = buildPurchasesByVendorPdf({ summary, detail }, 'detail', filters);
+	it('detail view: page break before every vendor except the first', async () => {
+		const doc = await buildPurchasesByVendorPdf({ summary, detail }, 'detail', filters);
 		expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(2);
 	});
 
-	it('both view: summary + Detail heading + sections', () => {
-		const lines = textIn(buildPurchasesByVendorPdf({ summary, detail }, 'both', filters)).split('\n');
+	it('both view: summary + Detail heading + sections', async () => {
+		const lines = textIn(await buildPurchasesByVendorPdf({ summary, detail }, 'both', filters)).split('\n');
 		expect(lines).toContain('Grand Total');
 		const detailIdx = lines.indexOf('Detail');
 		expect(detailIdx).toBeGreaterThanOrEqual(0);
 		expect(lines.indexOf('PO-2026-001')).toBeGreaterThan(detailIdx);
 	});
 
-	it('both view with empty detail: empty-state text under the Detail heading', () => {
-		const text = textIn(buildPurchasesByVendorPdf({ summary: [], detail: [] }, 'both'));
+	it('both view with empty detail: empty-state text under the Detail heading', async () => {
+		const text = textIn(await buildPurchasesByVendorPdf({ summary: [], detail: [] }, 'both'));
 		expect(text).toContain('Detail');
 		expect(text).toContain('No purchase orders found for the selected date range.');
 	});

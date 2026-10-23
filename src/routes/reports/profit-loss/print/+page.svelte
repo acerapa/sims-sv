@@ -12,8 +12,8 @@
 
 	let { data }: PageProps = $props();
 
-	function handlePrint() {
-		openAndPrint(buildProfitLossPdf(data, data.view as ProfitLossView, data.filters));
+	async function handlePrint() {
+		openAndPrint(await buildProfitLossPdf(data, data.view as ProfitLossView, data.filters));
 	}
 
 	let summary = $derived(data.summary);

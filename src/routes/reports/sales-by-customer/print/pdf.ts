@@ -197,12 +197,12 @@ function drawDetailSections(
 	return cursor;
 }
 
-export function buildSalesByCustomerPdf(
+export async function buildSalesByCustomerPdf(
 	data: SalesByCustomerData,
 	view: SalesByCustomerView,
 	filters?: { from?: string | null; to?: string | null }
-): jsPDF {
-	const { doc, margin, pageWidth, pageHeight, startY } = createReportDoc({
+): Promise<jsPDF> {
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({
 		title: viewTitle(view),
 		subtitle: dateRangeLabel(filters)
 	});

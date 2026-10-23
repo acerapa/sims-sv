@@ -55,8 +55,8 @@ const data = {
 const filters = { from: '2026-07-01', to: '2026-07-31' };
 
 describe('buildSalesByCustomerPdf', () => {
-	it('summary view: title, range subtitle, both rows, and the Grand Total reduce', () => {
-		const text = textIn(buildSalesByCustomerPdf(data, 'summary', filters));
+	it('summary view: title, range subtitle, both rows, and the Grand Total reduce', async () => {
+		const text = textIn(await buildSalesByCustomerPdf(data, 'summary', filters));
 		expect(text).toContain('Sales by Customer — Summary');
 		expect(text).toContain(`— ${longDate('2026-07-31')}`);
 		expect(text).toContain(longDate('2026-07-01'));
@@ -70,15 +70,15 @@ describe('buildSalesByCustomerPdf', () => {
 		expect(lines).toContain('Php 13,500.25');
 	});
 
-	it('summary view: empty range renders the exact empty-state row and no Grand Total', () => {
-		const text = textIn(buildSalesByCustomerPdf({ summary: [], detailed: [] }, 'summary'));
+	it('summary view: empty range renders the exact empty-state row and no Grand Total', async () => {
+		const text = textIn(await buildSalesByCustomerPdf({ summary: [], detailed: [] }, 'summary'));
 		expect(text).toContain('No sales orders found for the selected date range.');
 		expect(text).not.toContain('Grand Total');
 		expect(text).toContain('All Dates');
 	});
 
-	it('detail view: customer sections in order, SO header with title-cased status, subtotals', () => {
-		const text = textIn(buildSalesByCustomerPdf(data, 'detail', filters));
+	it('detail view: customer sections in order, SO header with title-cased status, subtotals', async () => {
+		const text = textIn(await buildSalesByCustomerPdf(data, 'detail', filters));
 		expect(text).toContain('Sales by Customer — Detail');
 		const alfaIdx = text.indexOf('SO-101');
 		const betaIdx = text.indexOf('SO-102');
@@ -90,15 +90,15 @@ describe('buildSalesByCustomerPdf', () => {
 		expect(text).toContain('Subtotal: Php 3,500.25');
 	});
 
-	it('detail view: page breaks before every customer except the first', () => {
-		const doc = buildSalesByCustomerPdf(data, 'detail', filters);
+	it('detail view: page breaks before every customer except the first', async () => {
+		const doc = await buildSalesByCustomerPdf(data, 'detail', filters);
 		const pages = doc.getNumberOfPages();
 		expect(pages).toBeGreaterThanOrEqual(2);
 	});
 
-	it('renders null item quantities as an empty cell, not "null"', () => {
+	it('renders null item quantities as an empty cell, not "null"', async () => {
 		const text = textIn(
-			buildSalesByCustomerPdf(
+			await buildSalesByCustomerPdf(
 				{
 					summary: [],
 					detailed: [
@@ -122,8 +122,8 @@ describe('buildSalesByCustomerPdf', () => {
 		expect(text).not.toMatch(/null/);
 	});
 
-	it('both view: summary, Detail heading, then sections', () => {
-		const both = buildSalesByCustomerPdf(data, 'both', filters);
+	it('both view: summary, Detail heading, then sections', async () => {
+		const both = await buildSalesByCustomerPdf(data, 'both', filters);
 		const lines = textIn(both).split('\n');
 		expect(lines).toContain('Grand Total');
 		const detailIdx = lines.indexOf('Detail'); // exact heading cell (not the '— Detail' title)
@@ -131,8 +131,8 @@ describe('buildSalesByCustomerPdf', () => {
 		expect(lines.indexOf('SO-101')).toBeGreaterThan(detailIdx);
 	});
 
-	it('both view with empty detail: empty-state text under the Detail heading', () => {
-		const text = textIn(buildSalesByCustomerPdf({ summary: [], detailed: [] }, 'both'));
+	it('both view with empty detail: empty-state text under the Detail heading', async () => {
+		const text = textIn(await buildSalesByCustomerPdf({ summary: [], detailed: [] }, 'both'));
 		expect(text).toContain('Detail');
 		expect(text).toContain('No sales orders found for the selected date range.');
 	});

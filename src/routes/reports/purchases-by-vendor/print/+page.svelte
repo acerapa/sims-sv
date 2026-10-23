@@ -18,9 +18,9 @@
 
 	let detailGrouped = $derived(groupDetailByVendor(detail));
 
-	function handlePrint() {
+	async function handlePrint() {
 		openAndPrint(
-			buildPurchasesByVendorPdf(
+			await buildPurchasesByVendorPdf(
 				{ summary, detail },
 				view as PurchasesByVendorView,
 				data.filters

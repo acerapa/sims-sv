@@ -15,8 +15,8 @@
 		return combinedSales.reduce((acc, sales) => acc + (sales ? sales?.total_cost : 0), 0);
 	});
 
-	function handlePrint() {
-		openAndPrint(buildOpenSalesPdf({ summary, detailed }, view as OpenSalesView, data.filters));
+	async function handlePrint() {
+		openAndPrint(await buildOpenSalesPdf({ summary, detailed }, view as OpenSalesView, data.filters));
 	}
 </script>
 

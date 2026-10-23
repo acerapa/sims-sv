@@ -25,8 +25,8 @@ const sample = {
 };
 
 describe('buildIbrrPdf', () => {
-	it('renders the report title and the four preview fields (IBRR- prefix, not STR-)', () => {
-		const text = textIn(buildIbrrPdf(sample));
+	it('renders the report title and the four preview fields (IBRR- prefix, not STR-)', async () => {
+		const text = textIn(await buildIbrrPdf(sample));
 		expect(text).toContain('Inter-Branch Receiving Report');
 		expect(text).toContain('IBRR-57');
 		expect(text).toContain('STR-42');
@@ -34,20 +34,20 @@ describe('buildIbrrPdf', () => {
 		expect(text).not.toContain('STR-IBRR-');
 	});
 
-	it('renders notes exactly as entered, and the --- placeholder when empty or a blank string', () => {
-		const entered = textIn(buildIbrrPdf({ ...sample, notes: 'Handle with care. Two boxes.' }));
+	it('renders notes exactly as entered, and the --- placeholder when empty or a blank string', async () => {
+		const entered = textIn(await buildIbrrPdf({ ...sample, notes: 'Handle with care. Two boxes.' }));
 		expect(entered).toContain('Handle with care. Two boxes.');
 
-		const empty = textIn(buildIbrrPdf({ ...sample, notes: null }));
+		const empty = textIn(await buildIbrrPdf({ ...sample, notes: null }));
 		expect(empty).toContain('---');
 
 		// falsy (not just null) → '---', matching the preview's truthy check
-		const blank = textIn(buildIbrrPdf({ ...sample, notes: '' }));
+		const blank = textIn(await buildIbrrPdf({ ...sample, notes: '' }));
 		expect(blank).toContain('---');
 	});
 
-	it('renders the Items section with every item on one line each', () => {
-		const text = textIn(buildIbrrPdf(sample));
+	it('renders the Items section with every item on one line each', async () => {
+		const text = textIn(await buildIbrrPdf(sample));
 		const lines = text.split('\n');
 		expect(lines).toContain('Wireless Keyboard');
 		expect(lines).toContain('Logitech M185');
@@ -58,8 +58,8 @@ describe('buildIbrrPdf', () => {
 		expect(lines).toContain('Php 899.00');
 	});
 
-	it('keeps every item row on a single logical line (no mid-row wrapping)', () => {
-		const lines = textIn(buildIbrrPdf(sample)).split('\n');
+	it('keeps every item row on a single logical line (no mid-row wrapping)', async () => {
+		const lines = textIn(await buildIbrrPdf(sample)).split('\n');
 		// description, qty and total of each row must all sit in the stream — a wrapped
 		// description would still appear as separate Tj segments, so additionally assert no
 		// orphaned fragment of a description appears without its row sibling being full
@@ -69,26 +69,26 @@ describe('buildIbrrPdf', () => {
 		}
 	});
 
-	it('renders the approved empty-state wording (and not the old STR copy-paste)', () => {
-		const text = textIn(buildIbrrPdf({ ...sample, items: [] }));
+	it('renders the approved empty-state wording (and not the old STR copy-paste)', async () => {
+		const text = textIn(await buildIbrrPdf({ ...sample, items: [] }));
 		expect(text).toContain('No items found for this Inter-Branch Receiving Report.');
 		expect(text).not.toContain('No items found for the selected Stock Transfer Request.');
 	});
 
-	it('renders the missing-source-store row as an empty value, not "null"', () => {
-		const text = textIn(buildIbrrPdf({ ...sample, source_store_name: null }));
+	it('renders the missing-source-store row as an empty value, not "null"', async () => {
+		const text = textIn(await buildIbrrPdf({ ...sample, source_store_name: null }));
 		expect(text).not.toMatch(/null/);
 	});
 
-	it('renders Php money for numeric and string values alike (Postgres numeric arrives as a string)', () => {
+	it('renders Php money for numeric and string values alike (Postgres numeric arrives as a string)', async () => {
 		const text = textIn(
-			buildIbrrPdf({ ...sample, items: [{ purchase_description: 'X', quantity: '1', cost: '1234.5', total_cost: '1234.5' }] })
+			await buildIbrrPdf({ ...sample, items: [{ purchase_description: 'X', quantity: '1', cost: '1234.5', total_cost: '1234.5' }] })
 		);
 		expect(text).toContain('Php 1,234.50');
 	});
 
-	it('uses the standard letter portrait size (shared scaffold) and a per-page footer', () => {
-		const doc = buildIbrrPdf(sample);
+	it('uses the standard letter portrait size (shared scaffold) and a per-page footer', async () => {
+		const doc = await buildIbrrPdf(sample);
 		expect(doc.internal.pageSize.getWidth()).toBeCloseTo(612); // letter pt, per createReportDoc
 		expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(1);
 		const text = textIn(doc);

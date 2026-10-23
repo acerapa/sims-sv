@@ -34,7 +34,7 @@ const FIX_ASSET = {
 };
 
 describe('expandFixAssetItems', () => {
-	it('passes non-serial items through unchanged', () => {
+	it('passes non-serial items through unchanged', async () => {
 		const [row] = expandFixAssetItems([item()]);
 		// the row carries exactly the print fields; serial_numbers is a source-only input
 		expect({
@@ -52,7 +52,7 @@ describe('expandFixAssetItems', () => {
 		});
 	});
 
-	it('fans a multi-serial item out to one row per serial at quantity 1', () => {
+	it('fans a multi-serial item out to one row per serial at quantity 1', async () => {
 		const rows = expandFixAssetItems([
 			item({
 				quantity: 3,
@@ -67,7 +67,7 @@ describe('expandFixAssetItems', () => {
 		expect(rows.map((r) => r.total_cost)).toEqual([500, 500, 500]);
 	});
 
-	it('keeps items and their serials in order across a mixed list', () => {
+	it('keeps items and their serials in order across a mixed list', async () => {
 		const rows = expandFixAssetItems([
 			item({ item_description: 'A', serial_numbers: ['S1', 'S2'] }),
 			item({ item_description: 'B' })
@@ -79,14 +79,14 @@ describe('expandFixAssetItems', () => {
 		]);
 	});
 
-	it('returns [] for an empty list', () => {
+	it('returns [] for an empty list', async () => {
 		expect(expandFixAssetItems([])).toEqual([]);
 	});
 });
 
 describe('buildFixAssetPdf', () => {
-	it('carries the report identity fields from the fix asset', () => {
-		const flat = textItems(buildFixAssetPdf(FIX_ASSET));
+	it('carries the report identity fields from the fix asset', async () => {
+		const flat = textItems(await buildFixAssetPdf(FIX_ASSET));
 		expect(flat).toContain('Fixed Asset Transfer');
 		expect(flat).toContain('FIX-41');
 		expect(flat).toContain('TRANSFER DATE');
@@ -96,16 +96,16 @@ describe('buildFixAssetPdf', () => {
 		expect(flat).toContain('Items Transferred');
 	});
 
-	it('still renders the notes when they are null', () => {
-		expect(textItems(buildFixAssetPdf({ ...FIX_ASSET, notes: null }))).toContain('---');
+	it('still renders the notes when they are null', async () => {
+		expect(textItems(await buildFixAssetPdf({ ...FIX_ASSET, notes: null }))).toContain('---');
 	});
 
-	it('matches the preview truthy check: empty-string notes also render ---', () => {
-		expect(textItems(buildFixAssetPdf({ ...FIX_ASSET, notes: '' }))).toContain('---');
+	it('matches the preview truthy check: empty-string notes also render ---', async () => {
+		expect(textItems(await buildFixAssetPdf({ ...FIX_ASSET, notes: '' }))).toContain('---');
 	});
 
-	it('renders every item row with right-hand money as Php, not the peso glyph', () => {
-		const flat = textItems(buildFixAssetPdf(FIX_ASSET));
+	it('renders every item row with right-hand money as Php, not the peso glyph', async () => {
+		const flat = textItems(await buildFixAssetPdf(FIX_ASSET));
 		for (const name of ['Wireless Keyboard', 'USB Cable']) expect(flat).toContain(name);
 		expect(flat).toContain('Php 1,500.00'); // keyboard unit cost
 		expect(flat).toContain('Php 3,000.00'); // keyboard line total
@@ -113,32 +113,32 @@ describe('buildFixAssetPdf', () => {
 		expect(flat.some((t) => t.includes('₱'))).toBe(false);
 	});
 
-	it('shows -- when a row has no serial, and the serial verbatim when it does', () => {
+	it('shows -- when a row has no serial, and the serial verbatim when it does', async () => {
 		// getFixAssetById always sets serial_number when an item carries exactly one serial
 		const flat = textItems(
-			buildFixAssetPdf({
+			await buildFixAssetPdf({
 				...FIX_ASSET,
 				items: [item({ serial_numbers: ['SN-77'], serial_number: 'SN-77' })]
 			})
 		);
 		expect(flat).toContain('SN-77');
-		const plainDoc = textItems(buildFixAssetPdf({ ...FIX_ASSET, items: [item()] }));
+		const plainDoc = textItems(await buildFixAssetPdf({ ...FIX_ASSET, items: [item()] }));
 		expect(plainDoc).toContain('--');
 	});
 
-	it('renders the empty state and never an item row', () => {
-		const flat = textItems(buildFixAssetPdf({ ...FIX_ASSET, items: [] }));
+	it('renders the empty state and never an item row', async () => {
+		const flat = textItems(await buildFixAssetPdf({ ...FIX_ASSET, items: [] }));
 		expect(flat).toContain('No items found for this Fix Asset.');
 		expect(flat).not.toContain('Wireless Keyboard');
 		expect(flat).toContain('Product');
 		expect(flat).toContain('Total Cost');
 	});
 
-	it('footers every page with generated-on and page numbers', () => {
+	it('footers every page with generated-on and page numbers', async () => {
 		const many = Array.from({ length: 120 }, (_, i) =>
 			item({ item_description: `Inventory line ${i + 1}` })
 		);
-		const doc = buildFixAssetPdf({ ...FIX_ASSET, items: many });
+		const doc = await buildFixAssetPdf({ ...FIX_ASSET, items: many });
 		const pages = doc.getNumberOfPages();
 		expect(pages).toBeGreaterThan(1);
 		const flat = textItems(doc);
@@ -147,16 +147,16 @@ describe('buildFixAssetPdf', () => {
 		expect(flat).toContain(`Page ${pages} of ${pages}`);
 	});
 
-	it('keeps the note text when notes fit on the page', () => {
-		expect(textItems(buildFixAssetPdf(FIX_ASSET))).toContain('Fragile cargo');
+	it('keeps the note text when notes fit on the page', async () => {
+		expect(textItems(await buildFixAssetPdf(FIX_ASSET))).toContain('Fragile cargo');
 	});
 
-	it('page-breaks very long notes instead of running them into the footer band', () => {
+	it('page-breaks very long notes instead of running them into the footer band', async () => {
 		const longAsset = {
 			...FIX_ASSET,
 			notes: Array.from({ length: 120 }, (_, i) => `Packing instruction ${i + 1}`).join('\n')
 		};
-		const doc = buildFixAssetPdf(longAsset);
+		const doc = await buildFixAssetPdf(longAsset);
 		const pages = doc.getNumberOfPages();
 		expect(pages).toBeGreaterThan(1); // the first page alone cannot hold 120 note lines + table
 		const flat = textItems(doc);

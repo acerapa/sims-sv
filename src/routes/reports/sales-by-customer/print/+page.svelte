@@ -12,9 +12,9 @@
 	let detailed = $derived(data.detailed);
 	let view = $derived(data.view);
 
-	function handlePrint() {
+	async function handlePrint() {
 		openAndPrint(
-			buildSalesByCustomerPdf(
+			await buildSalesByCustomerPdf(
 				{ summary, detailed },
 				view as SalesByCustomerView,
 				data.filters

@@ -66,8 +66,8 @@ export function expandStrItems(items: StrItemSource[]): StrItemRow[] {
 	return rows;
 }
 
-export function buildStrPdf(str: StrPrintData): jsPDF {
-	const { doc, margin, pageWidth, pageHeight, startY } = createReportDoc({ title: 'Stock Transfer Report' });
+export async function buildStrPdf(str: StrPrintData): Promise<jsPDF> {
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({ title: 'Stock Transfer Report' });
 	const colWidth = (pageWidth - margin * 2) / 2;
 
 	let y = drawField(doc, margin, colWidth, 'STR REFERENCE NO.', `STR-${str.id}`, startY);

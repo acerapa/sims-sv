@@ -35,9 +35,36 @@ export interface ReportOptions {
 	subtitle?: string;
 	/** Orientation for all pages; defaults to portrait */
 	orientation?: 'portrait' | 'landscape';
+	/** Logo override (base64/data-URL) — tests run in Node where fetch is unavailable (D4) */
+	logoData?: string;
 }
 
-export function createReportDoc(options: ReportOptions): ReportDoc {
+/**
+ * Loads the company logo as a data-URL for the generated PDF.
+ * Browser-only by design (plain-Node runs — tests, scripts — skip the logo,
+ * see D4). A failed load degrades to the legacy logo-less header instead of
+ * breaking PDF generation.
+ */
+export async function loadLogoDataUrl(): Promise<string | undefined> {
+	if (typeof window === 'undefined') return undefined;
+	try {
+		const response = await fetch(LOGO_PATH);
+		if (!response.ok) return undefined;
+		const blob = await response.blob();
+		const dataUrl = await new Promise<string>((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => resolve(reader.result as string);
+			reader.onerror = () => reject(reader.error);
+			reader.readAsDataURL(blob);
+		});
+		return dataUrl;
+	} catch (error) {
+		console.warn('Logo failed to load — printing without it', error);
+		return undefined;
+	}
+}
+
+export async function createReportDoc(options: ReportOptions): Promise<ReportDoc> {
 	const doc = new jsPDF({
 		orientation: options.orientation ?? 'portrait',
 		unit: 'pt',
@@ -47,21 +74,35 @@ export function createReportDoc(options: ReportOptions): ReportDoc {
 	const pageWidth = doc.internal.pageSize.getWidth();
 	const pageHeight = doc.internal.pageSize.getHeight();
 
+	// Logo on the left, company info shifted right of it (D2/D3). The shift only
+	// happens when the logo actually draws, so a failed load leaves the
+	// legacy layout intact — no empty gap.
+	const logoData = options.logoData ?? (await loadLogoDataUrl());
+	let infoX = margin;
+	if (logoData) {
+		try {
+			doc.addImage(logoData, 'JPEG', margin, 32, LOGO_SIZE, LOGO_SIZE);
+			infoX = margin + LOGO_SIZE + LOGO_GAP;
+		} catch (error) {
+			console.warn('Logo failed to render — printing without it', error);
+		}
+	}
+
 	// Company name in a box (mirrors .company-name)
 	doc.setFont('helvetica', 'bold');
 	doc.setFontSize(14);
 	const companyName = 'RAM TECH VENTURES INC.';
-	doc.text(companyName, margin, 48);
+	doc.text(companyName, infoX, 48);
 	doc.setDrawColor(0, 0, 0);
 	doc.setLineWidth(2);
-	doc.rect(margin - 8, 32, doc.getTextWidth(companyName) + 16, 24);
+	doc.rect(infoX - 8, 32, doc.getTextWidth(companyName) + 16, 24);
 
 	// Address lines
 	doc.setFont('helvetica', 'normal');
 	doc.setFontSize(8);
-	doc.text('BARTOLOME BLDG. MAGSAYSAY ST.', margin, 70);
-	doc.text('BRGY. EAST AWANG', margin, 80);
-	doc.text('CALBAYOG, PA 6710', margin, 90);
+	doc.text('BARTOLOME BLDG. MAGSAYSAY ST.', infoX, 70);
+	doc.text('BRGY. EAST AWANG', infoX, 80);
+	doc.text('CALBAYOG, PA 6710', infoX, 90);
 
 	// Title section between two rules (mirrors .report-title-section)
 	doc.setLineWidth(1);
@@ -120,6 +161,11 @@ export function addReportFooter(doc: jsPDF, margin = REPORT_MARGIN): void {
 // here (see ai-docs/pdf-shared-helpers-spec.md).
 
 export const PDF_FOOTER_BAND = 48; // bottom band kept free for addReportFooter
+
+// Logo header constants (D2): 64px on screen × 0.75 = 48pt on paper.
+export const LOGO_PATH = '/ramtech-logo.jpg';
+export const LOGO_SIZE = 48; // pt, square asset
+export const LOGO_GAP = 12; // pt between logo and company info
 export const PDF_LABEL_COLOR: [number, number, number] = [102, 102, 102]; // #666 muted labels
 
 /** Standard PDF fonts have no ₱ glyph, so money renders as "Php …". */

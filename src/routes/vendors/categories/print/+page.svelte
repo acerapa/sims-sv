@@ -21,7 +21,7 @@
 
 <PrintReportLayout
 	reportTitle="Product Categories"
-	onPrint={() => openAndPrint(buildCategoriesPdf(rows, data.total))}
+	onPrint={async () => openAndPrint(await buildCategoriesPdf(rows, data.total))}
 >
 	<div class="flex flex-col gap-2">
 		{#each categories as category (category.id)}

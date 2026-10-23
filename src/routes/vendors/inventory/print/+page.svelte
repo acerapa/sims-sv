@@ -17,7 +17,7 @@
 
 <PrintReportLayout
 	reportTitle="Inventory List"
-	onPrint={() => openAndPrint(buildInventoryPdf(products, data.total))}
+	onPrint={async () => openAndPrint(await buildInventoryPdf(products, data.total))}
 >
 	<table class="print-table">
 		<thead>
