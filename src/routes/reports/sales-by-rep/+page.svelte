@@ -12,7 +12,7 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import { ArrowLeft } from '@lucide/svelte';
+	import { ArrowLeft, Printer } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
@@ -52,6 +52,13 @@
 		toDate = undefined;
 		goto('?', { replaceState: true });
 	}
+
+	function openPrint() {
+		const params = new SvelteURLSearchParams();
+		if (fromDate) params.set('from', fromDate.toISOString().split('T')[0]);
+		if (toDate) params.set('to', toDate.toISOString().split('T')[0]);
+		window.open(`/reports/sales-by-rep/print?${params.toString()}`, '_blank');
+	}
 </script>
 
 <svelte:head>
@@ -89,6 +96,13 @@
 			<Button variant="outline" onclick={clearFilter}>Clear</Button>
 		</CardContent>
 	</Card>
+
+	<div class="flex items-center justify-end">
+		<Button variant="outline" onclick={openPrint}>
+			<Printer size={16} />
+			Print
+		</Button>
+	</div>
 
 	<Card>
 		<CardContent>
