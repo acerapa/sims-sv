@@ -14,7 +14,7 @@
 		SheetTrigger
 	} from '$lib/components/ui/sheet';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import { Plus } from '@lucide/svelte';
+	import { Plus, Printer } from '@lucide/svelte';
 	import { applyAction, enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
@@ -149,6 +149,14 @@
 				{#if edit}
 					<Button onclick={() => (edit = false)} variant="outline">Cancel</Button>
 				{:else}
+					<Button
+						type="button"
+						variant="outline"
+						onclick={() => window.open(`/vendors/packages/print/${pkg.id}`, '_blank')}
+					>
+						<Printer class="size-4" />
+						Print
+					</Button>
 					<Button onclick={() => (edit = true)}>Edit Package</Button>
 				{/if}
 			{/if}
