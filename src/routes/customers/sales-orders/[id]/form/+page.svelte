@@ -302,7 +302,7 @@
 									<div class="flex h-10 items-center rounded-md border border-input bg-gray-100 px-3 text-sm text-gray-600">
 										{dateOrdered?.toLocaleDateString() || 'Unknown'}
 									</div>
-									<input type="hidden" name="date_ordered" value={dateOrdered?.toISOString().split('T')[0] || ''} />
+									<input type="hidden" name="date_ordered" value={dateOrdered?.toLocaleDateString() || ''} />
 								{:else}
 									<DatePicker
 										bind:value={dateOrdered}

@@ -55,13 +55,13 @@
 		const params = new URLSearchParams(page.url.searchParams);
 
 		if (fromDate) {
-			params.set('from', fromDate.toISOString().split('T')[0]);
+			params.set('from', fromDate.toISOString());
 		} else {
 			params.delete('from');
 		}
 
 		if (toDate) {
-			params.set('to', toDate.toISOString().split('T')[0]);
+			params.set('to', toDate.toISOString());
 		} else {
 			params.delete('to');
 		}
@@ -78,8 +78,8 @@
 	function openPrint() {
 		const params = new URLSearchParams();
 		params.set('view', activeTab);
-		if (fromDate) params.set('from', fromDate.toISOString().split('T')[0]);
-		if (toDate) params.set('to', toDate.toISOString().split('T')[0]);
+		if (fromDate) params.set('from', fromDate.toISOString());
+		if (toDate) params.set('to', toDate.toISOString());
 		window.open(`/reports/profit-loss/print?${params.toString()}`, '_blank');
 	}
 

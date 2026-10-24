@@ -63,8 +63,8 @@
 	const openPrint = () => {
 	  const params = new SvelteURLSearchParams(page.url.searchParams);
 	  params.set('view', activeTab);
-	  if (fromDate) params.set('from', fromDate.toISOString().split('T')[0]);
-	  if (toDate) params.set('to', toDate.toISOString().split('T')[0]);
+	  if (fromDate) params.set('from', fromDate.toISOString());
+	  if (toDate) params.set('to', toDate.toISOString());
 	  window.open(resolve(`/reports/open-sales-by-customer/print?${params.toString()}` as '/reports/open-sales-by-customer/print'), '_blank');
 	};
 </script>
