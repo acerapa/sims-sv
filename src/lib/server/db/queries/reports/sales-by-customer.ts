@@ -2,6 +2,7 @@ import { and, eq, gte, lte } from 'drizzle-orm';
 import { db } from '../..';
 import { customers, products, salesOrderItems, salesOrders, packages } from '../../schema';
 import { SalesOrderStatus } from '$lib/const';
+import { dayAfter } from '$lib/utils/common';
 
 export const getSalesByCustomer = async (from?: string, to?: string) => {
 	const result = await db
@@ -9,7 +10,7 @@ export const getSalesByCustomer = async (from?: string, to?: string) => {
 			sales_order_id: salesOrders.id,
 			customer_id: salesOrders.customer_id,
 			customer_name: customers.name,
-      date_ordered: salesOrders.date_ordered,
+			date_ordered: salesOrders.date_ordered,
 			order_status: salesOrders.order_status,
 			item_name: products.sales_description || packages.name,
 			item_quantity: salesOrderItems.quantity,
@@ -24,7 +25,7 @@ export const getSalesByCustomer = async (from?: string, to?: string) => {
 			and(
 				eq(salesOrders.order_status, SalesOrderStatus.INVOICED),
 				from ? gte(salesOrders.date_ordered, new Date(from)) : undefined,
-				to ? lte(salesOrders.date_ordered, new Date(to)) : undefined
+				to ? lte(salesOrders.date_ordered, dayAfter(to)) : undefined
 			)
 		);
 
@@ -48,26 +49,27 @@ export const getSalesByCustomer = async (from?: string, to?: string) => {
 	});
 
 	const detailed = Object.entries(grouped).map(([customer_name, items]) => {
-    const normalizedItems = items ? items : [];
-    const groupedByOrderId = Object.groupBy(normalizedItems, (item) => item.sales_order_id);
+		const normalizedItems = items ? items : [];
+		const groupedByOrderId = Object.groupBy(normalizedItems, (item) => item.sales_order_id);
 
-    const formattedOrders = Object.entries(groupedByOrderId).map(([order_id, items]) => ({
-      sales_order_id: order_id,
-      order_status: items?.[0]?.order_status || "",
-      date_ordered: items?.[0]?.date_ordered || "",
-      items: items?.map((item) => ({
-        product_name: item.item_name,
-        item_quantity: item.item_quantity,
-        item_total: item.item_total || 0,
-        item_price: item.item_price || 0
-      })) || [],
-      subtotal: items?.reduce((acc, item) => Number(acc) + Number(item.item_total), 0)
-    }))
+		const formattedOrders = Object.entries(groupedByOrderId).map(([order_id, items]) => ({
+			sales_order_id: order_id,
+			order_status: items?.[0]?.order_status || '',
+			date_ordered: items?.[0]?.date_ordered || '',
+			items:
+				items?.map((item) => ({
+					product_name: item.item_name,
+					item_quantity: item.item_quantity,
+					item_total: item.item_total || 0,
+					item_price: item.item_price || 0
+				})) || [],
+			subtotal: items?.reduce((acc, item) => Number(acc) + Number(item.item_total), 0)
+		}));
 
 		return {
 			customer_name,
-      orders: formattedOrders,
-      subtotal: formattedOrders.reduce((acc, order) => Number(acc) + Number(order.subtotal), 0)
+			orders: formattedOrders,
+			subtotal: formattedOrders.reduce((acc, order) => Number(acc) + Number(order.subtotal), 0)
 		};
 	});
 

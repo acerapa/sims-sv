@@ -26,6 +26,12 @@ export function debounce<T extends (...args: unknown[]) => void>(func: T, wait: 
 }
 
 export function capitalizeFirstLetter(word: string): string {
-  if (!word) return word;
-  return word.charAt(0).toUpperCase() + word.slice(1);
+	if (!word) return word;
+	return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+export function dayAfter(value: string) {
+	const date = new Date(value);
+	date.setDate(date.getDate() + 1);
+	return date;
 }

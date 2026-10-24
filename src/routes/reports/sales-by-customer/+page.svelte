@@ -3,12 +3,7 @@
 	import DatePicker from '$lib/components/common/DatePicker.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft, Printer } from '@lucide/svelte';
-	import {
-		Card,
-		CardContent,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import {
 		Table,
 		TableBody,
@@ -30,9 +25,7 @@
 	let fromDate = $state<Date | undefined>(
 		data.filters.from ? new Date(data.filters.from) : undefined
 	);
-	let toDate = $state<Date | undefined>(
-		data.filters.to ? new Date(data.filters.to) : undefined
-	);
+	let toDate = $state<Date | undefined>(data.filters.to ? new Date(data.filters.to) : undefined);
 
 	let activeTab = $state('summary');
 
@@ -43,13 +36,13 @@
 		const params = new SvelteURLSearchParams(page.url.searchParams);
 
 		if (fromDate) {
-			params.set('from', fromDate.toISOString().split('T')[0]);
+			params.set('from', fromDate.toLocaleDateString());
 		} else {
 			params.delete('from');
 		}
 
 		if (toDate) {
-			params.set('to', toDate.toISOString().split('T')[0]);
+			params.set('to', toDate.toLocaleDateString());
 		} else {
 			params.delete('to');
 		}
@@ -66,8 +59,8 @@
 	function openPrint() {
 		const params = new SvelteURLSearchParams();
 		params.set('view', activeTab);
-		if (fromDate) params.set('from', fromDate.toISOString().split('T')[0]);
-		if (toDate) params.set('to', toDate.toISOString().split('T')[0]);
+		if (fromDate) params.set('from', fromDate.toLocaleDateString());
+		if (toDate) params.set('to', toDate.toLocaleDateString());
 		window.open(`/reports/sales-by-customer/print?${params.toString()}`, '_blank');
 	}
 </script>
@@ -78,16 +71,20 @@
 </svelte:head>
 
 <section class="flex flex-col gap-6">
-    <div class="flex flex-col gap-1">
-        <Button href="/reports" variant="ghost" class="w-fit text-muted-foreground hover:bg-slate-50 hover:text-black !pl-0 cursor-pointer ">
-            <ArrowLeft />
-            <span class="text-sm">Back to Reports</span>
-        </Button>
-    	<PageTitle
-    		title="Sales by Customer"
-    		subTitle="View sales order totals and details grouped by customer."
-    	/>
-    </div>
+	<div class="flex flex-col gap-1">
+		<Button
+			href="/reports"
+			variant="ghost"
+			class="w-fit cursor-pointer !pl-0 text-muted-foreground hover:bg-slate-50 hover:text-black "
+		>
+			<ArrowLeft />
+			<span class="text-sm">Back to Reports</span>
+		</Button>
+		<PageTitle
+			title="Sales by Customer"
+			subTitle="View sales order totals and details grouped by customer."
+		/>
+	</div>
 
 	<Card>
 		<CardContent class="flex items-end gap-4">
@@ -162,7 +159,9 @@
 										{summary.reduce((acc, row) => Number(acc) + Number(row.total_items), 0)}
 									</TableCell>
 									<TableCell class="text-right">
-										{formatCurrency(summary.reduce((acc, row) => Number(acc) + Number(row.total_sales), 0))}
+										{formatCurrency(
+											summary.reduce((acc, row) => Number(acc) + Number(row.total_sales), 0)
+										)}
 									</TableCell>
 								</TableRow>
 							</TableFooter>
@@ -204,8 +203,8 @@
 											{customer.customer_name}
 										</TableCell>
 									</TableRow>
-									{#each customer.orders as order (order.sales_order_id)}
-										{#each order.items as item (item.product_name)}
+									{#each customer.orders as order (order)}
+										{#each order.items as item (item)}
 											<TableRow>
 												<TableCell class="pl-8 text-muted-foreground">Invoice</TableCell>
 												<TableCell>
@@ -243,7 +242,9 @@
 								<TableRow class="font-bold">
 									<TableCell colspan={6}>TOTAL</TableCell>
 									<TableCell class="text-right">
-										{formatCurrency(detailed.reduce((acc, order) => Number(acc) + Number(order.subtotal), 0))}
+										{formatCurrency(
+											detailed.reduce((acc, order) => Number(acc) + Number(order.subtotal), 0)
+										)}
 									</TableCell>
 								</TableRow>
 							</TableFooter>
