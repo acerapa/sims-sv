@@ -136,7 +136,6 @@ function drawOrderItemsTable(doc: jsPDF, order: SbcOrder, margin: number, y: num
 function drawDetailSections(
 	doc: jsPDF,
 	detailed: SbcCustomer[],
-	view: SalesByCustomerView,
 	margin: number,
 	pageWidth: number,
 	pageHeight: number,
@@ -152,13 +151,7 @@ function drawDetailSections(
 	}
 
 	let cursor = y;
-	detailed.forEach((customer, cIdx) => {
-		// the preview forces a page break before each customer except the first, but
-		// only in 'detail' view (per spec decision 2 — 'both' flows continuously)
-		if (cIdx > 0 && view === 'detail') {
-			doc.addPage();
-			cursor = 48;
-		}
+	detailed.forEach((customer) => {
 		cursor = ensureSpace(doc, cursor, 60, pageHeight);
 
 		// section heading — the preview's <h3 class="print-section-title">
@@ -223,7 +216,7 @@ export async function buildSalesByCustomerPdf(
 	}
 
 	if (view === 'detail' || view === 'both') {
-		drawDetailSections(doc, data.detailed, view, margin, pageWidth, pageHeight, y);
+		drawDetailSections(doc, data.detailed, margin, pageWidth, pageHeight, y);
 	}
 
 	addReportFooter(doc);

@@ -96,8 +96,8 @@
 				No sales orders found for the selected date range.
 			</p>
 		{:else}
-			{#each detailed as customer, cIdx (customer.customer_name)}
-				<h3 class="print-section-title" class:page-break={cIdx > 0 && view === 'detail'}>
+			{#each detailed as customer (customer.customer_name)}
+				<h3 class="print-section-title">
 					{customer.customer_name}
 				</h3>
 

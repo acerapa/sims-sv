@@ -44,7 +44,7 @@
 			>
 				<SelectTrigger class="w-16">{limit}</SelectTrigger>
 				<SelectContent>
-					{#each limitOptions as opt}
+					{#each limitOptions as opt (opt)}
 						<SelectItem value={opt.toString()}>{opt}</SelectItem>
 					{/each}
 				</SelectContent>

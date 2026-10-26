@@ -90,10 +90,37 @@ describe('buildSalesByCustomerPdf', () => {
 		expect(text).toContain('Subtotal: Php 3,500.25');
 	});
 
-	it('detail view: page breaks before every customer except the first', async () => {
+	it('detail view: customers flow continuously — a small report fits on one page', async () => {
 		const doc = await buildSalesByCustomerPdf(data, 'detail', filters);
-		const pages = doc.getNumberOfPages();
-		expect(pages).toBeGreaterThanOrEqual(2);
+		expect(doc.getNumberOfPages()).toBe(1);
+	});
+
+	it('detail view: 30 customers flow across pages instead of one page each', async () => {
+		const many = {
+			summary: [],
+			detailed: Array.from({ length: 30 }, (_, i) => ({
+				customer_name: `Flow Customer ${i + 1}`,
+				subtotal: 100,
+				orders: [
+					{
+						sales_order_id: `2${i}`,
+						date_ordered: new Date(2026, 6, 1),
+						order_status: 'shipped',
+						items: [{ product_name: 'Widget', item_quantity: 1, item_price: 50, item_total: 100 }]
+					}
+				]
+			}))
+		};
+		const doc = await buildSalesByCustomerPdf(many, 'detail', filters);
+		// with the old per-customer page break this would be >= 30 pages; flowing packs them
+		expect(doc.getNumberOfPages()).toBeLessThan(30);
+		const lines = textIn(doc).split('\n');
+		let pos = -1;
+		for (let i = 1; i <= 30; i++) {
+			const idx = lines.indexOf(`Flow Customer ${i}`);
+			expect(idx).toBeGreaterThan(pos);
+			pos = idx;
+		}
 	});
 
 	it('renders null item quantities as an empty cell, not "null"', async () => {

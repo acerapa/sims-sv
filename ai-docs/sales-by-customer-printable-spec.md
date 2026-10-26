@@ -10,7 +10,7 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`.
 
 - `+page.server.ts` loads from `?from=&to=&view=` (default `summary`; `view ∈ summary|detail|both`) via `getSalesByCustomer(from, to)` — returns `{ summary, detailed }`.
 - **Summary view**: 4-col table — Customer Name, # of Orders, Total Items Sold, Total Amount — with a **Grand Total** `tfoot` row (totals computed with `Number()` reduce — numeric fields arrive as strings).
-- **Detail view**: one section per customer: `<h3>` customer name, then per order a `SO-{id}` header line (date, capitalized status) + 4-col items table (Product, Qty, Unit Price, Total Price), then a right-aligned **Subtotal** line per customer. Page breaks before each new customer when `view === 'detail'`.
+- **Detail view**: one section per customer: `<h3>` customer name, then per order a `SO-{id}` header line (date, capitalized status) + 4-col items table (Product, Qty, Unit Price, Total Price), then a right-aligned **Subtotal** line per customer. Customers flow continuously — no forced page break between them (originally the `detail` view forced one per customer; removed per client feedback, see decision 3).
 - **Both** = summary, forced page break, `Detail` heading, detail.
 - Title varies by view (`Sales by Customer`, `… — Summary`, `… — Detail`); date-range subtitle rendered from `data.filters` by `PrintReportLayout`.
 - Preview formats via `formatCurrency` (`$lib/utils/common`) and `formatDate` (`$lib/utils/printables`).
@@ -64,7 +64,8 @@ export interface SalesByCustomerData {
 | # | Question | Decision |
 |---|---|---|
 | 1 | `order_status` casing in PDF | title-case in JS (e.g. `Pending Payment`) — mirrors CSS `capitalize` at the word level the preview shows |
-| 2 | Section page-breaks in `both` view | today's CSS only forces a page break per customer in `detail` view — PDF mirrors that exactly (no forced break in `both`) |
+| 2 | Section page-breaks in `both` view | today's CSS only forces a page break per customer in `detail` view — PDF mirrors that exactly (no forced break in `both`). Superseded by decision 3 |
+| 3 | Per-customer page breaks (client feedback) | customer sections flow continuously in **all** views, including `detail`; no forced `addPage` between customers — `ensureSpace` still breaks a page when a customer block physically overflows; tests assert it (2-customer detail fits one page; 30 customers paginate below 30 pages) |
 
 ### Acceptance criteria
 
