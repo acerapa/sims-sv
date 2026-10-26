@@ -149,15 +149,18 @@
 				{#if edit}
 					<Button onclick={() => (edit = false)} variant="outline">Cancel</Button>
 				{:else}
-					<Button
-						type="button"
-						variant="outline"
-						onclick={() => window.open(`/vendors/packages/print/${pkg.id}`, '_blank')}
-					>
-						<Printer class="size-4" />
-						Print
-					</Button>
-					<Button onclick={() => (edit = true)}>Edit Package</Button>
+				    <div class="flex items-center gap-2">
+    					<Button
+    						type="button"
+    						variant="outline"
+    						onclick={() => window.open(`/vendors/packages/print/${pkg.id}`, '_blank')}
+    					>
+    						<Printer class="size-4" />
+    						Print
+    					</Button>
+    					<Button onclick={() => (edit = true)}>Edit Package</Button>
+
+								</div>
 				{/if}
 			{/if}
 		</SheetHeader>
