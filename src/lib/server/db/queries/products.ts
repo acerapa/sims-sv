@@ -130,12 +130,31 @@ export const getProducts = async (query: string | null = null) => {
 					supplier_id: true
 				}
 			}
-    },
-    where: or(
-      query ? ilike(products.sales_description, `%${query}%`) : undefined,
-      query ? eq(products.sku, query) : undefined
-    )
+		},
+		where: or(
+			query ? ilike(products.sales_description, `%${query}%`) : undefined,
+			query ? eq(products.sku, query) : undefined
+		)
 	});
+};
+
+export interface ProductOption {
+	id: number;
+	sku: string;
+	name: string;
+}
+
+export const getProductOptions = async (): Promise<ProductOption[]> => {
+	const result = await db
+		.select({
+			id: products.id,
+			sku: products.sku,
+			name: products.purchase_description
+		})
+		.from(products)
+		.orderBy(asc(products.sku));
+
+	return result as ProductOption[];
 };
 
 export const getProduct = async (productId: number) => {
@@ -359,6 +378,5 @@ export const getInventoryStats = async () => {
 		totalValue: parseFloat(stats.totalValue ?? '0')
 	};
 };
-
 
 export type getProducts = Awaited<ReturnType<typeof getProducts>>;

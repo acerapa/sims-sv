@@ -38,6 +38,11 @@
 		],
 		inventory: [
 			{
+				title: 'Inventory Valuation Detail',
+				subtitle: 'Every stock movement per item with running on-hand and asset value',
+				href: '/reports/inventory-valuation'
+			},
+			{
 				title: 'Current Stock Levels',
 				subtitle: 'Real-time inventory status across all locations',
 				href: ''
@@ -61,7 +66,8 @@
 			},
 			{
 				title: 'Purchases by Item',
-				subtitle: 'Purchase summary by item category, or every purchase line with a running balance',
+				subtitle:
+					'Purchase summary by item category, or every purchase line with a running balance',
 				href: '/reports/purchases-by-item'
 			},
 			{
