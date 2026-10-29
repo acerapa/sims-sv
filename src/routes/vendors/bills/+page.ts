@@ -6,7 +6,7 @@ export const load: PageLoad = ({ data }) => {
 	if (browser) {
 		pageContext.set({
 			pageTitle: {
-				title: 'Billss',
+				title: 'Bills',
 				subTitle: 'Track and Manage vendor bills'
 			}
 		});

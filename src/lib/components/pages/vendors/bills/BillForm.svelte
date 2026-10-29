@@ -32,7 +32,7 @@
 	} from '$lib/components/ui/table';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import type { Supplier, SupplierPO } from '$lib/types/global';
-	import { Plus } from '@lucide/svelte';
+	import { Plus, Printer } from '@lucide/svelte';
 	import type { ActionData } from '../../../../../routes/vendors/bills/$types';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
@@ -177,7 +177,16 @@
 				{#if edit}
 					<Button onclick={() => (edit = false)} variant="outline">Cancel</Button>
 				{:else}
-					<Button onclick={() => (edit = true)}>Edit Bill</Button>
+					<div class="flex items-center gap-2">
+						<Button
+							variant="outline"
+							onclick={() => window.open(`/vendors/bills/print/${bill?.id}`, '_blank')}
+						>
+							<Printer class="size-4" />
+							Print
+						</Button>
+						<Button onclick={() => (edit = true)}>Edit Bill</Button>
+					</div>
 				{/if}
 			{/if}
 		</SheetHeader>

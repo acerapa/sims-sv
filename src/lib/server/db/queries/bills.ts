@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from '..';
-import { bills, purchaseOrders, suppliers } from '../schema';
+import { bills, purchaseOrders, purchaseOrderItems, products, suppliers } from '../schema';
 
 export interface CreateBillData {
 	supplier_id: number;
@@ -59,6 +59,45 @@ export const getBill = async (billId: number) => {
 	}
 
 	return result[0];
+};
+
+/** Bill header + the item lines it bills (the linked PO) — for the print route. */
+export const getBillWithItems = async (billId: number) => {
+	const bill = await getBill(billId);
+
+	const [purchaseOrder] = await db
+		.select({
+			sub_total: purchaseOrders.sub_total,
+			discount: purchaseOrders.discount,
+			total: purchaseOrders.total
+		})
+		.from(purchaseOrders)
+		.where(eq(purchaseOrders.id, bill.purchase_order_id));
+
+	const itemRows = await db
+		.select({
+			name: products.purchase_description,
+			quantity: purchaseOrderItems.quantity,
+			cost: purchaseOrderItems.cost,
+			total_cost: purchaseOrderItems.total_cost
+		})
+		.from(purchaseOrderItems)
+		.innerJoin(products, eq(purchaseOrderItems.product_id, products.id))
+		.where(eq(purchaseOrderItems.purchase_order_id, bill.purchase_order_id))
+		.orderBy(products.purchase_description);
+
+	return {
+		...bill,
+		sub_total: purchaseOrder?.sub_total ?? '0',
+		discount: purchaseOrder?.discount ?? '0',
+		total: purchaseOrder?.total ?? '0',
+		po_items: itemRows.map((row) => ({
+			name: row.name,
+			quantity: row.quantity,
+			cost: parseFloat(row.cost),
+			total_cost: parseFloat(row.total_cost)
+		}))
+	};
 };
 
 export const getBills = async () => {
