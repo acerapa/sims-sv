@@ -120,6 +120,7 @@
 				<Badge variant={getStatusVariant(order.order_status || 'open')}>
 					{getStatusLabel(order.order_status || 'open')}
 				</Badge>
+				<Button variant="outline" href={`/customers/sales-orders/${order.id}/print`}>Print</Button>
 				{#if order.order_status != SalesOrderStatus.INVOICED && order.order_status != SalesOrderStatus.CANCELLED}
 					<ConfirmSalesOrderCancel soId={order.id} bind:open={isConfirmDialogOpen} {onCancel} />
 
@@ -182,8 +183,10 @@
 							<TableCell>{item.package?.name || item.product?.sales_description || '—'}</TableCell>
 							<TableCell>{item.serial_number || '—'}</TableCell>
 							<TableCell>{item.quantity}</TableCell>
-							<TableCell class="text-right">₱{parseFloat(item.unit_price as string).toFixed(2)}</TableCell>
-							<TableCell class="font-medium text-right">
+							<TableCell class="text-right"
+								>₱{parseFloat(item.unit_price as string).toFixed(2)}</TableCell
+							>
+							<TableCell class="text-right font-medium">
 								₱{parseFloat(item.total_price as string).toFixed(2)}
 							</TableCell>
 						</TableRow>
@@ -193,17 +196,17 @@
 
 			<div class="mt-4 ml-auto w-1/2 space-y-2">
 				<div class="flex items-center justify-between">
-					<span class="font-bold text-sm">Sub Total:</span>
-					<span class="font-bold text-sm">{formatCurrency(subTotal)}</span>
+					<span class="text-sm font-bold">Sub Total:</span>
+					<span class="text-sm font-bold">{formatCurrency(subTotal)}</span>
 				</div>
 				<div class="flex items-center justify-between">
-					<span class="font-bold text-sm">Discount:</span>
-					<span class="font-bold text-sm">{formatCurrency(order.discount)}</span>
+					<span class="text-sm font-bold">Discount:</span>
+					<span class="text-sm font-bold">{formatCurrency(order.discount)}</span>
 				</div>
 				<Separator />
 				<div class="flex items-center justify-between">
-					<span class="font-bold text-sm">Total:</span>
-					<span class="font-bold text-sm">{formatCurrency(order.total_cost)}</span>
+					<span class="text-sm font-bold">Total:</span>
+					<span class="text-sm font-bold">{formatCurrency(order.total_cost)}</span>
 				</div>
 			</div>
 		</CardContent>
