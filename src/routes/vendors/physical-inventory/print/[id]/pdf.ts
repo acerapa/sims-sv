@@ -81,22 +81,36 @@ export async function buildPhysicalInventoryPdf(sheet: PhysicalInventoryPrintDat
 	autoTable(doc, {
 		startY: y,
 		margin: { left: margin, right: margin, top: 10, bottom: 48 },
-		head: [['Item', 'SKU', 'Category', 'System Count', 'Actual Count', 'Difference']],
+		head: [
+			isDraft
+				? ['Item', 'SKU', 'Category', 'System Count', 'Actual Count']
+				: ['Item', 'SKU', 'Category', 'System Count', 'Actual Count', 'Difference']
+		],
 		body:
 			sheet.items.length > 0
-				? sheet.items.map((item) => [
-						item.purchase_description,
-						item.sku,
-						item.category || '',
-						String(item.system_count),
-						isDraft ? '' : String(item.actual_count),
-						isDraft ? '' : signed(item.difference)
-					])
+				? sheet.items.map((item) =>
+						isDraft
+							? [
+									item.purchase_description,
+									item.sku,
+									item.category || '',
+									String(item.system_count),
+									''
+								]
+							: [
+									item.purchase_description,
+									item.sku,
+									item.category || '',
+									String(item.system_count),
+									String(item.actual_count),
+									signed(item.difference)
+							]
+					)
 				: [
 						[
 							{
 								content: 'No items on this inventory sheet.',
-								colSpan: 6,
+								colSpan: isDraft ? 5 : 6,
 								styles: { halign: 'center' }
 							}
 						]
@@ -110,7 +124,7 @@ export async function buildPhysicalInventoryPdf(sheet: PhysicalInventoryPrintDat
 							'',
 							String(totals.system),
 							isDraft ? '' : String(totals.actual),
-							isDraft ? '' : signed(totals.difference)
+							...(isDraft ? [] : [signed(totals.difference)])
 						]
 					]
 				: undefined,
@@ -128,13 +142,20 @@ export async function buildPhysicalInventoryPdf(sheet: PhysicalInventoryPrintDat
 		},
 		headStyles: { fillColor: [240, 240, 240], textColor: [17, 17, 17], fontStyle: 'bold' },
 		footStyles: { fontStyle: 'bold' },
-		columnStyles: {
-			1: { cellWidth: 60 },
-			2: { cellWidth: 60 },
-			3: { halign: 'right', cellWidth: 60 },
-			4: { halign: 'right', cellWidth: 60 },
-			5: { halign: 'right', cellWidth: 60 }
-		}
+		columnStyles: isDraft
+			? {
+					1: { cellWidth: 60 },
+					2: { cellWidth: 60 },
+					3: { halign: 'right', cellWidth: 60 },
+					4: { halign: 'right', cellWidth: 60 }
+				}
+			: {
+					1: { cellWidth: 60 },
+					2: { cellWidth: 60 },
+					3: { halign: 'right', cellWidth: 60 },
+					4: { halign: 'right', cellWidth: 60 },
+					5: { halign: 'right', cellWidth: 60 }
+				}
 	});
 
 	addReportFooter(doc);

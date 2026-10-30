@@ -81,7 +81,9 @@
 						<th>Category</th>
 						<th class="text-right">System Count</th>
 						<th class="text-right">Actual Count</th>
-						<th class="text-right">Difference</th>
+						{#if !isDraft}
+							<th class="text-right">Difference</th>
+						{/if}
 					</tr>
 				</thead>
 				<tbody>
@@ -99,11 +101,15 @@
 								<td>{item.category || ''}</td>
 								<td class="text-right">{item.system_count}</td>
 								<td class="text-right">{isDraft ? '' : item.actual_count}</td>
-								<td
-									class={['text-right', isDraft ? '' : diffClass(toNum(item.difference))].join(' ')}
-								>
-									{isDraft ? '' : signed(item.difference)}
-								</td>
+								{#if !isDraft}
+									<td
+										class={['text-right', isDraft ? '' : diffClass(toNum(item.difference))].join(
+											' '
+										)}
+									>
+										{isDraft ? '' : signed(item.difference)}
+									</td>
+								{/if}
 							</tr>
 						{/each}
 					{/if}
@@ -114,9 +120,11 @@
 							<td colspan="3">Total ({sheet.items.length} items)</td>
 							<td class="text-right">{totals.system}</td>
 							<td class="text-right">{isDraft ? '' : totals.actual}</td>
-							<td class={['text-right', isDraft ? '' : diffClass(totals.difference)].join(' ')}>
-								{isDraft ? '' : signed(totals.difference)}
-							</td>
+							{#if !isDraft}
+								<td class={['text-right', isDraft ? '' : diffClass(totals.difference)].join(' ')}>
+									{isDraft ? '' : signed(totals.difference)}
+								</td>
+							{/if}
 						</tr>
 					</tfoot>
 				{/if}

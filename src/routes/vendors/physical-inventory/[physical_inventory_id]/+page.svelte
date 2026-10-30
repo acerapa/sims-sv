@@ -56,7 +56,9 @@
 
 	const handleFormSubmit = async (stat: 'draft' | 'finalized') => {
 		status = stat;
-		setTimeout(() => physicalInventorySheetForm.requestSubmit(), 300);
+		if (physicalInventorySheetForm) {
+			physicalInventorySheetForm.requestSubmit();
+		}
 	};
 
 	const getDiffTextColor = (difference: number) => {
@@ -95,7 +97,13 @@
 		</div>
 		{#if physicalInventory.status === 'draft'}
 			<div class="flex items-center gap-3">
-				<Button variant="outline" onclick={() => goto(resolve('/vendors/physical-inventory'))}>
+				<Button
+					variant="outline"
+					onclick={async () => {
+						await handleFormSubmit('draft');
+						await goto(resolve('/vendors/physical-inventory'));
+					}}
+				>
 					<Save />
 					Save as Draft
 				</Button>

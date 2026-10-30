@@ -97,6 +97,8 @@ describe('buildPhysicalInventoryPdf', () => {
 			await buildPhysicalInventoryPdf({ ...sample, status: 'draft', date_finalized: null })
 		);
 		expect(draft).toContain('Draft');
+		// draft follows the page table: Difference column is dropped entirely
+		expect(draft).not.toContain('Difference');
 		// signed differences and the counted/actual totals must be blank
 		expect(draft).not.toContain('+7');
 		expect(draft).not.toContain('-5');
