@@ -33,8 +33,9 @@ export const startInventory = async (data: StartInventory) => {
 export const getInventoryById = async (id: number) => {
 	const result = await db.query.physicalInventories.findFirst({
 		where: eq(physicalInventories.id, id),
-		columns: { id: true, title: true, status: true },
+		columns: { id: true, title: true, status: true, date_finalized: true, notes: true },
 		with: {
+			created_by: { columns: { name: true } },
 			physicalInventoryItems: {
 				with: {
 					product: {
@@ -56,6 +57,8 @@ export const getInventoryById = async (id: number) => {
 		id: result.id,
 		title: result.title,
 		status: result.status,
+		date_finalized: result.date_finalized,
+		created_by: result.created_by?.name ?? null,
 		items: result.physicalInventoryItems.map((item) => ({
 			id: item.id,
 			product_id: item.product_id,

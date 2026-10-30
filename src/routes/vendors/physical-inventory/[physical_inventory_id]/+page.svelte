@@ -50,6 +50,10 @@
 		items[ndx].difference = items[ndx].actual_count - items[ndx].system_count;
 	};
 
+	const handlePrint = () => {
+		window.open(`/vendors/physical-inventory/print/${physicalInventory.id}`, '_blank');
+	};
+
 	const handleFormSubmit = async (stat: 'draft' | 'finalized') => {
 		status = stat;
 		setTimeout(() => physicalInventorySheetForm.requestSubmit(), 300);
@@ -99,9 +103,13 @@
 					<CircleCheck />
 					Finalized
 				</Button>
+				<Button variant="outline" onclick={handlePrint}>
+					<Printer />
+					Print
+				</Button>
 			</div>
 		{:else}
-			<Button variant="outline">
+			<Button variant="outline" onclick={handlePrint}>
 				<Printer />
 				Print
 			</Button>
@@ -162,7 +170,7 @@
 											{/if}
 
 											<TooltipTrigger>
-												<p class="line-clamp-2 max-w-52 text-wrap text-left">
+												<p class="line-clamp-2 max-w-52 text-left text-wrap">
 													{item.purchase_description}
 												</p>
 											</TooltipTrigger>
