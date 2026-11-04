@@ -3,15 +3,21 @@
 	import { resolve } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 	import { formatCurrency } from '$lib/utils/common';
-	import { formatDatePdf, openAndPrint } from '$lib/utils/pdf';
+	import { openAndPrint } from '$lib/utils/pdf';
 	import type { PageProps } from './$types';
-	import { buildDrPdf, WARRANTY_TEXT } from './pdf';
+	import { buildDrPdf, drSpacerRows, formatDateShort, serialWPercent, WARRANTY_TEXT } from './pdf';
 
 	let { data }: PageProps = $props();
 	let order = $derived(data.salesOrder);
+	// Serial No. column sizes to the receipt’s longest value (same fit as the PDF); Item Description absorbs it
+	let serialPct = $derived(
+		serialWPercent(order.items.map((item) => String(item.serial_number ?? '')))
+	);
 	let subtotal = $derived(
 		order.items.reduce((sum, item) => sum + Number(item.total_price || 0), 0)
 	);
+	// Mirror the PDF: blank rows stretch the items table so the warranty + signatures close the page
+	let spacerRows = $derived(Array.from({ length: drSpacerRows(order.items.length) }, (_, i) => i));
 
 	async function handlePrint() {
 		openAndPrint(await buildDrPdf(order));
@@ -43,20 +49,25 @@
 		<div class="title-area">
 			<h2 class="dr-title">D.R</h2>
 			<table class="reference-table">
-				<thead>
-					<tr>
-						<th>DATE</th>
-						<th>S.O. NO.</th>
-						<th>P.O. NO.</th>
-						<th>REP</th>
-					</tr>
-				</thead>
 				<tbody>
 					<tr>
-						<td>{formatDatePdf(order.date_ordered)}</td>
-						<td>{order.id}</td>
-						<td></td>
-						<td>{order.staff?.name || ''}</td>
+						<td>
+							<span class="cell-label">DATE</span>
+							{formatDateShort(order.date_ordered)}
+						</td>
+						<td>
+							<span class="cell-label">S.O. NO.</span>
+							{order.id}
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<span class="cell-label">P.O. NO.</span>
+						</td>
+						<td>
+							<span class="cell-label">REP</span>
+							{order.staff?.name || ''}
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -75,7 +86,7 @@
 		<thead>
 			<tr>
 				<th class="item-column">Item Description</th>
-				<th class="serial-column">Serial No.</th>
+				<th class="serial-column" style="width: {serialPct}%">Serial No.</th>
 				<th class="quantity-column">Qty</th>
 				<th class="rate-column">UP</th>
 				<th class="amount-column">Total</th>
@@ -91,15 +102,32 @@
 					<td class="number">{formatCurrency(item.total_price)}</td>
 				</tr>
 			{/each}
+			{#each spacerRows as spacerIndex (spacerIndex)}
+				<tr class="spacer-row">
+					<td></td>
+					<td></td>
+					<td class="number"></td>
+					<td class="number"></td>
+					<td class="number"></td>
+				</tr>
+			{/each}
+			<!-- Total rows are ruled (client, 2026-11): top, between, and bottom borders close the table above the warranty -->
+			<tr class="subtotal-row">
+				<td><strong>SUB-TOTAL</strong></td>
+				<td></td>
+				<td class="number"></td>
+				<td class="number"></td>
+				<td class="number">{formatCurrency(subtotal)}</td>
+			</tr>
+			<tr class="grand-row">
+				<td><strong>TOTAL AMOUNT</strong></td>
+				<td></td>
+				<td class="number"></td>
+				<td class="number"></td>
+				<td class="number"><strong>{formatCurrency(order.total_cost)}</strong></td>
+			</tr>
 		</tbody>
 	</table>
-
-	<div class="totals mt-4">
-		<div><strong>SUB-TOTAL</strong><span>{formatCurrency(subtotal)}</span></div>
-		<div class="grand-total">
-			<strong>TOTAL AMOUNT</strong><span>{formatCurrency(order.total_cost)}</span>
-		</div>
-	</div>
 
 	<section class="warranty">
 		<h3>FOR WARRANTY SERVICE:</h3>
@@ -136,7 +164,8 @@
 		background: #fff;
 		color: #000;
 		font-family: Arial, Helvetica, sans-serif;
-		font-size: 11px;
+		/* client 2026-10-30: larger text across the document */
+		font-size: 12px;
 	}
 
 	.dr-header {
@@ -161,16 +190,15 @@
 	}
 
 	.company h1 {
+		/* client 2026-10-30: bold, no border box */
 		margin: 0;
-		border: 1px solid #000;
-		padding: 1.5mm;
-		font-size: 16px;
+		font-size: 18px;
 		font-weight: 700;
 	}
 
 	.company p {
 		margin: 0;
-		font-size: 10px;
+		font-size: 11px;
 		line-height: 1.3;
 	}
 
@@ -180,7 +208,7 @@
 
 	.dr-title {
 		margin: 0 0 3mm;
-		font-size: 24px;
+		font-size: 26px;
 		font-weight: 700;
 	}
 
@@ -195,19 +223,26 @@
 	}
 
 	.reference-table {
-		width: 75%;
+		width: 38%;
 		margin-left: auto;
 		font-size: 9px;
 	}
 
-	.reference-table th,
 	.reference-table td {
-		text-align: center;
+		text-align: left;
+		padding: 1.2mm 1.5mm;
+	}
+
+	.cell-label {
+		display: block;
+		font-size: 8px;
+		font-weight: 700;
 	}
 
 	.name-address {
 		width: 48%;
-		height: 35mm;
+		min-height: 18mm; /* content-sized — matches the PDF's 50pt-min box that grows per address line */
+		height: auto;
 		border: 1px solid #000;
 		margin-bottom: 6mm;
 	}
@@ -237,23 +272,23 @@
 	}
 
 	.item-column {
-		width: 55%;
+		/* flex column: absorbs whatever the Serial No. column takes (mirrors the PDF) */
 	}
 	.serial-column {
-		width: 16%;
+		width: 16%; /* inline style overrides with the fit from serialWPercent() */
 	}
 	.quantity-column {
 		width: 7%;
 	}
 	.rate-column {
-		width: 10%;
+		width: 12%;
 	}
 	.amount-column {
-		width: 12%;
+		width: 15.4%;
 	}
 
 	.items-table tbody td {
-		height: 8mm;
+		height: 9mm;
 		vertical-align: top;
 	}
 
@@ -262,40 +297,30 @@
 		white-space: nowrap;
 	}
 
-	.totals {
-		width: 40%;
-		margin-left: auto;
-		border: 1px solid #000;
-	}
-
-	.totals > div {
-		display: flex;
-		justify-content: space-between;
-		padding: 3mm;
-	}
-
-	.totals > div + div {
+	/* Total rows: bordered block (client, 2026-11) — top rule, shared rule, and a bottom rule */
+	.subtotal-row td,
+	.grand-row td {
 		border-top: 1px solid #000;
 	}
 
-	.grand-total {
-		font-size: 14px;
+	.grand-row td {
+		border-bottom: 1px solid #000;
 	}
 
 	.warranty {
-		margin-top: 6mm;
+		margin-top: 8mm;
 	}
 
 	.warranty h3 {
 		margin: 0 0 2mm;
 		text-align: center;
-		font-size: 11px;
+		font-size: 12px;
 	}
 
 	.warranty p {
 		margin: 0;
-		font-size: 9px;
-		line-height: 1.4;
+		font-size: 10px;
+		line-height: 1.45;
 		text-align: justify;
 	}
 
@@ -316,11 +341,11 @@
 
 	.sig p {
 		margin: 0;
-		font-size: 10px;
+		font-size: 11px;
 	}
 
 	.sig strong {
-		font-size: 10px;
+		font-size: 11px;
 	}
 
 	.sig-left {

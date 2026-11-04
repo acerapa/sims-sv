@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { formatDatePdf } from '$lib/utils/pdf';
 import {
 	buildDrPdf,
+	drSpacerRows,
+	formatDateShort,
+	serialWPercent,
 	WARRANTY_TEXT,
 	type DeliveryReceiptOrder
 } from '../src/routes/customers/sales-orders/[id]/print/pdf';
@@ -19,6 +21,17 @@ function textIn(doc: Awaited<ReturnType<typeof buildDrPdf>>): string {
 // content-stream ops, so compare on single-spaced text.
 function textFlat(doc: Awaited<ReturnType<typeof buildDrPdf>>): string {
 	return textIn(doc).replace(/\s+/g, ' ');
+}
+
+// Baseline Y of one text's first content-stream op ("x y Td\n(text)"), so tests can
+// assert vertical placement — e.g. that the warranty block was pushed to the page bottom.
+function startYAt(doc: Awaited<ReturnType<typeof buildDrPdf>>, fragment: string): number {
+	const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
+	const escaped = fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const m = raw.match(new RegExp(String.raw`([\d.]+)\s+([\d.]+)\s+Td\s*\n\(\s*${escaped}`));
+	if (!m) return NaN;
+	// stream coordinates are bottom-origin; flip to the top-origin axis the layout code uses
+	return doc.internal.pageSize.getHeight() - Number(m[2]);
 }
 
 function makeOrder(overrides: Partial<DeliveryReceiptOrder> = {}): DeliveryReceiptOrder {
@@ -85,7 +98,7 @@ describe('buildDrPdf — structure', () => {
 		expect(text).toContain('P.O. NO.');
 		expect(text).toContain('REP');
 		const order = makeOrder();
-		expect(text).toContain(formatDatePdf(order.date_ordered));
+		expect(text).toContain(formatDateShort(order.date_ordered));
 		expect(text).toContain(String(order.id));
 		expect(text).toContain('John Doe');
 	});
@@ -103,6 +116,34 @@ describe('buildDrPdf — Name/Address box', () => {
 		const doc = await buildDrPdf(makeOrder({ customer: null }));
 		expect(textIn(doc)).toContain('Name/Address');
 		expect(doc.getNumberOfPages()).toBeGreaterThan(0);
+	});
+
+	it('sizes the box to its content: short address stays small, a long one grows it', async () => {
+		const boxH = (doc: unknown) => {
+			// the Name/Address box is encoded in the stream as "40. <y> 255. -<H>. re"
+			const raw = Buffer.from(
+				(doc as { output: (t: string) => ArrayBuffer }).output('arraybuffer')
+			).toString('latin1');
+			return Number(raw.match(/40\. [^m]* 255\. -([\d]+)\. re/)?.[1]);
+		};
+		expect(boxH(await buildDrPdf(makeOrder()))).toBe(58); // 1-line address -> 36 + 12 + 10
+		const addr =
+			'12345 Very Long Street, Brgy. Poblacion 1st Purok, Calbayog City, Samar 6100, Philippines';
+		const grown = boxH(
+			await buildDrPdf(makeOrder({ customer: { name: 'ACME Corp', address: addr } }))
+		);
+		expect(grown).toBeGreaterThan(58); // fits the content instead of wasting space or clipping it
+		// and the warranty block still closes the page at the bottom (spacers adapt to the box height)
+		const warranty = startYAt(
+			await buildDrPdf(
+				makeOrder({
+					customer: { name: 'ACME Corp', address: addr },
+					items: makeOrder().items.slice(0, 1)
+				})
+			),
+			'FOR WARRANTY SERVICE:'
+		);
+		expect(warranty).toBeGreaterThan(400);
 	});
 });
 
@@ -143,6 +184,19 @@ describe('buildDrPdf — items table', () => {
 		expect(text).toContain('SUB-TOTAL');
 		expect(text).toContain('TOTAL AMOUNT');
 	});
+
+	it('stretches with blank rows so the warranty block closes the page at the same spot for any short list', async () => {
+		const one = startYAt(
+			await buildDrPdf(makeOrder({ items: makeOrder().items.slice(0, 1) })),
+			'FOR WARRANTY SERVICE:'
+		);
+		const three = startYAt(await buildDrPdf(makeOrder()), 'FOR WARRANTY SERVICE:');
+		expect(one).not.toBeNaN();
+		expect(Math.abs(one - three)).toBeLessThan(6); // the table absorbs the space, not the warranty block
+		expect(three).toBeGreaterThan(450); // bottom region of a 792pt letter page (was ≈430 un-stretched)
+		expect(drSpacerRows(1)).toBeGreaterThan(0);
+		expect(drSpacerRows(15)).toBe(0); // long lists keep their natural multi-page flow
+	});
 });
 
 describe('buildDrPdf — totals', () => {
@@ -152,6 +206,37 @@ describe('buildDrPdf — totals', () => {
 		expect(text).toContain('Php 282.95'); // 200 + 33 + 49.95
 		expect(text).toContain('TOTAL AMOUNT');
 		expect(text).toContain('Php 1,999,602.30');
+	});
+
+	it('rules the totals block: top, between, and bottom borders (26pt apart, full table width)', async () => {
+		const doc = await buildDrPdf(makeOrder());
+		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
+		// stream "x y m / x2 y l" pairs are horizontal rules; the totals block contributes three,
+		// 26pt apart, spanning the table width (x 40 to ~571.9)
+		const rules: number[] = [];
+		for (const m of raw.matchAll(/([\d.]+)\s+([\d.]+)\s+m\s*\n([\d.]+)\s+(\2)\s*l/g)) {
+			const left = Number(m[1]);
+			const right = Number(m[3]);
+			if (Math.abs(left - 40) < 2 && right - left > 450) rules.push(Number(m[2]));
+		}
+		rules.sort((a, b) => a - b);
+		let consecutive = 0;
+		for (let i = 1; i < rules.length; i++) {
+			if (Math.abs(rules[i] - rules[i - 1] - 26) < 0.5) consecutive++;
+		}
+		expect(consecutive).toBeGreaterThanOrEqual(2); // three co-equipspaced rules = the bordered totals block
+	});
+
+	it('sizes the Serial No. column to the longest value, with Item Description absorbing the room', async () => {
+		// serialWPercent() builds its own pt-unit doc internally: 16% = the old fixed width
+		expect(serialWPercent(['SN-1', 'SN-2'])).toBeCloseTo(16, 0); // unchanged when values are short (floor)
+		const long = 'RAMTECHSN2026X7K9P2M4Q1';
+		expect(serialWPercent(['SN-1', long])).toBeGreaterThan(16); // widened for a long serial
+		expect(serialWPercent(['R'.repeat(120)])).toBeLessThanOrEqual(30); // capped so it wraps, not squashes
+		// the receipt still builds cleanly with a long serial
+		const order = makeOrder({ items: makeOrder().items.slice(0, 1) });
+		(order.items as Array<Record<string, unknown>>)[0].serial_number = long;
+		expect(textIn(await buildDrPdf(order))).toContain(long);
 	});
 
 	it('handles an empty receipt: all sections render, no crash', async () => {

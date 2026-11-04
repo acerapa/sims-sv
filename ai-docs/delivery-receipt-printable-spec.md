@@ -21,7 +21,7 @@ Sales-order delivery slips are currently not printed in the app. The client want
 ## Constraints & Preferences (client + house rules)
 
 - **Follow the existing print pipeline:** jsPDF + `openAndPrint` (new tab → browser print). **No** `window.print()` and **no** auto-print on this route (house rule, see `PROJECT.md` / `ai-docs/print-migration-tasks.md`).
-- **House look & feel:** clean bordered boxes, small bold sans-serif (helvetica), black-and-white, single page, A4/Letter portrait. Reuse the shared helpers in `src/lib/utils/pdf.ts` rather than re-implementing currency/date/logo/footer.
+- **House look & feel:** clean bordered boxes, bold sans-serif (helvetica), black-and-white, single page, A4/Letter portrait. **Text sizes enlarged per client (2026-10-30).** Reuse the shared helpers in `src/lib/utils/pdf.ts` rather than re-implementing currency/date/logo/footer.
 - **Source is the sales order:** every field is prefilled from the saved order (customer, items, staff/rep, date). This is a **prefilled form**, not a blank fill-in sheet.
 - **One company brand:** the form carries the **RAM Tech Ventures Inc.** identity (logo at top-left, company name/address in the header block). Do not mix in the secondary RAM Tech brand used elsewhere on the site.
 - **One page:** the layout must fit a typical order on a single portrait page.
@@ -31,19 +31,20 @@ Sales-order delivery slips are currently not printed in the app. The client want
 
 The layout is fixed by the client's reference image + description — **not** an open design choice.
 
-**Page:** portrait, one page, white, black lines. Clean bordered boxes throughout; small bold sans-serif (helvetica).
+**Page:** portrait, one page, white, black lines. Clean bordered boxes throughout; bold sans-serif (helvetica).
 
 **Header block (top):**
 
-- `RAM TECH VENTURES INC.` — company name, boxed, **bold**.
+- `RAM TECH VENTURES INC.` — company name, **bold, no border box** (client removed the box, 2026-10-30),
 - **Small logo, top-left** (company logo).
 - `Bartolome Bldg., Magsaysay St. Blvd. / Brgy. East Awang Pob. / Calbayog City, Samar` — address lines under the name.
 - Top-right: large **`D.R`** title (the form is titled “D.R”, not “SALES-DELIVERY RECEIPT”).
-- Under the title, a **4-column reference grid**: **DATE · S.O. NO. · P.O. NO. · REP**, each cell bordered; REP = the staff name.
+- Under the title, a **compact 2×2 reference table** (~half the original size — client direction, 2026-10-30): row 1 **DATE · S.O. NO.**, row 2 **P.O. NO. · REP**; each cell bordered, **bold label on top, value below it**; REP = the staff name.
 
 **Name/Address box (left, bordered):** `Name / Address` title bar + customer **name** (bold) and **address** below — prefilled from the order's customer.
 
-**Items table (bordered):** columns **Item Description (widest) · Serial No. · Qty · UP · Total**; Qty / UP / Total right-aligned; currency as `Php …`; item name via the sibling's fallback chain (package name → sales description).
+**Items table (bordered):** columns **Item Description (widest) · Serial No. · Qty · UP · Total**; Qty / UP / Total right-aligned; currency as `Php …`; item name via the sibling's fallback chain (package name → sales description). **Stretches to the page bottom (client, 2026-10-30):** short lists are padded with blank ruled rows by `drSpacerRows(itemCount)` so the warranty block + signatures close the page; the same helper drives the on-screen preview (parity); long lists return 0 and keep natural multi-page flow.
+- **Totals inside the items table** (client, 2026-11): SUB-TOTAL and TOTAL AMOUNT are the table's final two rows — label in the first column, value in the rightmost column — with table-weight type (labels bold, no enlarged grand-total type). The Total column is widened so `Php #,###.##` figures stay on one line. The two rows are ruled as a bordered block: a top border, a rule between them, and a bottom border closing the table above the warranty.
 
 **Totals (right, bordered box):** exactly two rows — **SUB-TOTAL** and **TOTAL AMOUNT**. SUB-TOTAL = `Σ items.total_price`; TOTAL AMOUNT = `order.total_cost`. (No discount row in this form.)
 
