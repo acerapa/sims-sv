@@ -194,137 +194,140 @@
 			action={`?/${edit ? 'updateBill' : 'createBill'}`}
 			method="post"
 			use:enhance={enhanceForm}
+			class="flex min-h-0 flex-1 flex-col"
 		>
 			{#if bill}
 				<input type="hidden" name="id" value={bill.id} />
 			{/if}
-			<div class="flex flex-col gap-6 px-6">
-				<Card>
-					<CardHeader>
-						<CardTitle>Bill Details</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div class="flex flex-col gap-6">
-							<div class="space-y-2">
-								<Label>Supplier</Label>
-								<div>
-									<Select
-										name="supplier_id"
-										type="single"
-										bind:value={selectedSupplierId}
-										disabled={!!bill && !edit}
-									>
-										<SelectTrigger
-											class={[
-												'disabled:opacity-100',
-												errors?.properties?.supplier_id ? 'border-red-500' : '',
-												'w-full'
-											]}
+			<div class="flex-1 overflow-y-auto">
+				<div class="flex flex-col gap-6 px-6 pb-6">
+					<Card>
+						<CardHeader>
+							<CardTitle>Bill Details</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div class="flex flex-col gap-6">
+								<div class="space-y-2">
+									<Label>Supplier</Label>
+									<div>
+										<Select
+											name="supplier_id"
+											type="single"
+											bind:value={selectedSupplierId}
+											disabled={!!bill && !edit}
 										>
-											{selectedSupplier
-												? selectedSupplier.name
-												: bill?.supplier_name || 'Select supplier'}
-										</SelectTrigger>
-										<SelectContent>
-											<SelectGroup>
-												{#each suppliers as supplier (supplier.id)}
-													<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
-												{/each}
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-									{#if errors?.properties?.supplier_id}
-										<small class="text-red-500">{errors.properties.supplier_id.errors[0]}</small>
-									{/if}
-								</div>
-							</div>
-							<div class="space-y-2">
-								<Label>Linked PO</Label>
-								<div>
-									<Select
-										name="purchase_order_id"
-										type="single"
-										bind:value={selectedPOId}
-										disabled={!!bill && !edit}
-									>
-										<SelectTrigger
-											class={[
-												'disabled:opacity-100',
-												errors?.properties?.purchase_order_id ? 'border-red-500' : '',
-												'w-full'
-											]}
-										>
-											{selectedPO ? selectedPO.reference : bill?.po_reference || 'Select PO'}
-										</SelectTrigger>
-										<SelectContent>
-											{#if supplierPOs.length === 0 && !selectedSupplierId}
+											<SelectTrigger
+												class={[
+													'disabled:opacity-100',
+													errors?.properties?.supplier_id ? 'border-red-500' : '',
+													'w-full'
+												]}
+											>
+												{selectedSupplier
+													? selectedSupplier.name
+													: bill?.supplier_name || 'Select supplier'}
+											</SelectTrigger>
+											<SelectContent>
 												<SelectGroup>
-													<SelectItem value="" disabled>No supplier selected</SelectItem>
-												</SelectGroup>
-											{:else if supplierPOs.length === 0 && selectedSupplierId}
-												<SelectGroup>
-													<SelectItem value="" disabled>No POs found</SelectItem>
-												</SelectGroup>
-											{:else}
-												<SelectGroup>
-													{#each supplierPOs as po, ndx (ndx)}
-														<SelectItem value={po.id.toString()}>{po.reference}</SelectItem>
+													{#each suppliers as supplier (supplier.id)}
+														<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
 													{/each}
 												</SelectGroup>
-											{/if}
-										</SelectContent>
-									</Select>
-									{#if errors?.properties?.purchase_order_id}
-										<small class="text-red-500"
-											>{errors.properties.purchase_order_id.errors[0]}</small
+											</SelectContent>
+										</Select>
+										{#if errors?.properties?.supplier_id}
+											<small class="text-red-500">{errors.properties.supplier_id.errors[0]}</small>
+										{/if}
+									</div>
+								</div>
+								<div class="space-y-2">
+									<Label>Linked PO</Label>
+									<div>
+										<Select
+											name="purchase_order_id"
+											type="single"
+											bind:value={selectedPOId}
+											disabled={!!bill && !edit}
 										>
-									{/if}
+											<SelectTrigger
+												class={[
+													'disabled:opacity-100',
+													errors?.properties?.purchase_order_id ? 'border-red-500' : '',
+													'w-full'
+												]}
+											>
+												{selectedPO ? selectedPO.reference : bill?.po_reference || 'Select PO'}
+											</SelectTrigger>
+											<SelectContent>
+												{#if supplierPOs.length === 0 && !selectedSupplierId}
+													<SelectGroup>
+														<SelectItem value="" disabled>No supplier selected</SelectItem>
+													</SelectGroup>
+												{:else if supplierPOs.length === 0 && selectedSupplierId}
+													<SelectGroup>
+														<SelectItem value="" disabled>No POs found</SelectItem>
+													</SelectGroup>
+												{:else}
+													<SelectGroup>
+														{#each supplierPOs as po, ndx (ndx)}
+															<SelectItem value={po.id.toString()}>{po.reference}</SelectItem>
+														{/each}
+													</SelectGroup>
+												{/if}
+											</SelectContent>
+										</Select>
+										{#if errors?.properties?.purchase_order_id}
+											<small class="text-red-500"
+												>{errors.properties.purchase_order_id.errors[0]}</small
+											>
+										{/if}
+									</div>
 								</div>
-							</div>
-							<div class="space-y-2">
-								<Label>Bill Date</Label>
-								<div>
-									<DatePicker
-										error={errors?.properties?.bill_date ? true : false}
-										name="bill_date"
-										bind:value={billDate}
+								<div class="space-y-2">
+									<Label>Bill Date</Label>
+									<div>
+										<DatePicker
+											error={errors?.properties?.bill_date ? true : false}
+											name="bill_date"
+											bind:value={billDate}
+											disabled={!!bill && !edit}
+										/>
+										{#if errors?.properties?.bill_date}
+											<small class="text-red-500">{errors.properties.bill_date.errors[0]}</small>
+										{/if}
+									</div>
+								</div>
+								<div class="space-y-2">
+									<Label>Due Date</Label>
+									<div>
+										<DatePicker
+											error={errors?.properties?.due_date ? true : false}
+											name="due_date"
+											bind:value={dueDate}
+											disabled={!!bill && !edit}
+										/>
+										{#if errors?.properties?.due_date}
+											<small class="text-red-500">{errors.properties.due_date.errors[0]}</small>
+										{/if}
+									</div>
+								</div>
+								<div class="space-y-2">
+									<Label>Notes</Label>
+									<Textarea
+										name="notes"
+										placeholder="Add any notes about this bill..."
+										bind:value={notes}
 										disabled={!!bill && !edit}
+										class="disabled:opacity-100"
 									/>
-									{#if errors?.properties?.bill_date}
-										<small class="text-red-500">{errors.properties.bill_date.errors[0]}</small>
-									{/if}
 								</div>
 							</div>
-							<div class="space-y-2">
-								<Label>Due Date</Label>
-								<div>
-									<DatePicker
-										error={errors?.properties?.due_date ? true : false}
-										name="due_date"
-										bind:value={dueDate}
-										disabled={!!bill && !edit}
-									/>
-									{#if errors?.properties?.due_date}
-										<small class="text-red-500">{errors.properties.due_date.errors[0]}</small>
-									{/if}
-								</div>
-							</div>
-							<div class="space-y-2">
-								<Label>Notes</Label>
-								<Textarea
-									name="notes"
-									placeholder="Add any notes about this bill..."
-									bind:value={notes}
-									disabled={!!bill && !edit}
-									class="disabled:opacity-100"
-								/>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Items</CardTitle>
+						</CardContent>
+					</Card>
+					<Card>
+						<CardHeader>
+							<CardTitle>Items</CardTitle>
+						</CardHeader>
 						<CardContent class="!px-0">
 							<Table class="mt-4">
 								<TableHeader>
@@ -373,94 +376,94 @@
 								</div>
 							{/if}
 						</CardContent>
-					</CardHeader>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Payment Details</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div class="flex flex-col gap-6">
-							<div class="space-y-2">
-								<Label>Payment Method</Label>
-								<div>
-									<Select
-										name="payment_type"
-										type="single"
-										bind:value={selectedPaymentMethod}
-										disabled={!!bill && !edit}
-									>
-										<SelectTrigger
+					</Card>
+					<Card>
+						<CardHeader>
+							<CardTitle>Payment Details</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div class="flex flex-col gap-6">
+								<div class="space-y-2">
+									<Label>Payment Method</Label>
+									<div>
+										<Select
+											name="payment_type"
+											type="single"
+											bind:value={selectedPaymentMethod}
+											disabled={!!bill && !edit}
+										>
+											<SelectTrigger
+												class={[
+													'disabled:opacity-100',
+													errors?.properties?.payment_type ? 'border-red-500' : '',
+													'w-full capitalize'
+												]}
+											>
+												{selectedPaymentMethod || 'Select Payment Method'}
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="cash">Cash</SelectItem>
+												<SelectItem value="check">Check</SelectItem>
+											</SelectContent>
+										</Select>
+										{#if errors?.properties?.payment_type}
+											<small class="text-red-500">{errors.properties.payment_type.errors[0]}</small>
+										{/if}
+									</div>
+								</div>
+								{#if selectedPaymentMethod === 'check'}
+									<div class="space-y-2">
+										<Label>Check Number</Label>
+										<Input
+											type="text"
+											name="check_number"
+											placeholder="Enter Check number"
+											bind:value={checkNumber}
+											disabled={!!bill && !edit}
+											class="disabled:opacity-100"
+										/>
+									</div>
+								{/if}
+								<div class="space-y-2">
+									<Label>Amount</Label>
+									<div>
+										<Input
+											type="number"
+											bind:value={paidAmount}
+											name="paid_amount"
 											class={[
 												'disabled:opacity-100',
-												errors?.properties?.payment_type ? 'border-red-500' : '',
-												'w-full capitalize'
+												errors?.properties?.paid_amount ? 'border-red-500' : ''
 											]}
-										>
-											{selectedPaymentMethod || 'Select Payment Method'}
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="cash">Cash</SelectItem>
-											<SelectItem value="check">Check</SelectItem>
-										</SelectContent>
-									</Select>
-									{#if errors?.properties?.payment_type}
-										<small class="text-red-500">{errors.properties.payment_type.errors[0]}</small>
-									{/if}
-								</div>
-							</div>
-							{#if selectedPaymentMethod === 'check'}
-								<div class="space-y-2">
-									<Label>Check Number</Label>
-									<Input
-										type="text"
-										name="check_number"
-										placeholder="Enter Check number"
-										bind:value={checkNumber}
-										disabled={!!bill && !edit}
-										class="disabled:opacity-100"
+											max={selectedPO?.total ||
+												(bill?.total_amount ? parseFloat(bill.total_amount) : undefined)}
+											placeholder="Enter amount"
+											disabled={!!bill && !edit}
+										/>
+										{#if errors?.properties?.paid_amount}
+											<small class="text-red-500">{errors.properties.paid_amount.errors[0]}</small>
+										{/if}
+									</div>
+									<input type="hidden" name="bill_status" value={billStatus} />
+									<input
+										type="hidden"
+										name="total_amount"
+										value={selectedPO?.total || bill?.total_amount}
 									/>
 								</div>
-							{/if}
-							<div class="space-y-2">
-								<Label>Amount</Label>
-								<div>
-									<Input
-										type="number"
-										bind:value={paidAmount}
-										name="paid_amount"
-										class={[
-											'disabled:opacity-100',
-											errors?.properties?.paid_amount ? 'border-red-500' : ''
-										]}
-										max={selectedPO?.total ||
-											(bill?.total_amount ? parseFloat(bill.total_amount) : undefined)}
-										placeholder="Enter amount"
-										disabled={!!bill && !edit}
-									/>
-									{#if errors?.properties?.paid_amount}
-										<small class="text-red-500">{errors.properties.paid_amount.errors[0]}</small>
-									{/if}
-								</div>
-								<input type="hidden" name="bill_status" value={billStatus} />
-								<input
-									type="hidden"
-									name="total_amount"
-									value={selectedPO?.total || bill?.total_amount}
-								/>
 							</div>
-						</div>
-					</CardContent>
-				</Card>
-				{#if !bill || edit}
-					<SheetFooter class="flex-row justify-end">
-						<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
-							Cancel
-						</SheetClose>
-						<Button type="submit" variant="default">{edit ? 'Update Bill' : 'Add Bill'}</Button>
-					</SheetFooter>
-				{/if}
+						</CardContent>
+					</Card>
+				</div>
 			</div>
+			{#if !bill || edit}
+				<SheetFooter class="shrink-0 flex-row justify-end border-t bg-white p-4">
+					<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
+						Cancel
+					</SheetClose>
+					<Button type="submit" variant="default">{edit ? 'Update Bill' : 'Add Bill'}</Button>
+				</SheetFooter>
+			{/if}
 		</form>
 	</SheetContent>
 </Sheet>
