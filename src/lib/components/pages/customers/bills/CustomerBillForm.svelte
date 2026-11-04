@@ -525,7 +525,7 @@
 																	month: 'short',
 																	year: 'numeric'
 																})}
-																{fullyBilled(so) && '· billed'}
+																{fullyBilled(so) ? '· billed' : ''}
 															</SelectItem>
 														{/each}
 													</SelectGroup>
@@ -642,7 +642,7 @@
 										>Payment is optional — the bill can be paid later.</Label
 									>
 								</div>
-								{#if paidAmount > 0}
+								{#if paidAmount > 0 && hasBillableItems}
 									<div class="space-y-2">
 										<Label>Payment Method</Label>
 										<div>
@@ -704,6 +704,7 @@
 											bind:value={paidAmount}
 											class={hasError('paid_amount') ? 'border-red-500' : ''}
 											max={billableTotal || undefined}
+											disabled={!hasBillableItems}
 											placeholder="Enter amount paid (leave 0 to pay later)"
 										/>
 										{#if hasError('paid_amount')}
@@ -718,7 +719,7 @@
 						<SheetClose type="button" class={buttonVariants({ variant: 'outline' })}>
 							Cancel
 						</SheetClose>
-						<Button type="submit" variant="default">Add Bill</Button>
+						<Button type="submit" variant="default" disabled={!hasBillableItems}>Add Bill</Button>
 					</SheetFooter>
 				</div>
 			</form>
