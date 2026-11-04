@@ -106,6 +106,23 @@ export interface SupplierPO {
 	discount: number;
 }
 
+// A customer's sales order with its line items — feeds the "Linked SO" dropdown
+// on the customer bill form (customer analog of SupplierPO).
+export interface CustomerSO {
+	id: number;
+	date_ordered: Date;
+	order_status: string | null;
+	total_cost: number;
+	so_items: {
+		id: number;
+		name: string;
+		quantity: number;
+		invoiced_quantity: number;
+		unit_price: number;
+		total_price: number;
+	}[];
+}
+
 export interface Bracket {
 	id?: number;
 	start_price: number;
@@ -212,6 +229,6 @@ export type FixAssetItem = Omit<TransactionItem, 'id'> & {
 
 export type STRItem = Omit<TransactionItem, 'id'> & {
 	serial_numbers: string[];
-  serial_number?: string;
-  item_description: string;
+	serial_number?: string;
+	item_description: string;
 };

@@ -1,6 +1,15 @@
 import { desc, eq, sql, count, sum } from 'drizzle-orm';
 import { db } from '..';
-import { customers, products, salesOrderItems, salesOrders, users, packagesToProducts } from '../schema';
+import {
+	customers,
+	products,
+	packages,
+	salesOrderItems,
+	salesOrders,
+	users,
+	packagesToProducts
+} from '../schema';
+import type { CustomerSO } from '$lib/types/global';
 import { SalesOrderStatus } from '$lib/const';
 
 export interface CreateSalesOrder {
@@ -9,7 +18,7 @@ export interface CreateSalesOrder {
 	date_ordered: Date;
 	order_type: string;
 	notes?: string;
-  total_cost: number;
+	total_cost: number;
 	discount?: number;
 	products: {
 		product_id?: number | null;
@@ -51,7 +60,7 @@ export const createSalesOrder = async (data: CreateSalesOrder) => {
 					date_ordered: data.date_ordered,
 					order_type: data.order_type,
 					notes: data.notes,
-          total_cost: data.total_cost,
+					total_cost: data.total_cost,
 					discount: data.discount
 				})
 			)
@@ -59,10 +68,10 @@ export const createSalesOrder = async (data: CreateSalesOrder) => {
 
 		// Prepare sales order item rows: package lines will have product_id = null and package_id set
 		const rows = data.products.map((product) => {
-			const pidRaw = (product as any).product_id;
-			const pkgRaw = (product as any).package_id;
-			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
-			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
+			const pidRaw = product.product_id;
+			const pkgRaw = product.package_id;
+			const pid = pidRaw == null ? null : Number(pidRaw);
+			const pkg = pkgRaw == null ? null : Number(pkgRaw);
 
 			if (!pid && pkg) {
 				return Object({
@@ -92,15 +101,19 @@ export const createSalesOrder = async (data: CreateSalesOrder) => {
 		// Fetch current product quantities and package components
 		const pds = await tx.select({ id: products.id, quantity: products.quantity }).from(products);
 		const pkgComps = await tx
-			.select({ package_id: packagesToProducts.package_id, product_id: packagesToProducts.product_id, quantity: packagesToProducts.quantity })
+			.select({
+				package_id: packagesToProducts.package_id,
+				product_id: packagesToProducts.product_id,
+				quantity: packagesToProducts.quantity
+			})
 			.from(packagesToProducts);
 
 		// Update product quantities: individual products or package components
 		for (const product of data.products) {
-			const pidRaw = (product as any).product_id;
-			const pkgRaw = (product as any).package_id;
-			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
-			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
+			const pidRaw = product.product_id;
+			const pkgRaw = product.package_id;
+			const pid = pidRaw == null ? null : Number(pidRaw);
+			const pkg = pkgRaw == null ? null : Number(pkgRaw);
 
 			if (pid) {
 				const p = pds.find((prod) => prod.id === pid);
@@ -243,12 +256,10 @@ export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) 
 			.where(eq(salesOrderItems.sales_order_id, orderId));
 
 		const incomingItemIds = data.products
-			.map((p: any) => p.id)
+			.map((p) => p.id)
 			.filter((id): id is number => typeof id === 'number');
 
-		const itemsToDelete = existingItems.filter(
-			(item) => !incomingItemIds.includes(item.id)
-		);
+		const itemsToDelete = existingItems.filter((item) => !incomingItemIds.includes(item.id));
 
 		const pds = await tx.select({ id: products.id, quantity: products.quantity }).from(products);
 		const pkgComps = await tx
@@ -291,11 +302,11 @@ export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) 
 		}
 
 		for (const product of data.products) {
-			const pidRaw = (product as any).product_id;
-			const pkgRaw = (product as any).package_id;
-			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
-			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
-			const itemId = (product as any).id;
+			const pidRaw = product.product_id;
+			const pkgRaw = product.package_id;
+			const pid = pidRaw == null ? null : Number(pidRaw);
+			const pkg = pkgRaw == null ? null : Number(pkgRaw);
+			const itemId = product.id;
 
 			if (itemId) {
 				const existingItem = existingItems.find((item) => item.id === itemId);
@@ -307,8 +318,8 @@ export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) 
 							product_id: pid,
 							package_id: pkg,
 							quantity: product.quantity,
-							unit_price: product.unit_price,
-							total_price: product.total_price,
+							unit_price: String(product.unit_price),
+							total_price: String(product.total_price),
 							serial_number: product.serial_number ?? '',
 							updated_at: new Date()
 						})
@@ -388,17 +399,79 @@ export const updateSalesOrder = async (orderId: number, data: UpdateSalesOrder) 
 };
 
 export const updateSalesOrderStatus = async (orderId: number, status: string) => {
-  await db.update(salesOrders)
-    .set({
-      order_status: status
-    })
-    .where(eq(salesOrders.id, orderId));
-}
+	await db
+		.update(salesOrders)
+		.set({
+			order_status: status
+		})
+		.where(eq(salesOrders.id, orderId));
+};
 
 export const cancelSalesOrderById = async (orderId: number) => {
-  await db.update(salesOrders)
-    .set({
-      order_status: SalesOrderStatus.CANCELLED
-    })
-    .where(eq(salesOrders.id, orderId));
-}
+	await db
+		.update(salesOrders)
+		.set({
+			order_status: SalesOrderStatus.CANCELLED
+		})
+		.where(eq(salesOrders.id, orderId));
+};
+
+/**
+ * A customer's sales orders grouped with their line items — the customer
+ * analog of getPOBySupplierId (po.ts). Feeds the "Linked SO" dropdown on the
+ * customer bill form; item labels resolve package lines to their package name.
+ */
+export const getSOsByCustomer = async (customerId: number): Promise<CustomerSO[]> => {
+	const rows = await db
+		.select({
+			id: salesOrders.id,
+			date_ordered: salesOrders.date_ordered,
+			order_status: salesOrders.order_status,
+			total_cost: salesOrders.total_cost,
+			item_id: salesOrderItems.id,
+			item_name: sql<string>`COALESCE(${packages.name}, ${products.sales_description})`,
+			quantity: salesOrderItems.quantity,
+			invoiced_quantity: sql<number>`COALESCE((
+				SELECT SUM(ii.quantity) FROM invoice_items ii
+				INNER JOIN invoices inv ON ii.invoice_id = inv.id
+				WHERE ii.sales_order_item_id = ${salesOrderItems.id}
+				AND inv.invoice_status != 'cancelled'
+			), 0)`,
+			unit_price: salesOrderItems.unit_price,
+			total_price: salesOrderItems.total_price
+		})
+		.from(salesOrders)
+		.leftJoin(salesOrderItems, eq(salesOrders.id, salesOrderItems.sales_order_id))
+		.leftJoin(products, eq(salesOrderItems.product_id, products.id))
+		.leftJoin(packages, eq(salesOrderItems.package_id, packages.id))
+		.where(eq(salesOrders.customer_id, customerId))
+		.orderBy(desc(salesOrders.created_at));
+
+	const byOrder = new Map<number, CustomerSO>();
+	for (const row of rows) {
+		let order = byOrder.get(row.id);
+		if (!order) {
+			order = {
+				id: row.id,
+				date_ordered: row.date_ordered,
+				order_status: row.order_status,
+				total_cost: Number(row.total_cost),
+				so_items: []
+			};
+			byOrder.set(row.id, order);
+		}
+		if (row.item_id === null) {
+			continue; // order with no items yet — still list it
+		}
+		order.so_items.push({
+			id: row.item_id,
+			name: String(row.item_name ?? ''),
+			quantity: row.quantity as number,
+			invoiced_quantity: Number(row.invoiced_quantity ?? 0),
+			unit_price: Number(row.unit_price),
+			total_price: Number(row.total_price)
+		});
+	}
+
+	return [...byOrder.values()];
+};

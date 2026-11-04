@@ -19,6 +19,10 @@
 			path: '/customers/invoices'
 		},
 		{
+			name: 'Bills',
+			path: '/customers/bills'
+		},
+		{
 			name: 'Clients',
 			path: '/customers/clients'
 		}

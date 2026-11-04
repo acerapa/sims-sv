@@ -1,4 +1,4 @@
-import { desc, eq, sql, sum } from 'drizzle-orm';
+import { asc, desc, eq, ne, sql, sum } from 'drizzle-orm';
 import { db } from '..';
 import {
 	customers,
@@ -53,10 +53,8 @@ export const createInvoice = async (data: CreateInvoiceData) => {
 			.returning({ lastInsertedId: invoices.id });
 
 		const rows = data.items.map((item) => {
-			const pidRaw = (item as any).product_id;
-			const pkgRaw = (item as any).package_id;
-			const pid = pidRaw === '' || pidRaw == null ? null : Number(pidRaw);
-			const pkg = pkgRaw === '' || pkgRaw == null ? null : Number(pkgRaw);
+			const pid = item.product_id ?? null; // validated upstream as number | null | undefined
+			const pkg = item.package_id ?? null;
 			return Object({
 				invoice_id: invoice.lastInsertedId,
 				sales_order_item_id: item.sales_order_item_id,
@@ -115,7 +113,10 @@ export const createPayment = async (data: CreatePaymentData) => {
 	});
 };
 
-const updateSalesOrderStatus = async (tx: Parameters<Parameters<typeof db.transaction>[0]>[0], salesOrderId: number) => {
+const updateSalesOrderStatus = async (
+	tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+	salesOrderId: number
+) => {
 	// Get all sales order items with their total invoiced quantities
 	const orderItems = await tx
 		.select({
@@ -242,6 +243,47 @@ export const getInvoice = async (invoiceId: number) => {
 		.orderBy(desc(invoicePayments.payment_date));
 
 	return { ...invoice, items, payments };
+};
+
+/** Customer Bills ledger: every non-cancelled bill (invoice) with its outstanding balance. */
+export interface CustomerBillRow {
+	id: number;
+	customer_name: string;
+	sales_order_id: number;
+	invoice_date: Date;
+	due_date: Date;
+	invoice_status: 'cancelled' | 'paid' | 'unpaid' | 'partially_paid' | null;
+	total_amount: string;
+	paid_amount: string | null;
+	balance: number;
+}
+
+export const getCustomerBills = async (): Promise<CustomerBillRow[]> => {
+	const rows = await db
+		.select({
+			id: invoices.id,
+			customer_name: customers.name,
+			sales_order_id: invoices.sales_order_id,
+			invoice_date: invoices.invoice_date,
+			due_date: invoices.due_date,
+			invoice_status: invoices.invoice_status,
+			total_amount: invoices.total_amount,
+			paid_amount: invoices.paid_amount
+		})
+		.from(invoices)
+		.innerJoin(salesOrders, eq(invoices.sales_order_id, salesOrders.id))
+		.innerJoin(customers, eq(salesOrders.customer_id, customers.id))
+		.where(ne(invoices.invoice_status, 'cancelled'))
+		.orderBy(asc(invoices.due_date), asc(invoices.id));
+
+	return rows.map((row) => {
+		const total = parseFloat(row.total_amount as string);
+		const paid = parseFloat(row.paid_amount as string);
+		return {
+			...row,
+			balance: Math.max(0, total - paid) // never negative — an overpaid invoice shows 0 due
+		};
+	});
 };
 
 export const getSalesOrderForInvoice = async (salesOrderId: number) => {
