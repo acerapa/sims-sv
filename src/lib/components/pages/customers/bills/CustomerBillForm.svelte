@@ -105,6 +105,9 @@
 	let checkNumber = $state('');
 	let referenceNumber = $state('');
 	let selectedSO = $derived.by(() => customerSOs.find((so) => so.id === parseInt(selectedSOId)));
+	const fullyBilled = (so: CustomerSO) =>
+		!so.so_items.some((item) => item.quantity - item.invoiced_quantity > 0);
+	let hasBillableItems = $derived.by(() => (selectedSO ? !fullyBilled(selectedSO) : false));
 	let billableTotal = $derived.by(() => {
 		if (!selectedSO) {
 			return 0;
@@ -522,6 +525,7 @@
 																	month: 'short',
 																	year: 'numeric'
 																})}
+																{fullyBilled(so) && '· billed'}
 															</SelectItem>
 														{/each}
 													</SelectGroup>
@@ -583,7 +587,7 @@
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{#if selectedSO?.so_items}
+									{#if hasBillableItems && selectedSO}
 										{#each selectedSO.so_items as item, ndx (ndx)}
 											{#if item.quantity - item.invoiced_quantity > 0}
 												<TableRow class="last:!border-b">
@@ -597,13 +601,19 @@
 													</TableCell>
 												</TableRow>
 											{/if}
-										{:else}
-											<TableRow>
-												<TableCell colspan={4} class="text-center">
-													No billable items — select a sales order
-												</TableCell>
-											</TableRow>
 										{/each}
+									{:else if selectedSO}
+										<TableRow>
+											<TableCell colspan={4} class="text-center">
+												This sales order is fully billed — nothing left to invoice
+											</TableCell>
+										</TableRow>
+									{:else}
+										<TableRow>
+											<TableCell colspan={4} class="text-center">
+												No billable items — select a sales order
+											</TableCell>
+										</TableRow>
 									{/if}
 								</TableBody>
 							</Table>
