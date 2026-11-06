@@ -70,5 +70,61 @@
 				{/if}
 			</tbody>
 		</table>
+		<div class="signatures">
+			<div class="sig sig-left">
+				<div class="sig-line"></div>
+				<p>Signature over Printed Name</p>
+				<strong>Inventory</strong>
+			</div>
+			<div class="sig sig-right">
+				<div class="sig-line"></div>
+				<p>Signature over Printed Name</p>
+				<strong>Received By</strong>
+			</div>
+			<div class="sig sig-center">
+				<div class="sig-line"></div>
+				<p>Signature over Printed Name</p>
+				<strong>Branch Manager</strong>
+			</div>
+		</div>
 	</section>
 </PrintReportLayout>
+
+<style>
+	.signatures {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		margin-top: 8mm;
+	}
+
+	.sig {
+		width: 60mm;
+	}
+
+	.sig-line {
+		border-top: 1px solid #000;
+		margin-bottom: 2mm;
+	}
+
+	.sig p {
+		margin: 0;
+		font-size: 11px;
+	}
+
+	.sig strong {
+		font-size: 11px;
+	}
+
+	.sig-left {
+		justify-self: start;
+	}
+
+	.sig-right {
+		justify-self: end;
+	}
+
+	.sig-center {
+		grid-column: 1 / -1;
+		justify-self: center;
+	}
+</style>

@@ -5,8 +5,10 @@ import {
 	createReportDoc,
 	drawField,
 	drawNotes,
+	drawSignatures,
 	ensureSpace,
-	formatCurrencyPdf
+	formatCurrencyPdf,
+	tableFinalY
 } from '$lib/utils/pdf';
 
 export interface IbrrItem {
@@ -32,7 +34,14 @@ export async function buildIbrrPdf(ibrr: IbrrPrintData): Promise<jsPDF> {
 	const colWidth = (pageWidth - margin * 2) / 2;
 
 	let y = drawField(doc, margin, colWidth, 'IBRR REFERENCE NO.', `IBRR-${ibrr.id}`, startY);
-	drawField(doc, margin + colWidth, colWidth, 'STR REFERENCE NO.', `STR-${ibrr.str_id ?? ''}`, startY);
+	drawField(
+		doc,
+		margin + colWidth,
+		colWidth,
+		'STR REFERENCE NO.',
+		`STR-${ibrr.str_id ?? ''}`,
+		startY
+	);
 	y = drawField(doc, margin, colWidth, 'SOURCE STORE', ibrr.source_store_name ?? '', y);
 
 	y = ensureSpace(doc, y + 40, 40, pageHeight);
@@ -60,7 +69,15 @@ export async function buildIbrrPdf(ibrr: IbrrPrintData): Promise<jsPDF> {
 						formatCurrencyPdf(item.cost),
 						formatCurrencyPdf(item.total_cost)
 					])
-				: [[{ content: 'No items found for this Inter-Branch Receiving Report.', colSpan: 4, styles: { halign: 'center' } }]],
+				: [
+						[
+							{
+								content: 'No items found for this Inter-Branch Receiving Report.',
+								colSpan: 4,
+								styles: { halign: 'center' }
+							}
+						]
+					],
 		theme: 'grid',
 		styles: {
 			font: 'helvetica',
@@ -78,6 +95,12 @@ export async function buildIbrrPdf(ibrr: IbrrPrintData): Promise<jsPDF> {
 			3: { halign: 'right', cellWidth: 90 }
 		}
 	});
+
+	// Client: same sign-off block as the sales-order Delivery Receipt — Inventory /
+	// Received By on one line, Branch Manager below; the preview mirrors it.
+	y = tableFinalY(doc, y) + 20;
+	y = ensureSpace(doc, y, 90, pageHeight);
+	drawSignatures(doc, y);
 
 	addReportFooter(doc);
 	return doc;

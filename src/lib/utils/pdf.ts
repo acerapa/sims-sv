@@ -227,6 +227,37 @@ export function tableFinalY(doc: jsPDF, fallback: number): number {
 	);
 }
 
+/**
+ * Three-signature sign-off block (two on one row + one centered below) used by
+ * client printable forms — line, "Signature over Printed Name", role. Shared so
+ * every signing form (D.R., IBRR, …) draws the identical block (the 2026-10-30
+ * sales-order standard).
+ */
+export function drawSignatures(doc: jsPDF, y: number): void {
+	const pageWidth = doc.internal.pageSize.getWidth();
+	const margin = REPORT_MARGIN;
+	const lineW = 170;
+	const leftX = margin + 20;
+	const rightX = pageWidth - margin - 20 - lineW;
+	const centerX = pageWidth / 2 - lineW / 2;
+
+	const drawOne = (x: number, sy: number, role: string) => {
+		doc.setDrawColor(0, 0, 0);
+		doc.setLineWidth(0.8);
+		doc.line(x, sy, x + lineW, sy);
+		doc.setFont('helvetica', 'normal');
+		doc.setFontSize(9);
+		doc.text('Signature over Printed Name', x + lineW / 2, sy + 13, { align: 'center' });
+		doc.setFont('helvetica', 'bold');
+		doc.setFontSize(9.5);
+		doc.text(role, x + lineW / 2, sy + 25, { align: 'center' });
+	};
+
+	drawOne(leftX, y, 'Inventory');
+	drawOne(rightX, y, 'Received By');
+	drawOne(centerX, y + 50, 'Branch Manager');
+}
+
 /** Page-breaks when the next draw would cross the footer band; returns the new Y. */
 export function ensureSpace(doc: jsPDF, y: number, needed: number, pageHeight: number): number {
 	if (y + needed > pageHeight - PDF_FOOTER_BAND) {

@@ -35,7 +35,9 @@ describe('buildIbrrPdf', () => {
 	});
 
 	it('renders notes exactly as entered, and the --- placeholder when empty or a blank string', async () => {
-		const entered = textIn(await buildIbrrPdf({ ...sample, notes: 'Handle with care. Two boxes.' }));
+		const entered = textIn(
+			await buildIbrrPdf({ ...sample, notes: 'Handle with care. Two boxes.' })
+		);
 		expect(entered).toContain('Handle with care. Two boxes.');
 
 		const empty = textIn(await buildIbrrPdf({ ...sample, notes: null }));
@@ -82,7 +84,10 @@ describe('buildIbrrPdf', () => {
 
 	it('renders Php money for numeric and string values alike (Postgres numeric arrives as a string)', async () => {
 		const text = textIn(
-			await buildIbrrPdf({ ...sample, items: [{ purchase_description: 'X', quantity: '1', cost: '1234.5', total_cost: '1234.5' }] })
+			await buildIbrrPdf({
+				...sample,
+				items: [{ purchase_description: 'X', quantity: '1', cost: '1234.5', total_cost: '1234.5' }]
+			})
 		);
 		expect(text).toContain('Php 1,234.50');
 	});
@@ -94,5 +99,37 @@ describe('buildIbrrPdf', () => {
 		const text = textIn(doc);
 		expect(text).toContain('Page 1 of');
 		expect(text).toContain('Generated on');
+	});
+});
+
+describe('buildIbrrPdf — signatures (client: same block as the sales-order D.R.)', () => {
+	it('renders the three-signature block: Inventory, Received By, Branch Manager', async () => {
+		const doc = await buildIbrrPdf(sample);
+		const text = textIn(doc);
+		expect(text.match(/Signature over Printed Name/g)?.length).toBe(3);
+		expect(text).toContain('Inventory');
+		expect(text).toContain('Received By');
+		expect(text).toContain('Branch Manager');
+	});
+
+	it('keeps the signatures on the form when the item list is long (page-break instead of clipping)', async () => {
+		const many = {
+			...sample,
+			items: Array.from({ length: 60 }, (_, i) => ({
+				purchase_description: `Item number ${i + 1}`,
+				quantity: 1,
+				cost: 100,
+				total_cost: 100
+			}))
+		};
+		const doc = await buildIbrrPdf(many);
+		const text = textIn(doc);
+		expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(2);
+		expect(text.match(/Signature over Printed Name/g)?.length).toBe(3);
+	});
+
+	it('renders the block even on the empty-items form', async () => {
+		const text = textIn(await buildIbrrPdf({ ...sample, items: [] }));
+		expect(text.match(/Signature over Printed Name/g)?.length).toBe(3);
 	});
 });

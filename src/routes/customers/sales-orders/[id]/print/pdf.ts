@@ -7,6 +7,7 @@ import {
 	PDF_FOOTER_BAND,
 	addReportFooter,
 	ensureSpace,
+	drawSignatures,
 	formatCurrencyPdf,
 	loadLogoDataUrl,
 	safeNum,
@@ -321,32 +322,6 @@ function drawWarranty(doc: jsPDF, y: number): number {
 	}
 	return lineY + 8;
 }
-
-function drawSignatures(doc: jsPDF, y: number): void {
-	const pageWidth = doc.internal.pageSize.getWidth();
-	const margin = REPORT_MARGIN;
-	const lineW = 170;
-	const leftX = margin + 20;
-	const rightX = pageWidth - margin - 20 - lineW;
-	const centerX = pageWidth / 2 - lineW / 2;
-
-	const drawOne = (x: number, sy: number, role: string) => {
-		doc.setDrawColor(0, 0, 0);
-		doc.setLineWidth(0.8);
-		doc.line(x, sy, x + lineW, sy);
-		doc.setFont('helvetica', 'normal');
-		doc.setFontSize(9);
-		doc.text('Signature over Printed Name', x + lineW / 2, sy + 13, { align: 'center' });
-		doc.setFont('helvetica', 'bold');
-		doc.setFontSize(9.5);
-		doc.text(role, x + lineW / 2, sy + 25, { align: 'center' });
-	};
-
-	drawOne(leftX, y, 'Inventory');
-	drawOne(rightX, y, 'Received By');
-	drawOne(centerX, y + 50, 'Branch Manager');
-}
-
 const DR_ITEMS_TOP = 204; // header (132) + content-sized Name/Address (1-line address) → items-table top;
 // buildDrPdf passes the ACTUAL top (the box grows with the address length)
 const DR_TABLE_HEAD = 20; // autotable header row (9pt cell + padding)
