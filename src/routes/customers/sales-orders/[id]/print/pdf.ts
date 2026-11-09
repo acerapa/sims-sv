@@ -65,7 +65,10 @@ const HEAD_STYLES: Partial<Styles> = {
 	halign: 'center'
 };
 
-const DATA_ROW_HEIGHT = 26; // 9mm, the preview's items-table row height
+const DATA_ROW_HEIGHT = 26; // 9mm — spacer + totals rows (the preview's 9mm rows)
+// Client 2026-11-09: compact item rows — 14pt ≈ 5mm, the preview's item-row height;
+// spacers/totals keep DATA_ROW_HEIGHT so the page-fill math and totals ruling hold
+const ITEM_ROW_HEIGHT = 14;
 // column widths: Total widened so "Php #,###.##" stays on one line; Serial No. is sized to
 // the receipt’s longest value and Item Description absorbs the difference (client, 2026-11)
 const QTY_W = 37.2;
@@ -103,6 +106,13 @@ export function formatDateShort(value: Date | string | number | null | undefined
 function formCell(value: string | number, minCellHeight: number): CellInput {
 	return { content: value, styles: { minCellHeight } };
 }
+
+// Client 2026-11-09: compact rows, flush vertically; small x padding keeps the text
+// readable and aligned with the header/totals columns
+const itemCell = (value: string | number): CellInput => ({
+	content: value,
+	styles: { minCellHeight: ITEM_ROW_HEIGHT, cellPadding: { top: 0, bottom: 0, left: 5, right: 5 } }
+});
 
 // First line only — a value that does not fit its reference-grid cell is clipped, not reflowed
 function fitOneLine(doc: jsPDF, text: string, width: number): string {
@@ -217,15 +227,16 @@ function drawItemsTable(
 	const rows: CellInput[][] = items.map((item) => {
 		const name = item.package?.name || item.product?.sales_description || '—';
 		return [
-			formCell(name, DATA_ROW_HEIGHT),
-			formCell(item.serial_number || '', DATA_ROW_HEIGHT),
-			formCell(item.quantity, DATA_ROW_HEIGHT),
-			formCell(formatCurrencyPdf(item.unit_price), DATA_ROW_HEIGHT),
-			formCell(formatCurrencyPdf(item.total_price), DATA_ROW_HEIGHT)
+			itemCell(name),
+			itemCell(item.serial_number || ''),
+			itemCell(item.quantity),
+			itemCell(formatCurrencyPdf(item.unit_price)),
+			itemCell(formatCurrencyPdf(item.total_price))
 		];
 	});
 
 	// Client 2026-10-30: extend the items table so the warranty block + signatures close the page
+	// — spacers keep the full row height: they are the filler that absorbs the freed space
 	for (let i = 0; i < spacerRows; i++) {
 		rows.push(['', '', '', '', ''].map((value) => formCell(value, DATA_ROW_HEIGHT)));
 	}
@@ -257,10 +268,16 @@ function drawItemsTable(
 	const drawColumnBorders = (data: CellHookData) => {
 		if (data.section !== 'body') return;
 		const { x, y: cellY, width, height } = data.cell;
+		// Client 2026-11-09: the totals rows read as clean label/amount lines — skip the
+		// internal vertical dividers there, keeping only the table's outer edges
+		const inTotalsRow = data.row.index >= rows.length - DR_TOTAL_ROWS;
+		const atLeftEdge = Math.abs(x - REPORT_MARGIN) < 0.01;
+		const atRightEdge = Math.abs(x + width - (REPORT_MARGIN + TABLE_WIDTH)) < 0.01;
+		if (inTotalsRow && !atLeftEdge && !atRightEdge) return;
 		doc.setDrawColor(0, 0, 0);
 		doc.setLineWidth(0.5);
-		doc.line(x, cellY, x, cellY + height);
-		doc.line(x + width, cellY, x + width, cellY + height);
+		if (!inTotalsRow || atLeftEdge) doc.line(x, cellY, x, cellY + height);
+		if (!inTotalsRow || atRightEdge) doc.line(x + width, cellY, x + width, cellY + height);
 	};
 
 	autoTable(doc, {
@@ -340,7 +357,10 @@ export function drSpacerRows(itemCount: number, itemsTop: number = DR_ITEMS_TOP)
 	const pageHeight = 792; // letter, pt
 	const maxTableBottom = pageHeight - PDF_FOOTER_BAND - DR_SIG_NEED - DR_BELOW_TABLE;
 	const naturalBottom =
-		itemsTop + DR_TABLE_HEAD + (Math.max(0, itemCount) + DR_TOTAL_ROWS) * DATA_ROW_HEIGHT;
+		itemsTop +
+		DR_TABLE_HEAD +
+		Math.max(0, itemCount) * ITEM_ROW_HEIGHT +
+		DR_TOTAL_ROWS * DATA_ROW_HEIGHT;
 	const gap = maxTableBottom - naturalBottom;
 	return gap > 0 ? Math.floor(gap / DATA_ROW_HEIGHT) : 0;
 }

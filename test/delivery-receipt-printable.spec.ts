@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { REPORT_MARGIN } from '../src/lib/utils/pdf';
 import {
 	buildDrPdf,
 	drSpacerRows,
@@ -168,6 +169,26 @@ describe('buildDrPdf — items table', () => {
 		expect(text).not.toContain('₱');
 	});
 
+	it('renders item rows with the small x padding, aligned with the totals rows', async () => {
+		// client 2026-11-09: item text keeps the 5pt x inset (readability), same as the totals rows
+		const doc = await buildDrPdf(makeOrder());
+		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
+		const xAt = (fragment: string): number => {
+			const escaped = fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			const m = raw.match(new RegExp(String.raw`([\d.]+)\s+[\d.]+\s+Td\s*\n\(\s*${escaped}`));
+			return m ? Number(m[1]) : NaN;
+		};
+		expect(xAt('Widget')).toBe(REPORT_MARGIN + 5);
+		expect(xAt('SUB-TOTAL')).toBe(REPORT_MARGIN + 5);
+	});
+
+	it('packs item rows at the compact 14pt height, not the old 26pt', async () => {
+		// client 2026-11-09: consecutive item rows are one ITEM_ROW_HEIGHT apart
+		const doc = await buildDrPdf(makeOrder());
+		const pitch = startYAt(doc, 'Kit') - startYAt(doc, 'Widget');
+		expect(pitch).toBeCloseTo(14, 1);
+	});
+
 	it('renders all lines even for a 15-item receipt', async () => {
 		const order = makeOrder({
 			items: Array.from({ length: 15 }, (_, i) => ({
@@ -195,7 +216,8 @@ describe('buildDrPdf — items table', () => {
 		expect(Math.abs(one - three)).toBeLessThan(6); // the table absorbs the space, not the warranty block
 		expect(three).toBeGreaterThan(450); // bottom region of a 792pt letter page (was ≈430 un-stretched)
 		expect(drSpacerRows(1)).toBeGreaterThan(0);
-		expect(drSpacerRows(15)).toBe(0); // long lists keep their natural multi-page flow
+		expect(drSpacerRows(15)).toBe(1); // compact item rows (client 2026-11-09) let 15 items fit one page
+		expect(drSpacerRows(20)).toBe(0); // longer lists keep their natural multi-page flow
 	});
 });
 
@@ -225,6 +247,36 @@ describe('buildDrPdf — totals', () => {
 			if (Math.abs(rules[i] - rules[i - 1] - 26) < 0.5) consecutive++;
 		}
 		expect(consecutive).toBeGreaterThanOrEqual(2); // three co-equipspaced rules = the bordered totals block
+	});
+
+	it('keeps the totals rows clean: no internal vertical dividers, outer edges intact', async () => {
+		// client 2026-11-09: label/amount rows read without the column grid inside them
+		const doc = await buildDrPdf(makeOrder());
+		const at = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable;
+		expect(at).toBeDefined();
+		const finalY = at!.finalY;
+		const totalTop = finalY - 2 * 26; // SUB-TOTAL + TOTAL AMOUNT rows
+		// stream coordinates are bottom-origin: the block spans 792-finalY .. 792-totalTop
+		const yMin = 792 - finalY;
+		const yMax = 792 - totalTop;
+		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
+		let internal = 0;
+		let leftEdge = 0;
+		let rightEdge = 0;
+		for (const m of raw.matchAll(/([\d.]+)\s+([\d.]+)\s+m\s*\n\1\s+([\d.]+)\s*l/g)) {
+			const x = Number(m[1]);
+			const y1 = Number(m[2]);
+			const y2 = Number(m[3]);
+			if (Math.max(y1, y2) <= yMin || Math.min(y1, y2) >= yMax) continue; // not inside the block
+			if (Math.abs(x - 40) < 0.5)
+				leftEdge++; // table left edge (margin)
+			else if (Math.abs(x - 571.9) < 0.5)
+				rightEdge++; // table right edge (margin + 531.9)
+			else internal++;
+		}
+		expect(internal).toBe(0);
+		expect(leftEdge).toBeGreaterThan(0);
+		expect(rightEdge).toBeGreaterThan(0);
 	});
 
 	it('sizes the Serial No. column to the longest value, with Item Description absorbing the room', async () => {

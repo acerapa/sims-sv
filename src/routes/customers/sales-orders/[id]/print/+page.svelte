@@ -95,35 +95,29 @@
 		<tbody>
 			{#each order.items as item (item.id)}
 				<tr>
-					<td>{item.package?.name || item.product?.sales_description || '—'}</td>
-					<td>{item.serial_number || ''}</td>
-					<td class="number">{item.quantity}</td>
-					<td class="number">{formatCurrency(item.unit_price)}</td>
-					<td class="number">{formatCurrency(item.total_price)}</td>
+					<td class="!border-b-transparent !border-t-transparent">{item.package?.name || item.product?.sales_description || '—'}</td>
+					<td class="!border-b-transparent !border-t-transparent">{item.serial_number || ''}</td>
+					<td class="number !border-b-transparent !border-t-transparent">{item.quantity}</td>
+					<td class="number !border-b-transparent !border-t-transparent">{formatCurrency(item.unit_price)}</td>
+					<td class="number !border-b-transparent !border-t-transparent">{formatCurrency(item.total_price)}</td>
 				</tr>
 			{/each}
 			{#each spacerRows as spacerIndex (spacerIndex)}
 				<tr class="spacer-row">
-					<td></td>
-					<td></td>
-					<td class="number"></td>
-					<td class="number"></td>
-					<td class="number"></td>
+					<td class="!border-b-transparent !border-t-transparent"></td>
+					<td class="!border-b-transparent !border-t-transparent"></td>
+					<td class="number !border-b-transparent !border-t-transparent"></td>
+					<td class="number !border-b-transparent !border-t-transparent"></td>
+					<td class="number !border-b-transparent !border-t-transparent"></td>
 				</tr>
 			{/each}
 			<!-- Total rows are ruled (client, 2026-11): top, between, and bottom borders close the table above the warranty -->
 			<tr class="subtotal-row">
-				<td><strong>SUB-TOTAL</strong></td>
-				<td></td>
-				<td class="number"></td>
-				<td class="number"></td>
+				<td colspan="4"><strong>SUB-TOTAL</strong></td>
 				<td class="number">{formatCurrency(subtotal)}</td>
 			</tr>
 			<tr class="grand-row">
-				<td><strong>TOTAL AMOUNT</strong></td>
-				<td></td>
-				<td class="number"></td>
-				<td class="number"></td>
+				<td colspan="4"><strong>TOTAL AMOUNT</strong></td>
 				<td class="number"><strong>{formatCurrency(order.total_cost)}</strong></td>
 			</tr>
 		</tbody>
@@ -292,6 +286,18 @@
 		vertical-align: top;
 	}
 
+	/* Client 2026-11-09: items sit flush vertically in their rows; small x padding keeps
+	   them readable and aligned with the header/totals columns */
+	.items-table tbody tr:not(.subtotal-row):not(.grand-row) td {
+		padding: 0 2mm;
+	}
+
+	/* Client 2026-11-09: compact item rows (5mm, mirrors the PDF's ITEM_ROW_HEIGHT);
+	   spacer rows keep 9mm so they absorb the freed space */
+	.items-table tbody tr:not(.spacer-row):not(.subtotal-row):not(.grand-row) td {
+		height: 5mm;
+	}
+
 	.items-table .number {
 		text-align: right;
 		white-space: nowrap;
@@ -301,6 +307,34 @@
 	.subtotal-row td,
 	.grand-row td {
 		border-top: 1px solid #000;
+	}
+
+	/* Client 2026-11-09: the totals rows read as clean label/amount lines — no internal
+	   vertical dividers, only the table's outer edges */
+	.subtotal-row td,
+	.grand-row td {
+		border-left: none;
+		border-right: none;
+	}
+
+	.subtotal-row td:first-child,
+	.grand-row td:first-child {
+		border-left: 1px solid #000;
+	}
+
+	.subtotal-row td:last-child,
+	.grand-row td:last-child {
+		border-right: 1px solid #000;
+	}
+
+	/* The row above SUB-TOTAL carries a transparent bottom (Tailwind util, !important in
+	   @layer utilities); with collapsed borders its color wins the shared 1px slot and would
+	   erase the totals block's top rule. Layered !important beats unlayered !important, so
+	   this rule must sit in an earlier layer (components) to force the shared rule. */
+	@layer components {
+		tr:has(+ .subtotal-row) td {
+			border-bottom: 1px solid #000 !important;
+		}
 	}
 
 	.grand-row td {

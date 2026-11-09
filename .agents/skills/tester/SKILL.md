@@ -57,7 +57,7 @@ Then drop the cases that can't occur in this code path, and say why you dropped 
 - **Isolation:** every test green in any order, alone or with the suite, twice in a row. No shared mutable state, no ordering dependencies, no leftover rows/files/ports.
 - No `sleep` to "wait" — assert on the condition or use the project's established wait helper.
 
-### 4. UI and browser tests
+### 5. UI and browser tests
 
 For any surface the user sees and interacts with, add the right tier — only the tiers the project already has, or with the confirmation in §1:
 
@@ -72,14 +72,14 @@ For any surface the user sees and interacts with, add the right tier — only th
 - **Visual regression** only if the project already has the tooling (Playwright screenshots, regression libs). Don't introduce it unless asked.
 - **No UI test suite exists?** Propose the minimum: component tests via the project's runner where possible, Playwright only if a real journey can't be covered any other way. Install only with confirmation (§1).
 
-### 5. Run, then harden
+### 6. Run, then harden
 
 1. Run the new tests. Run the **full existing suite** — your additions must not break others.
 2. **Flake hunt:** run the suite at least twice more (or in random order if the runner supports it). Any non-deterministic result is a bug in your test — fix it and say so in the report.
 3. **Prove the tests bite:** for every bug you *found*, after the source is corrected, confirm the previously-failing test now passes — that's your proof the test actually covers the defect. (If the source is not corrected, deliver the failing test + repro as the finding.)
 4. Optionally run the project's coverage tool (vitest `--coverage`, `c8`, pytest-cov, `go test -cover`, `cargo tarpaulin`) and report the number for the changed files. No coverage mandate — report, don't pad.
 
-### 6. Report
+### 7. Report
 
 ```
 ## Test report — <target>
