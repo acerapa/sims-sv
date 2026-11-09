@@ -116,7 +116,6 @@
 						<TableHead class="text-right">Qty</TableHead>
 						<TableHead class="text-right">Sales Price</TableHead>
 						<TableHead class="text-right">Amount</TableHead>
-						<TableHead class="text-right">Balance</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -147,9 +146,6 @@
 										<TableCell class="text-right">
 											{formatCurrency(item.item_total)}
 										</TableCell>
-										<TableCell class="text-right">
-											{formatCurrency(invoice.balance)}
-										</TableCell>
 									</TableRow>
 								{/each}
 							{/each}
@@ -163,16 +159,6 @@
 							<TableCell class="text-right">
 								{formatCurrency(
 									data.detailed.reduce((acc, rep) => acc + rep.subtotal, 0)
-								)}
-							</TableCell>
-							<TableCell class="text-right">
-								{formatCurrency(
-									data.detailed.reduce(
-										(acc, rep) =>
-											acc +
-											rep.invoices.reduce((sum, invoice) => sum + invoice.balance, 0),
-										0
-									)
 								)}
 							</TableCell>
 						</TableRow>

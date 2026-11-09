@@ -43,7 +43,6 @@
 							<th class="text-right">Qty</th>
 							<th class="text-right">Sales Price</th>
 							<th class="text-right">Amount</th>
-							<th class="text-right">Balance</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -53,7 +52,6 @@
 								<td class="text-right">{item.item_quantity}</td>
 								<td class="text-right">{formatCurrency(item.item_price)}</td>
 								<td class="text-right">{formatCurrency(item.item_total)}</td>
-								<td class="text-right">{formatCurrency(invoice.balance)}</td>
 							</tr>
 						{/each}
 					</tbody>

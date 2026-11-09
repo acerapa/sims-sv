@@ -78,7 +78,7 @@ describe('buildSalesByRepPdf', () => {
 		expect(text).toContain('Php 3,500.25'); // string money from Postgres renders
 		const lines = text.split('\n');
 		expect(lines).toContain('4'); // exact qty cell, not a substring of money
-		expect(lines).toContain('Balance');
+		expect(lines).not.toContain('Balance'); // column removed to match the report page
 		expect(lines).toContain('Subtotal: Php 10,000.00');
 		expect(lines).toContain('Subtotal: Php 3,500.25');
 		expect(lines).toContain('TOTAL: Php 13,500.25');

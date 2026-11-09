@@ -44,13 +44,12 @@ function drawItemsTable(doc: jsPDF, invoice: SbrInvoice, margin: number, y: numb
 	autoTable(doc, {
 		startY: y,
 		margin: { left: margin, right: margin, top: 10, bottom: 48 },
-		head: [['Item Description', 'Qty', 'Sales Price', 'Amount', 'Balance']],
+		head: [['Item Description', 'Qty', 'Sales Price', 'Amount']],
 		body: invoice.items.map((item) => [
 			item.item_name || '',
 			item.item_quantity == null ? '' : String(item.item_quantity),
 			formatCurrencyPdf(item.item_price),
-			formatCurrencyPdf(item.item_total),
-			formatCurrencyPdf(invoice.balance)
+			formatCurrencyPdf(item.item_total)
 		]),
 		theme: 'grid',
 		styles: {
@@ -66,8 +65,7 @@ function drawItemsTable(doc: jsPDF, invoice: SbrInvoice, margin: number, y: numb
 		columnStyles: {
 			1: { halign: 'right', cellWidth: 50 },
 			2: { halign: 'right', cellWidth: 90 },
-			3: { halign: 'right', cellWidth: 100 },
-			4: { halign: 'right', cellWidth: 100 }
+			3: { halign: 'right', cellWidth: 100 }
 		}
 	});
 	const finalY = tableFinalY(doc, y);
