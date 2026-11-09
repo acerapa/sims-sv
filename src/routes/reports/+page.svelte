@@ -71,6 +71,11 @@
 				href: '/reports/purchases-by-item'
 			},
 			{
+				title: 'Vendor Balance Detail',
+				subtitle: 'Running balance owed to each vendor across bills, grouped by vendor',
+				href: '/reports/vendor-balance-detail'
+			},
+			{
 				title: 'Purchase Order Report',
 				subtitle: 'All purchase orders with status tracking',
 				href: ''
