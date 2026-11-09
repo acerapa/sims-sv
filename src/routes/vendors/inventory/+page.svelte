@@ -52,6 +52,7 @@
 	let suppliers = $derived<Supplier[]>(data.suppliers);
 	let products = $derived(page.data.products);
 	let product = $derived(data.product);
+
 	let total = $derived(data.total);
 	let currentPage = $derived(data.page);
 	let limit = $derived(data.limit);

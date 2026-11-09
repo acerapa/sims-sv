@@ -47,6 +47,13 @@
 	let salesOrders = $derived(data.salesOrders);
 	let stats = $derived(data.salesOrderStats);
 
+	// Pagination related variables
+	let total = $derived(data?.pagination?.total);
+	let currentPage = $derived(data?.pagination?.page);
+	let limit = $derived(data?.pagination?.limit);
+	let totalPages = $derived(data?.pagination?.totalPages);
+	let currentParams = $derived(data?.pagination?.currentParams);
+
 	const statCards = $derived([
 		{
 			title: "Today's Sales",
@@ -121,9 +128,7 @@
 	};
 
 	const onEdit = (orderId: number) => {
-		goto(
-			resolve(`/customers/sales-orders/${orderId}/form`)
-		);
+		goto(resolve(`/customers/sales-orders/${orderId}/form`));
 	};
 </script>
 
@@ -214,20 +219,22 @@
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
 										<DropdownMenuItem
-											onSelect={() => goto(resolve(`/customers/sales-orders/${order.id}` as '/customers/sales-orders'))}
+											onSelect={() =>
+												goto(
+													resolve(
+														`/customers/sales-orders/${order.id}` as '/customers/sales-orders'
+													)
+												)}
 											class="space-x-2"
 										>
 											<Eye />
 											<span>View</span>
 										</DropdownMenuItem>
 										{#if order.order_status !== SalesOrderStatus.INVOICED && order.order_status !== SalesOrderStatus.CANCELLED}
-    										<DropdownMenuItem
-    											onSelect={() => onEdit(order.id)}
-    											class="space-x-2"
-    										>
-    											<Pencil />
-    											<span>Edit</span>
-    										</DropdownMenuItem>
+											<DropdownMenuItem onSelect={() => onEdit(order.id)} class="space-x-2">
+												<Pencil />
+												<span>Edit</span>
+											</DropdownMenuItem>
 										{/if}
 										{#if order.order_status !== SalesOrderStatus.INVOICED && order.order_status !== SalesOrderStatus.CANCELLED}
 											<DropdownMenuItem
