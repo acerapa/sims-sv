@@ -1,3 +1,4 @@
+import { SvelteURLSearchParams } from 'svelte/reactivity';
 import z from 'zod';
 
 export function getRoleLabel(role: string) {
@@ -34,4 +35,18 @@ export function dayAfter(value: string) {
 	const date = new Date(value);
 	date.setDate(date.getDate() + 1);
 	return date;
+}
+
+export function updateSearchParams(searchParams: string, updates: Record<string, string | number | null>): string {
+  const params = new SvelteURLSearchParams(searchParams);
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (value === null || value === '') {
+				params.delete(key);
+			} else {
+				params.set(key, String(value));
+			}
+  }
+
+  return params.toString();
 }

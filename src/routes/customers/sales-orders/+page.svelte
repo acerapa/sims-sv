@@ -2,6 +2,7 @@
 	import StatCard from '$lib/components/common/StatCard.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import TablePagination from '$lib/components/common/TablePagination.svelte';
 	import {
 		Card,
 		CardContent,
@@ -53,6 +54,9 @@
 	let limit = $derived(data?.pagination?.limit);
 	let totalPages = $derived(data?.pagination?.totalPages);
 	let currentParams = $derived(data?.pagination?.currentParams);
+	const handlePageChange = () => {}
+	const handleLimitChange = () => {}
+
 
 	const statCards = $derived([
 		{
@@ -259,6 +263,15 @@
 					{/if}
 				</TableBody>
 			</Table>
+
+			<TablePagination
+				page={currentPage}
+				{totalPages}
+				{total}
+				{limit}
+				onPageChange={handlePageChange}
+				onLimitChange={handleLimitChange}
+			/>
 		</CardContent>
 	</Card>
 </div>
