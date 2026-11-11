@@ -1,8 +1,8 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
-	import { formatCurrency } from '$lib/utils/common';
-	import { formatDate } from '$lib/utils/printables';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { formatDate } from '#lib/utils/printables.ts';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import { buildPackageDetailsPdf } from './pdf';
 	import type { PageProps } from './$types';
 

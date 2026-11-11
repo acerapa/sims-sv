@@ -1,14 +1,14 @@
 <script lang="ts">
-	import STRForm from '$lib/components/pages/vendors/transfers/strs/STRForm.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import STRForm from '#lib/components/pages/vendors/transfers/strs/STRForm.svelte';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import Input from '$lib/components/ui/input/input.svelte';
+	} from '#lib/components/ui/card/index.ts';
+	import Input from '#lib/components/ui/input/input.svelte';
 	import {
 		Table,
 		TableBody,
@@ -16,7 +16,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { setContext } from 'svelte';
@@ -25,7 +25,7 @@
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 

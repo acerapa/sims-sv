@@ -16,11 +16,11 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/vendors/transfers/ibrrs/print/[id]/pdf.ts` | **create** | `buildIbrrPdf(ibrr): jsPDF` — label block + autoTable items |
-| `src/routes/vendors/transfers/ibrrs/print/[id]/+page.svelte` | **modify** | wire `onPrint={() => openAndPrint(buildIbrrPdf(ibrr))}` |
-| `src/routes/vendors/transfers/ibrrs/print/[id]/+page.server.ts` | keep | — |
+| File                                                            | Action     | Contents                                                    |
+| --------------------------------------------------------------- | ---------- | ----------------------------------------------------------- |
+| `src/routes/vendors/transfers/ibrrs/print/[id]/pdf.ts`          | **create** | `buildIbrrPdf(ibrr): jsPDF` — label block + autoTable items |
+| `src/routes/vendors/transfers/ibrrs/print/[id]/+page.svelte`    | **modify** | wire `onPrint={() => openAndPrint(buildIbrrPdf(ibrr))}`     |
+| `src/routes/vendors/transfers/ibrrs/print/[id]/+page.server.ts` | keep       | —                                                           |
 
 ### PDF format
 
@@ -33,9 +33,9 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 
 ### Decisions (need user confirm)
 
-| # | Question | Proposed |
-|---|---|---|
-| 1 | Empty-items wording — today reads `No items found for the selected Stock Transfer Request.` (an IBRR is not a "selected STR") | `No items found for this Inter-Branch Receiving Report.` in **both** preview and PDF |
+| #   | Question                                                                                                                      | Proposed                                                                             |
+| --- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 1   | Empty-items wording — today reads `No items found for the selected Stock Transfer Request.` (an IBRR is not a "selected STR") | `No items found for this Inter-Branch Receiving Report.` in **both** preview and PDF |
 
 ### Acceptance criteria
 

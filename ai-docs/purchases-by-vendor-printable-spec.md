@@ -17,11 +17,11 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`.
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/reports/purchases-by-vendor/print/pdf.ts` | **create** | `buildPurchasesByVendorPdf(data, { view }): jsPDF` |
-| `src/routes/reports/purchases-by-vendor/print/+page.svelte` | **modify** | wire `onPrint`; **move `groupDetailByVendor` out of the component** into `pdf.ts` (pure fn, no Svelte) and import it for the preview — required so preview ≡ PDF by construction and the builder stays Node-testable (conventions 8 + 1) |
-| `src/routes/reports/purchases-by-vendor/print/+page.server.ts` | keep | — |
+| File                                                           | Action     | Contents                                                                                                                                                                                                                                 |
+| -------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/routes/reports/purchases-by-vendor/print/pdf.ts`          | **create** | `buildPurchasesByVendorPdf(data, { view }): jsPDF`                                                                                                                                                                                       |
+| `src/routes/reports/purchases-by-vendor/print/+page.svelte`    | **modify** | wire `onPrint`; **move `groupDetailByVendor` out of the component** into `pdf.ts` (pure fn, no Svelte) and import it for the preview — required so preview ≡ PDF by construction and the builder stays Node-testable (conventions 8 + 1) |
+| `src/routes/reports/purchases-by-vendor/print/+page.server.ts` | keep       | —                                                                                                                                                                                                                                        |
 
 ### PDF format
 
@@ -35,10 +35,10 @@ Same structure as `ai-docs/sales-by-customer-printable-spec.md`, swapping:
 
 ### Decisions
 
-| # | Question | Proposed (confirm) |
-|---|---|---|
-| 1 | Moving `groupDetailByVendor` into `pdf.ts` (shared with preview) | Yes — single source of truth; preview import keeps output identical |
-| 2 | `GroupedVendor` interface | Lives in `pdf.ts` (exported) in place of the current local interface in `+page.svelte` |
+| #   | Question                                                         | Proposed (confirm)                                                                     |
+| --- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1   | Moving `groupDetailByVendor` into `pdf.ts` (shared with preview) | Yes — single source of truth; preview import keeps output identical                    |
+| 2   | `GroupedVendor` interface                                        | Lives in `pdf.ts` (exported) in place of the current local interface in `+page.svelte` |
 
 ### Acceptance criteria
 

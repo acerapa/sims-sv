@@ -44,7 +44,13 @@ describe('getSalesByRep', () => {
 
 	it('groups rows by representative, invoice, and line item', async () => {
 		stubRows([
-			itemRow({ invoice_id: 102, item_name: 'Mouse', item_quantity: '2', item_price: '500', item_total: '2000' }),
+			itemRow({
+				invoice_id: 102,
+				item_name: 'Mouse',
+				item_quantity: '2',
+				item_price: '500',
+				item_total: '2000'
+			}),
 			itemRow({ invoice_id: 101, invoice_notes: 'rush order' }),
 			itemRow({
 				rep_name: 'Ben Cruz',

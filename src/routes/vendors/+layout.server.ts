@@ -1,6 +1,6 @@
-import { getCategories } from '$lib/server/db/queries/categories';
-import { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
-import { getSuppliers } from '$lib/server/db/queries/suppliers';
+import { getCategories } from '#lib/server/db/queries/categories.ts';
+import { getSellingBrackets } from '#lib/server/db/queries/selling-brackets.ts';
+import { getSuppliers } from '#lib/server/db/queries/suppliers.ts';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ depends }) => {

@@ -8,7 +8,7 @@ import {
 	formatCurrencyPdf,
 	formatDatePdf,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 const EMPTY_RANGE_TEXT = 'No purchase orders found for the selected date range.';
 
@@ -91,10 +91,7 @@ export function groupDetailByVendor(rows: PbvDetailRow[]): GroupedVendor[] {
 	}
 
 	for (const vendor of vendors) {
-		vendor.subtotal = vendor.pos.reduce(
-			(sum, po) => sum + parseFloat(po.po_total || '0'),
-			0
-		);
+		vendor.subtotal = vendor.pos.reduce((sum, po) => sum + parseFloat(po.po_total || '0'), 0);
 	}
 
 	return vendors;
@@ -121,12 +118,7 @@ function viewTitle(view: PurchasesByVendorView): string {
 	return 'Purchases by Vendor — Summary';
 }
 
-function drawSummaryTable(
-	doc: jsPDF,
-	summary: PbvSummaryRow[],
-	margin: number,
-	y: number
-): number {
+function drawSummaryTable(doc: jsPDF, summary: PbvSummaryRow[], margin: number, y: number): number {
 	// same reduces as the preview's grandTotals derived (total_amount arrives as a string)
 	const grand = {
 		po_count: summary.reduce((sum, row) => sum + row.po_count, 0),
@@ -297,7 +289,15 @@ export async function buildPurchasesByVendorPdf(
 	}
 
 	if (view === 'detail' || view === 'both') {
-		drawDetailSections(doc, groupDetailByVendor(data.detail), view, margin, pageWidth, pageHeight, y);
+		drawDetailSections(
+			doc,
+			groupDetailByVendor(data.detail),
+			view,
+			margin,
+			pageWidth,
+			pageHeight,
+			y
+		);
 	}
 
 	addReportFooter(doc);

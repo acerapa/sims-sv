@@ -8,8 +8,8 @@ import {
 	formatCurrencyPdf,
 	formatDatePdf,
 	tableFinalY
-} from '$lib/utils/pdf';
-import type { VbdVendorLedger } from '$lib/utils/vendor-balance';
+} from '#lib/utils/pdf.ts';
+import type { VbdVendorLedger } from '#lib/utils/vendor-balance.ts';
 
 export interface VendorBalancePdfData {
 	ledgers: VbdVendorLedger[];

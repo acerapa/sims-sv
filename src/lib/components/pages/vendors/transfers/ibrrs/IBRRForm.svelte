@@ -1,11 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import Label from '#lib/components/ui/label/label.svelte';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -15,16 +20,15 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import { Textarea } from '$lib/components/ui/textarea';
+	} from '#lib/components/ui/sheet/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
 	import { Plus, Printer } from '@lucide/svelte';
 	import IBRRItems from './IBRRItems.svelte';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { resolve } from '$app/paths';
-	import StoresForm from '$lib/components/pages/settings/stores/StoresForm.svelte';
+	import StoresForm from '#lib/components/pages/settings/stores/StoresForm.svelte';
 
 	let { open = $bindable(false), ibrr = $bindable(null), isViewOnly = $bindable(false) } = $props();
 
@@ -56,12 +60,12 @@
 			storeId = '';
 			errors = null;
 
-			await goto(resolve('/vendors/transfers/ibrrs'));
+			await goto(resolve('vendors/transfers/ibrrs'));
 		}
 	};
 
 	const printIBRR = async () => {
-		await goto(resolve(`/vendors/transfers/ibrrs/print/${ibrr?.id}`));
+		await goto(resolve(`vendors/transfers/ibrrs/print/${ibrr?.id}`));
 	};
 
 	const openStoresForm = () => {
@@ -70,10 +74,8 @@
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
-	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}>
-		<Plus />
-		Add IBRR
-	</SheetTrigger>
+	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}><Plus /> Add IBRR</SheetTrigger>
+
 	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-3xl">
 		<SheetHeader>
 			<SheetTitle>New Inter-Branch Receiving Report</SheetTitle>
@@ -112,7 +114,7 @@
 											{selectedStore ? selectedStore.name : 'Select Store'}
 										</SelectTrigger>
 										<SelectContent>
-										    <SelectItem value="0" onclick={openStoresForm}>Add Store</SelectItem>
+											<SelectItem value="0" onclick={openStoresForm}>Add Store</SelectItem>
 											{#each stores as store (store.id)}
 												<SelectItem value={store.id}>{store.name}</SelectItem>
 											{/each}

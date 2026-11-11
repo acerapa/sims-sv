@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import ProductCombobox from '$lib/components/common/ProductCombobox.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import Input from '#lib/components/ui/input/input.svelte';
+	import ProductCombobox from '#lib/components/common/ProductCombobox.svelte';
 	import {
 		Table,
 		TableBody,
@@ -11,8 +11,8 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import type { Product, TransactionItem } from '$lib/types/global';
+	} from '#lib/components/ui/table/index.ts';
+	import type { Product, TransactionItem } from '#lib/types/global.ts';
 	import { Plus, Trash } from '@lucide/svelte';
 
 	type ProductItem = Omit<TransactionItem, 'id' | 'product_id'> & {

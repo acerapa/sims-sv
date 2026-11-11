@@ -1,5 +1,5 @@
-import { browser } from '$app/environment';
-import { pageContext } from '$lib/stores/pageContext';
+import { browser } from '$app/env';
+import { pageContext } from '#lib/stores/pageContext.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = ({ data }) => {

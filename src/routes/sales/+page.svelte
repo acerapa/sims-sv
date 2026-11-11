@@ -1,6 +1,6 @@
 <script lang="ts">
-	import StatCard from '$lib/components/common/StatCard.svelte';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
+	import StatCard from '#lib/components/common/StatCard.svelte';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
 	import { PhilippinePeso, ShoppingCart, TrendingUp, Users } from '@lucide/svelte';
 
 	const statCards = [

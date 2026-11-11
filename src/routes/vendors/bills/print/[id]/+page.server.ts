@@ -1,4 +1,4 @@
-import { getBillWithItems } from '$lib/server/db/queries/bills';
+import { getBillWithItems } from '#lib/server/db/queries/bills.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

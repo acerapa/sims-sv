@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { getSalesByRep } from '$lib/server/db/queries/reports/sales-by-rep';
+import { getSalesByRep } from '#lib/server/db/queries/reports/sales-by-rep.ts';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const from = url.searchParams.get('from') || undefined;

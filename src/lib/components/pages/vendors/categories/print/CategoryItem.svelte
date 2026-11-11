@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CategoryItem from './CategoryItem.svelte';
-	import type { Category } from '$lib/types/global';
+	import type { Category } from '#lib/types/global.ts';
 
 	const { category, level = 0 }: { category: Category; level: number } = $props();
 </script>

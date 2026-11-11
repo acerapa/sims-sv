@@ -227,7 +227,7 @@ export const strItems = pgTable('str_items', {
 	str_id: integer()
 		.notNull()
 		.references(() => strs.id),
-  quantity: integer().notNull(),
+	quantity: integer().notNull(),
 	serial_number: varchar(),
 	cost: integer().notNull(),
 	total_cost: integer().notNull()
@@ -285,7 +285,7 @@ export const rmaItems = pgTable('rma_items', {
 export const fixAssets = pgTable('fix_assets', {
 	id: serial().primaryKey(),
 	date_transfered: timestamp().notNull(),
-  notes: text(),
+	notes: text(),
 	user: fixAssetUsers(),
 	staff_user_id: integer()
 		.notNull()

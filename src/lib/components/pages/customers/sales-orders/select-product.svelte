@@ -1,15 +1,20 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
-	import ProductCombobox from '$lib/components/common/ProductCombobox.svelte';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
+	import ProductCombobox from '#lib/components/common/ProductCombobox.svelte';
 	import {
 		Table,
 		TableBody,
@@ -17,8 +22,8 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import type { Product } from '$lib/types/global';
+	} from '#lib/components/ui/table/index.ts';
+	import type { Product } from '#lib/types/global.ts';
 	import { Package, Plus, ScanBarcode, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
 	import { toast } from 'svelte-sonner';
@@ -234,11 +239,7 @@
 				/>
 			</div>
 			{#if packages.length}
-				<Select
-					type="single"
-					bind:value={selectedPackageId}
-					onValueChange={onPackageSelect}
-				>
+				<Select type="single" bind:value={selectedPackageId} onValueChange={onPackageSelect}>
 					<SelectTrigger class="min-w-56">
 						<span class="flex items-center gap-2">
 							<Package class="size-4" />
@@ -248,8 +249,7 @@
 					<SelectContent>
 						{#each packages as pkg (pkg.id)}
 							<SelectItem value={pkg.id.toString()}>
-								{pkg.name} ({pkg.packagesToProducts.length} item{pkg.packagesToProducts.length ===
-								1
+								{pkg.name} ({pkg.packagesToProducts.length} item{pkg.packagesToProducts.length === 1
 									? ''
 									: 's'})
 							</SelectItem>
@@ -286,7 +286,7 @@
 										{@const pkg = packages.find((p) => p.id === items[i].package_id)}
 										<div class="mt-1">
 											<div class="font-medium">{pkg ? pkg.name : '—'}</div>
-											<small class="text-muted-foreground text-xs">Package</small>
+											<small class="text-xs text-muted-foreground">Package</small>
 										</div>
 									{:else}
 										<ProductCombobox

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
 	import { ArrowLeft, Printer } from '@lucide/svelte';
-	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+	import { Tabs, TabsContent, TabsList, TabsTrigger } from '#lib/components/ui/tabs/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -12,8 +12,8 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { formatCurrency } from '$lib/utils/common';
+	} from '#lib/components/ui/table/index.ts';
+	import { formatCurrency } from '#lib/utils/common.ts';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
@@ -61,11 +61,16 @@
 	};
 
 	const openPrint = () => {
-	  const params = new SvelteURLSearchParams(page.url.searchParams);
-	  params.set('view', activeTab);
-	  if (fromDate) params.set('from', fromDate.toISOString());
-	  if (toDate) params.set('to', toDate.toISOString());
-	  window.open(resolve(`/reports/open-sales-by-customer/print?${params.toString()}` as '/reports/open-sales-by-customer/print'), '_blank');
+		const params = new SvelteURLSearchParams(page.url.searchParams);
+		params.set('view', activeTab);
+		if (fromDate) params.set('from', fromDate.toISOString());
+		if (toDate) params.set('to', toDate.toISOString());
+		window.open(
+			resolve(
+				`/reports/open-sales-by-customer/print?${params.toString()}` as '/reports/open-sales-by-customer/print'
+			),
+			'_blank'
+		);
 	};
 </script>
 
@@ -147,7 +152,7 @@
 												})}
 											</TableCell>
 											<TableCell>{saleItem.sales_order_id}</TableCell>
-											<TableCell>{saleItem.notes || "-"}</TableCell>
+											<TableCell>{saleItem.notes || '-'}</TableCell>
 											<TableCell class="text-end">{formatCurrency(saleItem.total_cost)}</TableCell>
 										</TableRow>
 									{/each}

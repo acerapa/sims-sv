@@ -1,10 +1,10 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { db } from '$lib/server/db';
-import { users, sessions } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { users, sessions } from '#lib/server/db/schema.ts';
 import { eq } from 'drizzle-orm';
 import { compare } from 'bcrypt';
-import { env } from '$env/dynamic/private';
+import { NODE_ENV } from '$app/env/private';
 
 export type LoginResponse = {
 	success: boolean;
@@ -47,19 +47,12 @@ export const actions = {
 		const token = crypto.randomUUID();
 		const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // Expires at 3 days
 
-		await db
-			.insert(sessions)
-			.values({
-				user_id: user.id,
-				token: token,
-				expires_at: expiresAt
-			})
-			.execute();
+		await db.insert(sessions).values({ user_id: user.id, token, expires_at: expiresAt }).execute();
 
 		cookies.set('session', token, {
 			path: '/',
 			httpOnly: true,
-			secure: env.NODE_ENV === 'production',
+			secure: NODE_ENV === 'production',
 			sameSite: 'strict',
 			maxAge: 3 * 24 * 60 * 60 // Expires at 3 days
 		});

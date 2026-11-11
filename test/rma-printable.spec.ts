@@ -19,8 +19,20 @@ const sample = {
 	date_returned: new Date(2026, 6, 15),
 	notes: null,
 	items: [
-		{ purchase_description: 'Wireless Keyboard', serial_number: 'SN-1001', quantity: 1, cost: 1899, total_cost: 1899 },
-		{ purchase_description: 'Logitech M185', serial_number: '', quantity: 2, cost: 899, total_cost: 1798 }
+		{
+			purchase_description: 'Wireless Keyboard',
+			serial_number: 'SN-1001',
+			quantity: 1,
+			cost: 1899,
+			total_cost: 1899
+		},
+		{
+			purchase_description: 'Logitech M185',
+			serial_number: '',
+			quantity: 2,
+			cost: 899,
+			total_cost: 1798
+		}
 	]
 };
 
@@ -46,7 +58,9 @@ describe('buildRmaPdf', () => {
 	});
 
 	it('renders notes exactly as entered, and the --- placeholder when empty or a blank string', async () => {
-		const entered = textIn(await buildRmaPdf({ ...sample, notes: 'Defective on arrival. One unit.' }));
+		const entered = textIn(
+			await buildRmaPdf({ ...sample, notes: 'Defective on arrival. One unit.' })
+		);
 		expect(entered).toContain('Defective on arrival. One unit.');
 
 		const empty = textIn(await buildRmaPdf({ ...sample, notes: null }));
@@ -65,14 +79,37 @@ describe('buildRmaPdf', () => {
 
 	it('renders the missing-supplier row as an empty value, not "null"', async () => {
 		const text = textIn(
-			await buildRmaPdf({ ...sample, supplier_name: null, items: [{ purchase_description: null, serial_number: null, quantity: 1, cost: 100, total_cost: 100 }] })
+			await buildRmaPdf({
+				...sample,
+				supplier_name: null,
+				items: [
+					{
+						purchase_description: null,
+						serial_number: null,
+						quantity: 1,
+						cost: 100,
+						total_cost: 100
+					}
+				]
+			})
 		);
 		expect(text).not.toMatch(/null/);
 	});
 
 	it('renders Php money for numeric and string values alike (Postgres numeric arrives as a string)', async () => {
 		const text = textIn(
-			await buildRmaPdf({ ...sample, items: [{ purchase_description: 'X', serial_number: null, quantity: '1', cost: '1234.5', total_cost: '1234.5' }] })
+			await buildRmaPdf({
+				...sample,
+				items: [
+					{
+						purchase_description: 'X',
+						serial_number: null,
+						quantity: '1',
+						cost: '1234.5',
+						total_cost: '1234.5'
+					}
+				]
+			})
 		);
 		expect(text).toContain('Php 1,234.50');
 	});

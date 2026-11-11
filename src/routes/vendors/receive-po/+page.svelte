@@ -1,33 +1,32 @@
 <script lang="ts">
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import {
 		Select,
 		SelectContent,
 		SelectGroup,
 		SelectItem,
 		SelectTrigger
-	} from '$lib/components/ui/select';
-	import { Textarea } from '$lib/components/ui/textarea';
-	import type { Category, Product, Supplier } from '$lib/types/global';
+	} from '#lib/components/ui/select/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
+	import type { Category, Product, Supplier } from '#lib/types/global.ts';
 	import type { PageProps } from './$types';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import SelectProduct from '$lib/components/pages/vendors/receive-po/SelectProduct.svelte';
-	import { findErrorByKey } from '$lib/utils/common';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
+	import SelectProduct from '#lib/components/pages/vendors/receive-po/SelectProduct.svelte';
+	import { findErrorByKey } from '#lib/utils/common.ts';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import SupplierForm from '$lib/components/pages/vendors/suppliers/supplier-form.svelte';
+	import SupplierForm from '#lib/components/pages/vendors/suppliers/supplier-form.svelte';
 
 	let { data, form }: PageProps = $props();
 
@@ -71,7 +70,7 @@
 			await applyAction(result);
 			if (result.type === 'success') {
 				toast.success('Purchase order received successfully');
-				goto(resolve('/vendors/receive-po/list'));
+				goto(resolve('vendors/receive-po/list'));
 			} else {
 				toast.error('Failed to receive purchase order');
 			}
@@ -124,11 +123,12 @@
 										{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
 									</SelectTrigger>
 									<SelectContent>
-										<SelectGroup>
-											<SelectItem onclick={() => (openSupplierForm = true)} value="-">
-												Add new supplier
-											</SelectItem>
-										</SelectGroup>
+										<SelectGroup
+											><SelectItem onclick={() => (openSupplierForm = true)} value="-"
+												>Add new supplier</SelectItem
+											></SelectGroup
+										>
+
 										<SelectGroup>
 											{#each suppliers as supplier (supplier.id)}
 												<SelectItem value={supplier.id.toString()}>{supplier.name}</SelectItem>
@@ -203,9 +203,10 @@
 			issues={findErrorByKey(issues, 'products')}
 		/>
 		<div class="flex gap-3 self-end">
-			<Button variant="outline" onclick={() => goto(resolve('/vendors/receive-po/list'))}>
-				Cancel
-			</Button>
+			<Button variant="outline" onclick={() => goto(resolve('vendors/receive-po/list'))}
+				>Cancel</Button
+			>
+
 			<Button type="submit">Receive Items</Button>
 		</div>
 	</form>

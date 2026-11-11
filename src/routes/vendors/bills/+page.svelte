@@ -1,13 +1,13 @@
 <script lang="ts">
-	import BillForm from '$lib/components/pages/vendors/bills/BillForm.svelte';
+	import BillForm from '#lib/components/pages/vendors/bills/BillForm.svelte';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -15,17 +15,17 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import type { Supplier } from '$lib/types/global';
-	import { buttonVariants } from '$lib/components/ui/button';
+	import type { Supplier } from '#lib/types/global.ts';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 

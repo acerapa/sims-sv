@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
 	import { ArrowLeft, CircleCheck, Printer, Save } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import {
@@ -8,12 +8,17 @@
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Table, TableBody, TableCell, TableHeader, TableRow } from '$lib/components/ui/table';
-	import TableHead from '$lib/components/ui/table/table-head.svelte';
-	import { Input } from '$lib/components/ui/input';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	} from '#lib/components/ui/card/index.ts';
+	import {
+		Table,
+		TableBody,
+		TableCell,
+		TableHeader,
+		TableRow
+	} from '#lib/components/ui/table/index.ts';
+	import TableHead from '#lib/components/ui/table/table-head.svelte';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { resolve } from '$app/paths';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidate } from '$app/navigation';
@@ -22,7 +27,7 @@
 		TooltipContent,
 		TooltipProvider,
 		TooltipTrigger
-	} from '$lib/components/ui/tooltip';
+	} from '#lib/components/ui/tooltip/index.ts';
 
 	let { data }: PageProps = $props();
 	let physicalInventory = $derived(data.physicalInventory);
@@ -87,9 +92,10 @@
 <div class="flex flex-col gap-6">
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<a href={resolve('/vendors/physical-inventory')} class={buttonVariants({ variant: 'ghost' })}>
-				<ArrowLeft />
-			</a>
+			<a href={resolve('vendors/physical-inventory')} class={buttonVariants({ variant: 'ghost' })}
+				><ArrowLeft /></a
+			>
+
 			<div class="space-y-1">
 				<h1 class="text-xl font-bold">{physicalInventory.title}</h1>
 				<p class="text-sm text-muted-foreground">PC-00{physicalInventory.id}</p>
@@ -101,7 +107,7 @@
 					variant="outline"
 					onclick={async () => {
 						await handleFormSubmit('draft');
-						await goto(resolve('/vendors/physical-inventory'));
+						await goto(resolve('vendors/physical-inventory'));
 					}}
 				>
 					<Save />

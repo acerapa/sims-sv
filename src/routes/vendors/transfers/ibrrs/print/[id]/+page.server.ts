@@ -1,4 +1,4 @@
-import { getIBRRById } from '$lib/server/db/queries/ibrrs';
+import { getIBRRById } from '#lib/server/db/queries/ibrrs.ts';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ params }) => {

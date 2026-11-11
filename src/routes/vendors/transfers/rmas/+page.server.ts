@@ -1,7 +1,7 @@
-import { createRMA, getRMAById, getRMAs, type CreateRMAData } from '$lib/server/db/queries/rmas';
+import { createRMA, getRMAById, getRMAs, type CreateRMAData } from '#lib/server/db/queries/rmas.ts';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
-import { getProducts } from '$lib/server/db/queries/products';
+import { getProducts } from '#lib/server/db/queries/products.ts';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
 

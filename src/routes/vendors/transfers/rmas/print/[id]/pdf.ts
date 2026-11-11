@@ -8,7 +8,7 @@ import {
 	ensureSpace,
 	formatCurrencyPdf,
 	formatDatePdf
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 export interface RmaItem {
 	// leftJoin(products) in getRMAById — can be null for orphans
@@ -35,7 +35,14 @@ export async function buildRmaPdf(rma: RmaPrintData): Promise<jsPDF> {
 	const colWidth = (pageWidth - margin * 2) / 2;
 
 	let y = drawField(doc, margin, colWidth, 'RMA REFERENCE NO.', `RMA-${rma.id}`, startY);
-	drawField(doc, margin + colWidth, colWidth, 'TRANSFER DATE', formatDatePdf(rma.date_returned), startY);
+	drawField(
+		doc,
+		margin + colWidth,
+		colWidth,
+		'TRANSFER DATE',
+		formatDatePdf(rma.date_returned),
+		startY
+	);
 	y = drawField(doc, margin, colWidth, 'SUPPLIER', rma.supplier_name ?? '', y);
 
 	y = ensureSpace(doc, y + 40, 40, pageHeight);

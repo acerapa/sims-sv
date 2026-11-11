@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Card, Content } from '$lib/components/ui/card';
+	import { Card, Content } from '#lib/components/ui/card/index.ts';
 	let { title, icon, value, diff, description, variant } = $props();
 
 	let IconComponent = $derived(icon);

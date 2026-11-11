@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { navigating } from '$app/state';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 
 	const COMPLETE_HOLD_MS = 250;
 	const CLIENT_NAVIGATION_TYPES = ['link', 'form', 'goto', 'popstate'];

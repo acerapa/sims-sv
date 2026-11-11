@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { CommandInput } from '$lib/components/ui/command';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { CommandInput } from '#lib/components/ui/command/index.ts';
 	import { Plus } from '@lucide/svelte';
 	import CategoryForm from './CategoryForm.svelte';
 

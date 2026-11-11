@@ -9,8 +9,8 @@ import {
 	users,
 	packagesToProducts
 } from '../schema';
-import type { CustomerSO } from '$lib/types/global';
-import { SalesOrderStatus } from '$lib/const';
+import type { CustomerSO } from '#lib/types/global.ts';
+import { SalesOrderStatus } from '#lib/const.ts';
 
 export interface CreateSalesOrder {
 	customer_id: number;

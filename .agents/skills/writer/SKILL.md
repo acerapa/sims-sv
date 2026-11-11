@@ -19,14 +19,14 @@ Your reader is not you. Write for the person in 6 months (or the new hire on day
 
 ## Document types — pick the shape first
 
-| Type | Audience | Core question it answers | Length ceiling (soft) |
-|---|---|---|---|
-| **README** | First-time visitor / new hire | What is this and how do I get it running in 10 min? | 1 screen of scannable content |
-| **Quickstart** | New contributor | From clone to `hello it works` | Step list only |
-| **Architecture / Overview** | Developer joining the codebase | How do the pieces fit and where do I look? | 1–3 screens + diagrams |
-| **Feature / Workflow doc** | Developer touching that area | How does this feature flow end-to-end? | 2–4 screens + sequence diagram |
-| **API reference** | Integrator / caller | Exact request/response contract | One compact table per endpoint |
-| **Runbook** | Operator / on-call | How do I operate and recover from X? | Decision lists, not narrative |
+| Type                        | Audience                       | Core question it answers                            | Length ceiling (soft)          |
+| --------------------------- | ------------------------------ | --------------------------------------------------- | ------------------------------ |
+| **README**                  | First-time visitor / new hire  | What is this and how do I get it running in 10 min? | 1 screen of scannable content  |
+| **Quickstart**              | New contributor                | From clone to `hello it works`                      | Step list only                 |
+| **Architecture / Overview** | Developer joining the codebase | How do the pieces fit and where do I look?          | 1–3 screens + diagrams         |
+| **Feature / Workflow doc**  | Developer touching that area   | How does this feature flow end-to-end?              | 2–4 screens + sequence diagram |
+| **API reference**           | Integrator / caller            | Exact request/response contract                     | One compact table per endpoint |
+| **Runbook**                 | Operator / on-call             | How do I operate and recover from X?                | Decision lists, not narrative  |
 
 When the user says "document X," ask which type (or infer clearly and state which you chose).
 
@@ -54,12 +54,14 @@ Every doc, regardless of type, keeps this skeleton:
 A diagram is for **structure and flow**: components, data paths, request sequences, state transitions. A **table** is for **enumeration and comparison**. Prose is for **reason and nuance**. When in doubt, ask: "could the reader draw this from the prose alone?" — if yes, table or prose; if no, diagram.
 
 ### Tooling
+
 - Default: **Mermaid** in fenced `mermaid` blocks — renders on GitHub, GitLab, most wiki/doc tools, and VS Code. It's the portable choice.
 - If the project already has a diagram tooling (D2, PlantUML, SVG assets in the repo), follow suit.
 - ASCII only as a fallback for terminal-flavored docs or when Mermaid syntax for the needed shape is awkward — and keep it under 10 lines.
 - Do **not** generate fake screenshots, fake dashboards, or placeholder images. A diagram of the real thing beats a picture of an imaginary one.
 
 ### Diagram grammar (Mermaid)
+
 - **flowchart** for architecture & component map. Node = a real module/service/table (use its real name), edge = a real call/data path (label it: "SQL", "JWT", "queue").
 - **sequenceDiagram** for request flows, auth, multi-step APIs. Actors = real roles (`browser`, `+page.server.ts`, `db`). One flow, one start to end.
 - **erDiagram** for data models — derive from `src/lib/server/db/schema.ts` (or equivalent), real field names, real relations.
@@ -67,21 +69,23 @@ A diagram is for **structure and flow**: components, data paths, request sequenc
 - **Pipes / steps** (`A -- 404 --> B`) only when they change behavior; otherwise plain edges.
 
 ### Diagram discipline
+
 - **One concept per diagram.** Two concerns (auth + billing) in a chart = two charts.
 - **Label every node and material edge in domain language** — the reader must understand the diagram before reading the caption.
 - **Node budget: ~3–8 for a conceptual map, ≤ 12 hard ceiling past that.** More than that means the doc is too broad; split.
-- **Keep it truthful:** every box and arrow corresponds to code. If you simplified (merged three middleware into one), say so in one parenthetical under the diagram: *(collapsed: auth hook → load guard into "server middleware")*.
+- **Keep it truthful:** every box and arrow corresponds to code. If you simplified (merged three middleware into one), say so in one parenthetical under the diagram: _(collapsed: auth hook → load guard into "server middleware")_.
 - **Syntax validity:** Mermaid is unforgiving of typos (`-->` not `->>`, `end` blocks closed, quotes on words with spaces). Mentally render the block before publishing; when you can't be sure, drop to the simplest syntax that carries the point.
 - **Caption line under every diagram**, one sentence, in the reader's language: what they're looking at and what to notice first.
 
 ### Tables
+
 - Header row always. Column names are nouns or short verb phrases the reader can scan.
 - Sort by the reader's decision order, not the code's internal order (API reference: by HTTP verb or by user flow, whichever the reader thinks in).
 - A table for "field / type / required / notes", "command / what it does / when to run", "state / what triggers it / what it allows".
 
 ## Anti-patterns — refuse these in your own output
 
-- ❌ Copy-pasted framework/boilerplate content that doesn't describe *this* project (the current README's `npx sv create` boilerplate is the exemplar to replace).
+- ❌ Copy-pasted framework/boilerplate content that doesn't describe _this_ project (the current README's `npx sv create` boilerplate is the exemplar to replace).
 - ❌ "Coming soon", "TODO: document this", lorem, `// see code` — either write it or delete the section.
 - ❌ A 200-line undivided "Overview".
 - ❌ A diagram with 25 unlabeled boxes.

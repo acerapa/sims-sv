@@ -1,9 +1,9 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
-	import CategoryItem from '$lib/components/pages/vendors/categories/print/CategoryItem.svelte';
-	import type { Category } from '$lib/types/global';
-	import { groupedCategories } from '$lib/utils/categories';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
+	import CategoryItem from '#lib/components/pages/vendors/categories/print/CategoryItem.svelte';
+	import type { Category } from '#lib/types/global.ts';
+	import { groupedCategories } from '#lib/utils/categories.ts';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import { buildCategoriesPdf, buildCategoryRows } from './pdf';
 	import type { PageProps } from './$types';
 

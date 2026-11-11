@@ -9,10 +9,14 @@
 		AlertDialogHeader,
 		AlertDialogTitle,
 		AlertDialogTrigger
-	} from '$lib/components/ui/alert-dialog';
-	import { buttonVariants } from '$lib/components/ui/button';
+	} from '#lib/components/ui/alert-dialog/index.ts';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 
-	let { open = $bindable<boolean>(false), soId = $bindable<number>(), onCancel = $bindable<() => void>() } = $props();
+	let {
+		open = $bindable<boolean>(false),
+		soId = $bindable<number>(),
+		onCancel = $bindable<() => void>()
+	} = $props();
 </script>
 
 <AlertDialog bind:open>
@@ -32,7 +36,9 @@
 		</AlertDialogHeader>
 		<AlertDialogFooter>
 			<AlertDialogCancel>Keep Order</AlertDialogCancel>
-			<AlertDialogAction onclick={onCancel} class={buttonVariants({ variant: 'destructive' })}>Yes, Cancel order</AlertDialogAction>
+			<AlertDialogAction onclick={onCancel} class={buttonVariants({ variant: 'destructive' })}
+				>Yes, Cancel order</AlertDialogAction
+			>
 		</AlertDialogFooter>
 	</AlertDialogContent>
 </AlertDialog>

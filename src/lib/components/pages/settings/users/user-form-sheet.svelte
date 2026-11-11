@@ -1,13 +1,18 @@
 <script lang="ts">
-	import { enhance, applyAction } from '$app/forms';
+	import { enhance, applyAction, type SubmitFunction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardDescription, CardTitle } from '$lib/components/ui/card';
-	import CardHeader from '$lib/components/ui/card/card-header.svelte';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardDescription, CardTitle } from '#lib/components/ui/card/index.ts';
+	import CardHeader from '#lib/components/ui/card/card-header.svelte';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -16,12 +21,11 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import { Switch } from '$lib/components/ui/switch';
-	import type { UserPresets } from '$lib/types/global';
-	import { getRoleLabel } from '$lib/utils/common';
+	} from '#lib/components/ui/sheet/index.ts';
+	import { Switch } from '#lib/components/ui/switch/index.ts';
+	import type { UserPresets } from '#lib/types/global.ts';
+	import { getRoleLabel } from '#lib/utils/common.ts';
 	import { Plus } from '@lucide/svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 
 	let {

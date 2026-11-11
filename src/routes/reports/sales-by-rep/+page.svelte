@@ -1,8 +1,8 @@
 <script lang="ts">
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent } from '$lib/components/ui/card';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent } from '#lib/components/ui/card/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -11,13 +11,13 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { ArrowLeft, Printer } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { formatCurrency } from '$lib/utils/common';
+	import { formatCurrency } from '#lib/utils/common.ts';
 
 	let { data }: PageProps = $props();
 
@@ -157,9 +157,7 @@
 						<TableRow class="font-bold">
 							<TableCell colspan={6}>TOTAL</TableCell>
 							<TableCell class="text-right">
-								{formatCurrency(
-									data.detailed.reduce((acc, rep) => acc + rep.subtotal, 0)
-								)}
+								{formatCurrency(data.detailed.reduce((acc, rep) => acc + rep.subtotal, 0))}
 							</TableCell>
 						</TableRow>
 					</TableFooter>

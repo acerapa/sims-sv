@@ -1,8 +1,8 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
 import { db } from '../..';
 import { customers, products, salesOrderItems, salesOrders, packages } from '../../schema';
-import { SalesOrderStatus } from '$lib/const';
-import { dayAfter } from '$lib/utils/common';
+import { SalesOrderStatus } from '#lib/const.ts';
+import { dayAfter } from '#lib/utils/common.ts';
 
 export const getSalesByCustomer = async (from?: string, to?: string) => {
 	const result = await db

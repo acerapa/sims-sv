@@ -1,4 +1,4 @@
-import { getInventoryById } from '$lib/server/db/queries/physical-inventory';
+import { getInventoryById } from '#lib/server/db/queries/physical-inventory.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

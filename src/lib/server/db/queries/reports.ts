@@ -23,13 +23,20 @@ export interface VendorDetailRow {
 	total_cost: string;
 }
 
-const buildDateConditions = (from?: string, to?: string, alias = 'po', dateField = 'receive_date') => {
+const buildDateConditions = (
+	from?: string,
+	to?: string,
+	alias = 'po',
+	dateField = 'receive_date'
+) => {
 	const parts: ReturnType<typeof sql>[] = [];
 	if (from) {
 		parts.push(sql`${sql.raw(alias)}.${sql.raw(dateField)} >= ${from}::timestamp`);
 	}
 	if (to) {
-		parts.push(sql`${sql.raw(alias)}.${sql.raw(dateField)} < (${to}::timestamp + interval '1 day')`);
+		parts.push(
+			sql`${sql.raw(alias)}.${sql.raw(dateField)} < (${to}::timestamp + interval '1 day')`
+		);
 	}
 	return parts;
 };
@@ -39,8 +46,7 @@ export const getPurchasesByVendorSummary = async (
 	to?: string
 ): Promise<VendorSummaryRow[]> => {
 	const dateParts = buildDateConditions(from, to);
-	const whereClause =
-		dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
+	const whereClause = dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
 
 	const result = await db.execute<VendorSummaryRow>(sql`
 		WITH filtered_pos AS (
@@ -73,8 +79,7 @@ export const getPurchasesByVendorDetail = async (
 	to?: string
 ): Promise<VendorDetailRow[]> => {
 	const dateParts = buildDateConditions(from, to);
-	const whereClause =
-		dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
+	const whereClause = dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
 
 	const result = await db.execute<VendorDetailRow>(sql`
 		SELECT
@@ -113,8 +118,7 @@ export const getPurchasesByCategorySummary = async (
 	to?: string
 ): Promise<CategorySummaryRow[]> => {
 	const dateParts = buildDateConditions(from, to);
-	const whereClause =
-		dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
+	const whereClause = dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
 
 	const result = await db.execute<CategorySummaryRow>(sql`
 		SELECT
@@ -155,8 +159,7 @@ export const getPurchasesByItemDetail = async (
 	to?: string
 ): Promise<ItemDetailRow[]> => {
 	const dateParts = buildDateConditions(from, to);
-	const whereClause =
-		dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
+	const whereClause = dateParts.length > 0 ? sql`WHERE ${sql.join(dateParts, sql` AND `)}` : sql``;
 
 	const result = await db.execute<ItemDetailRow>(sql`
 		SELECT

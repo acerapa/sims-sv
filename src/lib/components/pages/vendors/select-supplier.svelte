@@ -5,9 +5,9 @@
 		SelectGroup,
 		SelectItem,
 		SelectTrigger
-	} from '$lib/components/ui/select';
-	import SupplierForm from '$lib/components/pages/vendors/suppliers/supplier-form.svelte';
-	import type { Supplier } from '$lib/types/global';
+	} from '#lib/components/ui/select/index.ts';
+	import SupplierForm from '#lib/components/pages/vendors/suppliers/supplier-form.svelte';
+	import type { Supplier } from '#lib/types/global.ts';
 	import z from 'zod';
 
 	interface Props {

@@ -1,28 +1,21 @@
 <script lang="ts">
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { ButtonGroup } from '$lib/components/ui/button-group';
-	import { Card, CardContent } from '$lib/components/ui/card';
-	import { Checkbox } from '$lib/components/ui/checkbox';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { ButtonGroup } from '#lib/components/ui/button-group/index.ts';
+	import { Card, CardContent } from '#lib/components/ui/card/index.ts';
+	import { Checkbox } from '#lib/components/ui/checkbox/index.ts';
 	import {
 		Collapsible,
 		CollapsibleContent,
 		CollapsibleTrigger
-	} from '$lib/components/ui/collapsible';
-	import { Field, FieldGroup } from '$lib/components/ui/field';
-	import { Input } from '$lib/components/ui/input';
-	import { Item, ItemContent, ItemDescription, ItemTitle } from '$lib/components/ui/item';
-	import { Label } from '$lib/components/ui/label';
-	import { Separator } from '$lib/components/ui/separator';
-	import type { DailySalesItem } from '$lib/types/global';
-	import { formatCurrency } from '$lib/utils/common';
-	import {
-		ChevronDown,
-		CircleAlert,
-		CircleCheck,
-		Minus,
-		Plus,
-		Trash,
-	} from '@lucide/svelte';
+	} from '#lib/components/ui/collapsible/index.ts';
+	import { Field, FieldGroup } from '#lib/components/ui/field/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Item, ItemContent, ItemDescription, ItemTitle } from '#lib/components/ui/item/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
+	import { Separator } from '#lib/components/ui/separator/index.ts';
+	import type { DailySalesItem } from '#lib/types/global.ts';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { ChevronDown, CircleAlert, CircleCheck, Minus, Plus, Trash } from '@lucide/svelte';
 
 	const { items = $bindable<DailySalesItem[]>() } = $props();
 	const onIncreaseQuantity = (productId: number) => {

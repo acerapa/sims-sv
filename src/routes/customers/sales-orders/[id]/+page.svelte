@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import ConfirmSalesOrderCancel from '$lib/components/pages/customers/sales-orders/ConfirmSalesOrderCancel.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
+	import ConfirmSalesOrderCancel from '#lib/components/pages/customers/sales-orders/ConfirmSalesOrderCancel.svelte';
+	import { Badge } from '#lib/components/ui/badge/index.ts';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
+	} from '#lib/components/ui/card/index.ts';
+
 	import {
 		Table,
 		TableBody,
@@ -19,13 +20,12 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { SalesOrderStatus } from '$lib/const';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	} from '#lib/components/ui/table/index.ts';
+	import { SalesOrderStatus } from '#lib/const.ts';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
-	import { formatCurrency } from '$lib/utils/common';
-	import { Separator } from '$lib/components/ui/separator';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { Separator } from '#lib/components/ui/separator/index.ts';
 
 	let { data }: PageProps = $props();
 
@@ -65,7 +65,7 @@
 
 	const onEdit = () => {
 		const salesOrderId = data.salesOrder.id;
-		goto(resolve(`/customers/sales-orders/${salesOrderId}/form`));
+		goto(resolve(`customers/sales-orders/${salesOrderId}/form`));
 	};
 
 	const onCancel = () => {

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import { formatCurrency } from '$lib/utils/common';
-	import { formatDate } from '$lib/utils/printables';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { formatDate } from '#lib/utils/printables.ts';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import { buildSalesByRepPdf } from './pdf';
 
 	let { data }: PageProps = $props();
@@ -19,7 +19,11 @@
 	<title>Print - Sales by Representative</title>
 </svelte:head>
 
-<PrintReportLayout reportTitle="Sales by Representative" dateRange={data.filters} onPrint={handlePrint}>
+<PrintReportLayout
+	reportTitle="Sales by Representative"
+	dateRange={data.filters}
+	onPrint={handlePrint}
+>
 	{#if detailed.length === 0}
 		<p style="text-align: center; color: #666; padding: 2rem 0;">
 			No invoices found for the selected date range.

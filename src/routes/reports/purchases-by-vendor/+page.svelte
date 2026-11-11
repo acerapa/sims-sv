@@ -1,14 +1,9 @@
 <script lang="ts">
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import { Printer } from '@lucide/svelte';
-	import {
-		Card,
-		CardContent,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -17,21 +12,19 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+	} from '#lib/components/ui/table/index.ts';
+	import { Tabs, TabsContent, TabsList, TabsTrigger } from '#lib/components/ui/tabs/index.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
-	import type { VendorDetailRow } from '$lib/server/db/queries/reports';
+	import type { VendorDetailRow } from '#lib/server/db/queries/reports.ts';
 
 	let { data }: PageProps = $props();
 
 	let fromDate = $state<Date | undefined>(
 		data.filters.from ? new Date(data.filters.from) : undefined
 	);
-	let toDate = $state<Date | undefined>(
-		data.filters.to ? new Date(data.filters.to) : undefined
-	);
+	let toDate = $state<Date | undefined>(data.filters.to ? new Date(data.filters.to) : undefined);
 
 	let activeTab = $state('summary');
 
@@ -100,10 +93,7 @@
 		}
 
 		for (const vendor of vendors) {
-			vendor.subtotal = vendor.pos.reduce(
-				(sum, po) => sum + parseFloat(po.po_total || '0'),
-				0
-			);
+			vendor.subtotal = vendor.pos.reduce((sum, po) => sum + parseFloat(po.po_total || '0'), 0);
 		}
 
 		return vendors;

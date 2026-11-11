@@ -1,14 +1,15 @@
 <script lang="ts">
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Badge } from '#lib/components/ui/badge/index.ts';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
+	} from '#lib/components/ui/card/index.ts';
+
 	import {
 		Dialog,
 		DialogContent,
@@ -17,16 +18,16 @@
 		DialogHeader,
 		DialogTitle,
 		DialogTrigger
-	} from '$lib/components/ui/dialog';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	} from '#lib/components/ui/dialog/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import {
 		Select,
 		SelectContent,
 		SelectGroup,
 		SelectItem,
 		SelectTrigger
-	} from '$lib/components/ui/select';
+	} from '#lib/components/ui/select/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -34,11 +35,10 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { Textarea } from '$lib/components/ui/textarea';
+	} from '#lib/components/ui/table/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
 	import type { PageProps } from './$types';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import { invalidateAll } from '$app/navigation';
 
@@ -182,7 +182,9 @@
 													errors?.properties?.payment_type ? 'border-red-500' : ''
 												]}
 											>
-												{selectedPaymentTypeLabel ? selectedPaymentTypeLabel : 'Select Payment Type'}
+												{selectedPaymentTypeLabel
+													? selectedPaymentTypeLabel
+													: 'Select Payment Type'}
 											</SelectTrigger>
 											<SelectContent>
 												<SelectGroup>
@@ -216,19 +218,12 @@
 									{#if selectedPaymentType === 'bank_transfer'}
 										<div class="flex flex-col gap-2">
 											<Label>Reference Number</Label>
-											<Input
-												name="reference_number"
-												placeholder="Enter reference number"
-											/>
+											<Input name="reference_number" placeholder="Enter reference number" />
 										</div>
 									{/if}
 									<div class="flex flex-col gap-2">
 										<Label>Notes</Label>
-										<Textarea
-											name="notes"
-											class="h-10"
-											placeholder="Payment notes..."
-										/>
+										<Textarea name="notes" class="h-10" placeholder="Payment notes..." />
 									</div>
 								</div>
 								<DialogFooter>
@@ -303,7 +298,7 @@
 				</TableBody>
 			</Table>
 
-			<div class="mt-4 w-1/2 space-y-2 self-end ml-auto">
+			<div class="mt-4 ml-auto w-1/2 space-y-2 self-end">
 				<div class="flex items-center justify-between">
 					<span>Total:</span>
 					<span class="font-bold">₱{parseFloat(invoice.total_amount as string).toFixed(2)}</span>

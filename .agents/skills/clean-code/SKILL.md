@@ -35,6 +35,7 @@ Before writing, ask: "If a developer who has never seen this file opens it at 2 
 - **One responsibility per function.** If you can find two distinct "why" reasons the function exists, split it.
 - **Small functions.** Aim for under ~30 lines. If a function scrolls off one screen, split it.
 - **No nesting deeper than 2–3 levels.** Use early returns / guards to flatten:
+
   ```ts
   // Good
   if (!user) return null;
@@ -42,8 +43,13 @@ Before writing, ask: "If a developer who has never seen this file opens it at 2 
   // ... happy path at top level
 
   // Bad
-  if (user) { if (!user.banned) { /* buried logic */ } }
+  if (user) {
+  	if (!user.banned) {
+  		/* buried logic */
+  	}
+  }
   ```
+
 - **Max ~3 parameters.** Beyond that, group into a named object.
 - No functions with side effects hidden behind read-only-sounding names (`getPrice` must not send an email).
 - Prefer explicit, linear, top-down reading order. Control flow should be predictable.
@@ -65,7 +71,7 @@ Before writing, ask: "If a developer who has never seen this file opens it at 2 
   // Why the lease expires early: the DB connection pool
   // reclaims idle connections after 30s, so a longer
   // lease would hold a slot we can't actually use.
-  const leaseTtl = "25s";
+  const leaseTtl = '25s';
   ```
 - A comment that describes what the adjacent code obviously does is stale-bait — delete it.
 - `TODO` comments: only with a concrete next step, and only if the user asked for it to be deferred.

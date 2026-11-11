@@ -1,11 +1,11 @@
 <script lang="ts">
-	import QuantityStepper from '$lib/components/common/quantity-stepper.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Item, ItemContent, ItemDescription, ItemTitle } from '$lib/components/ui/item';
-	import { Switch } from '$lib/components/ui/switch';
-	import { formatCurrency } from '$lib/utils/common';
+	import QuantityStepper from '#lib/components/common/quantity-stepper.svelte';
+	import { Badge } from '#lib/components/ui/badge/index.ts';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Item, ItemContent, ItemDescription, ItemTitle } from '#lib/components/ui/item/index.ts';
+	import { Switch } from '#lib/components/ui/switch/index.ts';
+	import { formatCurrency } from '#lib/utils/common.ts';
 	import { Trash, X } from '@lucide/svelte';
 	import { untrack } from 'svelte';
 

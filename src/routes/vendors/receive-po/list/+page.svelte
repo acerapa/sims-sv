@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -15,7 +15,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Plus, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
@@ -27,6 +27,7 @@
 		data.purchaseOrders.filter((po) => {
 			if (!search) return true;
 			const term = search.toLowerCase();
+
 			return (
 				po.reference.toLowerCase().includes(term) ||
 				(po.supplier_name && po.supplier_name.toLowerCase().includes(term))
@@ -58,12 +59,10 @@
 				<CardTitle>Received Purchase Orders</CardTitle>
 				<CardDescription>View all received purchase orders</CardDescription>
 			</div>
-			<a href={resolve('/vendors/receive-po')}>
-				<Button>
-					<Plus class="size-4" />
-					New Receive PO
-				</Button>
-			</a>
+
+			<a href={resolve('vendors/receive-po')}
+				><Button><Plus class="size-4" /> New Receive PO</Button></a
+			>
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">

@@ -1,6 +1,6 @@
-import { db } from '$lib/server/db';
-import { sessions } from '$lib/server/db/schema';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit/hooks';
+import { db } from '#lib/server/db/index.ts';
+import { sessions } from '#lib/server/db/schema.ts';
 import { eq } from 'drizzle-orm';
 
 export const handle: Handle = async ({ event, resolve }) => {

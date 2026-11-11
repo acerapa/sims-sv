@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		DropdownMenu,
 		Trigger,
@@ -7,15 +7,15 @@
 		Group,
 		Item,
 		Separator
-	} from '$lib/components/ui/dropdown-menu';
-	import { Avatar, Fallback, Image } from '$lib/components/ui/avatar';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
+	import { Avatar, Fallback, Image } from '#lib/components/ui/avatar/index.ts';
 	import Input from '../ui/input/input.svelte';
 	import { Bell, ChevronDown, LogOut, Search, Settings, User } from '@lucide/svelte';
 	import Badge from '../ui/badge/badge.svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { isRouteActive } from '$lib/utils/routes';
-	import type { SafeUser } from '$lib/types/global';
+	import { isRouteActive } from '#lib/utils/routes.ts';
+	import type { SafeUser } from '#lib/types/global.ts';
 	import { goto } from '$app/navigation';
 	const path = $derived(page.route.id as string);
 
@@ -38,7 +38,7 @@
 		const body = await res.json();
 
 		if (body.success) {
-			await goto(resolve('/auth/login'));
+			await goto(resolve('auth/login'));
 		}
 	};
 </script>
@@ -58,13 +58,13 @@
 						Dashboard
 					</Button>
 				</a>
-				<a href={resolve('/customers/sales-orders')}>
+				<a href={resolve('customers/sales-orders')}>
 					<Button
 						variant={isRouteActive('/customers', path, true) ? 'info' : 'ghost'}
 						class="text-muted-foreground">Customers</Button
 					>
 				</a>
-				<a href={resolve('/vendors/inventory')}>
+				<a href={resolve('vendors/inventory')}>
 					<Button
 						variant={isRouteActive('/vendors', path) || path?.startsWith('/vendors')
 							? 'info'
@@ -72,7 +72,7 @@
 						class="text-muted-foreground">Vendors</Button
 					>
 				</a>
-				<a href={resolve('/reports')}>
+				<a href={resolve('reports')}>
 					<Button
 						variant={isRouteActive('/reports', path) || path?.startsWith('/reports')
 							? 'info'
@@ -82,7 +82,7 @@
 						Reports
 					</Button>
 				</a>
-				<a href={resolve('/settings')}>
+				<a href={resolve('settings')}>
 					<Button
 						variant={isRouteActive('/settings', path, true) ? 'info' : 'ghost'}
 						class="text-muted-foreground"
@@ -139,9 +139,9 @@
 </header>
 
 <style>
-    @media print {
-        header {
-            display: none !important;
-        }
-    }
+	@media print {
+		header {
+			display: none !important;
+		}
+	}
 </style>

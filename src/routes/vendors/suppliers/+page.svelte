@@ -1,20 +1,20 @@
 <script lang="ts">
-	import SupplierForm from '$lib/components/pages/vendors/suppliers/supplier-form.svelte';
-	import { buttonVariants } from '$lib/components/ui/button';
+	import SupplierForm from '#lib/components/pages/vendors/suppliers/supplier-form.svelte';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
+	} from '#lib/components/ui/card/index.ts';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -22,10 +22,10 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import type { Supplier } from '$lib/types/global';
+	import type { Supplier } from '#lib/types/global.ts';
 
 	let { data }: PageProps = $props();
 	const suppliers = $derived(data.suppliers);

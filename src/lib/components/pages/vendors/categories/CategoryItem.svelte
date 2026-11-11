@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import type { Category } from '$lib/types/global';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import type { Category } from '#lib/types/global.ts';
 	import { ChevronRight, Folder, FolderOpen, Plus } from '@lucide/svelte';
 	import CategoryItem from './CategoryItem.svelte';
 	import { slide } from 'svelte/transition';

@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { db } from '../..';
-import type { VbdBillRow } from '$lib/utils/vendor-balance';
+import type { VbdBillRow } from '#lib/utils/vendor-balance.ts';
 
 /**
  * Vendor Balance Detail — raw bill facts for the ledger.

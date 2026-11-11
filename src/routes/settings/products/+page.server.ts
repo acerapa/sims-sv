@@ -7,7 +7,7 @@ import {
 	updateProductQuantities,
 	type SortableColumn,
 	type SortOrder
-} from '$lib/server/db/queries/products';
+} from '#lib/server/db/queries/products.ts';
 
 const validSortColumns: SortableColumn[] = [
 	'sku',

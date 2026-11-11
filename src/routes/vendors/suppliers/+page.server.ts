@@ -5,7 +5,7 @@ import {
 	createSupplier,
 	getSuppliersWithProductCount,
 	type CreateSupplierData
-} from '$lib/server/db/queries/suppliers';
+} from '#lib/server/db/queries/suppliers.ts';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { type PostgresError } from 'postgres';
 

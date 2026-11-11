@@ -16,17 +16,18 @@ Use a unified data structure for all brackets (existing and new):
 
 ```typescript
 type SellingBracket = {
-  id?: number; // Present for existing brackets, undefined for new
-  lowerLimit: number;
-  upperLimit: number;
-  markupPercentage: number;
-  _deleted?: boolean; // Marked true if the bracket is to be deleted
-  _new?: boolean;     // Marked true if the bracket is newly added
-  _original?: {       // Stores original values for edit detection
-    lowerLimit: number;
-    upperLimit: number;
-    markupPercentage: number;
-  };
+	id?: number; // Present for existing brackets, undefined for new
+	lowerLimit: number;
+	upperLimit: number;
+	markupPercentage: number;
+	_deleted?: boolean; // Marked true if the bracket is to be deleted
+	_new?: boolean; // Marked true if the bracket is newly added
+	_original?: {
+		// Stores original values for edit detection
+		lowerLimit: number;
+		upperLimit: number;
+		markupPercentage: number;
+	};
 };
 ```
 
@@ -62,12 +63,12 @@ type SellingBracket = {
 
   ```typescript
   function isEdited(bracket: SellingBracket) {
-    if (bracket._new || !bracket._original) return false;
-    return (
-      bracket.lowerLimit !== bracket._original.lowerLimit ||
-      bracket.upperLimit !== bracket._original.upperLimit ||
-      bracket.markupPercentage !== bracket._original.markupPercentage
-    );
+  	if (bracket._new || !bracket._original) return false;
+  	return (
+  		bracket.lowerLimit !== bracket._original.lowerLimit ||
+  		bracket.upperLimit !== bracket._original.upperLimit ||
+  		bracket.markupPercentage !== bracket._original.markupPercentage
+  	);
   }
   ```
 
@@ -84,28 +85,44 @@ type SellingBracket = {
 
 ```svelte
 {#each editableBrackets as bracket, ndx}
-  {#if !bracket._deleted}
-    <tr>
-      <td>
-        <input type="hidden" name={`brackets[${ndx}][id]`} value={bracket.id} />
-        BRACKET-{bracket.id ?? 'NEW'}
-      </td>
-      <td>
-        <input type="number" name={`brackets[${ndx}][lowerLimit]`} bind:value={bracket.lowerLimit} />
-      </td>
-      <td>
-        <input type="number" name={`brackets[${ndx}][upperLimit]`} bind:value={bracket.upperLimit} />
-      </td>
-      <td>
-        <input type="number" name={`brackets[${ndx}][markupPercentage]`} bind:value={bracket.markupPercentage} />
-      </td>
-      <td>
-        <button type="button" on:click={() => bracket._deleted = true}>Delete</button>
-        <input type="hidden" name={`brackets[${ndx}][_new]`} value={bracket._new ? '1' : ''} />
-        <input type="hidden" name={`brackets[${ndx}][_deleted]`} value={bracket._deleted ? '1' : ''} />
-      </td>
-    </tr>
-  {/if}
+	{#if !bracket._deleted}
+		<tr>
+			<td>
+				<input type="hidden" name={`brackets[${ndx}][id]`} value={bracket.id} />
+				BRACKET-{bracket.id ?? 'NEW'}
+			</td>
+			<td>
+				<input
+					type="number"
+					name={`brackets[${ndx}][lowerLimit]`}
+					bind:value={bracket.lowerLimit}
+				/>
+			</td>
+			<td>
+				<input
+					type="number"
+					name={`brackets[${ndx}][upperLimit]`}
+					bind:value={bracket.upperLimit}
+				/>
+			</td>
+			<td>
+				<input
+					type="number"
+					name={`brackets[${ndx}][markupPercentage]`}
+					bind:value={bracket.markupPercentage}
+				/>
+			</td>
+			<td>
+				<button type="button" on:click={() => (bracket._deleted = true)}>Delete</button>
+				<input type="hidden" name={`brackets[${ndx}][_new]`} value={bracket._new ? '1' : ''} />
+				<input
+					type="hidden"
+					name={`brackets[${ndx}][_deleted]`}
+					value={bracket._deleted ? '1' : ''}
+				/>
+			</td>
+		</tr>
+	{/if}
 {/each}
 ```
 

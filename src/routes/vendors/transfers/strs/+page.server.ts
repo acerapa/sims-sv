@@ -2,7 +2,7 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { fail } from '@sveltejs/kit';
-import { createStr, getStrById, getStrs, type CreateSTRData } from '$lib/server/db/queries/strs';
+import { createStr, getStrById, getStrs, type CreateSTRData } from '#lib/server/db/queries/strs.ts';
 
 export const load: PageServerLoad = async ({ url, depends }) => {
 	depends('transfers:strs');
@@ -34,7 +34,7 @@ export const actions: Actions = {
 			const strSchema = z.object({
 				store_id: z.number('Store is required!').int().positive(),
 				transfer_date: z.date('transfer_date is required!'),
-        notes: z.string().optional(),
+				notes: z.string().optional(),
 
 				items: z
 					.array(
@@ -42,7 +42,7 @@ export const actions: Actions = {
 							product_id: z.number('Product is required!').int().positive(),
 							quantity: z.number().int().min(1),
 							cost: z.number().min(0),
-              total_cost: z.number().min(0),
+							total_cost: z.number().min(0),
 							serial_number: z.string().optional()
 						})
 					)

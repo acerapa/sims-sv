@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { buttonVariants } from '$lib/components/ui/button';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import { CirclePause, Ellipsis, Eye } from '@lucide/svelte';
 	import type { PageData } from '../../../../routes/vendors/inventory/$types';
 	import ProductBadge from './ProductBadge.svelte';
@@ -9,7 +9,7 @@
 		DropdownMenuItem,
 		DropdownMenuTrigger,
 		Separator
-	} from '$lib/components/ui/dropdown-menu';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
 
 	type Product = PageData['products'][number];
 	let {

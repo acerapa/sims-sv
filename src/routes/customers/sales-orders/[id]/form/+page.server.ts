@@ -1,8 +1,8 @@
-import { getCustomers } from '$lib/server/db/queries/customers';
-import { getProducts } from '$lib/server/db/queries/products';
-import { getSalesOrder, updateSalesOrder, type UpdateSalesOrder } from '$lib/server/db/queries/sales-orders';
-import { getUsers } from '$lib/server/db/queries/users';
-import { getPackages } from '$lib/server/db/queries/packages';
+import { getCustomers } from '#lib/server/db/queries/customers.ts';
+import { getProducts } from '#lib/server/db/queries/products.ts';
+import { getSalesOrder, updateSalesOrder, type UpdateSalesOrder } from '#lib/server/db/queries/sales-orders.ts';
+import { getUsers } from '#lib/server/db/queries/users.ts';
+import { getPackages } from '#lib/server/db/queries/packages.ts';
 import { fail, error } from '@sveltejs/kit';
 import { decode } from 'decode-formdata';
 import z from 'zod';

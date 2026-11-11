@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
-	import { capitalizeFirstLetter, formatCurrency } from '$lib/utils/common';
-	import { openAndPrint, formatDatePdf } from '$lib/utils/pdf';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
+	import { capitalizeFirstLetter, formatCurrency } from '#lib/utils/common.ts';
+	import { openAndPrint, formatDatePdf } from '#lib/utils/pdf.ts';
 	import { buildBillPdf, type BillPrintData } from './pdf';
 
 	const bill = $derived(page.data?.bill as BillPrintData | undefined);

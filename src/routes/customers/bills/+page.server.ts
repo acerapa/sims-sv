@@ -1,4 +1,4 @@
-import { getCustomers } from '$lib/server/db/queries/customers';
+import { getCustomers } from '#lib/server/db/queries/customers.ts';
 import {
 	createInvoice,
 	createPayment,
@@ -6,8 +6,8 @@ import {
 	getInvoice,
 	getSalesOrderForInvoice,
 	type CreateInvoiceData
-} from '$lib/server/db/queries/invoices';
-import { getSOsByCustomer } from '$lib/server/db/queries/sales-orders';
+} from '#lib/server/db/queries/invoices.ts';
+import { getSOsByCustomer } from '#lib/server/db/queries/sales-orders.ts';
 import { decode } from 'decode-formdata';
 import { fail } from '@sveltejs/kit';
 import z from 'zod/v4';

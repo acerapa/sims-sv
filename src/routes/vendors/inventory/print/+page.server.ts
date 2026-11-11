@@ -2,7 +2,7 @@ import {
 	getProductsForPrint,
 	type SortableColumn,
 	type SortOrder
-} from '$lib/server/db/queries/products';
+} from '#lib/server/db/queries/products.ts';
 import type { PageServerLoad } from './$types';
 
 const validSortColumns: SortableColumn[] = [

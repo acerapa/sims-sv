@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import {
 		Select,
 		SelectContent,
 		SelectGroup,
 		SelectItem,
 		SelectTrigger
-	} from '$lib/components/ui/select';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	} from '#lib/components/ui/select/index.ts';
+	import Separator from '#lib/components/ui/separator/separator.svelte';
 	import {
 		Sheet,
 		SheetContent,
@@ -19,19 +19,18 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import { Textarea } from '$lib/components/ui/textarea';
+	} from '#lib/components/ui/sheet/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
 	import { Plus } from '@lucide/svelte';
 	import SelectCategory from './categories/SelectCategory.svelte';
 	import BarcodeDisplay from './BarcodeDisplay.svelte';
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import SupplierSelect from './select-supplier.svelte';
-	import type { Product, Supplier } from '$lib/types/global';
-	import type { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
-	import { Checkbox } from '$lib/components/ui/checkbox';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import type { Product, Supplier } from '#lib/types/global.ts';
+	import type { getSellingBrackets } from '#lib/server/db/queries/selling-brackets.ts';
+	import { Checkbox } from '#lib/components/ui/checkbox/index.ts';
 	import { toast } from 'svelte-sonner';
-	import { findErrorByKey } from '$lib/utils/common';
+	import { findErrorByKey } from '#lib/utils/common.ts';
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -81,6 +80,7 @@
 
 	let matchedBracket = $derived.by(() => {
 		if (!costValue || costValue <= 0) return null;
+
 		return (
 			sellingBrackets.find((b) => costValue >= b.start_price && costValue <= b.end_price) ?? null
 		);
@@ -158,7 +158,7 @@
 	const clearProductId = async () => {
 		preSelectedSuppliers = [];
 		if (page.url.pathname === '/vendors/inventory') {
-			await goto(resolve('/vendors/inventory'));
+			await goto(resolve('vendors/inventory'));
 		}
 	};
 

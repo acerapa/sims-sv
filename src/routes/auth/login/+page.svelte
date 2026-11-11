@@ -1,19 +1,18 @@
 <script lang="ts">
-	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-	import { Button } from '$lib/components/ui/button';
+	import { Alert, AlertDescription, AlertTitle } from '#lib/components/ui/alert/index.ts';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import { CircleAlert, CircleCheck, Eye, EyeClosed } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
@@ -70,7 +69,7 @@
 					<Label for="password">Password</Label>
 					<div class="relative">
 						<Button
-						    tabindex={-1}
+							tabindex={-1}
 							variant="ghost"
 							size="icon"
 							class="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:bg-transparent"

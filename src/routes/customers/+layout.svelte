@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { pageContext } from '$lib/stores/pageContext';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import SubHeader from '$lib/components/pages/customers/sub-headers.svelte';
+	import { pageContext } from '#lib/stores/pageContext.ts';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import SubHeader from '#lib/components/pages/customers/sub-headers.svelte';
 	let { children } = $props();
 
 	let pageTitle = $state<{

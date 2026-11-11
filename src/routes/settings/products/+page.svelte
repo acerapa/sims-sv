@@ -1,16 +1,16 @@
 <script lang="ts">
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import SortableTableHead from '$lib/components/common/SortableTableHead.svelte';
-	import TablePagination from '$lib/components/common/TablePagination.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import SortableTableHead from '#lib/components/common/SortableTableHead.svelte';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -18,11 +18,10 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Check, Loader2, RotateCcw, Save, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
@@ -87,8 +86,7 @@
 	}
 
 	const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage });
-	const handleLimitChange = (newLimit: number) =>
-		updateSearchParams({ limit: newLimit, page: 1 });
+	const handleLimitChange = (newLimit: number) => updateSearchParams({ limit: newLimit, page: 1 });
 
 	function resetAll() {
 		for (const p of products) edited[p.id] = p.quantity ?? 0;
@@ -105,6 +103,7 @@
 			} else {
 				const message =
 					result.type === 'failure' ? (result.data?.message as string | undefined) : null;
+
 				toast.error(message || 'Failed to save changes');
 			}
 		};
@@ -172,9 +171,7 @@
 						value={searchValue}
 						oninput={handleSearch}
 					/>
-					<Search
-						class="absolute top-1/2 left-3 size-4 translate-y-[-50%] text-muted-foreground"
-					/>
+					<Search class="absolute top-1/2 left-3 size-4 translate-y-[-50%] text-muted-foreground" />
 				</div>
 
 				<Table>

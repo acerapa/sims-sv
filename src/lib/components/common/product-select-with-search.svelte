@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { Check, Search } from '@lucide/svelte';
 	import { Button } from '../ui/button';
-	import type { ProductItem } from '$lib/types/global';
+	import type { ProductItem } from '#lib/types/global.ts';
 
 	const products = $derived(page.data.products as ProductItem[]);
 	let { selected = $bindable([]), handleSelectProduct = $bindable<(p: ProductItem) => void>() } =

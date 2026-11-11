@@ -3,12 +3,12 @@ import {
 	getFixAssetById,
 	getFixAssets,
 	type CreateFixAsset
-} from '$lib/server/db/queries/fix-assets';
+} from '#lib/server/db/queries/fix-assets.ts';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import z from 'zod';
 import { fail } from '@sveltejs/kit';
-import { FixAssetUser } from '$lib/const';
+import { FixAssetUser } from '#lib/const.ts';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -74,5 +74,5 @@ export const actions: Actions = {
 				error: e
 			});
 		}
-  }
+	}
 };

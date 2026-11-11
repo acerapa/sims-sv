@@ -1,4 +1,4 @@
-import { getPOBySupplierId } from '$lib/server/db/queries/po';
+import { getPOBySupplierId } from '#lib/server/db/queries/po.ts';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import z from 'zod';
@@ -10,7 +10,7 @@ import {
 	getBills,
 	type CreateBillData,
 	type UpdateBillData
-} from '$lib/server/db/queries/bills';
+} from '#lib/server/db/queries/bills.ts';
 
 export const load: PageServerLoad = async ({ url, depends }) => {
 	depends('vendors:bills');

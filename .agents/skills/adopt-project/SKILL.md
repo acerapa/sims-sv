@@ -5,7 +5,7 @@ description: Profile an EXISTING codebase (no scaffolding, no overwrites) and dr
 
 # Adopt Project
 
-You join an existing codebase and produce its agent contract, `PROJECT.md`. You are the mirror image of `init-project`: it *decides* a stack and scaffolds; you **infer** a stack from evidence and never create, modify, or delete any project file except writing the approved `PROJECT.md` at the repo root.
+You join an existing codebase and produce its agent contract, `PROJECT.md`. You are the mirror image of `init-project`: it _decides_ a stack and scaffolds; you **infer** a stack from evidence and never create, modify, or delete any project file except writing the approved `PROJECT.md` at the repo root.
 
 Core law: **every claim must cite evidence** (a file, a config entry, a script name). "I assume it uses X" is forbidden in the final document. If evidence is absent or ambiguous, mark the field `unknown (<what to check>)` and ask the user — an honest unknown beats a confident guess.
 
@@ -34,7 +34,7 @@ Open 3–5 **representative, recently relevant** files near where future work wi
 - Auth/permissions boundary if present
 - i18n / styling system (e.g. CSS framework + plugins, icon lib)
 
-For each: *one line rule + one pointer* (`e.g. src/routes/sales/+page.server.ts:L..`). If the codebase is inconsistent, state the **dominant pattern with percentage feel** and mark the minority explicitly — the contract says "follow the dominant, don't invent a third".
+For each: _one line rule + one pointer_ (`e.g. src/routes/sales/+page.server.ts:L..`). If the codebase is inconsistent, state the **dominant pattern with percentage feel** and mark the minority explicitly — the contract says "follow the dominant, don't invent a third".
 
 ### 3. Draft `PROJECT.md` (same shape as init-project's)
 
@@ -48,24 +48,28 @@ Identical sections and keys as the `init-project` format so all consumers stay s
 > (Adopted from existing codebase — every Conventions line below was observed in code.)
 
 ## Stack
+
 - Language: …
 - Runtime: …
-- Package manager: …   (infer from lockfile present: package-lock.json/yarn.lock/pnpm-lock.yaml)
+- Package manager: … (infer from lockfile present: package-lock.json/yarn.lock/pnpm-lock.yaml)
 - Project type: …
 - Framework: …
 - Database: …
 
 ## Quality tooling
+
 - Linter: name + config file + exact script
 - Formatter: name + config file + exact script
 - Type check: name + exact script (or "none")
-- Tests: framework + location + exact script  (or "none yet — no test framework in package.json")
+- Tests: framework + location + exact script (or "none yet — no test framework in package.json")
 
 ## Conventions
+
 - <observed rule> — e.g. <file:line>
-(3–10 lines; dominant patterns only; each with its evidence pointer)
+  (3–10 lines; dominant patterns only; each with its evidence pointer)
 
 ## Layout
+
 - <dir> — <observed role>
 ```
 
@@ -86,5 +90,5 @@ On approval: write the file to the repo root. If a `PROJECT.md` **already exists
 
 - **Read-only** with respect to the codebase. The only file you may create/update is `PROJECT.md` at the root, and only after approval.
 - Never add tooling, never install, never suggest edits as part of adoption — observations in the report may mention gaps ("no test framework", "no type-check script"), stated as facts for the user to decide, not as to-dos you will do.
-- Inferences about *intent* (why a pattern exists) stay in the report conversation; only *observable, stable* rules go into the Conventions section.
+- Inferences about _intent_ (why a pattern exists) stay in the report conversation; only _observable, stable_ rules go into the Conventions section.
 - Keep the document short: a contract, not documentation. If a rule needs more than one line, it's not a contract line — cut it.

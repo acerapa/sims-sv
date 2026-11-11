@@ -37,16 +37,19 @@ export function dayAfter(value: string) {
 	return date;
 }
 
-export function updateSearchParams(searchParams: string, updates: Record<string, string | number | null>): string {
-  const params = new SvelteURLSearchParams(searchParams);
+export function updateSearchParams(
+	searchParams: string,
+	updates: Record<string, string | number | null>
+): string {
+	const params = new SvelteURLSearchParams(searchParams);
 
-  for (const [key, value] of Object.entries(updates)) {
-    if (value === null || value === '') {
-				params.delete(key);
-			} else {
-				params.set(key, String(value));
-			}
-  }
+	for (const [key, value] of Object.entries(updates)) {
+		if (value === null || value === '') {
+			params.delete(key);
+		} else {
+			params.set(key, String(value));
+		}
+	}
 
-  return params.toString();
+	return params.toString();
 }

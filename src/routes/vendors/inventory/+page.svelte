@@ -1,18 +1,18 @@
 <script lang="ts">
-	import StatCard from '$lib/components/common/StatCard.svelte';
-	import SortableTableHead from '$lib/components/common/SortableTableHead.svelte';
-	import TablePagination from '$lib/components/common/TablePagination.svelte';
-	import ProductForm from '$lib/components/pages/vendors/product-form.svelte';
-	import ProductBadge from '$lib/components/pages/vendors/ProductBadge.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import StatCard from '#lib/components/common/StatCard.svelte';
+	import SortableTableHead from '#lib/components/common/SortableTableHead.svelte';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
+	import ProductForm from '#lib/components/pages/vendors/product-form.svelte';
+	import ProductBadge from '#lib/components/pages/vendors/ProductBadge.svelte';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -20,14 +20,14 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger,
 		DropdownMenuSeparator
-	} from '$lib/components/ui/dropdown-menu';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import {
 		Funnel,
 		Package,
@@ -41,10 +41,10 @@
 	} from '@lucide/svelte';
 	import { setContext } from 'svelte';
 	import type { PageProps } from './$types';
-	import type { Category, Supplier } from '$lib/types/global';
+	import type { Category, Supplier } from '#lib/types/global.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { formatCurrency } from '$lib/utils/common';
+	import { formatCurrency } from '#lib/utils/common.ts';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let { data, form }: PageProps = $props();

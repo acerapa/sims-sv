@@ -1,7 +1,7 @@
 import { count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '..';
 import { products, stores, strItems, strs } from '../schema';
-import type { STRItem } from '$lib/types/global';
+import type { STRItem } from '#lib/types/global.ts';
 
 type STRItemWithId = STRItem & { id: number };
 

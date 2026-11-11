@@ -1,4 +1,4 @@
-import { getSalesOrder } from '$lib/server/db/queries/sales-orders';
+import { getSalesOrder } from '#lib/server/db/queries/sales-orders.ts';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 

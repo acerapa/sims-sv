@@ -6,15 +6,15 @@
 
 ## Background
 
-Two print *pipelines* coexist in this repo (commit `2abc7b4` *"Item list: Used the package jsPDF and auto tables to generate pdf and print"*). What we adopt from it is the **pipeline**, not the **layout**:
+Two print _pipelines_ coexist in this repo (commit `2abc7b4` _"Item list: Used the package jsPDF and auto tables to generate pdf and print"_). What we adopt from it is the **pipeline**, not the **layout**:
 
-| | Item list (inventory) | Categories (today) |
-|---|---|---|
-| Print trigger | `onPrint → openAndPrint(build…Pdf())` — `src/routes/vendors/inventory/print/+page.svelte:L16` | `window.print()` — `src/lib/components/common/PrintInternalLayout.svelte:L24` |
-| PDF builder | `buildInventoryPdf()` (jsPDF + `autoTable`) | none (browser prints HTML) |
-| **Content format** | grid table | **recursive indented list** (`CategoryItem.svelte`, `margin-left: level×12px`) |
+|                    | Item list (inventory)                                                                         | Categories (today)                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Print trigger      | `onPrint → openAndPrint(build…Pdf())` — `src/routes/vendors/inventory/print/+page.svelte:L16` | `window.print()` — `src/lib/components/common/PrintInternalLayout.svelte:L24`  |
+| PDF builder        | `buildInventoryPdf()` (jsPDF + `autoTable`)                                                   | none (browser prints HTML)                                                     |
+| **Content format** | grid table                                                                                    | **recursive indented list** (`CategoryItem.svelte`, `margin-left: level×12px`) |
 
-Adopt: trigger + shared scaffolding (`$lib/utils/pdf.ts`: `createReportDoc`, `addReportFooter`, `openAndPrint`) + `pdf.ts`-per-route structure.
+Adopt: trigger + shared scaffolding (`#lib/utils/pdf.ts`: `createReportDoc`, `addReportFooter`, `openAndPrint`) + `pdf.ts`-per-route structure.
 **Do not adopt:** `autoTable`, column styles, the table preview, the foot-row pattern.
 
 ## Target flow
@@ -40,28 +40,28 @@ sequenceDiagram
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/vendors/categories/print/pdf.ts` | **create** | `buildCategoriesPdf(rows: CategoryRow[], total: number): jsPDF` — indented text lines with manual pagination, **no autoTable** |
-| `src/routes/vendors/categories/print/+page.server.ts` | **modify** | return `{ categories, total }` (drop `reportTitle` — the layout already takes it, matching inventory) |
-| `src/routes/vendors/categories/print/+page.svelte` | **modify** | switch `PrintInternalLayout` → `PrintReportLayout` with `onPrint={() => openAndPrint(buildCategoriesPdf(rows, total))}`; keep the recursive list preview |
-| `src/routes/vendors/categories/print/+layout@.svelte` | keep | already matches the inventory pattern (imports `app.css`) |
-| `src/lib/components/pages/vendors/categories/print/CategoryItem.svelte` | **modify** | strip the WIP `-{level}` suffix (`CategoryItem.svelte` now renders `{category.name}-{level}`); keep recursion + `level×12px` indent |
+| File                                                                    | Action     | Contents                                                                                                                                                 |
+| ----------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/routes/vendors/categories/print/pdf.ts`                            | **create** | `buildCategoriesPdf(rows: CategoryRow[], total: number): jsPDF` — indented text lines with manual pagination, **no autoTable**                           |
+| `src/routes/vendors/categories/print/+page.server.ts`                   | **modify** | return `{ categories, total }` (drop `reportTitle` — the layout already takes it, matching inventory)                                                    |
+| `src/routes/vendors/categories/print/+page.svelte`                      | **modify** | switch `PrintInternalLayout` → `PrintReportLayout` with `onPrint={() => openAndPrint(buildCategoriesPdf(rows, total))}`; keep the recursive list preview |
+| `src/routes/vendors/categories/print/+layout@.svelte`                   | keep       | already matches the inventory pattern (imports `app.css`)                                                                                                |
+| `src/lib/components/pages/vendors/categories/print/CategoryItem.svelte` | **modify** | strip the WIP `-{level}` suffix (`CategoryItem.svelte` now renders `{category.name}-{level}`); keep recursion + `level×12px` indent                      |
 
 ### Data shape
 
-`getCategories()` already returns the full tree (schema `parent_id`; `$lib/utils/categories.ts:L28` `groupedCategories()` nests children). The PDF is rendered from a **flat, depth-annotated, ordered** list:
+`getCategories()` already returns the full tree (schema `parent_id`; `#lib/utils/categories.ts:L28` `groupedCategories()` nests children). The PDF is rendered from a **flat, depth-annotated, ordered** list:
 
 ```ts
 export interface CategoryRow {
 	id: number;
 	name: string;
-	depth: number;    // 0 = top level
+	depth: number; // 0 = top level
 }
 ```
 
 - A small pure helper (in `pdf.ts`) walks the **`groupedCategories()` tree in DFS** — parent first, then each child recursively, children remaining in query order (`id DESC`, as `getCategories()` returns them). The same traversal renders the preview, so preview ≡ PDF order by construction. (User decision Q1: keep `id DESC` query order + existing grouping method.)
-- `pdf.ts` must stay free of Svelte imports (and of all `$lib` imports except the shared `pdf.ts` helpers) so it is unit-testable from plain Node — the same constraint documented in `$lib/utils/pdf.ts`.
+- `pdf.ts` must stay free of Svelte imports (and of all `#lib` imports except the shared `pdf.ts` helpers) so it is unit-testable from plain Node — the same constraint documented in `#lib/utils/pdf.ts`.
 
 ### PDF line format (the actual output)
 
@@ -85,12 +85,12 @@ The preview stays the **recursive indented list** — today's exact format, minu
 
 ## Decisions (user-confirmed)
 
-| # | Question | Decision |
-|---|---|---|
-| 1 | Order | Keep `getCategories()` `id DESC`; render by DFS of the grouped tree (preview ≡ PDF) |
-| 2 | `Total: N categories` line | **Yes** |
-| 3 | Item-count suffix | **No** — names + hierarchy only |
-| 4 | Subtitle | **No** |
+| #   | Question                   | Decision                                                                            |
+| --- | -------------------------- | ----------------------------------------------------------------------------------- |
+| 1   | Order                      | Keep `getCategories()` `id DESC`; render by DFS of the grouped tree (preview ≡ PDF) |
+| 2   | `Total: N categories` line | **Yes**                                                                             |
+| 3   | Item-count suffix          | **No** — names + hierarchy only                                                     |
+| 4   | Subtitle                   | **No**                                                                              |
 
 ### Hygiene (clean-code phase will enforce)
 
@@ -118,7 +118,7 @@ npm run check && npm run lint
 
 ## Decisions
 
-Locked by the user 2026-07-18 — see the *Decisions* table above; no open questions remain.
+Locked by the user 2026-07-18 — see the _Decisions_ table above; no open questions remain.
 
 ## Related
 

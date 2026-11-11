@@ -6,7 +6,7 @@ import {
 	getInventories,
 	startInventory,
 	type StartInventory
-} from '$lib/server/db/queries/physical-inventory';
+} from '#lib/server/db/queries/physical-inventory.ts';
 
 export const load: PageServerLoad = async () => {
 	const physicalInventories = await getInventories();

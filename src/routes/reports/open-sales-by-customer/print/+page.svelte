@@ -1,8 +1,8 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
-	import { formatCurrency } from '$lib/utils/common';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
+	import { formatCurrency } from '#lib/utils/common.ts';
 	import type { PageProps } from './$types';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import { buildOpenSalesPdf, type OpenSalesView } from './pdf';
 	let { data }: PageProps = $props();
 
@@ -16,7 +16,9 @@
 	});
 
 	async function handlePrint() {
-		openAndPrint(await buildOpenSalesPdf({ summary, detailed }, view as OpenSalesView, data.filters));
+		openAndPrint(
+			await buildOpenSalesPdf({ summary, detailed }, view as OpenSalesView, data.filters)
+		);
 	}
 </script>
 

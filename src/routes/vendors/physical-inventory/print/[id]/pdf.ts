@@ -8,7 +8,7 @@ import {
 	drawNotes,
 	ensureSpace,
 	formatDatePdf
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 export interface PhysicalInventoryItemRow {
 	sku: string;
@@ -104,7 +104,7 @@ export async function buildPhysicalInventoryPdf(sheet: PhysicalInventoryPrintDat
 									String(item.system_count),
 									String(item.actual_count),
 									signed(item.difference)
-							]
+								]
 					)
 				: [
 						[

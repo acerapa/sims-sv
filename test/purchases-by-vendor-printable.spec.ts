@@ -61,8 +61,20 @@ const detail = [
 ];
 
 const summary = [
-	{ supplier_id: 1, supplier_name: 'Acme Supplies', po_count: 2, total_items: 3, total_amount: '6899' },
-	{ supplier_id: 2, supplier_name: 'Beta Hardware', po_count: 1, total_items: 4, total_amount: '800' }
+	{
+		supplier_id: 1,
+		supplier_name: 'Acme Supplies',
+		po_count: 2,
+		total_items: 3,
+		total_amount: '6899'
+	},
+	{
+		supplier_id: 2,
+		supplier_name: 'Beta Hardware',
+		po_count: 1,
+		total_items: 4,
+		total_amount: '800'
+	}
 ];
 
 const filters = { from: '2026-07-01', to: '2026-07-31' };
@@ -83,7 +95,13 @@ describe('groupDetailByVendor', () => {
 	it('sums multiple item rows into one PO and treats blank PO totals as zero', async () => {
 		const grouped = groupDetailByVendor([
 			row({ po_id: 7, po_reference: 'PO-A', po_total: '0' }),
-			row({ po_id: 7, po_reference: 'PO-A', po_total: '0', product_sku: 'KB-002', product_name: '2nd row' }),
+			row({
+				po_id: 7,
+				po_reference: 'PO-A',
+				po_total: '0',
+				product_sku: 'KB-002',
+				product_name: '2nd row'
+			}),
 			row({ po_id: 8, po_reference: 'PO-B', po_total: '120.50' })
 		]);
 		expect(grouped).toHaveLength(1);
@@ -134,7 +152,9 @@ describe('buildPurchasesByVendorPdf', () => {
 	});
 
 	it('both view: summary + Detail heading + sections', async () => {
-		const lines = textIn(await buildPurchasesByVendorPdf({ summary, detail }, 'both', filters)).split('\n');
+		const lines = textIn(
+			await buildPurchasesByVendorPdf({ summary, detail }, 'both', filters)
+		).split('\n');
 		expect(lines).toContain('Grand Total');
 		const detailIdx = lines.indexOf('Detail');
 		expect(detailIdx).toBeGreaterThanOrEqual(0);

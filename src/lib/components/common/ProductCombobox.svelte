@@ -1,13 +1,13 @@
 <script lang="ts" generics="T extends { id: number }">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Command,
 		CommandEmpty,
 		CommandInput,
 		CommandItem,
 		CommandList
-	} from '$lib/components/ui/command';
-	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
+	} from '#lib/components/ui/command/index.ts';
+	import { Popover, PopoverContent, PopoverTrigger } from '#lib/components/ui/popover/index.ts';
 	import { ChevronsUpDown, Plus } from '@lucide/svelte';
 
 	interface Props {

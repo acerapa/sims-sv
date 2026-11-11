@@ -44,6 +44,7 @@ The layout is fixed by the client's reference image + description — **not** an
 **Name/Address box (left, bordered):** `Name / Address` title bar + customer **name** (bold) and **address** below — prefilled from the order's customer.
 
 **Items table (bordered):** columns **Item Description (widest) · Serial No. · Qty · UP · Total**; Qty / UP / Total right-aligned; currency as `Php …`; item name via the sibling's fallback chain (package name → sales description). **Stretches to the page bottom (client, 2026-10-30):** short lists are padded with blank ruled rows by `drSpacerRows(itemCount)` so the warranty block + signatures close the page; the same helper drives the on-screen preview (parity); long lists return 0 and keep natural multi-page flow.
+
 - **Totals inside the items table** (client, 2026-11): SUB-TOTAL and TOTAL AMOUNT are the table's final two rows — label in the first column, value in the rightmost column — with table-weight type (labels bold, no enlarged grand-total type). The Total column is widened so `Php #,###.##` figures stay on one line. The two rows are ruled as a bordered block: a top border, a rule between them, and a bottom border closing the table above the warranty.
 
 **Totals (right, bordered box):** exactly two rows — **SUB-TOTAL** and **TOTAL AMOUNT**. SUB-TOTAL = `Σ items.total_price`; TOTAL AMOUNT = `order.total_cost`. (No discount row in this form.)

@@ -9,7 +9,7 @@ import {
 	formatDatePdf,
 	safeNum,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 const EMPTY_RANGE_TEXT = 'No invoices found for the selected date range.';
 
@@ -133,7 +133,9 @@ function drawRepSections(
 	doc.setFont('helvetica', 'bold');
 	doc.setFontSize(10);
 	const grandTotal = detailed.reduce((acc, rep) => acc + safeNum(rep.subtotal), 0);
-	doc.text(`TOTAL: ${formatCurrencyPdf(grandTotal)}`, pageWidth - margin, cursor + 12, { align: 'right' });
+	doc.text(`TOTAL: ${formatCurrencyPdf(grandTotal)}`, pageWidth - margin, cursor + 12, {
+		align: 'right'
+	});
 	cursor += 24;
 
 	return cursor;

@@ -43,10 +43,12 @@ describe('createReportDoc — logo letterhead (D2/D3/D4)', () => {
 	});
 
 	it('still produces a valid document when the logo data is unusable (D4 degradation)', async () => {
-		const doc = (await createReportDoc({
-			title: 'Probe Report',
-			logoData: 'data:image/jpeg;base64,AAAA'
-		})).doc;
+		const doc = (
+			await createReportDoc({
+				title: 'Probe Report',
+				logoData: 'data:image/jpeg;base64,AAAA'
+			})
+		).doc;
 		expect(textIn(doc)).toContain('RAM TECH VENTURES INC.');
 		expect(textIn(doc)).toContain('Probe Report');
 	});
@@ -78,8 +80,7 @@ describe('loadLogoDataUrl — Node contract', () => {
 		try {
 			const dataUrl = await loadLogoDataUrl();
 			expect(dataUrl).toMatch(/^data:.*;base64,/);
-		}
-		finally {
+		} finally {
 			globalThis.window = originals.window;
 			globalThis.fetch = originals.fetch;
 			(globalThis as Record<string, unknown>).FileReader = originals.FileReader;

@@ -3,7 +3,7 @@ import {
 	getIBRRById,
 	getIBRRs,
 	type CreateIBRRData
-} from '$lib/server/db/queries/ibrrs';
+} from '#lib/server/db/queries/ibrrs.ts';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';

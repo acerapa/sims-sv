@@ -20,7 +20,7 @@ The `physical_inventory` table also holds `date_finalized` and `created_by → u
 ## Conventions (mandatory — `ai-docs/print-migration-tasks.md`)
 
 - Builder `…/print/[id]/pdf.ts`, `buildPhysicalInventoryPdf(data)` → `Promise<jsPDF>`;
-  only import from `$lib/utils/pdf.ts`
+  only import from `#lib/utils/pdf.ts`
 - `createReportDoc({ title, subtitle? })` → content from `startY` → `addReportFooter(doc)`
 - Currency `Php …` (N/A here — counts only), dates via `formatDatePdf`
 - `drawField`/`drawNotes` for the header block, autoTable `theme:'grid'` for lines
@@ -30,15 +30,15 @@ The `physical_inventory` table also holds `date_finalized` and `created_by → u
 
 ## Files
 
-| File | Change |
-|---|---|
-| `src/lib/server/db/queries/physical-inventory.ts` | `getInventoryById` also returns `date_finalized` (+ `created_by` user name join) — additive, used by the print route; draft/edit flow untouched |
-| `src/routes/vendors/physical-inventory/[physical_inventory_id]/print/[id]/+page.server.ts` — no: **`…/print/[id]/+page.server.ts`** placed at `src/routes/vendors/physical-inventory/print/[id]/` | load sheet; 404 on bad id |
-| `…/print/[id]/pdf.ts` | `PhysicalInventoryPrintData` (structural mirror, local types), `buildPhysicalInventoryPdf()` |
-| `…/print/[id]/+page.svelte` | sheet preview ≡ PDF |
-| `…/print/[id]/+layout@.svelte` | bare pass-through + `app.css` (no SubHeader) |
-| `src/routes/vendors/physical-inventory/[physical_inventory_id]/+page.svelte` | give the existing Print button its `onclick={openPrint}` → `window.open(`/vendors/physical-inventory/print/${id}`, '_blank')` |
-| `test/physical-inventory-printable.spec.ts` | literal assertions: `PC-00{id}`, title, `Finalized`, item lines, `+N`/`-N` differences, totals row |
+| File                                                                                                                                                                                              | Change                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/server/db/queries/physical-inventory.ts`                                                                                                                                                 | `getInventoryById` also returns `date_finalized` (+ `created_by` user name join) — additive, used by the print route; draft/edit flow untouched |
+| `src/routes/vendors/physical-inventory/[physical_inventory_id]/print/[id]/+page.server.ts` — no: **`…/print/[id]/+page.server.ts`** placed at `src/routes/vendors/physical-inventory/print/[id]/` | load sheet; 404 on bad id                                                                                                                       |
+| `…/print/[id]/pdf.ts`                                                                                                                                                                             | `PhysicalInventoryPrintData` (structural mirror, local types), `buildPhysicalInventoryPdf()`                                                    |
+| `…/print/[id]/+page.svelte`                                                                                                                                                                       | sheet preview ≡ PDF                                                                                                                             |
+| `…/print/[id]/+layout@.svelte`                                                                                                                                                                    | bare pass-through + `app.css` (no SubHeader)                                                                                                    |
+| `src/routes/vendors/physical-inventory/[physical_inventory_id]/+page.svelte`                                                                                                                      | give the existing Print button its `onclick={openPrint}` → `window.open(`/vendors/physical-inventory/print/${id}`, '_blank')`                   |
+| `test/physical-inventory-printable.spec.ts`                                                                                                                                                       | literal assertions: `PC-00{id}`, title, `Finalized`, item lines, `+N`/`-N` differences, totals row                                              |
 
 ## PDF layout (portrait)
 
@@ -71,7 +71,7 @@ Items (autoTable, grid):
 
 ## Draft printing (added requirement)
 
-Draft sheets get the **same Print button** (shown alongside *Save as Draft / Finalized*). The printed sheet is a **fill-in sheet**:
+Draft sheets get the **same Print button** (shown alongside _Save as Draft / Finalized_). The printed sheet is a **fill-in sheet**:
 
 - **Counted** column: blank on every line (hand-written on paper)
 - **Difference** column: blank on every line (derives from Counted)
@@ -97,7 +97,7 @@ Finalized printing is unchanged (all columns + all totals).
 2. Manual: Physical Inventory → a finalized sheet → **Print**; plus a sheet with
    positive, negative, and zero differences and check the signs and totals
 
-- Draft sheets: same print tab, **Counted** and **Difference** columns (per row *and* in the totals row) print blank as a fill-in sheet; `DATE FINALIZED` renders `—`; draft header shows **Save as Draft / Finalized / Print**
+- Draft sheets: same print tab, **Counted** and **Difference** columns (per row _and_ in the totals row) print blank as a fill-in sheet; `DATE FINALIZED` renders `—`; draft header shows **Save as Draft / Finalized / Print**
 - Empty-sheet placeholder text is neutral (`No items on this inventory sheet.`) since it applies to both statuses
 - Draft PDF live-verified against DB sheet 2 (counted/diff absent, system totals present, `PC-002 · Draft`)
 

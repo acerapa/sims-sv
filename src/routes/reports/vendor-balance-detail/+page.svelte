@@ -1,8 +1,8 @@
 <script lang="ts">
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent } from '$lib/components/ui/card';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent } from '#lib/components/ui/card/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -11,15 +11,15 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { ArrowLeft, Printer } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import type { PageProps } from './$types';
-	import { formatCurrency } from '$lib/utils/common';
-	import { formatDate } from '$lib/utils/printables';
-	import { buildVendorLedgers, grandTotalBalance } from '$lib/utils/vendor-balance';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { formatDate } from '#lib/utils/printables.ts';
+	import { buildVendorLedgers, grandTotalBalance } from '#lib/utils/vendor-balance.ts';
 
 	let { data }: PageProps = $props();
 

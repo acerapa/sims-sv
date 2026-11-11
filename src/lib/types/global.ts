@@ -1,4 +1,4 @@
-import type { getProducts } from '$lib/server/db/queries/products';
+import type { getProducts } from '#lib/server/db/queries/products.ts';
 
 export interface PurchaseOrder {
 	id: number;

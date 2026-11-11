@@ -1,8 +1,8 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import { formatCurrency } from '$lib/utils/common';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import { buildInventoryPdf } from './pdf';
 
 	let { data }: PageProps = $props();
@@ -32,9 +32,7 @@
 		<tbody>
 			{#if products.length === 0}
 				<tr>
-					<td colspan="5" style="text-align: center; color: #666;">
-						No products found.
-					</td>
+					<td colspan="5" style="text-align: center; color: #666;"> No products found. </td>
 				</tr>
 			{:else}
 				{#each products as prod (prod.id)}

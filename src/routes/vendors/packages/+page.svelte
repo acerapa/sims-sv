@@ -1,16 +1,16 @@
 <script lang="ts">
-	import SortableTableHead from '$lib/components/common/SortableTableHead.svelte';
-	import TablePagination from '$lib/components/common/TablePagination.svelte';
-	import PackageForm from '$lib/components/pages/vendors/packages/package-form.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import SortableTableHead from '#lib/components/common/SortableTableHead.svelte';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
+	import PackageForm from '#lib/components/pages/vendors/packages/package-form.svelte';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -18,21 +18,20 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuSeparator,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import { Ellipsis, Eye, Search, Trash2 } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 	let { data, form }: PageProps = $props();
@@ -46,12 +45,12 @@
 	let currentParams = $derived(data.currentParams);
 
 	let productsForForm = $derived(
-		data.products.map((p: typeof data.products[0]) => ({
+		data.products.map((p: (typeof data.products)[0]) => ({
 			id: p.id,
 			sku: p.sku,
 			sales_description: p.sales_description,
 			sale_price: p.sale_price,
-			cost: p.cost,
+			cost: p.cost
 		}))
 	);
 
@@ -90,8 +89,7 @@
 	}
 
 	const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage });
-	const handleLimitChange = (newLimit: number) =>
-		updateSearchParams({ limit: newLimit, page: 1 });
+	const handleLimitChange = (newLimit: number) => updateSearchParams({ limit: newLimit, page: 1 });
 
 	const onView = async (packageId: number) => {
 		const params = new SvelteURLSearchParams(page.url.searchParams);
@@ -147,12 +145,7 @@
 				<CardDescription>Create product bundles that can be added to sales orders</CardDescription>
 			</div>
 			<div class="flex space-x-3">
-				<PackageForm
-					bind:open={openPackageForm}
-					{pkg}
-					{form}
-					products={productsForForm}
-				/>
+				<PackageForm bind:open={openPackageForm} {pkg} {form} products={productsForForm} />
 			</div>
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4">
@@ -201,9 +194,7 @@
 								</TableCell>
 								<TableCell class="text-right">
 									<DropdownMenu>
-										<DropdownMenuTrigger
-											class={buttonVariants({ variant: 'ghost', size: 'icon' })}
-										>
+										<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
 											<Ellipsis class="size-4" />
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">

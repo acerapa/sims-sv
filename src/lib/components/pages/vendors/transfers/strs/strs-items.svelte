@@ -1,7 +1,7 @@
 <script lang="ts">
-	import ProductSelectWithSearch from '$lib/components/common/product-select-with-search.svelte';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import type { ProductItem, STRItem } from '$lib/types/global';
+	import ProductSelectWithSearch from '#lib/components/common/product-select-with-search.svelte';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import type { ProductItem, STRItem } from '#lib/types/global.ts';
 	import LineItem from '../line-item.svelte';
 
 	let { items = $bindable<STRItem[]>([]), isView = $bindable<boolean>(false) } = $props();

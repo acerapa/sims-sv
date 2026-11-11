@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { TableHead } from '$lib/components/ui/table';
+	import { TableHead } from '#lib/components/ui/table/index.ts';
 	import { ArrowUp, ArrowDown, ArrowUpDown } from '@lucide/svelte';
-	import { cn } from '$lib/utils';
+	import { cn } from '#lib/utils.ts';
 
 	interface Props {
 		column: string;

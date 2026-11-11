@@ -1,7 +1,7 @@
 import {
 	getPurchasesByCategorySummary,
 	getPurchasesByItemDetail
-} from '$lib/server/db/queries/reports';
+} from '#lib/server/db/queries/reports.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {

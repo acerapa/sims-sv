@@ -1,7 +1,7 @@
-import { db } from '$lib/server/db';
+import { db } from '#lib/server/db/index.ts';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
-import { sessions } from '$lib/server/db/schema';
+import { sessions } from '#lib/server/db/schema.ts';
 
 export const POST: RequestHandler = async ({ cookies }) => {
 	const token = cookies.get('session');

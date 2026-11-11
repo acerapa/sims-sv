@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import ClientForm from '$lib/components/pages/customers/clients/client-form.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import ClientForm from '#lib/components/pages/customers/clients/client-form.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -17,7 +17,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Search } from '@lucide/svelte';
 
 	const customers = $derived(page.data.customers);

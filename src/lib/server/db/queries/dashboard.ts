@@ -30,12 +30,7 @@ export const getLowStockProducts = async (limit = 5) => {
 		})
 		.from(products)
 		.leftJoin(categories, eq(products.category_id, categories.id))
-		.where(
-			and(
-				lte(products.quantity, products.minimum_quantity),
-				gt(products.minimum_quantity, 0)
-			)
-		)
+		.where(and(lte(products.quantity, products.minimum_quantity), gt(products.minimum_quantity, 0)))
 		.orderBy(sql`${products.quantity} - ${products.minimum_quantity}`)
 		.limit(limit);
 };

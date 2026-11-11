@@ -17,11 +17,11 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/vendors/transfers/strs/print/[id]/pdf.ts` | **create** | `expandSerials(items: STRItem[]): STRItem[]` (pure, from the component) + `buildStrPdf(str, items): jsPDF` |
-| `src/routes/vendors/transfers/strs/print/[id]/+page.svelte` | **modify** | wire `onPrint`; use the shared `expandSerials` for the preview instead of the inline derived (preview ≡ PDF) |
-| `src/routes/vendors/transfers/strs/print/[id]/+page.server.ts` | keep | data shape already fine |
+| File                                                           | Action     | Contents                                                                                                     |
+| -------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------ |
+| `src/routes/vendors/transfers/strs/print/[id]/pdf.ts`          | **create** | `expandSerials(items: STRItem[]): STRItem[]` (pure, from the component) + `buildStrPdf(str, items): jsPDF`   |
+| `src/routes/vendors/transfers/strs/print/[id]/+page.svelte`    | **modify** | wire `onPrint`; use the shared `expandSerials` for the preview instead of the inline derived (preview ≡ PDF) |
+| `src/routes/vendors/transfers/strs/print/[id]/+page.server.ts` | keep       | data shape already fine                                                                                      |
 
 ### PDF format
 
@@ -34,10 +34,10 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 
 ### Decisions
 
-| # | Question | Proposed (needs user confirm) |
-|---|---|---|
-| 1 | Empty-items row wording ("selected" is inaccurate for a single-STR print) | `No items found for this Stock Transfer Request.` in **both** preview and PDF |
-| 2 | RMA sibling page's title says "Inter-Branch Receiving Report" for an RMA | Out of scope here; flagged for the RMA spec (Q1 there) |
+| #   | Question                                                                  | Proposed (needs user confirm)                                                 |
+| --- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 1   | Empty-items row wording ("selected" is inaccurate for a single-STR print) | `No items found for this Stock Transfer Request.` in **both** preview and PDF |
+| 2   | RMA sibling page's title says "Inter-Branch Receiving Report" for an RMA  | Out of scope here; flagged for the RMA spec (Q1 there)                        |
 
 ### Acceptance criteria
 
@@ -65,4 +65,4 @@ npm run check && npm run lint
 ## Related
 
 - Shared: `src/lib/utils/pdf.ts` · Preview/table pattern: `src/routes/vendors/inventory/print/pdf.ts`
-- Data: `src/lib/server/db/queries/strs.ts` (`getStrById`) · Types: `STRItem` in `$lib/types/global`
+- Data: `src/lib/server/db/queries/strs.ts` (`getStrById`) · Types: `STRItem` in `#lib/types/global.ts`

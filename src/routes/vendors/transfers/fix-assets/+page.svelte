@@ -5,8 +5,8 @@
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -14,18 +14,18 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import FixAssetsForm from '$lib/components/pages/vendors/transfers/fix-assets/fix-assets-form.svelte';
-	import { capitalizeFirstLetter } from '$lib/utils/common';
+	import FixAssetsForm from '#lib/components/pages/vendors/transfers/fix-assets/fix-assets-form.svelte';
+	import { capitalizeFirstLetter } from '#lib/utils/common.ts';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
-	import { buttonVariants } from '$lib/components/ui/button';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 
@@ -96,7 +96,9 @@
 					</TableRow>
 				{:else}
 					<TableRow>
-						<TableCell colspan={5} class="text-muted-foreground text-center">No fix assets items found!</TableCell>
+						<TableCell colspan={5} class="text-muted-foreground text-center"
+							>No fix assets items found!</TableCell
+						>
 					</TableRow>
 				{/each}
 			</TableBody>

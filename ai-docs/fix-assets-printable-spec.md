@@ -8,14 +8,14 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 
 ## Confirmed decisions (user, 2026-10-22)
 
-| # | Decision | Chosen |
-|---|---|---|
-| D1 | Document reference prefix | `FIX-{id}` |
-| D2 | `staff_user_id` | **excluded** from the document (it is captured on the record, just not printed) |
-| D3 | Items table | Same as STR — `Product, SN, Qty, Cost, Total Cost` with multi-serial fan-out (one line per serial at qty 1) |
-| D4 | Header fields | `TRANSFER DATE` and `USER` as label fields, plus the `NOTES` box |
-| D5 | Trigger | Print button **in the form sheet** (IBRR pattern, `IBRRForm.svelte:89`) |
-| D6 | Print pipeline | Preview + jsPDF `openAndPrint`; no `window.print()` (fallback already removed — `onPrint` is a required prop, `src/lib/components/common/PrintReportLayout.svelte:15`) |
+| #   | Decision                  | Chosen                                                                                                                                                                 |
+| --- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Document reference prefix | `FIX-{id}`                                                                                                                                                             |
+| D2  | `staff_user_id`           | **excluded** from the document (it is captured on the record, just not printed)                                                                                        |
+| D3  | Items table               | Same as STR — `Product, SN, Qty, Cost, Total Cost` with multi-serial fan-out (one line per serial at qty 1)                                                            |
+| D4  | Header fields             | `TRANSFER DATE` and `USER` as label fields, plus the `NOTES` box                                                                                                       |
+| D5  | Trigger                   | Print button **in the form sheet** (IBRR pattern, `IBRRForm.svelte:89`)                                                                                                |
+| D6  | Print pipeline            | Preview + jsPDF `openAndPrint`; no `window.print()` (fallback already removed — `onPrint` is a required prop, `src/lib/components/common/PrintReportLayout.svelte:15`) |
 
 ## Background / today
 
@@ -25,18 +25,18 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 - `FixAssetItem` is shape-identical to `STRItem` (`src/lib/types/global.ts:207-210`), so the STR serial expansion applies unchanged.
 - `user` is an enum label (`FixAssetUser`, `src/lib/const.ts:21`) — display it capitalized, as the list does (`capitalizeFirstLetter`, `+page.svelte` row cell).
 - The list table already shows `FA-{id}` in its No. column (`src/routes/vendors/transfers/fix-assets/+page.svelte`, No. cell). The printed document uses `FIX-{id}` per D1; the list column is left untouched (follow-up, below).
-- **Quirk (out of scope, reviewer-aware):** `groupItemsByProduct` pushes the *first* row's serial onto a group it already holds (`fix-assets.ts:137`) and re-derives `total_cost = cost × quantity`. WYSIWYG rule (convention 8) still holds — the PDF mirrors whatever the preview renders — but the data itself is suspect and should be a separate bug ticket.
+- **Quirk (out of scope, reviewer-aware):** `groupItemsByProduct` pushes the _first_ row's serial onto a group it already holds (`fix-assets.ts:137`) and re-derives `total_cost = cost × quantity`. WYSIWYG rule (convention 8) still holds — the PDF mirrors whatever the preview renders — but the data itself is suspect and should be a separate bug ticket.
 
 ## Target design
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/vendors/transfers/fix-assets/print/[id]/+page.server.ts` | **create** | `load`: `getFixAssetById(Number(params.id))` → `{ fixAsset }`. No 404 — matches siblings (`ibrrs/print/[id]/+page.server.ts`), page guards with `fixAsset?.` |
-| `src/routes/vendors/transfers/fix-assets/print/[id]/+page.svelte` | **create** | Preview: `PrintReportLayout` (`reportTitle` + `onPrint` required) with the label rows, notes box, and STR-shaped items table |
-| `src/routes/vendors/transfers/fix-assets/print/[id]/+layout@.svelte` | **create** | Standalone layout importing `app.css` (six `..` — copy `strs/print/[id]/+layout@.svelte`) |
-| `src/routes/vendors/transfers/fix-assets/print/[id]/pdf.ts` | **create** | `expandFixAssetItems(items): rows` (pure, STR `expandStrItems` logic, `strs/print/[id]/pdf.ts:47`) + `buildFixAssetPdf(fixAsset): jsPDF` |
+| File                                                                           | Action     | Contents                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/routes/vendors/transfers/fix-assets/print/[id]/+page.server.ts`           | **create** | `load`: `getFixAssetById(Number(params.id))` → `{ fixAsset }`. No 404 — matches siblings (`ibrrs/print/[id]/+page.server.ts`), page guards with `fixAsset?.`                                                                          |
+| `src/routes/vendors/transfers/fix-assets/print/[id]/+page.svelte`              | **create** | Preview: `PrintReportLayout` (`reportTitle` + `onPrint` required) with the label rows, notes box, and STR-shaped items table                                                                                                          |
+| `src/routes/vendors/transfers/fix-assets/print/[id]/+layout@.svelte`           | **create** | Standalone layout importing `app.css` (six `..` — copy `strs/print/[id]/+layout@.svelte`)                                                                                                                                             |
+| `src/routes/vendors/transfers/fix-assets/print/[id]/pdf.ts`                    | **create** | `expandFixAssetItems(items): rows` (pure, STR `expandStrItems` logic, `strs/print/[id]/pdf.ts:47`) + `buildFixAssetPdf(fixAsset): jsPDF`                                                                                              |
 | `src/lib/components/pages/vendors/transfers/fix-assets/fix-assets-form.svelte` | **modify** | Print button in the "Fix Asset Information" `CardHeader`, rendered only when `fixAsset?.id` — copies `IBRRForm.svelte:63-64,88-92` (`Printer` icon, `variant: outline`, `goto(resolve('/vendors/transfers/fix-assets/print/${id}'))`) |
 
 ### PDF format
@@ -51,10 +51,10 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 
 ### Decisions (need user confirm)
 
-| # | Question | Proposed |
-|---|---|---|
-| 1 | Report title (`createReportDoc` title + `PrintReportLayout reportTitle`) — siblings use `Stock Transfer Report` / `Inter-Branch Receiving Report` | `Fixed Asset Transfer` |
-| 2 | Items heading + empty-state wording | Heading `Items Transferred`; empty row `No items found for this Fix Asset.` in **both** preview and PDF |
+| #   | Question                                                                                                                                          | Proposed                                                                                                |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 1   | Report title (`createReportDoc` title + `PrintReportLayout reportTitle`) — siblings use `Stock Transfer Report` / `Inter-Branch Receiving Report` | `Fixed Asset Transfer`                                                                                  |
+| 2   | Items heading + empty-state wording                                                                                                               | Heading `Items Transferred`; empty row `No items found for this Fix Asset.` in **both** preview and PDF |
 
 ### Acceptance criteria
 

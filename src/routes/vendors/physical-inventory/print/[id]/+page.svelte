@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
-	import { capitalizeFirstLetter } from '$lib/utils/common';
-	import { openAndPrint, formatDatePdf } from '$lib/utils/pdf';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
+	import { capitalizeFirstLetter } from '#lib/utils/common.ts';
+	import { openAndPrint, formatDatePdf } from '#lib/utils/pdf.ts';
 	import { buildPhysicalInventoryPdf, type PhysicalInventoryPrintData } from './pdf';
 
 	const sheet = $derived(

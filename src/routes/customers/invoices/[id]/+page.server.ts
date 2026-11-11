@@ -1,4 +1,8 @@
-import { createPayment, getInvoice, type CreatePaymentData } from '$lib/server/db/queries/invoices';
+import {
+	createPayment,
+	getInvoice,
+	type CreatePaymentData
+} from '#lib/server/db/queries/invoices.ts';
 import { fail, redirect } from '@sveltejs/kit';
 import { decode } from 'decode-formdata';
 import z from 'zod';

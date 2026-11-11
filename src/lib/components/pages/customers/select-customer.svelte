@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { buttonVariants } from '$lib/components/ui/button';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		Command,
 		CommandEmpty,
@@ -7,9 +7,9 @@
 		CommandInput,
 		CommandItem,
 		CommandList
-	} from '$lib/components/ui/command';
-	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
-	import type { LabelValueProps } from '$lib/types/global';
+	} from '#lib/components/ui/command/index.ts';
+	import { Popover, PopoverContent, PopoverTrigger } from '#lib/components/ui/popover/index.ts';
+	import type { LabelValueProps } from '#lib/types/global.ts';
 	import { tick } from 'svelte';
 	import ClientForm from './clients/client-form.svelte';
 

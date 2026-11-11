@@ -42,6 +42,7 @@ TODOS:
 =========================
 
 Receiving Purchase Order Form
+
 - Remove warehouse/location input field
 - Transaction Type:
   - Cash
@@ -49,10 +50,11 @@ Receiving Purchase Order Form
 - Remove tax then just proceed with total value.
 
 Reports Page
+
 - Remove `Schedule Report` button
 
-
 Settings Page
+
 - Remove `System Settings` Section
 - Remove TaxID field in Business Information sections
 - Add Mobile Number and Telephone Number fields in Business Information section.

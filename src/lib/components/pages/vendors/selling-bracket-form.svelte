@@ -1,20 +1,19 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
+	import Button from '#lib/components/ui/button/button.svelte';
+	import Input from '#lib/components/ui/input/input.svelte';
+	import Label from '#lib/components/ui/label/label.svelte';
 	import {
 		Sheet,
 		SheetContent,
 		SheetDescription,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import SheetFooter from '$lib/components/ui/sheet/sheet-footer.svelte';
-	import SheetHeader from '$lib/components/ui/sheet/sheet-header.svelte';
+	} from '#lib/components/ui/sheet/index.ts';
+	import SheetFooter from '#lib/components/ui/sheet/sheet-footer.svelte';
+	import SheetHeader from '#lib/components/ui/sheet/sheet-header.svelte';
 	import { Plus } from '@lucide/svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 
 	let { open = $bindable(false), hasTrigger = $bindable(false) } = $props();
