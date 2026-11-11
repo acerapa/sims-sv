@@ -18,6 +18,13 @@ export function formatCurrency(value: string | number) {
 	return `₱${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+// Same as formatCurrency without the symbol — D.R. item rows print bare amounts; only the
+// SUB-TOTAL/TOTAL rows carry the currency prefix (client, 2026-11)
+export function formatPlainCurrency(value: string | number) {
+	const num = typeof value === 'string' ? parseFloat(value || '0') : value;
+	return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 export function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
 	let timeout: ReturnType<typeof setTimeout> | undefined;
 	return function (...args: Parameters<T>) {

@@ -160,12 +160,18 @@ describe('buildDrPdf — items table', () => {
 		expect(text).toContain('Kit');
 	});
 
-	it('renders quantity, serial, and Php-formatted money (no peseta glyph)', async () => {
+	it('renders item money bare — prefix gone from item rows, kept on the totals (no peseta glyph)', async () => {
 		const text = textIn(await buildDrPdf(makeOrder()));
 		expect(text).toContain('2');
 		expect(text).toContain('SN-1');
-		expect(text).toContain('Php 100.00');
-		expect(text).toContain('Php 200.00');
+		// client 2026-11: item rows drop the currency prefix
+		expect(text).toContain('100.00');
+		expect(text).toContain('200.00');
+		expect(text).not.toContain('Php 100.00');
+		expect(text).not.toContain('Php 200.00');
+		// …but SUB-TOTAL / TOTAL AMOUNT keep it (excluded from the change)
+		expect(text).toContain('Php 282.95');
+		expect(text).toContain('Php 1,999,602.30');
 		expect(text).not.toContain('₱');
 	});
 
@@ -187,6 +193,25 @@ describe('buildDrPdf — items table', () => {
 		const doc = await buildDrPdf(makeOrder());
 		const pitch = startYAt(doc, 'Kit') - startYAt(doc, 'Widget');
 		expect(pitch).toBeCloseTo(14, 1);
+	});
+
+	it('hands the width freed by the prefix-less item money to Item Description (table stays 531.9pt)', async () => {
+		// the column edges are the vertical border ops in the stream; with the serial at its
+		// 85.1pt floor the UP column is 56pt (bare amount), so its left edge sits at
+		// margin + 271.6 (description) + 85.1 (serial) + 37.2 (qty) — was 426.1 before the
+		// "Php" removal shrank the column
+		const doc = await buildDrPdf(makeOrder());
+		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
+		const verticalEdges = new Set<number>();
+		for (const m of raw.matchAll(/([\d.]+)\s+([\d.]+)\s+m\s*\n\1\s+([\d.]+)\s*l/g)) {
+			verticalEdges.add(Number(m[1]));
+		}
+		const hasEdge = (x: number) => [...verticalEdges].some((v) => Math.abs(v - x) < 0.01);
+		expect(hasEdge(REPORT_MARGIN + 271.6)).toBe(true); // description/serial edge, 7.8pt wider
+		expect(hasEdge(REPORT_MARGIN + 271.6 + 85.1 + 37.2)).toBe(true); // UP left edge
+		expect(hasEdge(REPORT_MARGIN + 271.6 + 85.1 + 37.2 + 56)).toBe(true); // UP/Total edge
+		expect(hasEdge(REPORT_MARGIN + 531.9)).toBe(true); // table right edge, invariant
+		expect(hasEdge(REPORT_MARGIN + 263.8)).toBe(false); // old description edge is gone
 	});
 
 	it('renders all lines even for a 15-item receipt', async () => {

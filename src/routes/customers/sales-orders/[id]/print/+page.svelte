@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { Button } from '#lib/components/ui/button/index.ts';
-	import { formatCurrency } from '#lib/utils/common.ts';
+	import { formatCurrency, formatPlainCurrency } from '#lib/utils/common.ts';
 	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import type { PageProps } from './$types';
 	import { buildDrPdf, drSpacerRows, formatDateShort, serialWPercent, WARRANTY_TEXT } from './pdf';
@@ -101,10 +101,10 @@
 					<td class="!border-t-transparent !border-b-transparent">{item.serial_number || ''}</td>
 					<td class="number !border-t-transparent !border-b-transparent">{item.quantity}</td>
 					<td class="number !border-t-transparent !border-b-transparent"
-						>{formatCurrency(item.unit_price)}</td
+						>{formatPlainCurrency(item.unit_price)}</td
 					>
 					<td class="number !border-t-transparent !border-b-transparent"
-						>{formatCurrency(item.total_price)}</td
+						>{formatPlainCurrency(item.total_price)}</td
 					>
 				</tr>
 			{/each}
@@ -281,7 +281,7 @@
 		width: 7%;
 	}
 	.rate-column {
-		width: 12%;
+		width: 10.5%; /* mirrors the PDF's prefix-free UP column (56pt of 531.9) */
 	}
 	.amount-column {
 		width: 15.4%;

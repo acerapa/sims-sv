@@ -17,7 +17,7 @@
 		TableHeader,
 		TableRow
 	} from '#lib/components/ui/table/index.ts';
-	import type { Category } from '#lib/types/global.ts';
+	import type { Category, Supplier } from '#lib/types/global.ts';
 	import type { getProducts } from '#lib/server/db/queries/products.ts';
 	import type { getSellingBrackets } from '#lib/server/db/queries/selling-brackets.ts';
 	import { Plus, Trash2 } from '@lucide/svelte';
@@ -31,6 +31,7 @@
 		issues: z.core.$ZodIssue[] | undefined;
 		products: ProductItem[];
 		categories: Category[];
+		suppliers: Supplier[];
 		items: {
 			id: number;
 			product_id: string;
@@ -48,6 +49,7 @@
 		items = $bindable(),
 		issues,
 		categories,
+		suppliers,
 		form,
 		sellingBrackets = []
 	}: Props = $props();
@@ -174,6 +176,7 @@
 		<ProductForm
 			{form}
 			{categories}
+			{suppliers}
 			{sellingBrackets}
 			bind:insertedProduct
 			bind:open={openProductForm}

@@ -69,13 +69,16 @@ const DATA_ROW_HEIGHT = 26; // 9mm — spacer + totals rows (the preview's 9mm r
 // Client 2026-11-09: compact item rows — 14pt ≈ 5mm, the preview's item-row height;
 // spacers/totals keep DATA_ROW_HEIGHT so the page-fill math and totals ruling hold
 const ITEM_ROW_HEIGHT = 14;
-// column widths: Total widened so "Php #,###.##" stays on one line; Serial No. is sized to
-// the receipt’s longest value and Item Description absorbs the difference (client, 2026-11)
+// column widths: item rows are prefix-free (client, 2026-11), so UP fits a bare amount and
+// Item Description absorbs the freed width; Total keeps the "Php #,###.##" width for the
+// SUB-TOTAL / TOTAL AMOUNT rows; Serial No. is sized to the receipt’s longest value
 const QTY_W = 37.2;
-const UNIT_PRICE_W = 63.8;
+const UNIT_PRICE_W = 56; // bare "999,999.99" + 10pt cell padding
 const TOTAL_W = 82;
 const SERIAL_FALLBACK = 85.1;
-const TABLE_WIDTH = 263.8 + SERIAL_FALLBACK + QTY_W + UNIT_PRICE_W + TOTAL_W; // 531.9pt, invariant
+// 271.6: description's share at the serial floor — includes the 7.8pt freed by dropping
+// "Php" from the item rows
+const TABLE_WIDTH = 271.6 + SERIAL_FALLBACK + QTY_W + UNIT_PRICE_W + TOTAL_W; // 531.9pt, invariant
 
 // +12pt of cell padding; capped at 150pt so a huge serial wraps inside its cell instead of
 // squashing the description column
@@ -105,6 +108,13 @@ export function formatDateShort(value: Date | string | number | null | undefined
 
 function formCell(value: string | number, minCellHeight: number): CellInput {
 	return { content: value, styles: { minCellHeight } };
+}
+
+// Item rows print bare amounts — the "Php" prefix stays only on the SUB-TOTAL / TOTAL
+// AMOUNT rows (client, 2026-11)
+function plainAmount(value: Amount): string {
+	const num = typeof value === 'string' ? parseFloat(value || '0') : (value ?? 0);
+	return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // Client 2026-11-09: compact rows, flush vertically; small x padding keeps the text
@@ -230,8 +240,8 @@ function drawItemsTable(
 			itemCell(name),
 			itemCell(item.serial_number || ''),
 			itemCell(item.quantity),
-			itemCell(formatCurrencyPdf(item.unit_price)),
-			itemCell(formatCurrencyPdf(item.total_price))
+			itemCell(plainAmount(item.unit_price)),
+			itemCell(plainAmount(item.total_price))
 		];
 	});
 

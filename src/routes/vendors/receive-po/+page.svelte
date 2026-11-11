@@ -197,6 +197,7 @@
 			bind:items
 			{products}
 			{categories}
+			{suppliers}
 			{form}
 			sellingBrackets={data.sellingBrackets}
 			bind:this={selectProductRef}
