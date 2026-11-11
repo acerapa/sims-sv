@@ -1,14 +1,9 @@
 <script lang="ts">
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import { Printer } from '@lucide/svelte';
-	import {
-		Card,
-		CardContent,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -17,8 +12,8 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+	} from '#lib/components/ui/table/index.ts';
+	import { Tabs, TabsContent, TabsList, TabsTrigger } from '#lib/components/ui/tabs/index.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { groupDetailByCategory } from './pdf';
@@ -180,59 +175,61 @@
 
 		<TabsContent value="detail">
 			{#if detail.length === 0}
-			<Card>
-				<CardContent class="py-8 text-center text-muted-foreground">
-					No purchases found for the selected date range.
-				</CardContent>
-			</Card>
-		{:else}
-			{#each groupDetailByCategory(detail) as section (section.category_id)}
-				<Card class="mb-4">
-					<CardHeader>
-						<CardTitle>{section.category_name}</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Type</TableHead>
-									<TableHead>Date</TableHead>
-									<TableHead>Ref No.</TableHead>
-									<TableHead>Memo</TableHead>
-									<TableHead>Vendor</TableHead>
-									<TableHead>Item</TableHead>
-									<TableHead class="text-right">Qty</TableHead>
-									<TableHead class="text-right">Cost Price</TableHead>
-									<TableHead class="text-right">Amount</TableHead>
-									<TableHead class="text-right">Balance</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{#each section.lines as line}
-									<TableRow>
-										<TableCell>{line.transaction_type}</TableCell>
-										<TableCell>{formatDate(line.receive_date)}</TableCell>
-										<TableCell>{line.po_reference}</TableCell>
-										<TableCell>{line.memo}</TableCell>
-										<TableCell>{line.supplier_name}</TableCell>
-										<TableCell class="font-medium">{line.product_name}</TableCell>
-										<TableCell class="text-right">{line.quantity}</TableCell>
-										<TableCell class="text-right">{formatCurrency(line.cost)}</TableCell>
-										<TableCell class="text-right">{formatCurrency(line.total_cost)}</TableCell>
-										<TableCell class="text-right">{formatCurrency(line.running_balance)}</TableCell>
-									</TableRow>
-								{/each}
-							</TableBody>
-						</Table>
-
-						<div class="flex justify-end border-t pt-2">
-							<span class="mr-4 font-semibold">Subtotal:</span>
-							<span class="font-bold">{formatCurrency(section.subtotal)}</span>
-						</div>
+				<Card>
+					<CardContent class="py-8 text-center text-muted-foreground">
+						No purchases found for the selected date range.
 					</CardContent>
 				</Card>
-			{/each}
-		{/if}
+			{:else}
+				{#each groupDetailByCategory(detail) as section (section.category_id)}
+					<Card class="mb-4">
+						<CardHeader>
+							<CardTitle>{section.category_name}</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>Type</TableHead>
+										<TableHead>Date</TableHead>
+										<TableHead>Ref No.</TableHead>
+										<TableHead>Memo</TableHead>
+										<TableHead>Vendor</TableHead>
+										<TableHead>Item</TableHead>
+										<TableHead class="text-right">Qty</TableHead>
+										<TableHead class="text-right">Cost Price</TableHead>
+										<TableHead class="text-right">Amount</TableHead>
+										<TableHead class="text-right">Balance</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{#each section.lines as line}
+										<TableRow>
+											<TableCell>{line.transaction_type}</TableCell>
+											<TableCell>{formatDate(line.receive_date)}</TableCell>
+											<TableCell>{line.po_reference}</TableCell>
+											<TableCell>{line.memo}</TableCell>
+											<TableCell>{line.supplier_name}</TableCell>
+											<TableCell class="font-medium">{line.product_name}</TableCell>
+											<TableCell class="text-right">{line.quantity}</TableCell>
+											<TableCell class="text-right">{formatCurrency(line.cost)}</TableCell>
+											<TableCell class="text-right">{formatCurrency(line.total_cost)}</TableCell>
+											<TableCell class="text-right"
+												>{formatCurrency(line.running_balance)}</TableCell
+											>
+										</TableRow>
+									{/each}
+								</TableBody>
+							</Table>
+
+							<div class="flex justify-end border-t pt-2">
+								<span class="mr-4 font-semibold">Subtotal:</span>
+								<span class="font-bold">{formatCurrency(section.subtotal)}</span>
+							</div>
+						</CardContent>
+					</Card>
+				{/each}
+			{/if}
 		</TabsContent>
 	</Tabs>
 </section>

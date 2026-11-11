@@ -2,22 +2,22 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import RMAForm from '$lib/components/pages/vendors/transfers/rmas/RMAForm.svelte';
-	import { buttonVariants } from '$lib/components/ui/button';
+	import RMAForm from '#lib/components/pages/vendors/transfers/rmas/RMAForm.svelte';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
+	} from '#lib/components/ui/card/index.ts';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -25,7 +25,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 
 	const rmas = $derived(page.data.rmas);

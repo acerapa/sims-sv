@@ -8,7 +8,7 @@ import {
 	ensureSpace,
 	formatCurrencyPdf,
 	formatDatePdf
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 export interface StrItemSource {
 	item_description: string;
@@ -67,11 +67,20 @@ export function expandStrItems(items: StrItemSource[]): StrItemRow[] {
 }
 
 export async function buildStrPdf(str: StrPrintData): Promise<jsPDF> {
-	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({ title: 'Stock Transfer Report' });
+	const { doc, margin, pageWidth, pageHeight, startY } = await createReportDoc({
+		title: 'Stock Transfer Report'
+	});
 	const colWidth = (pageWidth - margin * 2) / 2;
 
 	let y = drawField(doc, margin, colWidth, 'STR REFERENCE NO.', `STR-${str.id}`, startY);
-	drawField(doc, margin + colWidth, colWidth, 'TRANSFER DATE', formatDatePdf(str.transfer_date), startY);
+	drawField(
+		doc,
+		margin + colWidth,
+		colWidth,
+		'TRANSFER DATE',
+		formatDatePdf(str.transfer_date),
+		startY
+	);
 	y = drawField(doc, margin, colWidth, 'DESTINATION', str.store_name ?? '', y);
 
 	y = ensureSpace(doc, y + 40, 40, pageHeight);
@@ -101,7 +110,15 @@ export async function buildStrPdf(str: StrPrintData): Promise<jsPDF> {
 						formatCurrencyPdf(row.cost),
 						formatCurrencyPdf(row.total_cost)
 					])
-				: [[{ content: 'No items found for the selected Stock Transfer Request.', colSpan: 5, styles: { halign: 'center' } }]],
+				: [
+						[
+							{
+								content: 'No items found for the selected Stock Transfer Request.',
+								colSpan: 5,
+								styles: { halign: 'center' }
+							}
+						]
+					],
 		theme: 'grid',
 		styles: {
 			font: 'helvetica',

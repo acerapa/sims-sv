@@ -1,5 +1,5 @@
-import { getDailySalesPayment } from '$lib/server/db/queries/daily-sales';
-import { getSalesOrder } from '$lib/server/db/queries/sales-orders';
+import { getDailySalesPayment } from '#lib/server/db/queries/daily-sales.ts';
+import { getSalesOrder } from '#lib/server/db/queries/sales-orders.ts';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 

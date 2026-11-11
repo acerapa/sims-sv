@@ -14,22 +14,22 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`. This sp
 
 ## ⚠️ Suspected bug (Q1 — decide before implementing)
 
-The page is titled **`reportTitle="Inter-Branch Receiving Report"`** (`src/routes/vendors/transfers/rmas/print/[id]/+page.svelte`) — that is the *IBRR* title (see `src/routes/vendors/transfers/ibrrs/print/[id]/+page.svelte`). The empty-items row also says "selected Stock Transfer Request". Both look like copy-paste from the transfer pages.
+The page is titled **`reportTitle="Inter-Branch Receiving Report"`** (`src/routes/vendors/transfers/rmas/print/[id]/+page.svelte`) — that is the _IBRR_ title (see `src/routes/vendors/transfers/ibrrs/print/[id]/+page.svelte`). The empty-items row also says "selected Stock Transfer Request". Both look like copy-paste from the transfer pages.
 
-| # | Question | Proposed (needs user confirm) |
-|---|---|---|
-| 1 | Report title | `Return Merchandise Authorization` (or user's preferred business name) in preview **and** PDF |
-| 2 | Empty-items wording | `No items found for this RMA.` in both |
+| #   | Question            | Proposed (needs user confirm)                                                                 |
+| --- | ------------------- | --------------------------------------------------------------------------------------------- |
+| 1   | Report title        | `Return Merchandise Authorization` (or user's preferred business name) in preview **and** PDF |
+| 2   | Empty-items wording | `No items found for this RMA.` in both                                                        |
 
 ## Target design
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/vendors/transfers/rmas/print/[id]/pdf.ts` | **create** | `buildRmaPdf(rma): jsPDF` — label block + autoTable items |
-| `src/routes/vendors/transfers/rmas/print/[id]/+page.svelte` | **modify** | wire `onPrint`; correct `reportTitle` (Q1) and empty-state wording (Q2) |
-| `src/routes/vendors/transfers/rmas/print/[id]/+page.server.ts` | keep | — |
+| File                                                           | Action     | Contents                                                                |
+| -------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------- |
+| `src/routes/vendors/transfers/rmas/print/[id]/pdf.ts`          | **create** | `buildRmaPdf(rma): jsPDF` — label block + autoTable items               |
+| `src/routes/vendors/transfers/rmas/print/[id]/+page.svelte`    | **modify** | wire `onPrint`; correct `reportTitle` (Q1) and empty-state wording (Q2) |
+| `src/routes/vendors/transfers/rmas/print/[id]/+page.server.ts` | keep       | —                                                                       |
 
 ### PDF format
 

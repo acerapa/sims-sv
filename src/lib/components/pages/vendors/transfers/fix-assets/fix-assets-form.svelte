@@ -1,8 +1,8 @@
 <script lang="ts">
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Label } from '$lib/components/ui/label';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -11,20 +11,24 @@
 		SheetFooter,
 		SheetHeader,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import SheetTitle from '$lib/components/ui/sheet/sheet-title.svelte';
-	import { Textarea } from '$lib/components/ui/textarea';
+	} from '#lib/components/ui/sheet/index.ts';
+	import SheetTitle from '#lib/components/ui/sheet/sheet-title.svelte';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
 	import { Plus, Printer } from '@lucide/svelte';
 	import FixAssetsItems from './fix-assets-items.svelte';
 	import { page } from '$app/state';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidateAll } from '$app/navigation';
-	import { applyAction, enhance } from '$app/forms';
-	import type { FixAssetItem } from '$lib/types/global';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
-	import { FixAssetUser } from '$lib/const';
-	import { capitalizeFirstLetter } from '$lib/utils/common';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
+	import type { FixAssetItem } from '#lib/types/global.ts';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
+	import { FixAssetUser } from '#lib/const.ts';
+	import { capitalizeFirstLetter } from '#lib/utils/common.ts';
 	import { resolve } from '$app/paths';
 
 	let { open = $bindable(false) } = $props();
@@ -67,7 +71,7 @@
 	};
 
 	const printFixAsset = async () => {
-		await goto(resolve(`/vendors/transfers/fix-assets/print/${fixAsset?.id}`));
+		await goto(resolve(`vendors/transfers/fix-assets/print/${fixAsset?.id}`));
 	};
 
 	const onOpenChangeComplete = async () => {
@@ -77,16 +81,15 @@
 			dateTransfered = '';
 			notes = '';
 
-			await goto(resolve('/vendors/transfers/fix-assets'));
+			await goto(resolve('vendors/transfers/fix-assets'));
 		}
 	};
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
-	<SheetTrigger class={buttonVariants({ variant: 'default' })}>
-		<Plus />
-		Add Fix Assets
-	</SheetTrigger>
+	<SheetTrigger class={buttonVariants({ variant: 'default' })}><Plus /> Add Fix Assets</SheetTrigger
+	>
+
 	<SheetContent side="right" class="flex flex-col gap-0 p-0 sm:max-w-3xl">
 		<SheetHeader class="shrink-0 p-6">
 			<SheetTitle>New Fix Assets</SheetTitle>

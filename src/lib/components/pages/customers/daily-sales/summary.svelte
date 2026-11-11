@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { page } from '$app/state';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent } from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import type { DailySalesItem } from '$lib/types/global';
-	import { formatCurrency } from '$lib/utils/common';
-	import { InvoicePaymentType, SalesChannel } from '$lib/const';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent } from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import Label from '#lib/components/ui/label/label.svelte';
+	import type { DailySalesItem } from '#lib/types/global.ts';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { InvoicePaymentType, SalesChannel } from '#lib/const.ts';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 

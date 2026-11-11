@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import ProductCombobox from '$lib/components/common/ProductCombobox.svelte';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import ProductCombobox from '#lib/components/common/ProductCombobox.svelte';
 	import {
 		Table,
 		TableBody,
@@ -16,10 +16,10 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import type { Category } from '$lib/types/global';
-	import type { getProducts } from '$lib/server/db/queries/products';
-	import type { getSellingBrackets } from '$lib/server/db/queries/selling-brackets';
+	} from '#lib/components/ui/table/index.ts';
+	import type { Category } from '#lib/types/global.ts';
+	import type { getProducts } from '#lib/server/db/queries/products.ts';
+	import type { getSellingBrackets } from '#lib/server/db/queries/selling-brackets.ts';
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import z from 'zod';
 	import ProductForm from '../product-form.svelte';

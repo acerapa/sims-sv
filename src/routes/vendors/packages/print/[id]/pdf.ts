@@ -7,7 +7,7 @@ import {
 	formatCurrencyPdf,
 	formatDatePdf,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 const EMPTY_ITEMS_TEXT = 'No items in this package.';
 

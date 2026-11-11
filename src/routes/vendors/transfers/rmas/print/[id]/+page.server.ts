@@ -1,4 +1,4 @@
-import { getRMAById } from '$lib/server/db/queries/rmas';
+import { getRMAById } from '#lib/server/db/queries/rmas.ts';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ params }) => {

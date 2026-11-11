@@ -14,7 +14,8 @@ function textIn(doc: { output: () => string }): string {
 }
 
 // same options as PrintReportLayout/formatDate, so the expected label is locale-consistent
-const longDate = (d: string) => new Date(d).toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' });
+const longDate = (d: string) =>
+	new Date(d).toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const data = {
 	summary: [
@@ -45,7 +46,14 @@ const data = {
 					sales_order_id: '102',
 					date_ordered: new Date(2026, 6, 12),
 					order_status: 'Pending Payment',
-					items: [{ product_name: 'Keyboard', item_quantity: 2, item_price: 1750.125, item_total: 3500.25 }]
+					items: [
+						{
+							product_name: 'Keyboard',
+							item_quantity: 2,
+							item_price: 1750.125,
+							item_total: 3500.25
+						}
+					]
 				}
 			]
 		}
@@ -137,7 +145,14 @@ describe('buildSalesByCustomerPdf', () => {
 									sales_order_id: '1',
 									date_ordered: new Date(2026, 6, 1),
 									order_status: 'shipped',
-									items: [{ product_name: 'Widget', item_quantity: null, item_price: 100, item_total: 100 }]
+									items: [
+										{
+											product_name: 'Widget',
+											item_quantity: null,
+											item_price: 100,
+											item_total: 100
+										}
+									]
 								}
 							]
 						}

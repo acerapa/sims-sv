@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { LayoutParams } from './$types';
-	import Header from '$lib/components/layout/Header.svelte';
-	import TopLoader from '$lib/components/common/TopLoader.svelte';
+	import Header from '#lib/components/layout/Header.svelte';
+	import TopLoader from '#lib/components/common/TopLoader.svelte';
 	import '../app.css';
 	import { page } from '$app/state';
 	import { Toaster } from 'svelte-sonner';

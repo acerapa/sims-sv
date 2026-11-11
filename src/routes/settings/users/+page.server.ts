@@ -1,11 +1,11 @@
 import type { Actions, PageServerLoad } from './$types';
 import * as z from 'zod';
-import type { User } from '$lib/types/global';
+import type { User } from '#lib/types/global.ts';
 import { fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { users } from '#lib/server/db/schema.ts';
 import { hash } from 'bcrypt';
-import { getUsers } from '$lib/server/db/queries/users';
+import { getUsers } from '#lib/server/db/queries/users.ts';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('settings:users');

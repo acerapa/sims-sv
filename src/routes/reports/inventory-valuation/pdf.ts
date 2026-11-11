@@ -8,7 +8,7 @@ import {
 	formatCurrencyPdf,
 	formatDatePdf,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 const EMPTY_TEXT = 'No stock movements found for the selected date range.';
 const EXCLUSION_NOTE =

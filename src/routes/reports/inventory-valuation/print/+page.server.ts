@@ -1,7 +1,7 @@
 import {
 	getInventoryValuationDetail,
 	getInventoryValuationSummary
-} from '$lib/server/db/queries/reports/inventory-valuation';
+} from '#lib/server/db/queries/reports/inventory-valuation.ts';
 import type { PageServerLoad } from './$types';
 
 const readProductParam = (param: string | null): number | undefined => {

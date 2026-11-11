@@ -12,8 +12,8 @@ import {
 	type PackageSortableColumn,
 	type SortOrder,
 	type UpdatePackageData
-} from '$lib/server/db/queries/packages';
-import { getProducts } from '$lib/server/db/queries/products';
+} from '#lib/server/db/queries/packages.ts';
+import { getProducts } from '#lib/server/db/queries/products.ts';
 
 const validSortColumns: PackageSortableColumn[] = ['name', 'created_at'];
 const validSortOrders: SortOrder[] = ['asc', 'desc'];
@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 	}
 
 	const paginatedData = await getPackagesPaginated({ page, limit, sortBy, sortOrder, search });
-    const products = await getProducts();
+	const products = await getProducts();
 
 	return {
 		...paginatedData,
@@ -50,10 +50,10 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 
 const packageProductSchema = z.object({
 	product_id: z.number('Product is required').min(1, 'Product is required'),
-  quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
+	quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
 	serial_number: z.string().optional().nullable(),
 	price: z.number().optional().nullable(),
-	total_price: z.number().optional().nullable(),
+	total_price: z.number().optional().nullable()
 });
 
 export const actions: Actions = {
@@ -61,9 +61,15 @@ export const actions: Actions = {
 		try {
 			const body = await request.formData();
 			const formValues = decode(body, {
-        arrays: ['products'],
-        strings: ['products.$.serial_number'],
-				numbers: ['products.$.product_id', 'products.$.quantity', 'products.$.price', 'products.$.total_price', 'total_price']
+				arrays: ['products'],
+				strings: ['products.$.serial_number'],
+				numbers: [
+					'products.$.product_id',
+					'products.$.quantity',
+					'products.$.price',
+					'products.$.total_price',
+					'total_price'
+				]
 			}) as CreatePackageData;
 
 			const schema = z.object({
@@ -73,8 +79,8 @@ export const actions: Actions = {
 					.optional()
 					.nullable()
 					.transform((v) => (v ? v : null)),
-        products: z.array(packageProductSchema).min(1, 'At least one product is required'),
-				total_price: z.number().optional().nullable(),
+				products: z.array(packageProductSchema).min(1, 'At least one product is required'),
+				total_price: z.number().optional().nullable()
 			});
 
 			const { success, error, data } = schema.safeParse(formValues);
@@ -84,7 +90,7 @@ export const actions: Actions = {
 					issues: error.issues,
 					message: 'Invalid input'
 				});
-      }
+			}
 
 			return await createPackage(data as CreatePackageData);
 		} catch (error) {
@@ -99,9 +105,16 @@ export const actions: Actions = {
 		try {
 			const body = await request.formData();
 			const formValues = decode(body, {
-        arrays: ['products'],
+				arrays: ['products'],
 				strings: ['products.$.serial_number'],
-				numbers: ['id', 'products.$.product_id', 'products.$.quantity', 'products.$.price', 'products.$.total_price', 'total_price']
+				numbers: [
+					'id',
+					'products.$.product_id',
+					'products.$.quantity',
+					'products.$.price',
+					'products.$.total_price',
+					'total_price'
+				]
 			}) as UpdatePackageData;
 
 			const schema = z.object({
@@ -113,7 +126,7 @@ export const actions: Actions = {
 					.nullable()
 					.transform((v) => (v ? v : null)),
 				products: z.array(packageProductSchema).min(1, 'At least one product is required'),
-				total_price: z.number().optional().nullable(),
+				total_price: z.number().optional().nullable()
 			});
 
 			const { success, error, data } = schema.safeParse(formValues);

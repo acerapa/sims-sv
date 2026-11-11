@@ -10,7 +10,7 @@ import {
 	safeNum,
 	tableFinalY,
 	titleCase
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 const EMPTY_RANGE_TEXT = 'No sales orders found for the selected date range.';
 
@@ -75,7 +75,9 @@ function drawSummaryTable(doc: jsPDF, summary: SbcSummaryRow[], margin: number, 
 							'Grand Total',
 							String(summary.reduce((acc, row) => safeNum(acc) + safeNum(row.total_orders), 0)),
 							String(summary.reduce((acc, row) => safeNum(acc) + safeNum(row.total_items), 0)),
-							formatCurrencyPdf(summary.reduce((acc, row) => safeNum(acc) + safeNum(row.total_sales), 0))
+							formatCurrencyPdf(
+								summary.reduce((acc, row) => safeNum(acc) + safeNum(row.total_sales), 0)
+							)
 						]
 					]
 				: [],
@@ -145,7 +147,9 @@ function drawDetailSections(
 		doc.setFont('helvetica', 'normal');
 		doc.setFontSize(10);
 		doc.setTextColor(102, 102, 102);
-		doc.text(EMPTY_RANGE_TEXT, pageWidth / 2, ensureSpace(doc, y, 40, pageHeight) + 20, { align: 'center' });
+		doc.text(EMPTY_RANGE_TEXT, pageWidth / 2, ensureSpace(doc, y, 40, pageHeight) + 20, {
+			align: 'center'
+		});
 		doc.setTextColor(0, 0, 0);
 		return y + 40;
 	}
@@ -168,11 +172,7 @@ function drawDetailSections(
 			doc.text(`SO-${order.sales_order_id}`, margin, cursor + 8);
 			doc.setFont('helvetica', 'normal');
 			const status = order.order_status ? titleCase(order.order_status) : '';
-			doc.text(
-				`${formatDatePdf(order.date_ordered)}  –  ${status}`,
-				margin,
-				cursor + 18
-			);
+			doc.text(`${formatDatePdf(order.date_ordered)}  –  ${status}`, margin, cursor + 18);
 			cursor += 28;
 
 			cursor = drawOrderItemsTable(doc, order, margin, cursor);

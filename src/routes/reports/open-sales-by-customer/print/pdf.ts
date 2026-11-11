@@ -8,7 +8,7 @@ import {
 	formatDatePdf,
 	safeNum,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 const EMPTY_TEXT = 'No data available.';
 
@@ -79,7 +79,11 @@ const HEAD_STYLES: Partial<Styles> = {
 const BOLD: Partial<Styles> = { fontStyle: 'bold', textColor: [17, 17, 17] };
 const MUTED_BOLD: Partial<Styles> = { fontStyle: 'bold', fontSize: 9, textColor: [102, 102, 102] };
 const BOLD_RIGHT: Partial<Styles> = { halign: 'right', fontStyle: 'bold' };
-const MUTED_BOLD_RIGHT: Partial<Styles> = { halign: 'right', fontStyle: 'bold', textColor: [102, 102, 102] };
+const MUTED_BOLD_RIGHT: Partial<Styles> = {
+	halign: 'right',
+	fontStyle: 'bold',
+	textColor: [102, 102, 102]
+};
 const RIGHT: Partial<Styles> = { halign: 'right' };
 const CENTER: Partial<Styles> = { halign: 'center' };
 
@@ -90,7 +94,12 @@ function grandTotalOf(summary: OpenSaleSummaryCustomer[]): number {
 		.reduce((sum, sale) => sum + safeNum(sale.total_cost), 0);
 }
 
-function drawSummaryTable(doc: jsPDF, summary: OpenSaleSummaryCustomer[], margin: number, y: number): number {
+function drawSummaryTable(
+	doc: jsPDF,
+	summary: OpenSaleSummaryCustomer[],
+	margin: number,
+	y: number
+): number {
 	const grandTotal = grandTotalOf(summary);
 	const rows: CellInput[][] = [];
 	if (summary.length === 0) {
@@ -119,7 +128,12 @@ function drawSummaryTable(doc: jsPDF, summary: OpenSaleSummaryCustomer[], margin
 		margin: { left: margin, right: margin, top: 10, bottom: 48 },
 		head: [['Customer', 'Date', 'SO Number', 'Notes', 'Amount']],
 		body: rows,
-		foot: [[{ content: 'Grand Total:', colSpan: 4, styles: BOLD }, { content: formatCurrencyPdf(grandTotal), styles: BOLD_RIGHT }]],
+		foot: [
+			[
+				{ content: 'Grand Total:', colSpan: 4, styles: BOLD },
+				{ content: formatCurrencyPdf(grandTotal), styles: BOLD_RIGHT }
+			]
+		],
 		theme: 'grid',
 		styles: BASE_STYLES,
 		headStyles: HEAD_STYLES,
@@ -179,7 +193,12 @@ function drawDetailTable(
 		margin: { left: margin, right: margin, top: 10, bottom: 48 },
 		head: [['Item', 'Quantity', 'Cost', 'Total']],
 		body: rows,
-		foot: [[{ content: 'Grand Total:', colSpan: 3, styles: BOLD }, { content: formatCurrencyPdf(grandTotal), styles: BOLD_RIGHT }]],
+		foot: [
+			[
+				{ content: 'Grand Total:', colSpan: 3, styles: BOLD },
+				{ content: formatCurrencyPdf(grandTotal), styles: BOLD_RIGHT }
+			]
+		],
 		theme: 'grid',
 		styles: BASE_STYLES,
 		headStyles: HEAD_STYLES,

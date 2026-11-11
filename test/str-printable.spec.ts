@@ -27,7 +27,16 @@ const STR = {
 	transfer_date: new Date(2026, 1, 17), // local noon-safe: no TZ date-roll risk
 	store_name: 'Branch Calbayog',
 	notes: 'Fragile cargo',
-	items: [item(), item({ item_description: 'USB Cable', serial_numbers: [], quantity: 1, cost: 120, total_cost: 120 })]
+	items: [
+		item(),
+		item({
+			item_description: 'USB Cable',
+			serial_numbers: [],
+			quantity: 1,
+			cost: 120,
+			total_cost: 120
+		})
+	]
 };
 
 describe('expandStrItems', () => {
@@ -40,12 +49,23 @@ describe('expandStrItems', () => {
 			quantity: row.quantity,
 			cost: row.cost,
 			total_cost: row.total_cost
-		}).toEqual({ item_description: 'Wireless Keyboard', serial_number: undefined, quantity: 2, cost: 1500, total_cost: 3000 });
+		}).toEqual({
+			item_description: 'Wireless Keyboard',
+			serial_number: undefined,
+			quantity: 2,
+			cost: 1500,
+			total_cost: 3000
+		});
 	});
 
 	it('fans a multi-serial item out to one row per serial at quantity 1', async () => {
 		const rows = expandStrItems([
-			item({ quantity: 3, serial_numbers: ['SN-001', 'SN-002', 'SN-003'], cost: 500, total_cost: 1500 })
+			item({
+				quantity: 3,
+				serial_numbers: ['SN-001', 'SN-002', 'SN-003'],
+				cost: 500,
+				total_cost: 1500
+			})
 		]);
 		expect(rows.map((r) => r.serial_number)).toEqual(['SN-001', 'SN-002', 'SN-003']);
 		expect(rows.every((r) => r.quantity === 1)).toBe(true);
@@ -58,7 +78,11 @@ describe('expandStrItems', () => {
 			item({ item_description: 'A', serial_numbers: ['S1', 'S2'] }),
 			item({ item_description: 'B' })
 		]);
-		expect(rows.map((r) => `${r.item_description}:${r.serial_number ?? '-'}`)).toEqual(['A:S1', 'A:S2', 'B:-']);
+		expect(rows.map((r) => `${r.item_description}:${r.serial_number ?? '-'}`)).toEqual([
+			'A:S1',
+			'A:S2',
+			'B:-'
+		]);
 		expect(rows[2].serial_number).toBeUndefined();
 	});
 
@@ -98,7 +122,12 @@ describe('buildStrPdf', () => {
 
 	it('shows -- when a row has no serial, and the serial verbatim when it does', async () => {
 		// getStrById always sets serial_number when an item carries exactly one serial
-		const flat = textItems(await buildStrPdf({ ...STR, items: [item({ serial_numbers: ['SN-77'], serial_number: 'SN-77' })] }));
+		const flat = textItems(
+			await buildStrPdf({
+				...STR,
+				items: [item({ serial_numbers: ['SN-77'], serial_number: 'SN-77' })]
+			})
+		);
 		expect(flat).toContain('SN-77');
 		const plainDoc = textItems(await buildStrPdf({ ...STR, items: [item()] }));
 		expect(plainDoc).toContain('--');
@@ -113,7 +142,9 @@ describe('buildStrPdf', () => {
 	});
 
 	it('footers every page with generated-on and page numbers', async () => {
-		const many = Array.from({ length: 120 }, (_, i) => item({ item_description: `Inventory line ${i + 1}` }));
+		const many = Array.from({ length: 120 }, (_, i) =>
+			item({ item_description: `Inventory line ${i + 1}` })
+		);
 		const doc = await buildStrPdf({ ...STR, items: many });
 		const pages = doc.getNumberOfPages();
 		expect(pages).toBeGreaterThan(1);
@@ -128,7 +159,10 @@ describe('buildStrPdf', () => {
 	});
 
 	it('page-breaks very long notes instead of running them into the footer band', async () => {
-		const longStr = { ...STR, notes: Array.from({ length: 120 }, (_, i) => `Packing instruction ${i + 1}`).join('\n') };
+		const longStr = {
+			...STR,
+			notes: Array.from({ length: 120 }, (_, i) => `Packing instruction ${i + 1}`).join('\n')
+		};
 		const doc = await buildStrPdf(longStr);
 		const pages = doc.getNumberOfPages();
 		expect(pages).toBeGreaterThan(1); // the first page alone cannot hold 120 note lines + table

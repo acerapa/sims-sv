@@ -1,11 +1,16 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { page } from '$app/state';
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import Label from '#lib/components/ui/label/label.svelte';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -15,11 +20,10 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import { Textarea } from '$lib/components/ui/textarea';
+	} from '#lib/components/ui/sheet/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
 	import { Plus, Printer } from '@lucide/svelte';
 	import RMAItems from './RMAItems.svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -61,24 +65,22 @@
 
 	const onOpenChangeComplete = (isOpen: boolean) => {
 		if (!isOpen) {
-			goto(resolve('/vendors/transfers/rmas'));
+			goto(resolve('vendors/transfers/rmas'));
 		}
 	};
 
 	const printRMA = async () => {
-		await goto(resolve(`/vendors/transfers/rmas/print/${rma?.id}`));
+		await goto(resolve(`vendors/transfers/rmas/print/${rma?.id}`));
 	};
 
 	const openSupplierForm = () => {
-      showSupplierForm = true;
-	}
+		showSupplierForm = true;
+	};
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
-	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}>
-		<Plus />
-		Add RMA
-	</SheetTrigger>
+	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}><Plus /> Add RMA</SheetTrigger>
+
 	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:!max-w-3xl">
 		<SheetHeader>
 			<SheetTitle>New Return Merchandise Authorization</SheetTitle>
@@ -115,7 +117,7 @@
 											{selectedSupplier ? selectedSupplier.name : 'Select Supplier'}
 										</SelectTrigger>
 										<SelectContent>
-										    <SelectItem value="0" onclick={openSupplierForm}>Add Supplier</SelectItem>
+											<SelectItem value="0" onclick={openSupplierForm}>Add Supplier</SelectItem>
 											{#each suppliers as supplier (supplier.id)}
 												<SelectItem value={supplier.id}>{supplier.name}</SelectItem>
 											{/each}

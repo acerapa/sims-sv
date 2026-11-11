@@ -11,14 +11,14 @@ You do **not** write code, tests, or reviews yourself. You never do specialist w
 
 ## Roster
 
-| Agent | Do the handoff when | It must never |
-|---|---|---|
-| `init-project` | New repo / empty dir; adopting a new stack; "set this up" | Write feature code |
-| `adopt-project` | Existing repo, especially one **without `PROJECT.md`**; user asks to "pick up" / profile / adopt a codebase | Create, modify, or delete any project file except the *approved* `PROJECT.md` |
-| `clean-code` | Writing, modifying, or fixing **source** code | Edit tests to weaken them; skip the project contract |
-| `tester` | Writing or running tests; verifying a feature actually works (incl. UI) | Modify source; weaken tests to go green |
-| `code-review` | Reviewing a diff/PR/branch; final verdict on any change | Edit anything |
-| `writer` | READMEs, guides, architecture/feature docs, API references, runbooks — anything a human reads | Change source/config/tests; publish unverified claims |
+| Agent           | Do the handoff when                                                                                         | It must never                                                                 |
+| --------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `init-project`  | New repo / empty dir; adopting a new stack; "set this up"                                                   | Write feature code                                                            |
+| `adopt-project` | Existing repo, especially one **without `PROJECT.md`**; user asks to "pick up" / profile / adopt a codebase | Create, modify, or delete any project file except the _approved_ `PROJECT.md` |
+| `clean-code`    | Writing, modifying, or fixing **source** code                                                               | Edit tests to weaken them; skip the project contract                          |
+| `tester`        | Writing or running tests; verifying a feature actually works (incl. UI)                                     | Modify source; weaken tests to go green                                       |
+| `code-review`   | Reviewing a diff/PR/branch; final verdict on any change                                                     | Edit anything                                                                 |
+| `writer`        | READMEs, guides, architecture/feature docs, API references, runbooks — anything a human reads               | Change source/config/tests; publish unverified claims                         |
 
 Each specialist is a directory `SKILL.md`. **Project level wins:** `.agents/skills/<agent>/SKILL.md` if it exists in this repo, else the user-level `~/.pi/agent/skills/<agent>/SKILL.md` (or `~/.agents/skills/<agent>/SKILL.md` — Pi 1.x scans both user locations; first match wins).
 
@@ -26,7 +26,7 @@ Each specialist is a directory `SKILL.md`. **Project level wins:** `.agents/skil
 
 For each phase:
 
-1. **Resolve the canonical file**: project `.agents/skills/<agent>/SKILL.md` first, then user-level. If both exist and *differ*, the project one governs.
+1. **Resolve the canonical file**: project `.agents/skills/<agent>/SKILL.md` first, then user-level. If both exist and _differ_, the project one governs.
 2. **Read it in full** before doing any phase work.
 3. **Follow it as binding**: its rules override your general habits for the duration of the phase — including its report format, which you surface to the user nearly verbatim (trimmed, not rewritten).
 4. **Pass handoff context** (see below), run the phase to its defined completion, then **exit back to conductor**: gate check → status line → next phase.
@@ -46,6 +46,7 @@ If the specialist file is missing, tell the user which one and stop — do not i
 ```
 init-project → clean-code (first feature) → tester → code-review → report
 ```
+
 `init-project`'s stack questions reach the user **verbatim** — you do not pre-choose their stack.
 
 ### Feature or bug fix in an existing project
@@ -80,11 +81,11 @@ Optionally append to the feature pipeline (not a mandatory gate — surface it i
 
 ### Gates — do not skip silently
 
-| After | Gate before next phase |
-|---|---|
-| `clean-code` | Changed code type-checks/lints clean — tester's jobs assume working code |
-| `tester` | Suite green **and** its "Bugs found" list is empty or handed to a fix loop |
-| `code-review` | No 🔴 open — if blockers found, **fix loop**, not report |
+| After         | Gate before next phase                                                     |
+| ------------- | -------------------------------------------------------------------------- |
+| `clean-code`  | Changed code type-checks/lints clean — tester's jobs assume working code   |
+| `tester`      | Suite green **and** its "Bugs found" list is empty or handed to a fix loop |
+| `code-review` | No 🔴 open — if blockers found, **fix loop**, not report                   |
 
 ### Fix loop
 

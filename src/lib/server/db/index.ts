@@ -1,17 +1,9 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import { DATABASE_URL } from '$app/env/private';
 import * as schema from './schema';
 
-let databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  try {
-    const { env } = await import('$env/dynamic/private');
-    databaseUrl = env.DATABASE_URL;
-  } catch (e) {
-    console.error('Failed to load DATABASE_URL from env: ', e);
-  }
-}
+const databaseUrl = process.env.DATABASE_URL ?? DATABASE_URL;
 
 if (!databaseUrl) throw new Error('DATABASE_URL is not set');
 

@@ -2,10 +2,10 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
-import { db } from '$lib/server/db';
-import { stores } from '$lib/server/db/schema';
-import { getStores } from '$lib/server/db/queries/stores';
-import { getManagerUsers } from '$lib/server/db/queries/users';
+import { db } from '#lib/server/db/index.ts';
+import { stores } from '#lib/server/db/schema.ts';
+import { getStores } from '#lib/server/db/queries/stores.ts';
+import { getManagerUsers } from '#lib/server/db/queries/users.ts';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('settings:stores');

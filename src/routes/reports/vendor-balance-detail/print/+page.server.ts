@@ -1,4 +1,4 @@
-import { getVendorBalanceDetail } from '$lib/server/db/queries/reports/vendor-balance-detail';
+import { getVendorBalanceDetail } from '#lib/server/db/queries/reports/vendor-balance-detail.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {

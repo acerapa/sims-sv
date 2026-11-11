@@ -1,12 +1,12 @@
-import { getCustomers } from '$lib/server/db/queries/customers';
-import { getProducts } from '$lib/server/db/queries/products';
-import { createSalesOrder, type CreateSalesOrder } from '$lib/server/db/queries/sales-orders';
+import { getCustomers } from '#lib/server/db/queries/customers.ts';
+import { getProducts } from '#lib/server/db/queries/products.ts';
+import { createSalesOrder, type CreateSalesOrder } from '#lib/server/db/queries/sales-orders.ts';
 import { fail } from '@sveltejs/kit';
 import { decode } from 'decode-formdata';
 import z from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import { getUsers } from '$lib/server/db/queries/users';
-import { getPackages } from '$lib/server/db/queries/packages';
+import { getUsers } from '#lib/server/db/queries/users.ts';
+import { getPackages } from '#lib/server/db/queries/packages.ts';
 
 export const load: PageServerLoad = async ({ depends }) => {
 	depends('sales-orders:form');
@@ -36,31 +36,40 @@ export const actions: Actions = {
 				dates: ['date_ordered']
 			}) as CreateSalesOrder;
 
-			const salesOrderSchema = z.object({
-				customer_id: z.number('Customer is required'),
-				staff_user_id: z.number('Staff user is required'),
-				date_ordered: z.date('Order date is required'),
-				order_type: z.enum(['onetime', 'installment'], 'Must be either "onetime" or "installment"'),
-				notes: z.string().optional(),
-				products: z
-					.array(
-						z.object({
-							product_id: z.number().nullable().optional(),
-							package_id: z.number().nullable().optional(),
-							quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
-							unit_price: z.number('Unit price is required'),
-							total_price: z.number('Total price is required'),
-							serial_number: z.string().optional()
-						})
-					)
-					.min(1, 'At least one product is required')
-			}).superRefine((val, ctx) => {
-				(val.products || []).forEach((p: typeof val.products[0], idx: number) => {
-					if (!p.product_id && !p.package_id) {
-					ctx.addIssue({ code: 'custom', message: 'Either product or package is required', path: ['products', idx] });
-					}
+			const salesOrderSchema = z
+				.object({
+					customer_id: z.number('Customer is required'),
+					staff_user_id: z.number('Staff user is required'),
+					date_ordered: z.date('Order date is required'),
+					order_type: z.enum(
+						['onetime', 'installment'],
+						'Must be either "onetime" or "installment"'
+					),
+					notes: z.string().optional(),
+					products: z
+						.array(
+							z.object({
+								product_id: z.number().nullable().optional(),
+								package_id: z.number().nullable().optional(),
+								quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
+								unit_price: z.number('Unit price is required'),
+								total_price: z.number('Total price is required'),
+								serial_number: z.string().optional()
+							})
+						)
+						.min(1, 'At least one product is required')
+				})
+				.superRefine((val, ctx) => {
+					(val.products || []).forEach((p: (typeof val.products)[0], idx: number) => {
+						if (!p.product_id && !p.package_id) {
+							ctx.addIssue({
+								code: 'custom',
+								message: 'Either product or package is required',
+								path: ['products', idx]
+							});
+						}
+					});
 				});
-			});
 
 			const { success, error } = salesOrderSchema.safeParse(formValues);
 

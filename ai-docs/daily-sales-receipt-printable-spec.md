@@ -19,10 +19,10 @@ Unlike the other seven routes, this page is **not a `PrintReportLayout` report**
 
 The other routes get a branded RAM TECH report PDF. This receipt is a **fill-in paper form** (blank rows, signature box, mm-exact boxes) — the kind of document shops often want printed by a specific receipt/thermal or form printer.
 
-| Option | What | For | Against |
-|---|---|---|---|
-| **A — port to jsPDF** (recommended if the user's printers are ordinary laser/office printers) | `buildSalesReceiptPdf(order, payment)` reproduces the form: header box, title, reference row, sold-to box (`rect` + text), payment grid, items grid with blank rows, totals box, signature box, via `openAndPrint` | one pipeline, `window.print()` gone everywhere, consistent footer/page numbers, testable | form fidelity must be hand-verified against the browser print; mm sizing becomes pt math |
-| **B — keep browser print for this route only** | No change; the legacy path stays *documented as intentional*; Task 9's cleanup excludes this route and `PrintReportLayout` keeps its fallback | pixel-perfect form, zero risk | `window.print()` remains on a user-facing path; the "legacy path killed" milestone slips; auto-print stays |
+| Option                                                                                        | What                                                                                                                                                                                                               | For                                                                                      | Against                                                                                                    |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **A — port to jsPDF** (recommended if the user's printers are ordinary laser/office printers) | `buildSalesReceiptPdf(order, payment)` reproduces the form: header box, title, reference row, sold-to box (`rect` + text), payment grid, items grid with blank rows, totals box, signature box, via `openAndPrint` | one pipeline, `window.print()` gone everywhere, consistent footer/page numbers, testable | form fidelity must be hand-verified against the browser print; mm sizing becomes pt math                   |
+| **B — keep browser print for this route only**                                                | No change; the legacy path stays _documented as intentional_; Task 9's cleanup excludes this route and `PrintReportLayout` keeps its fallback                                                                      | pixel-perfect form, zero risk                                                            | `window.print()` remains on a user-facing path; the "legacy path killed" milestone slips; auto-print stays |
 
 **Do not start implementation until the user picks A or B.** If B: this file becomes the "known exception" entry in `ai-docs/print-migration-tasks.md` Task 9.
 
@@ -30,11 +30,11 @@ The other routes get a branded RAM TECH report PDF. This receipt is a **fill-in 
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
+| File                                                 | Action     | Contents                                                                                                                                                                                                                                                                                      |
+| ---------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/routes/customers/daily-sales/print/[id]/pdf.ts` | **create** | `buildSalesReceiptPdf(order, payment): jsPDF` — hand-drawn form using `doc.rect`/`line`/`text` + one autoTable for items (grid theme); **no `createReportDoc`** (different header/title anatomy — reuse scaffolding only if it helps; the form, not the report frame, is the source of truth) |
-| `+page.svelte` | **modify** | replace `onMount` auto-print with **no auto-print** (manual Print button wired to `openAndPrint`, like every other route — see Q2); keep the receipt HTML as the preview; keep the Back button |
-| `+page.server.ts` | keep | — |
+| `+page.svelte`                                       | **modify** | replace `onMount` auto-print with **no auto-print** (manual Print button wired to `openAndPrint`, like every other route — see Q2); keep the receipt HTML as the preview; keep the Back button                                                                                                |
+| `+page.server.ts`                                    | keep       | —                                                                                                                                                                                                                                                                                             |
 
 ### PDF anatomy (mirroring the receipt HTML top-to-bottom)
 
@@ -48,13 +48,13 @@ The other routes get a branded RAM TECH report PDF. This receipt is a **fill-in 
 
 ### Decisions (user-confirmed 2026-10)
 
-| # | Question | Decision |
-|---|---|---|
-| 1 | Port or keep browser print | **A — port to jsPDF** |
-| 2 | Auto-print on mount | **Remove** — manual Print → `openAndPrint`, like every other route |
-| 3 | Address text | Keep the **receipt's own text** (`MAGSAYSAY BLVD`, `CALBAYOG CITY, SAMAR`) |
-| 4 | Report footer | **Yes — include** `Generated on…` + page x of y (reference purposes) |
-| 5 | Font substitution | **helvetica everywhere** (the font used across all printables — no `times`) |
+| #   | Question                   | Decision                                                                    |
+| --- | -------------------------- | --------------------------------------------------------------------------- |
+| 1   | Port or keep browser print | **A — port to jsPDF**                                                       |
+| 2   | Auto-print on mount        | **Remove** — manual Print → `openAndPrint`, like every other route          |
+| 3   | Address text               | Keep the **receipt's own text** (`MAGSAYSAY BLVD`, `CALBAYOG CITY, SAMAR`)  |
+| 4   | Report footer              | **Yes — include** `Generated on…` + page x of y (reference purposes)        |
+| 5   | Font substitution          | **helvetica everywhere** (the font used across all printables — no `times`) |
 
 ### Acceptance criteria (Option A)
 

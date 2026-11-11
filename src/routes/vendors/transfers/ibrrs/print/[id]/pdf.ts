@@ -9,7 +9,7 @@ import {
 	ensureSpace,
 	formatCurrencyPdf,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 export interface IbrrItem {
 	// leftJoin(products) in getIBRRById — can be null for orphans

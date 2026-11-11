@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Command, CommandInput, CommandList } from '$lib/components/ui/command';
-	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
-	import type { Category } from '$lib/types/global';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Command, CommandInput, CommandList } from '#lib/components/ui/command/index.ts';
+	import { Popover, PopoverContent, PopoverTrigger } from '#lib/components/ui/popover/index.ts';
+	import type { Category } from '#lib/types/global.ts';
 	import { ChevronsUpDown } from '@lucide/svelte';
 	import SelectCategoryItem from './SelectCategoryItem.svelte';
-	import { filterCategories, groupedCategories } from '$lib/utils/categories';
-	import { Input } from '$lib/components/ui/input';
+	import { filterCategories, groupedCategories } from '#lib/utils/categories.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import CategoryCommandInput from './CategoryCommandInput.svelte';
 
 	let {

@@ -1,14 +1,9 @@
 <script lang="ts">
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import { Printer } from '@lucide/svelte';
-	import {
-		Card,
-		CardContent,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -17,8 +12,8 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+	} from '#lib/components/ui/table/index.ts';
+	import { Tabs, TabsContent, TabsList, TabsTrigger } from '#lib/components/ui/tabs/index.ts';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import type { PageProps } from './$types';
@@ -28,9 +23,7 @@
 	let fromDate = $state<Date | undefined>(
 		data.filters.from ? new Date(data.filters.from) : undefined
 	);
-	let toDate = $state<Date | undefined>(
-		data.filters.to ? new Date(data.filters.to) : undefined
-	);
+	let toDate = $state<Date | undefined>(data.filters.to ? new Date(data.filters.to) : undefined);
 
 	let activeTab = $state('summary');
 
@@ -150,7 +143,10 @@
 			<CardContent class="pt-6">
 				<p class="text-sm font-medium text-muted-foreground">Gross Margin</p>
 				<p class="text-2xl font-bold">
-					{grossMarginPercent(parseFloat(summary.total_income || '0'), parseFloat(summary.gross_profit || '0'))}%
+					{grossMarginPercent(
+						parseFloat(summary.total_income || '0'),
+						parseFloat(summary.gross_profit || '0')
+					)}%
 				</p>
 			</CardContent>
 		</Card>
@@ -200,7 +196,9 @@
 										<TableCell class="text-right">{formatCurrency(row.income)}</TableCell>
 									{/each}
 									{#if monthly.length > 1}
-										<TableCell class="text-right font-semibold">{formatCurrency(monthlyTotals.income)}</TableCell>
+										<TableCell class="text-right font-semibold"
+											>{formatCurrency(monthlyTotals.income)}</TableCell
+										>
 									{/if}
 								</TableRow>
 								<TableRow>
@@ -209,7 +207,9 @@
 										<TableCell class="text-right">{formatCurrency(row.cogs)}</TableCell>
 									{/each}
 									{#if monthly.length > 1}
-										<TableCell class="text-right font-semibold">{formatCurrency(monthlyTotals.cogs)}</TableCell>
+										<TableCell class="text-right font-semibold"
+											>{formatCurrency(monthlyTotals.cogs)}</TableCell
+										>
 									{/if}
 								</TableRow>
 							{/if}
@@ -222,14 +222,19 @@
 										<TableCell class="text-right">{formatCurrency(row.gross_profit)}</TableCell>
 									{/each}
 									{#if monthly.length > 1}
-										<TableCell class="text-right">{formatCurrency(monthlyTotals.gross_profit)}</TableCell>
+										<TableCell class="text-right"
+											>{formatCurrency(monthlyTotals.gross_profit)}</TableCell
+										>
 									{/if}
 								</TableRow>
 								<TableRow>
 									<TableCell class="text-sm text-muted-foreground">Gross Margin %</TableCell>
 									{#each monthly as row (row.month)}
 										<TableCell class="text-right text-sm text-muted-foreground">
-											{grossMarginPercent(parseFloat(row.income || '0'), parseFloat(row.gross_profit || '0'))}%
+											{grossMarginPercent(
+												parseFloat(row.income || '0'),
+												parseFloat(row.gross_profit || '0')
+											)}%
 										</TableCell>
 									{/each}
 									{#if monthly.length > 1}
@@ -280,7 +285,10 @@
 										<TableCell class="text-right">{formatCurrency(row.total_cost)}</TableCell>
 										<TableCell class="text-right">{formatCurrency(row.profit)}</TableCell>
 										<TableCell class="text-right">
-											{grossMarginPercent(parseFloat(row.total_revenue || '0'), parseFloat(row.profit || '0'))}%
+											{grossMarginPercent(
+												parseFloat(row.total_revenue || '0'),
+												parseFloat(row.profit || '0')
+											)}%
 										</TableCell>
 									</TableRow>
 								{/each}
@@ -291,8 +299,11 @@
 								<TableRow class="font-bold">
 									<TableCell colspan={2}>Total</TableCell>
 									<TableCell class="text-right">{detailTotals.quantity_sold}</TableCell>
-									<TableCell class="text-right">{formatCurrency(detailTotals.total_revenue)}</TableCell>
-									<TableCell class="text-right">{formatCurrency(detailTotals.total_cost)}</TableCell>
+									<TableCell class="text-right"
+										>{formatCurrency(detailTotals.total_revenue)}</TableCell
+									>
+									<TableCell class="text-right">{formatCurrency(detailTotals.total_cost)}</TableCell
+									>
 									<TableCell class="text-right">{formatCurrency(detailTotals.profit)}</TableCell>
 									<TableCell class="text-right">
 										{grossMarginPercent(detailTotals.total_revenue, detailTotals.profit)}%

@@ -1,22 +1,23 @@
 <script lang="ts">
-	import StatCard from '$lib/components/common/StatCard.svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import TablePagination from '$lib/components/common/TablePagination.svelte';
+	import StatCard from '#lib/components/common/StatCard.svelte';
+	import { Badge } from '#lib/components/ui/badge/index.ts';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
+	} from '#lib/components/ui/card/index.ts';
+
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -24,7 +25,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import {
 		DollarSign,
 		Ellipsis,
@@ -41,7 +42,7 @@
 	import type { PageProps } from './$types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { SalesOrderStatus } from '$lib/const';
+	import { SalesOrderStatus } from '#lib/const.ts';
 
 	let { data }: PageProps = $props();
 
@@ -54,9 +55,8 @@
 	let limit = $derived(data?.pagination?.limit);
 	let totalPages = $derived(data?.pagination?.totalPages);
 	let currentParams = $derived(data?.pagination?.currentParams);
-	const handlePageChange = () => {}
-	const handleLimitChange = () => {}
-
+	const handlePageChange = () => {};
+	const handleLimitChange = () => {};
 
 	const statCards = $derived([
 		{
@@ -132,7 +132,7 @@
 	};
 
 	const onEdit = (orderId: number) => {
-		goto(resolve(`/customers/sales-orders/${orderId}/form`));
+		goto(resolve(`customers/sales-orders/${orderId}/form`));
 	};
 </script>
 

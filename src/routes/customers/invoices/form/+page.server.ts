@@ -1,4 +1,8 @@
-import { createInvoice, getSalesOrderForInvoice, type CreateInvoiceData } from '$lib/server/db/queries/invoices';
+import {
+	createInvoice,
+	getSalesOrderForInvoice,
+	type CreateInvoiceData
+} from '#lib/server/db/queries/invoices.ts';
 import { fail, redirect } from '@sveltejs/kit';
 import { decode } from 'decode-formdata';
 import z from 'zod';
@@ -43,14 +47,14 @@ export const actions: Actions = {
 					.array(
 						z.object({
 							sales_order_item_id: z.number('Sales order item is required'),
-								product_id: z.number().nullable().optional(),
-								package_id: z.number().nullable().optional(),
-								quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
-								unit_price: z.number('Unit price is required'),
-								total_price: z.number('Total price is required')
-							})
-						)
-						.min(1, 'At least one item is required')
+							product_id: z.number().nullable().optional(),
+							package_id: z.number().nullable().optional(),
+							quantity: z.number('Quantity is required').min(1, 'Quantity must be at least 1'),
+							unit_price: z.number('Unit price is required'),
+							total_price: z.number('Total price is required')
+						})
+					)
+					.min(1, 'At least one item is required')
 			});
 
 			const { success, error } = invoiceSchema.safeParse(formValues);

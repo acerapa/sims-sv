@@ -2,8 +2,8 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { decode } from 'decode-formdata';
 import z from 'zod';
-import { createReceivePO, type CreatePO } from '$lib/server/db/queries/po';
-import { getProducts } from '$lib/server/db/queries/products';
+import { createReceivePO, type CreatePO } from '#lib/server/db/queries/po.ts';
+import { getProducts } from '#lib/server/db/queries/products.ts';
 
 export const load: PageServerLoad = async () => {
 	const products = await getProducts();

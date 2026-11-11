@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { Button } from '$lib/components/ui/button';
-	import { formatCurrency } from '$lib/utils/common';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import type { PageProps } from './$types';
 	import { buildDrPdf, drSpacerRows, formatDateShort, serialWPercent, WARRANTY_TEXT } from './pdf';
 
@@ -30,9 +30,10 @@
 
 <div class="receipt-page">
 	<div class="no-print mb-4 flex justify-between">
-		<Button variant="outline" onclick={() => goto(resolve('/customers/sales-orders'))}
+		<Button variant="outline" onclick={() => goto(resolve('customers/sales-orders'))}
 			>Back to Sales Orders</Button
 		>
+
 		<Button onclick={handlePrint}>Print</Button>
 	</div>
 
@@ -61,9 +62,8 @@
 						</td>
 					</tr>
 					<tr>
-						<td>
-							<span class="cell-label">P.O. NO.</span>
-						</td>
+						<td><span class="cell-label">P.O. NO.</span></td>
+
 						<td>
 							<span class="cell-label">REP</span>
 							{order.staff?.name || ''}
@@ -95,20 +95,26 @@
 		<tbody>
 			{#each order.items as item (item.id)}
 				<tr>
-					<td class="!border-b-transparent !border-t-transparent">{item.package?.name || item.product?.sales_description || '—'}</td>
-					<td class="!border-b-transparent !border-t-transparent">{item.serial_number || ''}</td>
-					<td class="number !border-b-transparent !border-t-transparent">{item.quantity}</td>
-					<td class="number !border-b-transparent !border-t-transparent">{formatCurrency(item.unit_price)}</td>
-					<td class="number !border-b-transparent !border-t-transparent">{formatCurrency(item.total_price)}</td>
+					<td class="!border-t-transparent !border-b-transparent"
+						>{item.package?.name || item.product?.sales_description || '—'}</td
+					>
+					<td class="!border-t-transparent !border-b-transparent">{item.serial_number || ''}</td>
+					<td class="number !border-t-transparent !border-b-transparent">{item.quantity}</td>
+					<td class="number !border-t-transparent !border-b-transparent"
+						>{formatCurrency(item.unit_price)}</td
+					>
+					<td class="number !border-t-transparent !border-b-transparent"
+						>{formatCurrency(item.total_price)}</td
+					>
 				</tr>
 			{/each}
 			{#each spacerRows as spacerIndex (spacerIndex)}
 				<tr class="spacer-row">
-					<td class="!border-b-transparent !border-t-transparent"></td>
-					<td class="!border-b-transparent !border-t-transparent"></td>
-					<td class="number !border-b-transparent !border-t-transparent"></td>
-					<td class="number !border-b-transparent !border-t-transparent"></td>
-					<td class="number !border-b-transparent !border-t-transparent"></td>
+					<td class="!border-t-transparent !border-b-transparent"></td>
+					<td class="!border-t-transparent !border-b-transparent"></td>
+					<td class="number !border-t-transparent !border-b-transparent"></td>
+					<td class="number !border-t-transparent !border-b-transparent"></td>
+					<td class="number !border-t-transparent !border-b-transparent"></td>
 				</tr>
 			{/each}
 			<!-- Total rows are ruled (client, 2026-11): top, between, and bottom borders close the table above the warranty -->

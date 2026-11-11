@@ -46,7 +46,12 @@ const data: OpenSalesData = {
 					date_ordered: date1,
 					total: '3500.50',
 					items: [
-						{ item_name: 'Keyboard', item_quantity: 2, item_cost: '1600', item_total_price: '3200' },
+						{
+							item_name: 'Keyboard',
+							item_quantity: 2,
+							item_cost: '1600',
+							item_total_price: '3200'
+						},
 						{ item_name: null, item_quantity: null, item_cost: '150.25', item_total_price: '300.5' }
 					]
 				}
@@ -60,7 +65,9 @@ const data: OpenSalesData = {
 					sales_order_id: '201',
 					date_ordered: date1,
 					total: '800',
-					items: [{ item_name: 'Cable', item_quantity: 4, item_cost: '200', item_total_price: '800' }]
+					items: [
+						{ item_name: 'Cable', item_quantity: 4, item_cost: '200', item_total_price: '800' }
+					]
 				}
 			]
 		}

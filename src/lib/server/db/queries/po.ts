@@ -1,7 +1,7 @@
 import { desc, eq, sql } from 'drizzle-orm';
 import { db } from '..';
 import { products, purchaseOrderItems, purchaseOrders, suppliers } from '../schema';
-import type { SupplierPO } from '$lib/types/global';
+import type { SupplierPO } from '#lib/types/global.ts';
 
 export interface CreatePO {
 	reference: string;

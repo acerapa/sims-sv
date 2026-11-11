@@ -101,7 +101,18 @@ describe('buildPurchasesByItemPdf', () => {
 		expect(text).toContain('Purchases by Item — Detail');
 		expect(text).toContain('Keyboards');
 		expect(text).toContain('Cables');
-		for (const col of ['Type', 'Date', 'Ref No.', 'Memo', 'Vendor', 'Item', 'Qty', 'Cost Price', 'Amount', 'Balance']) {
+		for (const col of [
+			'Type',
+			'Date',
+			'Ref No.',
+			'Memo',
+			'Vendor',
+			'Item',
+			'Qty',
+			'Cost Price',
+			'Amount',
+			'Balance'
+		]) {
 			expect(text).toContain(col);
 		}
 		expect(text).toContain('Wireless Keyboard');

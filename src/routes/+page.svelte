@@ -1,12 +1,7 @@
 <script lang="ts">
-	import StatCard from '$lib/components/common/StatCard.svelte';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import {
-		Card,
-		CardContent,
-		CardHeader,
-		CardTitle
-	} from '$lib/components/ui/card';
+	import StatCard from '#lib/components/common/StatCard.svelte';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -14,9 +9,17 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Clock, Package, TrendingUp, TriangleAlert, ShoppingCart, AlertCircle, Trophy } from '@lucide/svelte';
+	} from '#lib/components/ui/table/index.ts';
+	import { Badge } from '#lib/components/ui/badge/index.ts';
+	import {
+		Clock,
+		Package,
+		TrendingUp,
+		TriangleAlert,
+		ShoppingCart,
+		AlertCircle,
+		Trophy
+	} from '@lucide/svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -184,7 +187,11 @@
 									</TableCell>
 									<TableCell>{item.category_name}</TableCell>
 									<TableCell class="text-right">
-										<span class={item.quantity === 0 ? 'font-bold text-red-500' : 'font-bold text-yellow-500'}>
+										<span
+											class={item.quantity === 0
+												? 'font-bold text-red-500'
+												: 'font-bold text-yellow-500'}
+										>
 											{item.quantity}
 										</span>
 									</TableCell>

@@ -1,8 +1,12 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import { openAndPrint, formatDatePdf } from '$lib/utils/pdf';
-	import { groupDetailByVendor, buildPurchasesByVendorPdf, type PurchasesByVendorView } from './pdf';
+	import { openAndPrint, formatDatePdf } from '#lib/utils/pdf.ts';
+	import {
+		groupDetailByVendor,
+		buildPurchasesByVendorPdf,
+		type PurchasesByVendorView
+	} from './pdf';
 
 	let { data }: PageProps = $props();
 
@@ -39,7 +43,11 @@
 </svelte:head>
 
 <PrintReportLayout
-	reportTitle={view === 'detail' ? 'Purchases by Vendor — Detail' : view === 'both' ? 'Purchases by Vendor' : 'Purchases by Vendor — Summary'}
+	reportTitle={view === 'detail'
+		? 'Purchases by Vendor — Detail'
+		: view === 'both'
+			? 'Purchases by Vendor'
+			: 'Purchases by Vendor — Summary'}
 	dateRange={data.filters}
 	onPrint={handlePrint}
 >

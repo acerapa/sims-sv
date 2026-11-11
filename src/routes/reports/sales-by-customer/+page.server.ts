@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { getSalesByCustomer } from '$lib/server/db/queries/reports/sales-by-customer'
+import { getSalesByCustomer } from '#lib/server/db/queries/reports/sales-by-customer.ts';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const from = url.searchParams.get('from') || undefined;
@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	const { summary, detailed } = await getSalesByCustomer(from, to);
 
-  return {
+	return {
 		summary,
 		detailed,
 		filters: { from, to }

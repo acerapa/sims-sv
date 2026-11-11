@@ -6,11 +6,11 @@ For developers deciding whether (and where) to change the detail-view pagination
 
 ## Where the behavior lives
 
-| Output | File | Mechanism |
-|---|---|---|
-| HTML preview | `src/routes/reports/sales-by-customer/print/+page.svelte:100` | `class:page-break={cIdx > 0 && view === 'detail'}` on each customer `<h3>` |
-| Page-break CSS | `src/lib/components/common/PrintReportLayout.svelte:256-257` | `:global(.page-break) { page-break-before: always; }` |
-| jsPDF | `src/routes/reports/sales-by-customer/print/pdf.ts:157-160` | `if (cIdx > 0 && view === 'detail') { doc.addPage(); cursor = 48; }` inside `drawDetailSections` |
+| Output         | File                                                          | Mechanism                                                                                        |
+| -------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| HTML preview   | `src/routes/reports/sales-by-customer/print/+page.svelte:100` | `class:page-break={cIdx > 0 && view === 'detail'}` on each customer `<h3>`                       |
+| Page-break CSS | `src/lib/components/common/PrintReportLayout.svelte:256-257`  | `:global(.page-break) { page-break-before: always; }`                                            |
+| jsPDF          | `src/routes/reports/sales-by-customer/print/pdf.ts:157-160`   | `if (cIdx > 0 && view === 'detail') { doc.addPage(); cursor = 48; }` inside `drawDetailSections` |
 
 `page-break-before: always` fires **even when the current page has room left**, and the jsPDF branch unconditionally starts a fresh page. So every customer after the first begins top-of-page — with typically just their header, one or a few orders, and their subtotal — which is exactly the "one page per customer" symptom reported.
 
@@ -18,11 +18,11 @@ For developers deciding whether (and where) to change the detail-view pagination
 
 `view` comes from the URL (`src/routes/reports/sales-by-customer/print/+page.server.ts:6`, default `summary`); the report page opens print with `view=` set to the active tab (`src/routes/reports/sales-by-customer/+page.svelte:61`, tab default `summary` at line 30).
 
-| View | What prints | Page breaks |
-|---|---|---|
-| `summary` | One customer-level table + Grand Total | None per customer |
-| `detail` | Per customer: heading, SO blocks + item tables, Subtotal | **Forced new page before every customer after the first** |
-| `both` | Summary, forced page break, `Detail` heading, then detail sections | One forced break after summary (`.page-break` div); detail sections **flow continuously** |
+| View      | What prints                                                        | Page breaks                                                                               |
+| --------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `summary` | One customer-level table + Grand Total                             | None per customer                                                                         |
+| `detail`  | Per customer: heading, SO blocks + item tables, Subtotal           | **Forced new page before every customer after the first**                                 |
+| `both`    | Summary, forced page break, `Detail` heading, then detail sections | One forced break after summary (`.page-break` div); detail sections **flow continuously** |
 
 ```mermaid
 flowchart LR
@@ -33,14 +33,14 @@ flowchart LR
     C -->|both| G[summary] --> H[forced break + Detail heading] --> I[all customers flow]
 ```
 
-*The detail branch is the only one that page-breaks per customer — that is the branch to touch if the behavior should change.*
+_The detail branch is the only one that page-breaks per customer — that is the branch to touch if the behavior should change._
 
 ## Why it is built this way
 
 The spec for this printable explicitly records the decision:
 
-- `ai-docs/sales-by-customer-printable-spec.md:13` — *"Page breaks before each new customer when `view === 'detail'`."*
-- `ai-docs/sales-by-customer-printable-spec.md:67` — Decision 2: *"Section page-breaks in `both` view … today's CSS only forces a page break per customer in `detail` view — PDF mirrors that exactly (no forced break in `both`)."*
+- `ai-docs/sales-by-customer-printable-spec.md:13` — _"Page breaks before each new customer when `view === 'detail'`."_
+- `ai-docs/sales-by-customer-printable-spec.md:67` — Decision 2: _"Section page-breaks in `both` view … today's CSS only forces a page break per customer in `detail` view — PDF mirrors that exactly (no forced break in `both`)."_
 
 The PDF code carries the same intent in a comment at `pdf.ts:156-157`. So the two output paths agree; neither is out of sync.
 

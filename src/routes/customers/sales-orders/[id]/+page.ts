@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { pageContext } from '$lib/stores/pageContext';
+import { pageContext } from '#lib/stores/pageContext.ts';
 
 export const load: PageLoad = ({ data }) => {
 	pageContext.set({

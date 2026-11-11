@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import ProductCombobox from '$lib/components/common/ProductCombobox.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import Input from '#lib/components/ui/input/input.svelte';
+	import ProductCombobox from '#lib/components/common/ProductCombobox.svelte';
 	import {
 		Table,
 		TableBody,
@@ -9,7 +9,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Trash } from '@lucide/svelte';
 	import z from 'zod';
 
@@ -145,12 +145,15 @@
 							{/if}
 						</div>
 					</TableCell>
-					<TableCell class="align-top w-24">
+					<TableCell class="w-24 align-top">
 						<div>
 							<Input
 								type="number"
 								min="0"
-								class={['disabled:opacity-100 field-sizing-content', groupedIssues[ndx]?.price ? 'border-red-500' : '']}
+								class={[
+									'field-sizing-content disabled:opacity-100',
+									groupedIssues[ndx]?.price ? 'border-red-500' : ''
+								]}
 								name={`products.${ndx}.price`}
 								bind:value={rows[ndx].price}
 								placeholder="Enter price"
@@ -167,7 +170,7 @@
 								type="number"
 								min="0"
 								class={[
-									'disabled:opacity-100 field-sizing-content',
+									'field-sizing-content disabled:opacity-100',
 									groupedIssues[ndx]?.total_price ? 'border-red-500' : ''
 								]}
 								name={`products.${ndx}.total_price`}

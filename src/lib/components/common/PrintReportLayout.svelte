@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { Printer } from '@lucide/svelte';
-	import type { DateRange } from '$lib/types/global';
+	import type { DateRange } from '#lib/types/global.ts';
 
 	let {
 		reportTitle,

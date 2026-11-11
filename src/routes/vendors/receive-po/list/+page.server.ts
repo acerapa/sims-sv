@@ -1,4 +1,4 @@
-import { getPurchaseOrders } from '$lib/server/db/queries/po';
+import { getPurchaseOrders } from '#lib/server/db/queries/po.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

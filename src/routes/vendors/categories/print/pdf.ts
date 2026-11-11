@@ -1,4 +1,4 @@
-import { addReportFooter, createReportDoc } from '$lib/utils/pdf';
+import { addReportFooter, createReportDoc } from '#lib/utils/pdf.ts';
 
 /**
  * Flat, depth-annotated view of the category tree, ready for the PDF.

@@ -14,11 +14,11 @@ Packages live under **vendors** (`src/routes/vendors/packages/`), backed by:
 
 Two print pipelines exist; we adopt the **jsPDF pipeline** (trigger `onPrint → openAndPrint(build…Pdf())`, preview page renders the same content as HTML):
 
-| Reference | What we take |
-|---|---|
-| `src/routes/reports/sales-by-customer/print/*` | route shape, `PrintReportLayout` preview, `autoTable` pdf.ts, `openAndPrint` |
-| `src/routes/customers/daily-sales/print/[id]/*` | per-`[id]` route param + `error(404, …)` in load |
-| `src/lib/utils/pdf.ts` | `createReportDoc`, `addReportFooter`, `ensureSpace`, `formatCurrencyPdf`, `safeNum`, `openAndPrint` |
+| Reference                                       | What we take                                                                                        |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `src/routes/reports/sales-by-customer/print/*`  | route shape, `PrintReportLayout` preview, `autoTable` pdf.ts, `openAndPrint`                        |
+| `src/routes/customers/daily-sales/print/[id]/*` | per-`[id]` route param + `error(404, …)` in load                                                    |
+| `src/lib/utils/pdf.ts`                          | `createReportDoc`, `addReportFooter`, `ensureSpace`, `formatCurrencyPdf`, `safeNum`, `openAndPrint` |
 
 No package printable exists today.
 
@@ -47,14 +47,14 @@ sequenceDiagram
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/vendors/packages/print/[id]/+page.server.ts` | **create** | parse `+id` from params; invalid → `error(404, …)`; `getPackage(id)`; missing → `error(404, 'Package not found')`; return `{ pkg }` |
-| `src/routes/vendors/packages/print/[id]/pdf.ts` | **create** | `buildPackageDetailsPdf(pkg: PackageDetailsData): jsPDF` (interface in this file); `createReportDoc` + branded package header info + `autoTable` items table + total line + `addReportFooter` |
-| `src/routes/vendors/packages/print/[id]/+page.svelte` | **create** | `PrintReportLayout` (title `Package — {name}`) with HTML preview: description line (if any), items `<table class="print-table">`, Total line; `onPrint={() => openAndPrint(buildPackageDetailsPdf(pkg))}` |
-| `src/routes/vendors/packages/print/[id]/+layout@.svelte` | **create** | copy the pattern from `src/routes/reports/sales-by-customer/print/+layout@.svelte` (imports `app.css`) |
-| `src/lib/components/pages/vendors/packages/package-form.svelte` | **modify** | add a **Print** button (Printer icon, `@lucide/svelte`) in the form header/toolbar: `onclick={() => window.open(`/vendors/packages/print/${pkg.id}`, '_blank')}` — visible only when a package is being viewed (`pkg` present) |
-| `test/package-details-printable.spec.ts` | **create** | vitest specs for `buildPackageDetailsPdf` (title, header fields, table rows, total, empty-items state, no Svelte imports — plain Node), mirroring `test/daily-sales-receipt-printable.spec.ts` / `sales-by-customer-printable.spec.ts` |
+| File                                                            | Action     | Contents                                                                                                                                                                                                                               |
+| --------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/routes/vendors/packages/print/[id]/+page.server.ts`        | **create** | parse `+id` from params; invalid → `error(404, …)`; `getPackage(id)`; missing → `error(404, 'Package not found')`; return `{ pkg }`                                                                                                    |
+| `src/routes/vendors/packages/print/[id]/pdf.ts`                 | **create** | `buildPackageDetailsPdf(pkg: PackageDetailsData): jsPDF` (interface in this file); `createReportDoc` + branded package header info + `autoTable` items table + total line + `addReportFooter`                                          |
+| `src/routes/vendors/packages/print/[id]/+page.svelte`           | **create** | `PrintReportLayout` (title `Package — {name}`) with HTML preview: description line (if any), items `<table class="print-table">`, Total line; `onPrint={() => openAndPrint(buildPackageDetailsPdf(pkg))}`                              |
+| `src/routes/vendors/packages/print/[id]/+layout@.svelte`        | **create** | copy the pattern from `src/routes/reports/sales-by-customer/print/+layout@.svelte` (imports `app.css`)                                                                                                                                 |
+| `src/lib/components/pages/vendors/packages/package-form.svelte` | **modify** | add a **Print** button (Printer icon, `@lucide/svelte`) in the form header/toolbar: `onclick={() => window.open(`/vendors/packages/print/${pkg.id}`, '_blank')}` — visible only when a package is being viewed (`pkg` present)         |
+| `test/package-details-printable.spec.ts`                        | **create** | vitest specs for `buildPackageDetailsPdf` (title, header fields, table rows, total, empty-items state, no Svelte imports — plain Node), mirroring `test/daily-sales-receipt-printable.spec.ts` / `sales-by-customer-printable.spec.ts` |
 
 No DB/query changes — `getPackage(id)` already returns everything needed.
 
@@ -65,7 +65,7 @@ export interface PackageItemRow {
 	product_id: number;
 	quantity: number;
 	serial_number: string | null;
-	price: string | number;        // rate
+	price: string | number; // rate
 	total_price: string | number; // line amount
 	product: {
 		id: number;
@@ -85,7 +85,7 @@ export interface PackageDetailsData {
 }
 ```
 
-`pdf.ts` keeps its constraint: no Svelte or `$lib` imports other than the shared `src/lib/utils/pdf.ts` helpers, so it runs under plain Node/vitest.
+`pdf.ts` keeps its constraint: no Svelte or `#lib` imports other than the shared `src/lib/utils/pdf.ts` helpers, so it runs under plain Node/vitest.
 
 ### PDF output (the actual printed document)
 
@@ -101,12 +101,12 @@ HTML in `+page.svelte` mirrors the PDF 1:1 — same columns, same rows, same tot
 
 ## Decisions (user-confirmed)
 
-| # | Question | Decision |
-|---|---|---|
-| 1 | Table columns | **# / Description / SKU / Qty / Rate / S/N / Amount** — confirmed |
-| 2 | Total line | **Stored `packages.total_price`** (user chose the stored field over the computed sum) |
-| 3 | Entry point | **From the view form** (Print button shown when a package is open), not the row dropdown |
-| 4 | Info block | **Description + created date + item count** |
+| #   | Question      | Decision                                                                                 |
+| --- | ------------- | ---------------------------------------------------------------------------------------- |
+| 1   | Table columns | **# / Description / SKU / Qty / Rate / S/N / Amount** — confirmed                        |
+| 2   | Total line    | **Stored `packages.total_price`** (user chose the stored field over the computed sum)    |
+| 3   | Entry point   | **From the view form** (Print button shown when a package is open), not the row dropdown |
+| 4   | Info block    | **Description + created date + item count**                                              |
 
 ## Acceptance criteria
 

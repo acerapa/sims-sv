@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { buildSalesByRepPdf, type SalesByRepData } from '../src/routes/reports/sales-by-rep/print/pdf';
+import {
+	buildSalesByRepPdf,
+	type SalesByRepData
+} from '../src/routes/reports/sales-by-rep/print/pdf';
 
 // jsPDF 4 removed getText()/getTextContent() in favor of doc.canvas, so pull rendered
 // strings straight out of the content stream (same approach as test/categories-printable.spec.ts).
@@ -13,7 +16,8 @@ function textIn(doc: { output: () => string }): string {
 	return parts.join('\n');
 }
 
-const longDate = (d: string) => new Date(d).toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' });
+const longDate = (d: string) =>
+	new Date(d).toLocaleDateString('default', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const data: SalesByRepData = {
 	detailed: [
@@ -52,7 +56,9 @@ const data: SalesByRepData = {
 					invoice_notes: 'net 30',
 					subtotal: 3500.25,
 					balance: 0,
-					items: [{ item_name: 'Monitor', item_quantity: 1, item_price: 3500.25, item_total: 3500.25 }]
+					items: [
+						{ item_name: 'Monitor', item_quantity: 1, item_price: 3500.25, item_total: 3500.25 }
+					]
 				}
 			]
 		}
@@ -122,7 +128,9 @@ describe('buildSalesByRepPdf', () => {
 								invoice_notes: null,
 								subtotal: 100,
 								balance: 0,
-								items: [{ item_name: 'Widget', item_quantity: null, item_price: 100, item_total: 100 }]
+								items: [
+									{ item_name: 'Widget', item_quantity: null, item_price: 100, item_total: 100 }
+								]
 							}
 						]
 					}

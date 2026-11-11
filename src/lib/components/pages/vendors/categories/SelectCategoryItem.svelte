@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Item } from '$lib/components/ui/command';
-	import type { Category } from '$lib/types/global';
+	import { Item } from '#lib/components/ui/command/index.ts';
+	import type { Category } from '#lib/types/global.ts';
 	import { Check, Folder, Plus, X } from '@lucide/svelte';
 	import SelectCategoryItem from './SelectCategoryItem.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import CategoryForm from './CategoryForm.svelte';
 
 	interface Props {

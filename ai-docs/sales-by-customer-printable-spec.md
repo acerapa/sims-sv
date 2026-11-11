@@ -13,23 +13,28 @@ Shared conventions 1–11 apply: see `ai-docs/print-migration-tasks.md`.
 - **Detail view**: one section per customer: `<h3>` customer name, then per order a `SO-{id}` header line (date, capitalized status) + 4-col items table (Product, Qty, Unit Price, Total Price), then a right-aligned **Subtotal** line per customer. Customers flow continuously — no forced page break between them (originally the `detail` view forced one per customer; removed per client feedback, see decision 3).
 - **Both** = summary, forced page break, `Detail` heading, detail.
 - Title varies by view (`Sales by Customer`, `… — Summary`, `… — Detail`); date-range subtitle rendered from `data.filters` by `PrintReportLayout`.
-- Preview formats via `formatCurrency` (`$lib/utils/common`) and `formatDate` (`$lib/utils/printables`).
+- Preview formats via `formatCurrency` (`#lib/utils/common`) and `formatDate` (`$lib/utils/printables`).
 
 ## Target design
 
 ### Files
 
-| File | Action | Contents |
-|---|---|---|
-| `src/routes/reports/sales-by-customer/print/pdf.ts` | **create** | `buildSalesByCustomerPdf(data, { view }): jsPDF` dispatching to `summaryTable`, `detailSections` |
-| `src/routes/reports/sales-by-customer/print/+page.svelte` | **modify** | wire `onPrint` passing `data` + `view` (the same values that drive the preview) |
-| `src/routes/reports/sales-by-customer/print/+page.server.ts` | keep | — |
+| File                                                         | Action     | Contents                                                                                         |
+| ------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------ |
+| `src/routes/reports/sales-by-customer/print/pdf.ts`          | **create** | `buildSalesByCustomerPdf(data, { view }): jsPDF` dispatching to `summaryTable`, `detailSections` |
+| `src/routes/reports/sales-by-customer/print/+page.svelte`    | **modify** | wire `onPrint` passing `data` + `view` (the same values that drive the preview)                  |
+| `src/routes/reports/sales-by-customer/print/+page.server.ts` | keep       | —                                                                                                |
 
 The builder signature should take exactly what `+page.svelte` already holds for the preview, so **preview ≡ PDF by construction** (convention 8):
 
 ```ts
 export interface SalesByCustomerData {
-	summary: { customer_name: string; total_orders: string | number; total_items: string | number; total_sales: string | number }[];
+	summary: {
+		customer_name: string;
+		total_orders: string | number;
+		total_items: string | number;
+		total_sales: string | number;
+	}[];
 	detailed: {
 		customer_name: string;
 		subtotal: string | number;
@@ -37,11 +42,17 @@ export interface SalesByCustomerData {
 			sales_order_id: number;
 			date_ordered: string;
 			order_status: string;
-			items: { product_name: string; item_quantity: string | number; item_price: string | number; item_total: string | number }[];
+			items: {
+				product_name: string;
+				item_quantity: string | number;
+				item_price: string | number;
+				item_total: string | number;
+			}[];
 		}[];
 	}[];
 }
 ```
+
 (Match the real field names from `getSalesByCustomer` — the shape above mirrors the preview bindings; verify against `src/lib/server/db/queries/reports/sales-by-customer.ts`.)
 
 ### PDF format
@@ -61,11 +72,11 @@ export interface SalesByCustomerData {
 
 ### Decisions
 
-| # | Question | Decision |
-|---|---|---|
-| 1 | `order_status` casing in PDF | title-case in JS (e.g. `Pending Payment`) — mirrors CSS `capitalize` at the word level the preview shows |
-| 2 | Section page-breaks in `both` view | today's CSS only forces a page break per customer in `detail` view — PDF mirrors that exactly (no forced break in `both`). Superseded by decision 3 |
-| 3 | Per-customer page breaks (client feedback) | customer sections flow continuously in **all** views, including `detail`; no forced `addPage` between customers — `ensureSpace` still breaks a page when a customer block physically overflows; tests assert it (2-customer detail fits one page; 30 customers paginate below 30 pages) |
+| #   | Question                                   | Decision                                                                                                                                                                                                                                                                                |
+| --- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `order_status` casing in PDF               | title-case in JS (e.g. `Pending Payment`) — mirrors CSS `capitalize` at the word level the preview shows                                                                                                                                                                                |
+| 2   | Section page-breaks in `both` view         | today's CSS only forces a page break per customer in `detail` view — PDF mirrors that exactly (no forced break in `both`). Superseded by decision 3                                                                                                                                     |
+| 3   | Per-customer page breaks (client feedback) | customer sections flow continuously in **all** views, including `detail`; no forced `addPage` between customers — `ensureSpace` still breaks a page when a customer block physically overflows; tests assert it (2-customer detail fits one page; 30 customers paginate below 30 pages) |
 
 ### Acceptance criteria
 

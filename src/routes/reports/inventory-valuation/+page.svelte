@@ -1,7 +1,7 @@
 <script lang="ts">
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import { Printer } from '@lucide/svelte';
 	import {
 		Card,
@@ -9,7 +9,7 @@
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
+	} from '#lib/components/ui/card/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -18,9 +18,14 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	} from '#lib/components/ui/table/index.ts';
+	import { Tabs, TabsContent, TabsList, TabsTrigger } from '#lib/components/ui/tabs/index.ts';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
 	import { goto } from '$app/navigation';
 	import { groupByProduct } from './pdf';
 	import type { PageProps } from './$types';

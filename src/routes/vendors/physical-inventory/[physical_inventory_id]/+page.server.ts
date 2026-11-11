@@ -2,8 +2,8 @@ import {
 	getInventoryById,
 	upsertInventoryItems,
 	type CreateInventoryItems
-} from '$lib/server/db/queries/physical-inventory';
-import { getProducts } from '$lib/server/db/queries/products';
+} from '#lib/server/db/queries/physical-inventory.ts';
+import { getProducts } from '#lib/server/db/queries/products.ts';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { decode } from 'decode-formdata';

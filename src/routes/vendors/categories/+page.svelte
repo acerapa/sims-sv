@@ -5,15 +5,15 @@
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import { Plus, Printer, Search } from '@lucide/svelte';
-	import CategoryItem from '$lib/components/pages/vendors/categories/CategoryItem.svelte';
-	import type { Category } from '$lib/types/global';
-	import { Button } from '$lib/components/ui/button';
-	import CategoryForm from '$lib/components/pages/vendors/categories/CategoryForm.svelte';
+	import CategoryItem from '#lib/components/pages/vendors/categories/CategoryItem.svelte';
+	import type { Category } from '#lib/types/global.ts';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import CategoryForm from '#lib/components/pages/vendors/categories/CategoryForm.svelte';
 	import type { PageProps } from './$types';
-	import { groupedCategories } from '$lib/utils/categories';
+	import { groupedCategories } from '#lib/utils/categories.ts';
 
 	const { form, data }: PageProps = $props();
 
@@ -26,7 +26,7 @@
 
 	const onPrint = () => {
 		window.open(`/vendors/categories/print`, '_blank');
-	}
+	};
 </script>
 
 <Card>
@@ -37,14 +37,14 @@
 				<CardDescription>Browse category hierarchy</CardDescription>
 			</div>
 			<div class="flex items-center gap-2">
-			    <Button variant="outline" onclick={onPrint}>
+				<Button variant="outline" onclick={onPrint}>
 					<Printer />
 					Print
 				</Button>
-    			<Button onclick={handleOpenForm}>
-    				<Plus class="text-white" />
-    				Add Category
-    			</Button>
+				<Button onclick={handleOpenForm}>
+					<Plus class="text-white" />
+					Add Category
+				</Button>
 			</div>
 		</div>
 	</CardHeader>

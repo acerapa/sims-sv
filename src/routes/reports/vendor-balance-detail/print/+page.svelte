@@ -1,10 +1,10 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import { formatCurrency } from '$lib/utils/common';
-	import { formatDate } from '$lib/utils/printables';
-	import { openAndPrint } from '$lib/utils/pdf';
-	import { buildVendorLedgers, grandTotalBalance } from '$lib/utils/vendor-balance';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { formatDate } from '#lib/utils/printables.ts';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
+	import { buildVendorLedgers, grandTotalBalance } from '#lib/utils/vendor-balance.ts';
 	import { buildVendorBalancePdf } from './pdf';
 
 	let { data }: PageProps = $props();

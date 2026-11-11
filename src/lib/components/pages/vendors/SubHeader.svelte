@@ -1,35 +1,23 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
 	import { page } from '$app/state';
-	import { isRouteActive } from '$lib/utils/routes';
+	import { isRouteActive } from '#lib/utils/routes.ts';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import { ChevronDown } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	const path = $derived(page.route.id as string);
 
 	const inventoryNavs = [
-		{
-			name: 'Item List',
-			path: '/vendors/inventory'
-		},
-		{
-			name: 'Receive PO',
-			path: '/vendors/receive-po'
-		},
-		{
-			name: 'Transfers',
-			path: '/vendors/transfers'
-		},
-		{
-			name: 'Bills',
-			path: '/vendors/bills'
-		},
+		{ name: 'Item List', path: '/vendors/inventory' },
+		{ name: 'Receive PO', path: '/vendors/receive-po' },
+		{ name: 'Transfers', path: '/vendors/transfers' },
+		{ name: 'Bills', path: '/vendors/bills' },
 		{
 			name: 'Physical Inventory',
 			path: '/vendors/physical-inventory'
@@ -59,19 +47,16 @@
 							buttonVariants({ variant: 'ghost' }),
 							`rounded-none border-b-2 border-transparent text-muted-foreground hover:border-blue-300 hover:bg-transparent hover:text-blue-400
 				  ${isRouteActive(nav.path, path, true) ? '!border-blue-500 !text-blue-500 hover:border-blue-500 hover:text-blue-500' : ''}`
-						]}
+						]}>Receive PO <ChevronDown class="size-3.5" /></DropdownMenuTrigger
 					>
-						Receive PO
 
-						<ChevronDown class="size-3.5" />
-					</DropdownMenuTrigger>
 					<DropdownMenuContent>
-						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/receive-po'))}>
-							New Receive PO
-						</DropdownMenuItem>
-						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/receive-po/list'))}>
-							Received PO List
-						</DropdownMenuItem>
+						<DropdownMenuItem onSelect={() => goto(resolve('vendors/receive-po'))}
+							>New Receive PO</DropdownMenuItem
+						>
+						<DropdownMenuItem onSelect={() => goto(resolve('vendors/receive-po/list'))}
+							>Received PO List</DropdownMenuItem
+						>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			{:else if nav.name === 'Transfers'}
@@ -81,25 +66,22 @@
 							buttonVariants({ variant: 'ghost' }),
 							`rounded-none border-b-2 border-transparent text-muted-foreground hover:border-blue-300 hover:bg-transparent hover:text-blue-400
 				  ${isRouteActive(nav.path, path, true) ? '!border-blue-500 !text-blue-500 hover:border-blue-500 hover:text-blue-500' : ''}`
-						]}
+						]}>Transfers <ChevronDown class="size-3.5" /></DropdownMenuTrigger
 					>
-						Transfers
 
-						<ChevronDown class="size-3.5" />
-					</DropdownMenuTrigger>
 					<DropdownMenuContent>
-						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/strs'))}>
-							Stock Transfer Request (STR)
-						</DropdownMenuItem>
-						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/ibrrs'))}>
-							Inter-Branch Reciving (IBRR)
-						</DropdownMenuItem>
-						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/rmas'))}>
-							Return Merchandise Authorization (RMA)
-						</DropdownMenuItem>
-						<DropdownMenuItem onSelect={() => goto(resolve('/vendors/transfers/fix-assets'))}>
-							Fix Assets
-						</DropdownMenuItem>
+						<DropdownMenuItem onSelect={() => goto(resolve('vendors/transfers/strs'))}
+							>Stock Transfer Request (STR)</DropdownMenuItem
+						>
+						<DropdownMenuItem onSelect={() => goto(resolve('vendors/transfers/ibrrs'))}
+							>Inter-Branch Reciving (IBRR)</DropdownMenuItem
+						>
+						<DropdownMenuItem onSelect={() => goto(resolve('vendors/transfers/rmas'))}
+							>Return Merchandise Authorization (RMA)</DropdownMenuItem
+						>
+						<DropdownMenuItem onSelect={() => goto(resolve('vendors/transfers/fix-assets'))}
+							>Fix Assets</DropdownMenuItem
+						>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			{:else}

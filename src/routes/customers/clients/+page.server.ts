@@ -1,9 +1,9 @@
-import { createCustomer, getCustomers } from '$lib/server/db/queries/customers';
+import { createCustomer, getCustomers } from '#lib/server/db/queries/customers.ts';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
-import type { Customer } from '$lib/types/global';
+import type { Customer } from '#lib/types/global.ts';
 
 export const load: PageServerLoad = async () => {
 	const customers = await getCustomers();

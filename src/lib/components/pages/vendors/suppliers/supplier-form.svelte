@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -15,11 +15,10 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import { Textarea } from '$lib/components/ui/textarea';
-	import type { Supplier } from '$lib/types/global';
+	} from '#lib/components/ui/sheet/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
+	import type { Supplier } from '#lib/types/global.ts';
 	import { Plus } from '@lucide/svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 
 	let {

@@ -12,7 +12,7 @@ import {
 	loadLogoDataUrl,
 	safeNum,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 type Amount = number | string | null | undefined;
 

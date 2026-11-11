@@ -1,6 +1,6 @@
 import autoTable, { type CellInput, type Styles } from 'jspdf-autotable';
 import { jsPDF } from 'jspdf';
-import { addReportFooter, formatCurrencyPdf, titleCase } from '$lib/utils/pdf';
+import { addReportFooter, formatCurrencyPdf, titleCase } from '#lib/utils/pdf.ts';
 
 type Amount = number | string | null | undefined;
 

@@ -4,16 +4,16 @@ import { packages, packagesToProducts } from '../schema';
 
 export interface PackageProductItem {
 	product_id: number;
-  quantity: number;
-  serial_number: string | null;
-  price: string;
-  total_price: string;
+	quantity: number;
+	serial_number: string | null;
+	price: string;
+	total_price: string;
 }
 
 export interface CreatePackageData {
 	name: string;
 	description: string | null;
-  products: PackageProductItem[];
+	products: PackageProductItem[];
 	total_price: string;
 }
 
@@ -28,7 +28,7 @@ export const createPackage = async (data: CreatePackageData) => {
 			.values({
 				name: data.name,
 				description: data.description,
-				total_price: data.total_price,
+				total_price: data.total_price
 			})
 			.returning({
 				id: packages.id,
@@ -59,14 +59,14 @@ export const updatePackage = async (data: UpdatePackageData) => {
 			.update(packages)
 			.set({
 				name: data.name,
-        description: data.description,
-				total_price: data.total_price,
+				description: data.description,
+				total_price: data.total_price
 			})
 			.where(eq(packages.id, data.id))
 			.returning({
 				id: packages.id,
 				name: packages.name,
-        description: packages.description,
+				description: packages.description,
 				total_price: packages.total_price
 			});
 
@@ -80,7 +80,7 @@ export const updatePackage = async (data: UpdatePackageData) => {
 					quantity: p.quantity,
 					serial_number: p.serial_number,
 					price: p.price,
-					total_price: p.total_price,
+					total_price: p.total_price
 				}))
 			);
 		}
@@ -107,7 +107,7 @@ export const getPackage = async (id: number) => {
 							id: true,
 							sku: true,
 							sales_description: true,
-              sale_price: true,
+							sale_price: true
 						}
 					}
 				}
@@ -164,10 +164,7 @@ export const getPackagesPaginated = async (params: GetPackagesPaginatedParams = 
 		? or(ilike(packages.name, `%${search}%`), ilike(packages.description, `%${search}%`))
 		: undefined;
 
-	const [{ total }] = await db
-		.select({ total: count() })
-		.from(packages)
-		.where(searchCondition);
+	const [{ total }] = await db.select({ total: count() }).from(packages).where(searchCondition);
 
 	const paginated = await db.query.packages.findMany({
 		where: searchCondition,

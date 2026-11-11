@@ -1,9 +1,14 @@
 <script lang="ts">
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import Label from '#lib/components/ui/label/label.svelte';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -13,17 +18,16 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
+	} from '#lib/components/ui/sheet/index.ts';
 	import { Plus, Printer } from '@lucide/svelte';
-	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import { applyAction, enhance } from '$app/forms';
+	import Textarea from '#lib/components/ui/textarea/textarea.svelte';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidateAll } from '$app/navigation';
-	import StoresForm from '$lib/components/pages/settings/stores/StoresForm.svelte';
+	import StoresForm from '#lib/components/pages/settings/stores/StoresForm.svelte';
 	import { resolve } from '$app/paths';
 	import StrsItems from './strs-items.svelte';
-	import type { STRItem } from '$lib/types/global';
+	import type { STRItem } from '#lib/types/global.ts';
 
 	let { stores, form = null, open = $bindable(false), str = $bindable(null) } = $props();
 	let storeId = $derived(str?.store_id ?? '');
@@ -54,12 +58,12 @@
 		if (!state) {
 			storeId = '';
 			errors = null;
-			goto(resolve('/vendors/transfers/strs'));
+			goto(resolve('vendors/transfers/strs'));
 		}
 	};
 
 	const printSTR = async () => {
-		await goto(resolve(`/vendors/transfers/strs/print/${str?.id}`));
+		await goto(resolve(`vendors/transfers/strs/print/${str?.id}`));
 	};
 
 	const openStoresForm = () => {
@@ -73,10 +77,8 @@
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>
-	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}>
-		<Plus />
-		Add STR
-	</SheetTrigger>
+	<SheetTrigger class={[buttonVariants({ variant: 'default' })]}><Plus /> Add STR</SheetTrigger>
+
 	<SheetContent side="right" class="overflow-x-hidden overflow-y-auto sm:max-w-3xl">
 		<SheetHeader>
 			<SheetTitle>

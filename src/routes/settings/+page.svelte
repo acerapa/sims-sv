@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import Input from '$lib/components/ui/input/input.svelte';
+	} from '#lib/components/ui/card/index.ts';
+	import Input from '#lib/components/ui/input/input.svelte';
 	import {
 		Table,
 		TableBody,
@@ -19,8 +19,8 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
-	import type { Bracket } from '$lib/types/global';
+	} from '#lib/components/ui/table/index.ts';
+	import type { Bracket } from '#lib/types/global.ts';
 	import {
 		Trash,
 		PhilippinePeso,
@@ -37,8 +37,8 @@
 		DialogDescription,
 		DialogHeader,
 		DialogTitle
-	} from '$lib/components/ui/dialog';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	} from '#lib/components/ui/dialog/index.ts';
+
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 

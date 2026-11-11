@@ -1,19 +1,19 @@
 <script lang="ts">
-	import StartInventory from '$lib/components/pages/vendors/phyiscal-inventory/StartInventory.svelte';
+	import StartInventory from '#lib/components/pages/vendors/phyiscal-inventory/StartInventory.svelte';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
 		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
+	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -21,13 +21,13 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import { Badge } from '$lib/components/ui/badge';
+	import { Badge } from '#lib/components/ui/badge/index.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { buttonVariants } from '$lib/components/ui/button';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 
 	let { data, form }: PageProps = $props();
 

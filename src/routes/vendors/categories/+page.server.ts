@@ -1,8 +1,8 @@
-import { db } from '$lib/server/db';
+import { db } from '#lib/server/db/index.ts';
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
-import { categories } from '$lib/server/db/schema';
+import { categories } from '#lib/server/db/schema.ts';
 
 export const actions: Actions = {
 	default: async ({ request }) => {

@@ -1,4 +1,4 @@
-import { getSalesByRep } from '$lib/server/db/queries/reports/sales-by-rep';
+import { getSalesByRep } from '#lib/server/db/queries/reports/sales-by-rep.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {

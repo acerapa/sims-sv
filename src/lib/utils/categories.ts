@@ -1,4 +1,4 @@
-import type { Category } from '$lib/types/global';
+import type { Category } from '#lib/types/global.ts';
 
 export const filterCategories = (categories: Category[], query: string): Category[] => {
 	const q = query.trim().toLowerCase();

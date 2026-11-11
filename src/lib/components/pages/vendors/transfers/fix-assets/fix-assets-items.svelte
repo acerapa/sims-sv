@@ -1,9 +1,9 @@
 <script lang="ts">
-	import ProductSelectWithSearch from '$lib/components/common/product-select-with-search.svelte';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import ProductSelectWithSearch from '#lib/components/common/product-select-with-search.svelte';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
 	import LineItem from '../line-item.svelte';
 
-	import type { FixAssetItem, ProductItem } from '$lib/types/global';
+	import type { FixAssetItem, ProductItem } from '#lib/types/global.ts';
 	let { items = $bindable<FixAssetItem[]>([]), isView = $bindable<boolean>(false) } = $props();
 
 	let fixAssetItemsFormatted = $derived.by(() => {

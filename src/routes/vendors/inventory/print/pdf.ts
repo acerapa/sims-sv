@@ -1,5 +1,5 @@
 import autoTable from 'jspdf-autotable';
-import { addReportFooter, createReportDoc, formatCurrencyPdf } from '$lib/utils/pdf';
+import { addReportFooter, createReportDoc, formatCurrencyPdf } from '#lib/utils/pdf.ts';
 
 export interface InventoryProduct {
 	purchase_description: string;
@@ -27,7 +27,10 @@ export async function buildInventoryPdf(products: InventoryProduct[], total: num
 						formatCurrencyPdf(p.sale_price || 0)
 					])
 				: [[{ content: 'No products found.', colSpan: 5, styles: { halign: 'center' } }]],
-		foot: products.length > 0 ? [[`Total (${total} items)`, '', '', String(totalQuantity), '']] : undefined,
+		foot:
+			products.length > 0
+				? [[`Total (${total} items)`, '', '', String(totalQuantity), '']]
+				: undefined,
 		showHead: 'everyPage',
 		showFoot: 'lastPage',
 		theme: 'grid',
@@ -40,7 +43,12 @@ export async function buildInventoryPdf(products: InventoryProduct[], total: num
 			overflow: 'linebreak'
 		},
 		// Explicit dark textColor: the 'grid' theme defaults head/foot text to white, which is invisible on these light fills
-		headStyles: { fillColor: [240, 240, 240], textColor: [17, 17, 17], fontStyle: 'bold', fontSize: 9 },
+		headStyles: {
+			fillColor: [240, 240, 240],
+			textColor: [17, 17, 17],
+			fontStyle: 'bold',
+			fontSize: 9
+		},
 		footStyles: { fillColor: [245, 245, 245], textColor: [17, 17, 17], fontStyle: 'bold' },
 		columnStyles: {
 			1: { cellWidth: 70 },

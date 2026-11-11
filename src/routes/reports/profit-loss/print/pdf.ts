@@ -7,7 +7,7 @@ import {
 	formatCurrencyPdf,
 	safeNum,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 // Single source of truth for the preview (+page.svelte) and the PDF:
 // both import these, so rounding/wording can never drift apart.

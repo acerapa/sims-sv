@@ -8,7 +8,7 @@ import {
 	formatCurrencyPdf,
 	formatDatePdf,
 	tableFinalY
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 const EMPTY_RANGE_TEXT = 'No purchases found for the selected date range.';
 
@@ -97,12 +97,7 @@ export function groupDetailByCategory(rows: PbiDetailRow[]): CategorySection[] {
 	return sections;
 }
 
-function drawSummaryTable(
-	doc: jsPDF,
-	summary: PbiSummaryRow[],
-	margin: number,
-	y: number
-): number {
+function drawSummaryTable(doc: jsPDF, summary: PbiSummaryRow[], margin: number, y: number): number {
 	// same reduces as the preview's grandTotals derived (total_amount arrives as a string)
 	const grand = {
 		po_count: summary.reduce((sum, row) => sum + row.po_count, 0),
@@ -160,7 +155,18 @@ function drawLinesTable(doc: jsPDF, section: CategorySection, margin: number, y:
 		startY: y,
 		margin: { left: margin, right: margin, top: 10, bottom: 48 },
 		head: [
-			['Type', 'Date', 'Ref No.', 'Memo', 'Vendor', 'Item', 'Qty', 'Cost Price', 'Amount', 'Balance']
+			[
+				'Type',
+				'Date',
+				'Ref No.',
+				'Memo',
+				'Vendor',
+				'Item',
+				'Qty',
+				'Cost Price',
+				'Amount',
+				'Balance'
+			]
 		],
 		body: section.lines.map((line) => [
 			line.transaction_type,

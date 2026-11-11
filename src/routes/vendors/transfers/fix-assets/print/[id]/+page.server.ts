@@ -1,4 +1,4 @@
-import { getFixAssetById } from '$lib/server/db/queries/fix-assets';
+import { getFixAssetById } from '#lib/server/db/queries/fix-assets.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

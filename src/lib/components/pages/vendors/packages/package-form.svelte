@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
+	import Separator from '#lib/components/ui/separator/separator.svelte';
 	import {
 		Sheet,
 		SheetContent,
@@ -12,16 +12,15 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import { Textarea } from '$lib/components/ui/textarea';
+	} from '#lib/components/ui/sheet/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
 	import { Plus, Printer } from '@lucide/svelte';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { findErrorByKey, formatCurrency } from '$lib/utils/common';
+	import { findErrorByKey, formatCurrency } from '#lib/utils/common.ts';
 	import PackageProductsAndQuantity from './PackageProductsAndQuantity.svelte';
 
 	interface ProductOption {
@@ -57,9 +56,17 @@
 			price: string | null;
 			total_price: string | null;
 		}[]
-	>([{ product_id: '', quantity: 1, serial_number: null, price: '0', total_price: '0' }]);
-	let productsPickerRef: PackageProductsAndQuantity;
+	>([
+		{
+			product_id: '',
+			quantity: 1,
+			serial_number: null,
+			price: '0',
+			total_price: '0'
+		}
+	]);
 
+	let productsPickerRef: PackageProductsAndQuantity;
 	const errors = $derived(form?.errors);
 	const issues = $derived(form?.issues);
 
@@ -83,17 +90,21 @@
 		if (!open) {
 			name = '';
 			description = '';
-			productRows = [{ product_id: '', quantity: 1, serial_number: null, price: '0', total_price: '0' }];
+			productRows = [
+				{ product_id: '', quantity: 1, serial_number: null, price: '0', total_price: '0' }
+			];
 			edit = false;
 			if (form) form = null;
 		}
 	});
 
-	const packagePrice = $derived(productRows.reduce((acc, row) => acc + (Number(row.total_price) || 0), 0));
+	const packagePrice = $derived(
+		productRows.reduce((acc, row) => acc + (Number(row.total_price) || 0), 0)
+	);
 
 	const clearPackageId = async () => {
 		if (page.url.pathname === '/vendors/packages') {
-			await goto(resolve('/vendors/packages'));
+			await goto(resolve('vendors/packages'));
 		}
 	};
 
@@ -149,18 +160,16 @@
 				{#if edit}
 					<Button onclick={() => (edit = false)} variant="outline">Cancel</Button>
 				{:else}
-				    <div class="flex items-center gap-2">
-    					<Button
-    						type="button"
-    						variant="outline"
-    						onclick={() => window.open(`/vendors/packages/print/${pkg.id}`, '_blank')}
-    					>
-    						<Printer class="size-4" />
-    						Print
-    					</Button>
-    					<Button onclick={() => (edit = true)}>Edit Package</Button>
+					<div class="flex items-center gap-2">
+						<Button
+							type="button"
+							variant="outline"
+							onclick={() => window.open(`/vendors/packages/print/${pkg.id}`, '_blank')}
+							><Printer class="size-4" /> Print</Button
+						>
 
-								</div>
+						<Button onclick={() => (edit = true)}>Edit Package</Button>
+					</div>
 				{/if}
 			{/if}
 		</SheetHeader>
@@ -238,8 +247,8 @@
 							<small class="text-red-500">{errors.properties.products.errors[0]}</small>
 						{/if}
 						<div class="flex flex-row justify-end py-3">
-						    <input type="hidden" name="total_price" value={packagePrice} />
-						    <p>Package total: <b>{formatCurrency(packagePrice)}</b></p>
+							<input type="hidden" name="total_price" value={packagePrice} />
+							<p>Package total: <b>{formatCurrency(packagePrice)}</b></p>
 						</div>
 					</CardContent>
 				</Card>
@@ -248,9 +257,8 @@
 			{#if !pkg || edit}
 				<SheetFooter class="flex flex-row justify-end">
 					<Button type="button" onclick={() => (open = false)} variant="outline">Cancel</Button>
-					<Button type="submit" variant="default">
-						{edit ? 'Update Package' : 'Add Package'}
-					</Button>
+
+					<Button type="submit" variant="default">{edit ? 'Update Package' : 'Add Package'}</Button>
 				</SheetFooter>
 			{/if}
 		</form>

@@ -89,7 +89,11 @@ describe('buildCategoriesPdf', () => {
 	});
 
 	it('pages deep hierarchies: 200 categories spans more than one page', async () => {
-		const big = Array.from({ length: 200 }, (_, i) => ({ id: i + 1, name: `Category ${i + 1}`, depth: 0 }));
+		const big = Array.from({ length: 200 }, (_, i) => ({
+			id: i + 1,
+			name: `Category ${i + 1}`,
+			depth: 0
+		}));
 		const doc = await buildCategoriesPdf(big, big.length);
 		expect(doc.getNumberOfPages()).toBeGreaterThan(1);
 		// footer runs on every page, so the generated-on line appears per page

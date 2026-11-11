@@ -1,7 +1,7 @@
 <script lang="ts">
-	import PrintReportLayout from '$lib/components/common/PrintReportLayout.svelte';
+	import PrintReportLayout from '#lib/components/common/PrintReportLayout.svelte';
 	import type { PageProps } from './$types';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import {
 		buildProfitLossPdf,
 		formatCurrency,

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -11,15 +11,14 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import { Textarea } from '$lib/components/ui/textarea';
+	} from '#lib/components/ui/sheet/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
 	import { Plus } from '@lucide/svelte';
 	import type {
 		ActionData,
 		PageData
 	} from '../../../../../routes/vendors/physical-inventory/$types';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';

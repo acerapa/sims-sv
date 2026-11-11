@@ -1,35 +1,34 @@
 <script lang="ts">
-	import DatePicker from '$lib/components/common/DatePicker.svelte';
-	import SelectProduct from '$lib/components/pages/customers/sales-orders/select-product.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import DatePicker from '#lib/components/common/DatePicker.svelte';
+	import SelectProduct from '#lib/components/pages/customers/sales-orders/select-product.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Label } from '$lib/components/ui/label';
+	} from '#lib/components/ui/card/index.ts';
+	import { Label } from '#lib/components/ui/label/index.ts';
 	import {
 		Select,
 		SelectContent,
 		SelectGroup,
 		SelectItem,
 		SelectTrigger
-	} from '$lib/components/ui/select';
-	import { Textarea } from '$lib/components/ui/textarea';
-	import type { CustomerWithId, Product } from '$lib/types/global';
+	} from '#lib/components/ui/select/index.ts';
+	import { Textarea } from '#lib/components/ui/textarea/index.ts';
+	import type { CustomerWithId, Product } from '#lib/types/global.ts';
 	import type { PageProps } from './$types';
-	import { applyAction, enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import { findErrorByKey } from '$lib/utils/common';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
+	import { findErrorByKey } from '#lib/utils/common.ts';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidate } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import ClientForm from '$lib/components/pages/customers/clients/client-form.svelte';
-	import UserFormSheet from '$lib/components/pages/settings/users/user-form-sheet.svelte';
+	import ClientForm from '#lib/components/pages/customers/clients/client-form.svelte';
+	import UserFormSheet from '#lib/components/pages/settings/users/user-form-sheet.svelte';
 	import { page } from '$app/state';
-	import { userRoles } from '$lib/constants';
+	import { userRoles } from '#lib/constants/index.ts';
 	import { AlertCircle } from '@lucide/svelte';
 
 	let { data, form }: PageProps = $props();
@@ -119,7 +118,7 @@
 			if (result.type === 'success') {
 				if (isEditMode) {
 					toast.success('Sales order updated successfully');
-					goto(resolve(`/customers/sales-orders/${salesOrder.id}`));
+					goto(resolve(`customers/sales-orders/${salesOrder.id}`));
 				} else {
 					toast.success('Sales order created successfully');
 					if (submitAction === 'new') {
@@ -138,9 +137,9 @@
 								serial_number: ''
 							}
 						];
-						goto(resolve('/customers/sales-orders/form'));
+						goto(resolve('customers/sales-orders/form'));
 					} else {
-						goto(resolve('/customers/sales-orders'));
+						goto(resolve('customers/sales-orders'));
 					}
 				}
 			} else {
@@ -172,7 +171,8 @@
 </script>
 
 <svelte:head>
-	<title>RamTech | {isEditMode ? `Edit Sales Order #${salesOrder?.id}` : 'Sales Orders Form'}</title>
+	<title>RamTech | {isEditMode ? `Edit Sales Order #${salesOrder?.id}` : 'Sales Orders Form'}</title
+	>
 	<meta name="description" content={isEditMode ? 'Edit sales order' : 'Create sales order'} />
 </svelte:head>
 
@@ -189,7 +189,10 @@
 			<CardContent class="pt-6">
 				<div class="flex items-center gap-2 text-sm text-blue-900">
 					<AlertCircle class="h-4 w-4" />
-					<span>Editing Sales Order #{salesOrder.id} • Status: <strong>{salesOrder.order_status}</strong></span>
+					<span
+						>Editing Sales Order #{salesOrder.id} • Status:
+						<strong>{salesOrder.order_status}</strong></span
+					>
 				</div>
 			</CardContent>
 		</Card>
@@ -236,7 +239,11 @@
 		<Card class="rounded-lg">
 			<CardHeader>
 				<CardTitle>Create Sales Order</CardTitle>
-				<CardDescription>{isEditMode ? 'Update this sales order' : 'Create a new sales order for a customer.'}</CardDescription>
+				<CardDescription
+					>{isEditMode
+						? 'Update this sales order'
+						: 'Create a new sales order for a customer.'}</CardDescription
+				>
 			</CardHeader>
 			<CardContent>
 				<div class="flex flex-col gap-6">
@@ -245,14 +252,19 @@
 							<Label>{isEditMode ? 'Customer (Read-only)' : 'Customer'}</Label>
 							<div>
 								{#if isEditMode}
-									<div class="flex h-10 items-center rounded-md border border-input bg-gray-100 px-3 text-sm text-gray-600">
+									<div
+										class="flex h-10 items-center rounded-md border border-input bg-gray-100 px-3 text-sm text-gray-600"
+									>
 										{selectedCustomer?.name || 'Unknown'}
 									</div>
 									<input type="hidden" name="customer_id" value={selectedCustomerId} />
 								{:else}
 									<Select type="single" name="customer_id" bind:value={selectedCustomerId}>
 										<SelectTrigger
-											class={['h-10 w-full', errors?.properties?.customer_id ? 'border-red-500' : '']}
+											class={[
+												'h-10 w-full',
+												errors?.properties?.customer_id ? 'border-red-500' : ''
+											]}
 										>
 											{selectedCustomer ? selectedCustomer.name : 'Select Customer'}
 										</SelectTrigger>
@@ -277,14 +289,19 @@
 							<Label>{isEditMode ? 'Order Type (Read-only)' : 'Order Type'}</Label>
 							<div>
 								{#if isEditMode}
-									<div class="flex h-10 items-center rounded-md border border-input bg-gray-100 px-3 text-sm text-gray-600">
+									<div
+										class="flex h-10 items-center rounded-md border border-input bg-gray-100 px-3 text-sm text-gray-600"
+									>
 										{selectedOrderTypeLabel || 'Unknown'}
 									</div>
 									<input type="hidden" name="order_type" value={selectedOrderType} />
 								{:else}
 									<Select type="single" name="order_type" bind:value={selectedOrderType}>
 										<SelectTrigger
-											class={['h-10 w-full', errors?.properties?.order_type ? 'border-red-500' : '']}
+											class={[
+												'h-10 w-full',
+												errors?.properties?.order_type ? 'border-red-500' : ''
+											]}
 										>
 											{selectedOrderTypeLabel ? selectedOrderTypeLabel : 'Select Type'}
 										</SelectTrigger>
@@ -309,10 +326,16 @@
 							<Label>{isEditMode ? 'Date Ordered (Read-only)' : 'Date Ordered'}</Label>
 							<div class="flex flex-col gap-1">
 								{#if isEditMode}
-									<div class="flex h-10 items-center rounded-md border border-input bg-gray-100 px-3 text-sm text-gray-600">
+									<div
+										class="flex h-10 items-center rounded-md border border-input bg-gray-100 px-3 text-sm text-gray-600"
+									>
 										{dateOrdered?.toLocaleDateString() || 'Unknown'}
 									</div>
-									<input type="hidden" name="date_ordered" value={dateOrdered?.toLocaleDateString() || ''} />
+									<input
+										type="hidden"
+										name="date_ordered"
+										value={dateOrdered?.toLocaleDateString() || ''}
+									/>
 								{:else}
 									<DatePicker
 										bind:value={dateOrdered}
@@ -349,11 +372,18 @@
 		/>
 		<div class="flex gap-3 self-end">
 			{#if isEditMode}
-				<Button variant="outline" href={resolve(`/customers/sales-orders/${salesOrder?.id}`)}>Cancel</Button>
+				<Button variant="outline" href={resolve(`customers/sales-orders/${salesOrder?.id}`)}
+					>Cancel</Button
+				>
+
 				<Button type="submit" onclick={() => (submitAction = 'close')}>Update</Button>
 			{:else}
-				<Button variant="outline" href={resolve('/customers/sales-orders')}>Cancel</Button>
-				<Button variant="outline" type="submit" onclick={() => (submitAction = 'new')}>Save and New</Button>
+				<Button variant="outline" href={resolve('customers/sales-orders')}>Cancel</Button>
+
+				<Button variant="outline" type="submit" onclick={() => (submitAction = 'new')}
+					>Save and New</Button
+				>
+
 				<Button type="submit" onclick={() => (submitAction = 'close')}>Save and Close</Button>
 			{/if}
 		</div>

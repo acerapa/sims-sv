@@ -1,4 +1,4 @@
-import { getCategories } from '$lib/server/db/queries/categories';
+import { getCategories } from '#lib/server/db/queries/categories.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

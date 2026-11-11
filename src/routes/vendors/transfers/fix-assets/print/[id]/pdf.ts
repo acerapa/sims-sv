@@ -9,7 +9,7 @@ import {
 	ensureSpace,
 	formatCurrencyPdf,
 	formatDatePdf
-} from '$lib/utils/pdf';
+} from '#lib/utils/pdf.ts';
 
 export interface FixAssetItemSource {
 	item_description: string;

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Button } from '$lib/components/ui/button';
-	import { formatCurrency } from '$lib/utils/common';
-	import { openAndPrint } from '$lib/utils/pdf';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { formatCurrency } from '#lib/utils/common.ts';
+	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import type { PageProps } from './$types';
 	import { buildSalesReceiptPdf } from './pdf';
 

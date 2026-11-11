@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
+	import { Badge } from '#lib/components/ui/badge/index.ts';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
 		CardDescription,
 		CardHeader,
 		CardTitle
-	} from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
+	} from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
 	import {
 		Table,
 		TableBody,
@@ -16,7 +16,7 @@
 		TableHead,
 		TableHeader,
 		TableRow
-	} from '$lib/components/ui/table';
+	} from '#lib/components/ui/table/index.ts';
 	import { Funnel, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
@@ -113,7 +113,7 @@
 						<TableRow>
 							<TableCell class="font-medium">
 								<a
-									href={resolve(`/customers/invoices/${invoice.id}`)}
+									href={resolve(`customers/invoices/${invoice.id}`)}
 									class="text-blue-500 hover:underline"
 								>
 									INV-{invoice.id}
@@ -121,7 +121,7 @@
 							</TableCell>
 							<TableCell class="font-medium">
 								<a
-									href={resolve(`/customers/sales-orders/${invoice.sales_order_id}`)}
+									href={resolve(`customers/sales-orders/${invoice.sales_order_id}`)}
 									class="text-blue-500 hover:underline"
 								>
 									SO-{invoice.sales_order_id}
@@ -147,12 +147,12 @@
 									{getStatusLabel(invoice.invoice_status || 'unpaid')}
 								</Badge>
 							</TableCell>
-							<TableCell class="font-medium">
-								₱{parseFloat(invoice.total_amount as string).toLocaleString()}
-							</TableCell>
-							<TableCell>
-								₱{parseFloat(invoice.paid_amount as string).toLocaleString()}
-							</TableCell>
+
+							<TableCell class="font-medium"
+								>₱{parseFloat(invoice.total_amount as string).toLocaleString()}</TableCell
+							>
+							<TableCell>₱{parseFloat(invoice.paid_amount as string).toLocaleString()}</TableCell>
+
 							<TableCell class="font-medium">
 								₱{(
 									parseFloat(invoice.total_amount as string) -

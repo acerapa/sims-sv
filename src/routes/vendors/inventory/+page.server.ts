@@ -12,7 +12,7 @@ import {
 	type UpdateProductData,
 	type SortableColumn,
 	type SortOrder
-} from '$lib/server/db/queries/products';
+} from '#lib/server/db/queries/products.ts';
 
 const validSortColumns: SortableColumn[] = [
 	'sku',
@@ -135,7 +135,7 @@ export const actions: Actions = {
 					message: `A product with ${field} "${value}" already exists`
 				});
 			}
-      if (cause?.code === '23503') {
+			if (cause?.code === '23503') {
 				return fail(400, {
 					message: 'Referenced record not found. Please check your selections.'
 				});
@@ -206,9 +206,9 @@ export const actions: Actions = {
 					issues: error.issues,
 					message: 'Invalid input'
 				});
-      }
+			}
 
-      data['selling_bracket_id'] = data['selling_bracket_id'] || null;
+			data['selling_bracket_id'] = data['selling_bracket_id'] || null;
 
 			return await updateProduct(data as UpdateProductData);
 		} catch (error: any) {
@@ -222,7 +222,7 @@ export const actions: Actions = {
 					message: `A product with ${field} "${value}" already exists`
 				});
 			}
-      if (cause?.code === '23503') {
+			if (cause?.code === '23503') {
 				return fail(400, {
 					message: 'Referenced record not found. Please check your selections.'
 				});

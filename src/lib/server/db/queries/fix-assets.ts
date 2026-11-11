@@ -1,7 +1,7 @@
 import { count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '..';
 import { fixAssetItems, fixAssets, products } from '../schema';
-import type { FixAssetItem } from '$lib/types/global';
+import type { FixAssetItem } from '#lib/types/global.ts';
 type FixAssetItemWithId = FixAssetItem & { id: number };
 
 export interface CreateFixAsset {

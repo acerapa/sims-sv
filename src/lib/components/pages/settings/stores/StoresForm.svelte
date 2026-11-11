@@ -1,11 +1,16 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { Card, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
+	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { Card, CardDescription, CardHeader, CardTitle } from '#lib/components/ui/card/index.ts';
+	import { Input } from '#lib/components/ui/input/index.ts';
+	import Label from '#lib/components/ui/label/label.svelte';
+	import {
+		Select,
+		SelectContent,
+		SelectItem,
+		SelectTrigger
+	} from '#lib/components/ui/select/index.ts';
 	import {
 		Sheet,
 		SheetClose,
@@ -14,10 +19,9 @@
 		SheetHeader,
 		SheetTitle,
 		SheetTrigger
-	} from '$lib/components/ui/sheet';
-	import Switch from '$lib/components/ui/switch/switch.svelte';
+	} from '#lib/components/ui/sheet/index.ts';
+	import Switch from '#lib/components/ui/switch/switch.svelte';
 	import { Plus } from '@lucide/svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { toast } from 'svelte-sonner';
 	import { page } from '$app/state';
 	import UserFormSheet from '../users/user-form-sheet.svelte';
@@ -56,7 +60,7 @@
 
 	const openUserForm = () => {
 		showUserForm = true;
-	}
+	};
 </script>
 
 <Sheet bind:open {onOpenChangeComplete}>

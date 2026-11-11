@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { buildPackageDetailsPdf, type PackageDetailsData } from '../src/routes/vendors/packages/print/[id]/pdf';
+import {
+	buildPackageDetailsPdf,
+	type PackageDetailsData
+} from '../src/routes/vendors/packages/print/[id]/pdf';
 
 // jsPDF 4 text extraction is not exposed on the Node API surface, so read the
 // rendered text ops back out of the raw content stream (same as the other
@@ -79,7 +82,9 @@ describe('buildPackageDetailsPdf — info block', () => {
 	});
 
 	it('wraps a very long description without dropping the item count line', async () => {
-		const text = textIn(await buildPackageDetailsPdf(makePkg({ description: 'very long '.repeat(40) })));
+		const text = textIn(
+			await buildPackageDetailsPdf(makePkg({ description: 'very long '.repeat(40) }))
+		);
 		expect(text).toContain('Items: 2');
 	});
 });

@@ -16,9 +16,9 @@ Data available: `getBill(id)` (bills + supplier name + PO reference) already exi
 
 ## Existing conventions (mandatory — `ai-docs/print-migration-tasks.md`)
 
-- Builder file per route: `.../print/[id]/pdf.ts`, `buildBillPdf(data): Promise<jsPDF>`, no Svelte/`$lib` imports except `$lib/utils/pdf.ts`
+- Builder file per route: `.../print/[id]/pdf.ts`, `buildBillPdf(data): Promise<jsPDF>`, no Svelte/`#lib` imports except `#lib/utils/pdf.ts`
 - `createReportDoc({ title, subtitle? })` → content from `startY` → `addReportFooter(doc)`
-- Currency = **`Php 12,345.67`** in PDF (`formatCurrencyPdf`); preview uses `formatCurrency` from `$lib/utils/common`
+- Currency = **`Php 12,345.67`** in PDF (`formatCurrencyPdf`); preview uses `formatCurrency` from `#lib/utils/common.ts`
 - autoTable defaults: `theme:'grid'`, helvetica 9, dark head/foot text, right-aligned numerics
 - Preview wraps in `PrintReportLayout` with `onPrint={async () => openAndPrint(buildBillPdf(data))}`
 - Tests: `test/bills-printable.spec.ts`, jsPDF-4 literal extraction (regex on raw stream, see `test/ibrr-printable.spec.ts`)
@@ -26,14 +26,14 @@ Data available: `getBill(id)` (bills + supplier name + PO reference) already exi
 
 ## Target design — files
 
-| File | Change |
-|---|---|
-| `src/lib/server/db/queries/bills.ts` | add `getBillWithItems(billId)`: `getBill` fields + PO `sub_total/discount/total` + `po_items[]` (`name, quantity, cost, total_cost`) via the same joins as `getPOBySupplierId`, filtered to the bill's `purchase_order_id` |
-| `src/routes/vendors/bills/print/[id]/+page.server.ts` | load `getBillWithItems(parseInt(id))`; 404 when missing |
-| `src/routes/vendors/bills/print/[id]/pdf.ts` | `buildBillPdf(bill)` — layout below |
-| `src/routes/vendors/bills/print/[id]/+page.svelte` | `PrintReportLayout` preview matching the PDF 1:1 |
-| `src/lib/components/pages/vendors/bills/BillForm.svelte` | view mode only (`bill && !edit`): **Print** button in the sheet header next to `Edit Bill` → `window.open` the print route |
-| `test/bills-printable.spec.ts` | literal-text assertions (title, bill no, supplier, item rows, `Php` totals, balance) |
+| File                                                     | Change                                                                                                                                                                                                                     |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/server/db/queries/bills.ts`                     | add `getBillWithItems(billId)`: `getBill` fields + PO `sub_total/discount/total` + `po_items[]` (`name, quantity, cost, total_cost`) via the same joins as `getPOBySupplierId`, filtered to the bill's `purchase_order_id` |
+| `src/routes/vendors/bills/print/[id]/+page.server.ts`    | load `getBillWithItems(parseInt(id))`; 404 when missing                                                                                                                                                                    |
+| `src/routes/vendors/bills/print/[id]/pdf.ts`             | `buildBillPdf(bill)` — layout below                                                                                                                                                                                        |
+| `src/routes/vendors/bills/print/[id]/+page.svelte`       | `PrintReportLayout` preview matching the PDF 1:1                                                                                                                                                                           |
+| `src/lib/components/pages/vendors/bills/BillForm.svelte` | view mode only (`bill && !edit`): **Print** button in the sheet header next to `Edit Bill` → `window.open` the print route                                                                                                 |
+| `test/bills-printable.spec.ts`                           | literal-text assertions (title, bill no, supplier, item rows, `Php` totals, balance)                                                                                                                                       |
 
 ## PDF layout (portrait)
 
@@ -69,7 +69,7 @@ Payment:  {Cash | Check (No. {check_number})}
 
 ## Decisions — APPROVED by user
 
-1. Button placement: **a** — Print button in the *View Bill* sheet header, next to *Edit Bill* (not on list-row dropdowns)
+1. Button placement: **a** — Print button in the _View Bill_ sheet header, next to _Edit Bill_ (not on list-row dropdowns)
 2. Print content: **a** — full bill: header + PO item lines + subtotal/discount/total, mirroring the View sheet
 3. Balance: **a** — show `Balance = Total − Amount Paid` (floored at 0) in the totals block
 

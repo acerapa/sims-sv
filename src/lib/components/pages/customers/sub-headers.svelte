@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button/index.ts';
 	import { page } from '$app/state';
-	import { isRouteActive } from '$lib/utils/routes';
+	import { isRouteActive } from '#lib/utils/routes.ts';
 	const path = $derived(page.route.id as string);
 
 	const inventoryNavs = [

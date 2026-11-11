@@ -1,5 +1,5 @@
-import { WalkInCustomerName } from '$lib/const';
-import type { Customer } from '$lib/types/global';
+import { WalkInCustomerName } from '#lib/const.ts';
+import type { Customer } from '#lib/types/global.ts';
 import { eq } from 'drizzle-orm';
 import { db } from '..';
 import { customers } from '../schema';
@@ -29,8 +29,8 @@ export const createCustomer = async (customer: Customer) => {
 };
 
 export const getWalkInCustomer = async () => {
-  return db
-    .select({id: customers.id})
-    .from(customers)
-    .where(eq(customers.name, WalkInCustomerName))
-}
+	return db
+		.select({ id: customers.id })
+		.from(customers)
+		.where(eq(customers.name, WalkInCustomerName));
+};

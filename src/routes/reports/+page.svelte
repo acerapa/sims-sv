@@ -1,9 +1,9 @@
 <script lang="ts">
-	// import StatCard from '$lib/components/common/StatCard.svelte';
-	import PageTitle from '$lib/components/layout/PageTitle.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardDescription, CardTitle } from '$lib/components/ui/card';
-	import CardHeader from '$lib/components/ui/card/card-header.svelte';
+	// import StatCard from '#lib/components/common/StatCard.svelte';
+	import PageTitle from '#lib/components/layout/PageTitle.svelte';
+	import { Button } from '#lib/components/ui/button/index.ts';
+	import { Card, CardContent, CardDescription, CardTitle } from '#lib/components/ui/card/index.ts';
+	import CardHeader from '#lib/components/ui/card/card-header.svelte';
 	import { ChartColumn, DollarSign, NotepadText, Package, ShoppingCart } from '@lucide/svelte';
 
 	const reports = {
