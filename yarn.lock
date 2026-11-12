@@ -1226,7 +1226,7 @@ drizzle-orm@^0.44.5:
 
 drizzle-seed@^0.3.1:
   version "0.3.1"
-  resolved "https://registry.npmjs.org/drizzle-seed/-/drizzle-seed-0.3.1.tgz"
+  resolved "https://registry.yarnpkg.com/drizzle-seed/-/drizzle-seed-0.3.1.tgz#06866f05baf6470855d58ad7ff630435259552ba"
   integrity sha512-F/0lgvfOAsqlYoHM/QAGut4xXIOXoE5VoAdv2FIl7DpGYVXlAzKuJO+IphkKUFK3Dz+rFlOsQLnMNrvoQ0cx7g==
   dependencies:
     pure-rand "^6.1.0"

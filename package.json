@@ -17,6 +17,9 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
+		"seed:categories": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/categories.ts",
+		"seed:fake-data": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/fake-sales-data.ts",
+		"seed:fake-data:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/fake-sales-data.ts cleanup",
 		"seed:walk-in-customer": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/walk-in-customer.ts",
 		"seed:admin-user": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/admin-user.ts"
 	},
