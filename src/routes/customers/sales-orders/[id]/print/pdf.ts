@@ -73,16 +73,19 @@ const DATA_ROW_HEIGHT = 26; // 9mm — spacer + totals rows (the preview's 9mm r
 // Client 2026-11-09: compact item rows — 14pt ≈ 5mm, the preview's item-row height;
 // spacers/totals keep DATA_ROW_HEIGHT so the page-fill math and totals ruling hold
 const ITEM_ROW_HEIGHT = 14;
-// column widths: item rows are prefix-free (client, 2026-11), so UP fits a bare amount and
-// Item Description absorbs the freed width; Total keeps the "Php #,###.##" width for the
-// SUB-TOTAL / TOTAL AMOUNT rows; Serial No. is sized to the receipt’s longest value
+// column widths: Serial No., UP and Total size to this receipt's widest value and Item
+// Description absorbs the rest — client 2026-11: the fixed amount widths left a blank gap
+// before the right-aligned amounts
 const QTY_W = 37.2;
-const UNIT_PRICE_W = 56; // bare "999,999.99" + 10pt cell padding
-const TOTAL_W = 82;
 const SERIAL_FALLBACK = 85.1;
-// 271.6: description's share at the serial floor — includes the 7.8pt freed by dropping
-// "Php" from the item rows
-const TABLE_WIDTH = 271.6 + SERIAL_FALLBACK + QTY_W + UNIT_PRICE_W + TOTAL_W; // 531.9pt, invariant
+const AMOUNT_PAD = 10; // left+right 5pt cell padding on the amount cells
+const UP_FLOOR = 24; // "UP" header + AMOUNT_PAD
+const TOTAL_FLOOR = 42; // "Php 0.00" (the totals rows) + AMOUNT_PAD
+const UNIT_PRICE_MAX = 56; // worst case: bare "999,999.99" + AMOUNT_PAD
+const TOTAL_MAX = 82; // worst case: "Php 999,999.99" on the totals rows + AMOUNT_PAD
+// 271.6: description's share at the serial floor with worst-case amount columns — includes
+// the 7.8pt freed by dropping "Php" from the item rows
+const TABLE_WIDTH = 271.6 + SERIAL_FALLBACK + QTY_W + UNIT_PRICE_MAX + TOTAL_MAX; // 531.9pt, invariant
 
 // +12pt of cell padding; capped at 150pt so a huge serial wraps inside its cell instead of
 // squashing the description column
@@ -97,6 +100,55 @@ export function serialColumnWidth(doc: jsPDF, serials: string[]): number {
 export function serialWPercent(serials: string[]): number {
 	const doc = new jsPDF({ unit: 'pt' });
 	return (serialColumnWidth(doc, serials) / TABLE_WIDTH) * 100;
+}
+
+// The UP/Total columns fit this receipt's widest value — headers and the "Php …" totals-row
+// amounts included — and share the preview-fit percents below
+function fitAmountColumn(doc: jsPDF, values: string[], floor: number): number {
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(9);
+	const widest = values.reduce((max, value) => Math.max(max, doc.getTextWidth(value)), 0);
+	return Math.max(floor, Math.ceil(widest) + AMOUNT_PAD);
+}
+
+export function upColumnWidth(doc: jsPDF, items: DeliveryReceiptItem[]): number {
+	return fitAmountColumn(
+		doc,
+		['UP', ...items.map((item) => plainAmount(item.unit_price))],
+		UP_FLOOR
+	);
+}
+
+export function totalColumnWidth(
+	doc: jsPDF,
+	items: DeliveryReceiptItem[],
+	subtotal: number,
+	grandTotal: Amount
+): number {
+	return fitAmountColumn(
+		doc,
+		[
+			'Total',
+			...items.map((item) => plainAmount(item.total_price)),
+			formatCurrencyPdf(subtotal),
+			formatCurrencyPdf(grandTotal)
+		],
+		TOTAL_FLOOR
+	);
+}
+
+export function upWPercent(items: DeliveryReceiptItem[]): number {
+	const doc = new jsPDF({ unit: 'pt' });
+	return (upColumnWidth(doc, items) / TABLE_WIDTH) * 100;
+}
+
+export function totalWPercent(
+	items: DeliveryReceiptItem[],
+	subtotal: number,
+	grandTotal: Amount
+): number {
+	const doc = new jsPDF({ unit: 'pt' });
+	return (totalColumnWidth(doc, items, subtotal, grandTotal) / TABLE_WIDTH) * 100;
 }
 
 // short date ("Sep 11, 2026") for the 66pt DATE cell in the reference grid — it must fit the
@@ -238,6 +290,9 @@ function drawItemsTable(
 		doc,
 		items.map((item) => String(item.serial_number ?? ''))
 	);
+	const subtotal = items.reduce((sum, item) => sum + safeNum(item.total_price), 0);
+	const upW = upColumnWidth(doc, items);
+	const totalW = totalColumnWidth(doc, items, subtotal, order.total_cost);
 	const rows: CellInput[][] = items.map((item) => {
 		const name = item.package?.name || item.product?.sales_description || '—';
 		return [
@@ -257,7 +312,6 @@ function drawItemsTable(
 
 	// Client 2026-11: the totals are the table's final rows (no separate box) — label first
 	// column, value rightmost column, table-weight type (TOTAL AMOUNT bold)
-	const subtotal = (order.items ?? []).reduce((sum, item) => sum + safeNum(item.total_price), 0);
 	const boldCell = (value: string): CellInput => ({
 		content: value,
 		styles: { minCellHeight: DATA_ROW_HEIGHT, fontStyle: 'bold' }
@@ -305,13 +359,14 @@ function drawItemsTable(
 		bodyStyles: { lineWidth: 0 },
 		didDrawCell: drawColumnBorders,
 		columnStyles: {
-			// Serial No. fits this receipt’s longest value (serialColumnWidth) — the Item
-			// Description column absorbs the difference so the table total stays 531.9pt
-			0: { cellWidth: TABLE_WIDTH - serialW - QTY_W - UNIT_PRICE_W - TOTAL_W },
+			// Serial No., UP and Total fit this receipt's values (serialColumnWidth,
+			// upColumnWidth, totalColumnWidth) — the Item Description column absorbs the
+			// difference so the table total stays 531.9pt
+			0: { cellWidth: TABLE_WIDTH - serialW - QTY_W - upW - totalW },
 			1: { cellWidth: serialW },
 			2: { cellWidth: QTY_W, halign: 'right' },
-			3: { cellWidth: UNIT_PRICE_W, halign: 'right' },
-			4: { cellWidth: TOTAL_W, halign: 'right' }
+			3: { cellWidth: upW, halign: 'right' },
+			4: { cellWidth: totalW, halign: 'right' }
 		}
 	});
 

@@ -5,7 +5,10 @@ import {
 	drSpacerRows,
 	formatDateShort,
 	serialWPercent,
+	totalWPercent,
+	upWPercent,
 	WARRANTY_TEXT,
+	type DeliveryReceiptItem,
 	type DeliveryReceiptOrder
 } from '../src/routes/customers/sales-orders/[id]/print/pdf';
 
@@ -267,11 +270,10 @@ describe('buildDrPdf — items table', () => {
 		expect(pitch).toBeCloseTo(14, 1);
 	});
 
-	it('hands the width freed by the prefix-less item money to Item Description (table stays 531.9pt)', async () => {
+	it('sizes the UP and Total columns to the receipt amounts, with Item Description absorbing (table stays 531.9pt)', async () => {
 		// the column edges are the vertical border ops in the stream; with the serial at its
-		// 85.1pt floor the UP column is 56pt (bare amount), so its left edge sits at
-		// margin + 271.6 (description) + 85.1 (serial) + 37.2 (qty) — was 426.1 before the
-		// "Php" removal shrank the column
+		// 85.1pt floor, UP fits the widest unit price "100.00" (38pt) and Total fits the
+		// "Php 1,999,602.30" totals-row value (81pt) — Item Description absorbs the freed width
 		const doc = await buildDrPdf(makeOrder());
 		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
 		const verticalEdges = new Set<number>();
@@ -279,11 +281,11 @@ describe('buildDrPdf — items table', () => {
 			verticalEdges.add(Number(m[1]));
 		}
 		const hasEdge = (x: number) => [...verticalEdges].some((v) => Math.abs(v - x) < 0.01);
-		expect(hasEdge(REPORT_MARGIN + 271.6)).toBe(true); // description/serial edge, 7.8pt wider
-		expect(hasEdge(REPORT_MARGIN + 271.6 + 85.1 + 37.2)).toBe(true); // UP left edge
-		expect(hasEdge(REPORT_MARGIN + 271.6 + 85.1 + 37.2 + 56)).toBe(true); // UP/Total edge
+		expect(hasEdge(REPORT_MARGIN + 290.6)).toBe(true); // description/serial edge, 19pt wider than the fixed-width era
+		expect(hasEdge(REPORT_MARGIN + 290.6 + 85.1 + 37.2)).toBe(true); // UP left edge
+		expect(hasEdge(REPORT_MARGIN + 290.6 + 85.1 + 37.2 + 38)).toBe(true); // UP/Total edge
 		expect(hasEdge(REPORT_MARGIN + 531.9)).toBe(true); // table right edge, invariant
-		expect(hasEdge(REPORT_MARGIN + 263.8)).toBe(false); // old description edge is gone
+		expect(hasEdge(REPORT_MARGIN + 271.6)).toBe(false); // the fixed-width description edge is gone
 	});
 
 	it('renders all lines even for a 15-item receipt', async () => {
@@ -315,6 +317,42 @@ describe('buildDrPdf — items table', () => {
 		expect(drSpacerRows(1)).toBeGreaterThan(0);
 		expect(drSpacerRows(15)).toBe(2); // 2 spacers after the 2026-11 signature-reserve fix (90 → 77pt)
 		expect(drSpacerRows(20)).toBe(0); // longer lists keep their natural multi-page flow
+	});
+});
+
+describe('buildDrPdf — UP/Total column fit', () => {
+	// client 2026-11: the fixed 56/82pt widths left a blank gap before the right-aligned
+	// amounts — the columns now fit the receipt's widest value and Item Description absorbs
+	const small: DeliveryReceiptItem[] = makeOrder().items ?? [];
+
+	it('shrinks UP and Total below the old fixed widths for small amounts (Item Description absorbs)', () => {
+		expect(upWPercent(small)).toBeLessThan(10.5); // 7.1% (38pt) vs the old fixed 56pt
+		expect(totalWPercent(small, 282.95, '1999602.30')).toBeLessThan(15.4); // 15.2% (81pt) vs the old fixed 82pt
+	});
+
+	it('grows the columns back for wide amounts so nothing clips', async () => {
+		const big: DeliveryReceiptItem[] = [
+			{
+				quantity: 1,
+				unit_price: '999999.99',
+				total_price: '999999.99',
+				serial_number: null,
+				product: { sales_description: 'Big item' },
+				package: undefined
+			}
+		];
+		expect(upWPercent(big)).toBeCloseTo((55 / 531.9) * 100, 1); // "999,999.99" + 10pt padding
+		expect(totalWPercent(big, 999999.99, '999999.99')).toBeCloseTo((73 / 531.9) * 100, 1); // "Php 999,999.99" totals row
+		const text = textIn(await buildDrPdf(makeOrder({ items: big })));
+		expect(text).toContain('999,999.99');
+		expect(text).toContain('Php 999,999.99');
+	});
+
+	it('keeps the Total column wide enough for the "Php …" grand-total row when the line items are small', () => {
+		// the Total column must fit "Php <total_cost>" even when the line-item amounts are tiny
+		const items = small.slice(0, 1);
+		expect(totalWPercent(items, 200, '1999602.30')).toBeCloseTo((81 / 531.9) * 100, 1);
+		expect(upWPercent(items)).toBeCloseTo((38 / 531.9) * 100, 1); // "100.00" + 10pt padding
 	});
 });
 

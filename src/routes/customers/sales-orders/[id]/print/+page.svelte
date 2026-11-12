@@ -5,7 +5,15 @@
 	import { formatCurrency, formatPlainCurrency } from '#lib/utils/common.ts';
 	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import type { PageProps } from './$types';
-	import { buildDrPdf, drSpacerRows, formatDateShort, serialWPercent, WARRANTY_TEXT } from './pdf';
+	import {
+		buildDrPdf,
+		drSpacerRows,
+		formatDateShort,
+		serialWPercent,
+		totalWPercent,
+		upWPercent,
+		WARRANTY_TEXT
+	} from './pdf';
 	import type { DrPaperFormat } from './pdf';
 
 	let { data }: PageProps = $props();
@@ -18,6 +26,9 @@
 	let subtotal = $derived(
 		order.items.reduce((sum, item) => sum + Number(item.total_price || 0), 0)
 	);
+	// UP/Total size to the receipt's widest amount (same fit as the PDF); Item Description absorbs them
+	let upPct = $derived(upWPercent(order.items));
+	let amountPct = $derived(totalWPercent(order.items, subtotal, order.total_cost));
 	// Mirror the PDF: blank rows stretch the items table so the warranty + signatures close the page
 	let spacerRows = $derived(
 		Array.from({ length: drSpacerRows(order.items.length, undefined, paperFormat) }, (_, i) => i)
@@ -120,8 +131,8 @@
 				<th class="item-column">Item Description</th>
 				<th class="serial-column" style="width: {serialPct}%">Serial No.</th>
 				<th class="quantity-column">Qty</th>
-				<th class="rate-column">UP</th>
-				<th class="amount-column">Total</th>
+				<th class="rate-column" style="width: {upPct}%">UP</th>
+				<th class="amount-column" style="width: {amountPct}%">Total</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -318,10 +329,10 @@
 		width: 7%;
 	}
 	.rate-column {
-		width: 10.5%; /* mirrors the PDF's prefix-free UP column (56pt of 531.9) */
+		width: 10.5%; /* fallback — inline style overrides with the fit from upWPercent() */
 	}
 	.amount-column {
-		width: 15.4%;
+		width: 15.4%; /* fallback — inline style overrides with the fit from totalWPercent() */
 	}
 
 	.items-table tbody td {
