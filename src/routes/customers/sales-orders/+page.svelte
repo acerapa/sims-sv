@@ -43,20 +43,26 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { SalesOrderStatus } from '#lib/const.ts';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import type { PaginatedProductsResult } from '#lib/server/db/queries/products.ts';
 
 	let { data }: PageProps = $props();
 
-	let salesOrders = $derived(data.salesOrders);
+	let salesOrders = $derived(data?.paginated?.data);
 	let stats = $derived(data.salesOrderStats);
 
 	// Pagination related variables
-	let total = $derived(data?.pagination?.total);
-	let currentPage = $derived(data?.pagination?.page);
-	let limit = $derived(data?.pagination?.limit);
-	let totalPages = $derived(data?.pagination?.totalPages);
-	let currentParams = $derived(data?.pagination?.currentParams);
-	const handlePageChange = () => {};
-	const handleLimitChange = () => {};
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	const statCards = $derived([
 		{

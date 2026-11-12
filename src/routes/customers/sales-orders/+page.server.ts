@@ -1,18 +1,14 @@
-import { getSalesOrders, getSalesOrderStats } from '#lib/server/db/queries/sales-orders.ts';
+import { getSalesOrdersPaginated, getSalesOrderStats } from '#lib/server/db/queries/sales-orders.ts';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
-	const [salesOrders, salesOrderStats] = await Promise.all([
-		getSalesOrders(),
+export const load: PageServerLoad = async ({ url }) => {
+  const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+  const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '25') || 25));
+
+	const [paginated, salesOrderStats] = await Promise.all([
+		getSalesOrdersPaginated(page, limit),
 		getSalesOrderStats()
 	]);
 
-	const pagination = {
-		page: 0,
-		totalPages: 0,
-		total: 0,
-		limit: 0
-	};
-
-	return { salesOrders, salesOrderStats, pagination };
+	return { paginated, salesOrderStats };
 };

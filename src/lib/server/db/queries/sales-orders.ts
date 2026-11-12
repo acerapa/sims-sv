@@ -170,6 +170,42 @@ export const getSalesOrders = async () => {
 	return result;
 };
 
+export const getSalesOrdersPaginated = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(salesOrders);
+
+	const result = await db
+		.select({
+			id: salesOrders.id,
+			customer_id: salesOrders.customer_id,
+			customer_name: customers.name,
+			sales_person_name: users.name,
+			staff_user_id: salesOrders.staff_user_id,
+			date_ordered: salesOrders.date_ordered,
+			order_type: salesOrders.order_type,
+			order_status: salesOrders.order_status,
+			notes: salesOrders.notes,
+			total_cost: salesOrders.total_cost,
+			item_count: sql<number>`(SELECT COUNT(*) FROM sales_order_items WHERE sales_order_id = ${salesOrders.id})`,
+			created_at: salesOrders.created_at
+		})
+		.from(salesOrders)
+		.leftJoin(customers, eq(salesOrders.customer_id, customers.id))
+    .leftJoin(users, eq(salesOrders.staff_user_id, users.id))
+    .orderBy(desc(salesOrders.created_at))
+    .offset(offset)
+		.limit(limit);
+
+  return {
+    data: result,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit)
+	};
+};
+
 export const getSalesOrder = async (id: number) => {
 	const order = await db.query.salesOrders.findFirst({
 		where: eq(salesOrders.id, id),
