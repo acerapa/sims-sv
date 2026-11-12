@@ -46,6 +46,7 @@
 	import { page } from '$app/state';
 	import { formatCurrency } from '#lib/utils/common.ts';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '#lib/components/ui/tooltip/index.ts';
 
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
@@ -230,97 +231,110 @@
 				/>
 				<Search class="absolute top-1/2 left-3 size-4 translate-y-[-50%] text-muted-foreground" />
 			</div>
-
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<SortableTableHead
-							column="purchase_description"
-							label="Product"
-							currentSort={currentParams.sortBy}
-							currentOrder={currentParams.sortOrder}
-							onSort={handleSort}
-						/>
-						<SortableTableHead
-							column="sku"
-							label="SKU"
-							currentSort={currentParams.sortBy}
-							currentOrder={currentParams.sortOrder}
-							onSort={handleSort}
-						/>
-						<TableHead>Category</TableHead>
-						<SortableTableHead
-							column="sale_price"
-							label="Price"
-							currentSort={currentParams.sortBy}
-							currentOrder={currentParams.sortOrder}
-							onSort={handleSort}
-						/>
-						<SortableTableHead
-							column="quantity"
-							label="Stock"
-							currentSort={currentParams.sortBy}
-							currentOrder={currentParams.sortOrder}
-							onSort={handleSort}
-						/>
-						<TableHead>Status</TableHead>
-						<TableHead class="text-right">Actions</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{#if products.length === 0}
+			<TooltipProvider>
+				<Table>
+					<TableHeader>
 						<TableRow>
-							<TableCell colspan={7} class="h-24 text-center text-muted-foreground">
-								No products found.
-							</TableCell>
+							<SortableTableHead
+								column="purchase_description"
+								label="Product"
+								currentSort={currentParams.sortBy}
+								currentOrder={currentParams.sortOrder}
+								onSort={handleSort}
+							/>
+							<SortableTableHead
+								column="sku"
+								label="SKU"
+								currentSort={currentParams.sortBy}
+								currentOrder={currentParams.sortOrder}
+								onSort={handleSort}
+							/>
+							<TableHead>Category</TableHead>
+							<SortableTableHead
+								column="sale_price"
+								label="Price"
+								currentSort={currentParams.sortBy}
+								currentOrder={currentParams.sortOrder}
+								onSort={handleSort}
+							/>
+							<SortableTableHead
+								column="quantity"
+								label="Stock"
+								currentSort={currentParams.sortBy}
+								currentOrder={currentParams.sortOrder}
+								onSort={handleSort}
+							/>
+							<TableHead>Status</TableHead>
+							<TableHead class="text-right">Actions</TableHead>
 						</TableRow>
-					{:else}
-						{#each products as prod (prod.id)}
+					</TableHeader>
+					<TableBody>
+						{#if products.length === 0}
 							<TableRow>
-								<TableCell class="font-medium">{prod.purchase_description}</TableCell>
-								<TableCell class="text-muted-foreground">{prod.sku}</TableCell>
-								<TableCell>{prod.category.name}</TableCell>
-								<TableCell class="font-semibold">
-									{formatCurrency(prod.sale_price || 0)}
-								</TableCell>
-								<TableCell>
-									<span
-										class={['font-bold', getQuantityColor(prod.quantity, prod.minimum_quantity)]}
-									>
-										{prod.quantity || 0}
-									</span>
-									<span class="text-muted-foreground">/{prod.minimum_quantity || 0}</span>
-								</TableCell>
-								<TableCell>
-									<ProductBadge
-										quantity={prod.quantity || 0}
-										minimum_quantity={prod.minimum_quantity || 0}
-									/>
-								</TableCell>
-								<TableCell class="text-right">
-									<DropdownMenu>
-										<DropdownMenuTrigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
-											<Ellipsis class="size-4" />
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end">
-											<DropdownMenuItem onSelect={() => onEditOrView(prod.id)} class="space-x-2">
-												<Eye class="size-4" />
-												<span>View</span>
-											</DropdownMenuItem>
-											<DropdownMenuSeparator />
-											<DropdownMenuItem class="space-x-2 text-muted-foreground">
-												<CirclePause class="size-4" />
-												<span>Mark as Inactive</span>
-											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
+								<TableCell colspan={7} class="h-24 text-center text-muted-foreground">
+									No products found.
 								</TableCell>
 							</TableRow>
-						{/each}
-					{/if}
-				</TableBody>
-			</Table>
-
+						{:else}
+							{#each products as prod (prod.id)}
+								<TableRow>
+									<TableCell class="font-medium">
+										<Tooltip>
+											<TooltipTrigger>
+												<p class="max-w-72 truncate">{prod.purchase_description}</p>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p class="max-w-52 text-wrap">
+													{prod.purchase_description}
+												</p>
+											</TooltipContent>
+										</Tooltip>
+									</TableCell>
+									<TableCell class="text-muted-foreground">{prod.sku}</TableCell>
+									<TableCell>{prod.category.name}</TableCell>
+									<TableCell class="font-semibold">
+										{formatCurrency(prod.sale_price || 0)}
+									</TableCell>
+									<TableCell>
+										<span
+											class={['font-bold', getQuantityColor(prod.quantity, prod.minimum_quantity)]}
+										>
+											{prod.quantity || 0}
+										</span>
+										<span class="text-muted-foreground">/{prod.minimum_quantity || 0}</span>
+									</TableCell>
+									<TableCell>
+										<ProductBadge
+											quantity={prod.quantity || 0}
+											minimum_quantity={prod.minimum_quantity || 0}
+										/>
+									</TableCell>
+									<TableCell class="text-right">
+										<DropdownMenu>
+											<DropdownMenuTrigger
+												class={buttonVariants({ variant: 'ghost', size: 'icon' })}
+											>
+												<Ellipsis class="size-4" />
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem onSelect={() => onEditOrView(prod.id)} class="space-x-2">
+													<Eye class="size-4" />
+													<span>View</span>
+												</DropdownMenuItem>
+												<DropdownMenuSeparator />
+												<DropdownMenuItem class="space-x-2 text-muted-foreground">
+													<CirclePause class="size-4" />
+													<span>Mark as Inactive</span>
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</TableCell>
+								</TableRow>
+							{/each}
+						{/if}
+					</TableBody>
+				</Table>
+			</TooltipProvider>
 			<TablePagination
 				page={currentPage}
 				{totalPages}
