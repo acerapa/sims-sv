@@ -6,9 +6,11 @@
 	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import type { PageProps } from './$types';
 	import { buildDrPdf, drSpacerRows, formatDateShort, serialWPercent, WARRANTY_TEXT } from './pdf';
+	import type { DrPaperFormat } from './pdf';
 
 	let { data }: PageProps = $props();
 	let order = $derived(data.salesOrder);
+	let paperFormat = $state<DrPaperFormat>('letter');
 	// Serial No. column sizes to the receipt’s longest value (same fit as the PDF); Item Description absorbs it
 	let serialPct = $derived(
 		serialWPercent(order.items.map((item) => String(item.serial_number ?? '')))
@@ -17,10 +19,29 @@
 		order.items.reduce((sum, item) => sum + Number(item.total_price || 0), 0)
 	);
 	// Mirror the PDF: blank rows stretch the items table so the warranty + signatures close the page
-	let spacerRows = $derived(Array.from({ length: drSpacerRows(order.items.length) }, (_, i) => i));
+	let spacerRows = $derived(
+		Array.from({ length: drSpacerRows(order.items.length, undefined, paperFormat) }, (_, i) => i)
+	);
 
 	async function handlePrint() {
-		openAndPrint(await buildDrPdf(order));
+		openAndPrint(await buildDrPdf(order, paperFormat));
+	}
+
+	// <style> content is never parsed as a Svelte template, so the @page size can't be
+	// dynamic in the scoped style — keep that one rule in a head <style> that follows the toggle
+	function pageStyle(_el: HTMLElement, format: DrPaperFormat) {
+		const rule = (f: DrPaperFormat) => `@page { size: ${f} portrait; margin: 8mm; }`;
+		const style = document.createElement('style');
+		style.textContent = rule(format);
+		document.head.appendChild(style);
+		return {
+			update(next: DrPaperFormat) {
+				style.textContent = rule(next);
+			},
+			destroy() {
+				style.remove();
+			}
+		};
 	}
 </script>
 
@@ -28,13 +49,24 @@
 	<title>Print D.R. SO-{order.id}</title>
 </svelte:head>
 
-<div class="receipt-page">
-	<div class="no-print mb-4 flex justify-between">
+<div class="receipt-page" class:legal={paperFormat === 'legal'} use:pageStyle={paperFormat}>
+	<div class="no-print mb-4 flex items-center justify-between">
 		<Button variant="outline" onclick={() => goto(resolve('customers/sales-orders'))}
 			>Back to Sales Orders</Button
 		>
 
-		<Button onclick={handlePrint}>Print</Button>
+		<div class="flex items-center gap-2">
+			<label for="dr-paper-size" class="text-sm text-muted-foreground">Paper size</label>
+			<select
+				id="dr-paper-size"
+				class="h-9 rounded-md border border-input bg-background px-3 text-sm"
+				bind:value={paperFormat}
+			>
+				<option value="letter">Letter</option>
+				<option value="legal">Legal</option>
+			</select>
+			<Button onclick={handlePrint}>Print</Button>
+		</div>
 	</div>
 
 	<header class="dr-header">
@@ -166,6 +198,11 @@
 		font-family: Arial, Helvetica, sans-serif;
 		/* client 2026-10-30: larger text across the document */
 		font-size: 12px;
+	}
+
+	/* Legal paper is 14in tall vs letter's 11in — keep the preview page as tall as the PDF */
+	.receipt-page.legal {
+		min-height: 356mm;
 	}
 
 	.dr-header {
@@ -402,11 +439,6 @@
 	}
 
 	@media print {
-		@page {
-			size: letter portrait;
-			margin: 8mm;
-		}
-
 		:global(body) {
 			background: #fff;
 		}

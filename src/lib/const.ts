@@ -1,3 +1,10 @@
+export const UserRoles = {
+	ADMIN: 'admin',
+	CASHIER: 'cashier',
+	INVENTORY_MANAGER: 'inventory-manager',
+	SALES_PERSON: 'sales-person'
+};
+
 export const SalesOrderStatus = {
 	OPEN: 'open',
 	PARTIALLY_INVOICED: 'partially_invoiced',

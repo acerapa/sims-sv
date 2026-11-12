@@ -72,6 +72,78 @@ function makeOrder(overrides: Partial<DeliveryReceiptOrder> = {}): DeliveryRecei
 	};
 }
 
+// n identical line items — item-count studies (page-break boundaries, paper sizes)
+function items(n: number): DeliveryReceiptOrder['items'] {
+	return Array.from({ length: n }, (_, i) => ({
+		quantity: 1,
+		unit_price: '1.00',
+		total_price: '1.00',
+		serial_number: null,
+		product: { sales_description: `Item ${i + 1}` },
+		package: undefined
+	}));
+}
+
+describe('buildDrPdf — paper size (client 2026-11: letter and legal)', () => {
+	it('defaults to letter portrait', async () => {
+		const doc = await buildDrPdf(makeOrder());
+		expect(doc.internal.pageSize.getWidth()).toBe(612);
+		expect(doc.internal.pageSize.getHeight()).toBe(792);
+	});
+
+	it('builds a legal page (612 x 1008pt) when requested, still one page for a typical order', async () => {
+		const doc = await buildDrPdf(makeOrder(), 'legal');
+		expect(doc.internal.pageSize.getWidth()).toBe(612);
+		expect(doc.internal.pageSize.getHeight()).toBe(1008);
+		expect(doc.getNumberOfPages()).toBe(1);
+	});
+
+	it('stretches the table farther down a legal page so the warranty block still closes the page', async () => {
+		const one = { items: (makeOrder().items ?? []).slice(0, 1) };
+		const letterTop = startYAt(await buildDrPdf(makeOrder(one)), 'FOR WARRANTY SERVICE:');
+		const legalTop = startYAt(await buildDrPdf(makeOrder(one), 'legal'), 'FOR WARRANTY SERVICE:');
+		// legal adds 216pt of page height — the warranty anchor must follow it, not stay letter-anchored
+		expect(legalTop).toBeGreaterThan(letterTop + 200);
+	});
+
+	it('fits a 30-item order on one legal page', async () => {
+		const doc = await buildDrPdf(makeOrder({ items: items(30) }), 'legal');
+		const text = textIn(doc);
+		for (let i = 1; i <= 30; i++) expect(text).toContain(`Item ${i}`);
+		expect(text).toContain('Branch Manager');
+		expect(doc.getNumberOfPages()).toBe(1);
+	});
+});
+
+describe('buildDrPdf — page breaks only when the table is genuinely long (client 2026-11)', () => {
+	// repro: the signatures jumped to page 2 while ~15pt of page 1 still stood free
+	it('keeps a 19-item receipt — table ending ~73% down — on one page', async () => {
+		const doc = await buildDrPdf(makeOrder({ items: items(19) }));
+		expect(doc.getNumberOfPages()).toBe(1);
+		// the signature block's lowest text stays inside page 1's printable area
+		expect(startYAt(doc, 'Branch Manager')).toBeLessThan(792 - 48);
+	});
+
+	it('lets a 20-item receipt flow to a second page, losing nothing', async () => {
+		const doc = await buildDrPdf(makeOrder({ items: items(20) }));
+		expect(doc.getNumberOfPages()).toBe(2);
+		const text = textIn(doc);
+		for (let i = 1; i <= 20; i++) expect(text).toContain(`Item ${i}`);
+		expect(text).toContain('FOR WARRANTY SERVICE:');
+		expect(text).toContain('Branch Manager');
+	});
+});
+
+describe('drSpacerRows — paper format', () => {
+	it('stretches short lists more on legal than on letter', () => {
+		expect(drSpacerRows(3, 204, 'legal')).toBeGreaterThan(drSpacerRows(3, 204, 'letter'));
+	});
+
+	it('still returns 0 for genuinely long lists on legal', () => {
+		expect(drSpacerRows(60, 204, 'legal')).toBe(0);
+	});
+});
+
 describe('buildDrPdf — structure', () => {
 	it('returns a jsPDF document on letter portrait', async () => {
 		const doc = await buildDrPdf(makeOrder());
@@ -241,7 +313,7 @@ describe('buildDrPdf — items table', () => {
 		expect(Math.abs(one - three)).toBeLessThan(6); // the table absorbs the space, not the warranty block
 		expect(three).toBeGreaterThan(450); // bottom region of a 792pt letter page (was ≈430 un-stretched)
 		expect(drSpacerRows(1)).toBeGreaterThan(0);
-		expect(drSpacerRows(15)).toBe(1); // compact item rows (client 2026-11-09) let 15 items fit one page
+		expect(drSpacerRows(15)).toBe(2); // 2 spacers after the 2026-11 signature-reserve fix (90 → 77pt)
 		expect(drSpacerRows(20)).toBe(0); // longer lists keep their natural multi-page flow
 	});
 });

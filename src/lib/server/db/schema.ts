@@ -1,4 +1,10 @@
-import { FixAssetUser, InvoicePaymentType, SalesChannel, SalesOrderStatus } from '../../const';
+import {
+	FixAssetUser,
+	InvoicePaymentType,
+	SalesChannel,
+	SalesOrderStatus,
+	UserRoles
+} from '../../const';
 import { relations } from 'drizzle-orm';
 import {
 	boolean,
@@ -13,7 +19,12 @@ import {
 	type AnyPgColumn
 } from 'drizzle-orm/pg-core';
 
-export const roles = pgEnum('role', ['admin', 'cashier', 'inventory-manager', 'sales-person']);
+export const roles = pgEnum('role', [
+	UserRoles.ADMIN,
+	UserRoles.CASHIER,
+	UserRoles.INVENTORY_MANAGER,
+	UserRoles.SALES_PERSON
+]);
 export const receiveType = pgEnum('receive_type', ['with_pay', 'without_pay']);
 export const billStatus = pgEnum('bill_status', ['partial', 'paid']);
 export const billPaymentType = pgEnum('bill_payment_type', ['cash', 'check']);
@@ -57,7 +68,7 @@ export const users = pgTable('users', {
 	id: serial().primaryKey(),
 	email: text().unique(),
 	name: text().notNull(),
-	role: roles().default('cashier').notNull(),
+	role: roles().default(UserRoles.CASHIER).notNull(),
 	password: text(),
 	is_active: boolean().default(true).notNull(),
 	...timestamps

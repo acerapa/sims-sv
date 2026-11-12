@@ -16,6 +16,10 @@ import {
 
 type Amount = number | string | null | undefined;
 
+// Supported paper formats for the D.R. — both are 8.5in wide, so every column width and
+// the 531.9pt table invariant hold for either; only the page height changes
+export type DrPaperFormat = 'letter' | 'legal';
+
 export interface DeliveryReceiptItem {
 	quantity: number;
 	unit_price: Amount;
@@ -354,7 +358,14 @@ const DR_ITEMS_TOP = 204; // header (132) + content-sized Name/Address (1-line a
 const DR_TABLE_HEAD = 20; // autotable header row (9pt cell + padding)
 const DR_TOTAL_ROWS = 2; // SUB-TOTAL + TOTAL AMOUNT are the table's final rows (client, 2026-11)
 const DR_BELOW_TABLE = 124; // 20 gap + warranty (heading 12 + 7×12 lines + advance/return, ≈ 104)
-const DR_SIG_NEED = 90; // the ensureSpace() budget the signature blocks need to stay on page 1
+// drawSignatures() geometry: the second row's rule sits at y+50 and its role text baseline
+// at y+75, so the block spans 75pt + ~2pt descender. The old 90pt reserve pushed the
+// signatures to page 2 while ~15pt of page 1 still stood free — the client's "new page even
+// though the table isn't full" (2026-11); reserving the block's true height only breaks
+// when the page is genuinely full
+const DR_SIG_NEED = 77;
+// letter and legal page heights in pt (legal = 8.5in x 14in)
+const PAGE_HEIGHT_PT: Record<DrPaperFormat, number> = { letter: 792, legal: 1008 };
 
 /**
  * Client 2026-10-30: "extend the table and push the warranty text and the signatures
@@ -363,8 +374,12 @@ const DR_SIG_NEED = 90; // the ensureSpace() budget the signature blocks need to
  * close the page (single-page orders). Shared with the on-screen preview so both
  * show the same layout (parity). Long orders return 0 and keep their natural flow.
  */
-export function drSpacerRows(itemCount: number, itemsTop: number = DR_ITEMS_TOP): number {
-	const pageHeight = 792; // letter, pt
+export function drSpacerRows(
+	itemCount: number,
+	itemsTop: number = DR_ITEMS_TOP,
+	format: DrPaperFormat = 'letter'
+): number {
+	const pageHeight = PAGE_HEIGHT_PT[format];
 	const maxTableBottom = pageHeight - PDF_FOOTER_BAND - DR_SIG_NEED - DR_BELOW_TABLE;
 	const naturalBottom =
 		itemsTop +
@@ -375,11 +390,14 @@ export function drSpacerRows(itemCount: number, itemsTop: number = DR_ITEMS_TOP)
 	return gap > 0 ? Math.floor(gap / DATA_ROW_HEIGHT) : 0;
 }
 
-export async function buildDrPdf(order: DeliveryReceiptOrder): Promise<jsPDF> {
+export async function buildDrPdf(
+	order: DeliveryReceiptOrder,
+	format: DrPaperFormat = 'letter'
+): Promise<jsPDF> {
 	// No createReportDoc on purpose: the D.R. has its own form anatomy (logo + boxed company
 	// name + D.R title + reference grid) — the client form, not the report frame, is the source
 	// of truth (same call as the sibling daily-sales receipt).
-	const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+	const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format });
 	const pageHeight = doc.internal.pageSize.getHeight();
 	const logoData = await loadLogoDataUrl();
 
@@ -388,9 +406,9 @@ export async function buildDrPdf(order: DeliveryReceiptOrder): Promise<jsPDF> {
 	y = drawNameAddress(doc, order, y);
 	// pass the real table top: the Name/Address box is now content-sized, so the
 	// spacer count must follow it to keep the warranty block anchored to the page bottom
-	y = drawItemsTable(doc, order, y, drSpacerRows(order.items?.length ?? 0, y)) + 20;
+	y = drawItemsTable(doc, order, y, drSpacerRows(order.items?.length ?? 0, y, format)) + 20;
 	y = drawWarranty(doc, y);
-	y = ensureSpace(doc, y, 90, pageHeight);
+	y = ensureSpace(doc, y, DR_SIG_NEED, pageHeight);
 	drawSignatures(doc, y);
 
 	addReportFooter(doc);
