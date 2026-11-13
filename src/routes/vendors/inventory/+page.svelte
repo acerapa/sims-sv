@@ -47,6 +47,7 @@
 	import { formatCurrency } from '#lib/utils/common.ts';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '#lib/components/ui/tooltip/index.ts';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
 
 	let { data, form }: PageProps = $props();
 	let categories = $derived<Category[]>(data.categories);
@@ -65,29 +66,10 @@
 	let searchValue = $state(data.currentParams.search);
 	let searchTimeout: ReturnType<typeof setTimeout>;
 
-	function updateSearchParams(updates: Record<string, string | number | null>) {
-		const params = new URLSearchParams(page.url.searchParams);
-
-		for (const [key, value] of Object.entries(updates)) {
-			if (value === null || value === '') {
-				params.delete(key);
-			} else {
-				params.set(key, String(value));
-			}
-		}
-
-		// Reset to page 1 when search or sort changes
-		if ('search' in updates || 'sort' in updates) {
-			params.set('page', '1');
-		}
-
-		goto(`?${params.toString()}`, { replaceState: true, keepFocus: true });
-	}
-
 	function handleSort(column: string) {
 		const newOrder =
 			currentParams.sortBy === column && currentParams.sortOrder === 'asc' ? 'desc' : 'asc';
-		updateSearchParams({ sort: column, order: newOrder });
+		paginatedParamsUpdate({ sort: column, order: newOrder });
 	}
 
 	function handleSearch(event: Event) {
@@ -96,16 +78,16 @@
 
 		clearTimeout(searchTimeout);
 		searchTimeout = setTimeout(() => {
-			updateSearchParams({ search: value || null });
+			paginatedParamsUpdate({ search: value || null });
 		}, 300);
 	}
 
 	function handlePageChange(newPage: number) {
-		updateSearchParams({ page: newPage });
+		paginatedParamsUpdate({ page: newPage })
 	}
 
 	function handleLimitChange(newLimit: number) {
-		updateSearchParams({ limit: newLimit, page: 1 });
+	  paginatedParamsUpdate({ limit: newLimit, page: 1 })
 	}
 
 	function openPrint() {

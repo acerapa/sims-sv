@@ -44,7 +44,6 @@
 	import { resolve } from '$app/paths';
 	import { SalesOrderStatus } from '#lib/const.ts';
 	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
-	import type { PaginatedProductsResult } from '#lib/server/db/queries/products.ts';
 
 	let { data }: PageProps = $props();
 

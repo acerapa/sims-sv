@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 
 	// Parse pagination/sorting params
 	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
-	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '25') || 25));
+	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
 	const sortByParam = url.searchParams.get('sort') as SortableColumn | null;
 	const sortBy: SortableColumn = validSortColumns.includes(sortByParam!)
 		? sortByParam!
