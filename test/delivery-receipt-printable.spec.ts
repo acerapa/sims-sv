@@ -137,6 +137,51 @@ describe('buildDrPdf — page breaks only when the table is genuinely long (clie
 	});
 });
 
+describe('buildDrPdf — signature bottom clearance (client 2026-11-16: signatures cut off)', () => {
+	// the block's lowest text is the Branch Manager baseline + ~2pt descender; the page's
+	// footer band starts 48pt above the bottom edge, and the clearance keeps the block a
+	// further 20pt above that — 68pt (24mm) from the paper edge on any one-page receipt.
+	// +0.5pt: autotable's finalY carries a ~0.4pt offset over the integer row math
+	const onePageLimit = (pageHeight: number) => pageHeight - 68 + 0.5;
+	const BLOCK_BOTTOM = (doc: Awaited<ReturnType<typeof buildDrPdf>>) =>
+		startYAt(doc, 'Branch Manager') + 2;
+
+	it('keeps a full 19-item letter table on one page with the signature 68pt off the bottom', async () => {
+		// the worst case before the fix: table naturally full (no spacer to shave) left the
+		// block at 743.4pt on a 792pt page — clipped on printers with a wider bottom margin
+		const doc = await buildDrPdf(makeOrder({ items: items(19) }));
+		expect(doc.getNumberOfPages()).toBe(1);
+		expect(BLOCK_BOTTOM(doc)).toBeLessThanOrEqual(onePageLimit(792));
+	});
+
+	it('holds the 68pt clearance for every one-page letter receipt (1–19 items)', async () => {
+		for (let n = 1; n <= 19; n++) {
+			const doc = await buildDrPdf(makeOrder({ items: items(n) }));
+			expect(doc.getNumberOfPages(), `n=${n} should stay on one page`).toBe(1);
+			expect(BLOCK_BOTTOM(doc), `n=${n} signature too close to the bottom`).toBeLessThanOrEqual(
+				onePageLimit(792)
+			);
+		}
+	});
+
+	it('holds the 68pt clearance on legal for the sparsest and densest one-page cases', async () => {
+		for (const n of [1, 30, 35]) {
+			const doc = await buildDrPdf(makeOrder({ items: items(n) }), 'legal');
+			expect(doc.getNumberOfPages(), `legal n=${n} should stay on one page`).toBe(1);
+			expect(
+				BLOCK_BOTTOM(doc),
+				`legal n=${n} signature too close to the bottom`
+			).toBeLessThanOrEqual(onePageLimit(1008));
+		}
+	});
+
+	it('keeps the clearance on the continuation page of a multi-page receipt', async () => {
+		const doc = await buildDrPdf(makeOrder({ items: items(20) }));
+		expect(BLOCK_BOTTOM(doc)).toBeLessThanOrEqual(onePageLimit(792));
+		expect(textIn(doc)).toContain('Branch Manager');
+	});
+});
+
 describe('drSpacerRows — paper format', () => {
 	it('stretches short lists more on legal than on letter', () => {
 		expect(drSpacerRows(3, 204, 'legal')).toBeGreaterThan(drSpacerRows(3, 204, 'letter'));
@@ -263,11 +308,12 @@ describe('buildDrPdf — items table', () => {
 		expect(xAt('SUB-TOTAL')).toBe(REPORT_MARGIN + 5);
 	});
 
-	it('packs item rows at the compact 14pt height, not the old 26pt', async () => {
-		// client 2026-11-09: consecutive item rows are one ITEM_ROW_HEIGHT apart
+	it('packs item rows at the compact 13pt height, not the old 26pt', async () => {
+		// client 2026-11-09 compact rows; 2026-11-16: 13pt (≈4.6mm) so full tables leave the
+		// signature its bottom clearance — consecutive item rows are one ITEM_ROW_HEIGHT apart
 		const doc = await buildDrPdf(makeOrder());
 		const pitch = startYAt(doc, 'Kit') - startYAt(doc, 'Widget');
-		expect(pitch).toBeCloseTo(14, 1);
+		expect(pitch).toBeCloseTo(13, 1);
 	});
 
 	it('sizes the UP and Total columns to the receipt amounts, with Item Description absorbing (table stays 531.9pt)', async () => {

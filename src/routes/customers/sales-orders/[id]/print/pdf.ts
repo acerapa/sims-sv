@@ -70,9 +70,9 @@ const HEAD_STYLES: Partial<Styles> = {
 };
 
 const DATA_ROW_HEIGHT = 26; // 9mm — spacer + totals rows (the preview's 9mm rows)
-// Client 2026-11-09: compact item rows — 14pt ≈ 5mm, the preview's item-row height;
-// spacers/totals keep DATA_ROW_HEIGHT so the page-fill math and totals ruling hold
-const ITEM_ROW_HEIGHT = 14;
+// Client 2026-11-09: compact item rows; 2026-11-16: 13pt (≈4.6mm) — one pt per item buys the
+// signature its bottom clearance on full tables, where no spacer row is left to shave
+const ITEM_ROW_HEIGHT = 13;
 // column widths: Serial No., UP and Total size to this receipt's widest value and Item
 // Description absorbs the rest — client 2026-11: the fixed amount widths left a blank gap
 // before the right-aligned amounts
@@ -419,6 +419,16 @@ const DR_BELOW_TABLE = 124; // 20 gap + warranty (heading 12 + 7×12 lines + adv
 // though the table isn't full" (2026-11); reserving the block's true height only breaks
 // when the page is genuinely full
 const DR_SIG_NEED = 77;
+// Extra room below the signature block, beyond its 77pt height: DR_SIG_NEED is exact, so a
+// table filled to the brim left the block's descenders only ~48pt above the paper edge
+// (measured 743.4pt on a 792pt page) — clipped on printers with a wider bottom margin.
+// 20pt more keeps a one-page D.R.'s block bottom at least ~68pt (24mm) from the edge
+// (client, 2026-11-16).
+const DR_SIG_CLEARANCE = 20;
+// autotable's finalY runs ~0.4pt over the integer row math (head-row padding), so a table
+// that exactly fills the target would trip the strict page-break check a hair over the
+// limit and wobble to page 2 — one pt of tolerance keeps exactly-fitting tables on page 1
+const DR_FIT_TOLERANCE = 1;
 // letter and legal page heights in pt (legal = 8.5in x 14in)
 const PAGE_HEIGHT_PT: Record<DrPaperFormat, number> = { letter: 792, legal: 1008 };
 
@@ -435,7 +445,8 @@ export function drSpacerRows(
 	format: DrPaperFormat = 'letter'
 ): number {
 	const pageHeight = PAGE_HEIGHT_PT[format];
-	const maxTableBottom = pageHeight - PDF_FOOTER_BAND - DR_SIG_NEED - DR_BELOW_TABLE;
+	const maxTableBottom =
+		pageHeight - PDF_FOOTER_BAND - DR_SIG_NEED - DR_SIG_CLEARANCE - DR_BELOW_TABLE;
 	const naturalBottom =
 		itemsTop +
 		DR_TABLE_HEAD +
@@ -463,7 +474,8 @@ export async function buildDrPdf(
 	// spacer count must follow it to keep the warranty block anchored to the page bottom
 	y = drawItemsTable(doc, order, y, drSpacerRows(order.items?.length ?? 0, y, format)) + 20;
 	y = drawWarranty(doc, y);
-	y = ensureSpace(doc, y, DR_SIG_NEED, pageHeight);
+	// the same clearance as the spacer math, so multi-page receipts keep it too
+	y = ensureSpace(doc, y, DR_SIG_NEED + DR_SIG_CLEARANCE - DR_FIT_TOLERANCE, pageHeight);
 	drawSignatures(doc, y);
 
 	addReportFooter(doc);

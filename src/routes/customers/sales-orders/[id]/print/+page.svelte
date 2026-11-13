@@ -346,10 +346,11 @@
 		padding: 0 2mm;
 	}
 
-	/* Client 2026-11-09: compact item rows (5mm, mirrors the PDF's ITEM_ROW_HEIGHT);
-	   spacer rows keep 9mm so they absorb the freed space */
+	/* Client 2026-11-09: compact item rows (mirrors the PDF's ITEM_ROW_HEIGHT); 2026-11-16:
+	   13pt ≈ 4.6mm so the signature keeps its bottom clearance on full tables.
+	   Spacer rows stay 9mm so they absorb the freed space */
 	.items-table tbody tr:not(.spacer-row):not(.subtotal-row):not(.grand-row) td {
-		height: 5mm;
+		height: 4.6mm;
 	}
 
 	.items-table .number {
