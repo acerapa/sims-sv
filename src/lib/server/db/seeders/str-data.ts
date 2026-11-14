@@ -6,10 +6,12 @@ import { categories, products, stores, strItems, strs } from '../schema';
 // fake-sales-data pattern: identifiable rows (FAKE-SKU-STR- products, FAKE-STR-SN-
 // serials), fail-fast on missing deps, and a cleanup mode that deletes exactly what
 // this script created (STRs are only deleted when all of their items were fake).
+//
+// Usage: npm run seed:str [count] — count defaults to DEFAULT_STR_COUNT; npm run seed:str:cleanup
 const FAKE_SKU_PREFIX = 'FAKE-SKU-STR-';
 const FAKE_SERIAL_PREFIX = 'FAKE-STR-SN-';
 const PRODUCT_COUNT = 20;
-const STR_COUNT = 15;
+const DEFAULT_STR_COUNT = 15;
 const MIN_ITEMS_PER_STR = 2;
 const MAX_ITEMS_PER_STR = 4;
 
@@ -48,6 +50,14 @@ const randInt = (min: number, max: number): number =>
 	Math.floor(Math.random() * (max - min + 1)) + min;
 
 const pick = <T>(rows: readonly T[]): T => rows[Math.floor(Math.random() * rows.length)];
+
+const parseCount = (arg: string | undefined): number => {
+	if (arg === undefined) return DEFAULT_STR_COUNT;
+	const count = Number(arg);
+	if (!Number.isInteger(count) || count < 1)
+		throw new Error(`Invalid count "${arg}" — usage: npm run seed:str [positive-int]`);
+	return count;
+};
 
 const randomRecentDate = (): Date => new Date(Date.now() - randInt(0, 60) * 86_400_000);
 
@@ -91,7 +101,7 @@ const cleanupStrData = async () => {
 	);
 };
 
-const seedStrData = async () => {
+const seedStrData = async (requestedCount: number) => {
 	// real rows the foreign keys must point at
 	const [catRows, storeRows, existingFake, maxProductRow, maxStrRow, maxItemRow] =
 		await Promise.all([
@@ -119,10 +129,10 @@ const seedStrData = async () => {
 	const idRange = (max: number, count: number) =>
 		Array.from({ length: count }, (_, i) => max + i + 1);
 	const productIds = idRange(maxProductRow[0]?.max ?? 0, PRODUCT_COUNT);
-	const strIds = idRange(maxStrRow[0]?.max ?? 0, STR_COUNT);
+	const strIds = idRange(maxStrRow[0]?.max ?? 0, requestedCount);
 	const itemIds = idRange(
 		maxItemRow[0]?.max ?? 0,
-		STR_COUNT * MAX_ITEMS_PER_STR * 4 + 100 // headroom for the 2–4 serial fan-out
+		requestedCount * MAX_ITEMS_PER_STR * 4 + 100 // headroom for the 2–4 serial fan-out
 	);
 	let nextItemId = 0;
 
@@ -140,7 +150,7 @@ const seedStrData = async () => {
 	}
 
 	let itemTotal = 0;
-	for (let s = 0; s < STR_COUNT; s++) {
+	for (let s = 0; s < requestedCount; s++) {
 		await db.insert(strs).values({
 			id: strIds[s],
 			store_id: pick(storeRows).id,
@@ -171,7 +181,9 @@ const seedStrData = async () => {
 			}
 		}
 	}
-	console.log(`STR data seeded — ${PRODUCT_COUNT} products, ${STR_COUNT} STRs, ${itemTotal} items`);
+	console.log(
+		`STR data seeded — ${PRODUCT_COUNT} products, ${requestedCount} STRs, ${itemTotal} items`
+	);
 };
 
 const main = async () => {
@@ -179,7 +191,7 @@ const main = async () => {
 		if (process.argv[2] === 'cleanup') {
 			await cleanupStrData();
 		} else {
-			await seedStrData();
+			await seedStrData(parseCount(process.argv[2]));
 		}
 	} catch (error) {
 		console.error('Error in STR seeder script:', error);

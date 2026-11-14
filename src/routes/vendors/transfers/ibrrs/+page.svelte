@@ -27,10 +27,25 @@
 		TableRow
 	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
 
-	const ibrrs = $derived(page.data.ibrrs);
+	const ibrrs = $derived(page.data?.paginated?.data);
 	let ibrr = $derived(page.data.ibrr);
 	let openIbrrForm = $state(false);
+
+	// Pagination related variables
+	let total = $derived(page.data?.paginated?.total);
+	let currentPage = $derived(page.data?.paginated?.page);
+	let limit = $derived(page.data?.paginated?.limit);
+	let totalPages = $derived(page.data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	const onViewIbrr = async (ibrrId: number) => {
 		openIbrrForm = true;
@@ -105,5 +120,14 @@
 				{/if}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>

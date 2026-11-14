@@ -1,7 +1,7 @@
 import {
 	createIBRR,
 	getIBRRById,
-	getIBRRs,
+	getPaginatedIBRRs,
 	type CreateIBRRData
 } from '#lib/server/db/queries/ibrrs.ts';
 import { decode } from 'decode-formdata';
@@ -11,14 +11,17 @@ import { fail } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ depends, url }) => {
 	depends('transfers:ibrrs');
-	const ibrrId = url.searchParams.get('id');
+  const ibrrId = url.searchParams.get('id');
+  const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+  const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+
 	let ibrr = null;
 	if (ibrrId) {
 		ibrr = await getIBRRById(Number(ibrrId));
 	}
-	const ibrrs = await getIBRRs();
+	const paginated = await getPaginatedIBRRs(page, limit);
 	return {
-		ibrrs,
+		paginated,
 		ibrr
 	};
 };

@@ -92,6 +92,37 @@ export const getIBRRs = async () => {
 		.orderBy(desc(ibrrs.received_date));
 };
 
+export const getPaginatedIBRRs = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(ibrrs);
+
+	const result = await db
+		.select({
+			id: ibrrs.id,
+			source_store_id: ibrrs.source_store_id,
+			source_store_name: stores.name,
+			items_count: count(ibrrItems.id),
+			str_id: ibrrs.str_id,
+			received_date: ibrrs.received_date
+		})
+		.from(ibrrs)
+		.leftJoin(stores, eq(stores.id, ibrrs.source_store_id))
+		.leftJoin(ibrrItems, eq(ibrrItems.ibrr_id, ibrrs.id))
+		.groupBy(ibrrs.id, ibrrs.source_store_id, ibrrs.str_id, ibrrs.received_date, stores.name)
+		.orderBy(desc(ibrrs.received_date))
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
+};
+
 export const getIBRRById = async (ibrrId: number) => {
 	const rows = await db
 		.select({

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import STRForm from '#lib/components/pages/vendors/transfers/strs/STRForm.svelte';
-	import { Button, buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import {
 		Card,
 		CardContent,
