@@ -1,4 +1,4 @@
-import { desc, eq, sql } from 'drizzle-orm';
+import { count, desc, eq, sql } from 'drizzle-orm';
 import { db } from '..';
 import { products, purchaseOrderItems, purchaseOrders, suppliers } from '../schema';
 import type { SupplierPO } from '#lib/types/global.ts';
@@ -144,3 +144,36 @@ export const getPurchaseOrders = async () => {
 
 	return result;
 };
+
+export const getPaginatedPurchaseOrders = async (page: number, limit: number) => {
+  const offset = (page - 1) * limit;
+
+  const [{ total }] = await db.select({ total: count() }).from(purchaseOrders);
+
+  const result = await db
+		.select({
+			id: purchaseOrders.id,
+			reference: purchaseOrders.reference,
+			supplier_name: suppliers.name,
+			receive_date: purchaseOrders.receive_date,
+			receive_type: purchaseOrders.receive_type,
+			item_count: sql<number>`count(${purchaseOrderItems.product_id})`.as('item_count'),
+			total: purchaseOrders.total,
+			created_at: purchaseOrders.created_at
+		})
+		.from(purchaseOrders)
+		.leftJoin(suppliers, eq(purchaseOrders.supplier_id, suppliers.id))
+		.leftJoin(purchaseOrderItems, eq(purchaseOrders.id, purchaseOrderItems.purchase_order_id))
+		.groupBy(purchaseOrders.id, suppliers.name)
+    .orderBy(desc(purchaseOrders.created_at))
+    .offset(offset)
+    .limit(limit);
+
+  return {
+    data: result,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit)
+  }
+}

@@ -28,9 +28,9 @@
 <div class="flex items-center justify-between px-2 py-4">
 	<div class="text-sm text-muted-foreground">
 		{#if total > 0}
-			Showing {startItem} to {endItem} of {total} products
+			Showing {startItem} to {endItem} of {total} rows
 		{:else}
-			No products found
+			No data
 		{/if}
 	</div>
 

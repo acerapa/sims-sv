@@ -19,12 +19,27 @@
 	import { Plus, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
 
 	let { data }: PageProps = $props();
 
+	// Pagination related variables
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
+
 	let search = $state('');
 	let purchaseOrders = $derived(
-		data.purchaseOrders.filter((po) => {
+		data?.paginated?.data?.filter((po) => {
 			if (!search) return true;
 			const term = search.toLowerCase();
 
@@ -114,5 +129,14 @@
 				{/if}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>
