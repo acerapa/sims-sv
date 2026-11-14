@@ -1,4 +1,4 @@
-import { createRMA, getRMAById, getRMAs, type CreateRMAData } from '#lib/server/db/queries/rmas.ts';
+import { createRMA, getPaginatedRMAs, getRMAById, getRMAs, type CreateRMAData } from '#lib/server/db/queries/rmas.ts';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { getProducts } from '#lib/server/db/queries/products.ts';
@@ -6,14 +6,18 @@ import z from 'zod';
 import { fail } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ url }) => {
-	const rmas = await getRMAs();
-	const rmaId = url.searchParams.get('id');
+  const rmaId = url.searchParams.get('id');
+  const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+  const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+
+  const paginated = await getPaginatedRMAs(page, limit);
+
 	let rma = null;
 	if (rmaId) {
 		rma = await getRMAById(Number(rmaId));
 	}
 	const products = await getProducts();
-	return { rmas, products, rma };
+	return { paginated, products, rma };
 };
 
 export const actions: Actions = {

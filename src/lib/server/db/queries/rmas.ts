@@ -62,6 +62,37 @@ export const getRMAs = async () => {
 		.orderBy(desc(rmas.created_at));
 };
 
+export const getPaginatedRMAs = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(rmas);
+
+	const result = await db
+		.select({
+			id: rmas.id,
+			supplier_id: rmas.supplier_id,
+			date_returned: rmas.date_returned,
+			notes: rmas.notes,
+			items_count: count(rmaItems.id),
+			supplier_name: suppliers.name
+		})
+		.from(rmas)
+		.leftJoin(suppliers, eq(suppliers.id, rmas.supplier_id))
+		.leftJoin(rmaItems, eq(rmaItems.rma_id, rmas.id))
+		.groupBy(rmas.id, rmas.supplier_id, rmas.date_returned, rmas.notes, suppliers.name)
+		.orderBy(desc(rmas.created_at))
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
+};
+
 export const getRMAById = async (rmaId: number) => {
 	const rows = await db
 		.select({

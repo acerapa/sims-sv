@@ -26,6 +26,9 @@
 		"seed:str:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/str-data.ts cleanup",
 		"seed:ibrr": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/ibrr-data.ts",
 		"seed:ibrr:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/ibrr-data.ts cleanup",
+		"seed:suppliers": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/suppliers.ts",
+		"seed:rma": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/rma-data.ts",
+		"seed:rma:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/rma-data.ts cleanup",
 		"seed:admin-user": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/admin-user.ts"
 	},
 	"devDependencies": {
