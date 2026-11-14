@@ -252,18 +252,13 @@ function drawHeader(doc: jsPDF, order: DeliveryReceiptOrder, logoData: string | 
 
 function drawNameAddress(doc: jsPDF, order: DeliveryReceiptOrder, y: number): number {
 	const margin = REPORT_MARGIN;
-	const boxW = 255; // 48% of the printable width
 	const titleH = 20; // 7mm
-	const addressLines: string[] = order.customer?.address
-		? doc.splitTextToSize(order.customer.address, boxW - 12)
-		: [];
-	// box height fits its content (client, 2026-11): name zone + one 12pt per wrapped
-	// address line + padding; was a fixed 96pt with a clipped 5-line cap
-	const boxH = Math.max(50, 36 + addressLines.length * 12 + 10);
+	const addressLines = measureAddressLines(doc, order.customer?.address);
+	const boxH = nameBoxHeight(addressLines.length);
 	doc.setDrawColor(0, 0, 0);
 	doc.setLineWidth(1);
-	doc.rect(margin, y, boxW, boxH);
-	doc.line(margin, y + titleH, margin + boxW, y + titleH);
+	doc.rect(margin, y, DR_NAME_BOX_W, boxH);
+	doc.line(margin, y + titleH, margin + DR_NAME_BOX_W, y + titleH);
 	doc.setFont('helvetica', 'normal');
 	doc.setFontSize(10);
 	doc.text('Name/Address', margin + 6, y + 13);
@@ -276,7 +271,7 @@ function drawNameAddress(doc: jsPDF, order: DeliveryReceiptOrder, y: number): nu
 		doc.setFontSize(9);
 		doc.text(addressLines[i], margin + 6, y + titleH + 30 + i * 12);
 	}
-	return y + boxH + 14;
+	return y + boxH + DR_NAME_BOX_GAP;
 }
 
 function drawItemsTable(
@@ -408,8 +403,12 @@ function drawWarranty(doc: jsPDF, y: number): number {
 	}
 	return lineY + 8;
 }
-const DR_ITEMS_TOP = 204; // header (132) + content-sized Name/Address (1-line address) → items-table top;
-// buildDrPdf passes the ACTUAL top (the box grows with the address length)
+const DR_HEADER_H = 132; // fixed header's last rule — the Name/Address box starts here
+const DR_NAME_BOX_W = 255; // 48% of the printable width
+const DR_NAME_BOX_GAP = 14; // gap from the box bottom to the items table
+const DR_ITEMS_TOP = 204; // DR_HEADER_H + one-line box (58) + gap — drSpacerRows' default;
+// buildDrPdf passes the ACTUAL top and the preview passes drItemsTop() (the box grows
+// with the address length)
 const DR_TABLE_HEAD = 20; // autotable header row (9pt cell + padding)
 const DR_TOTAL_ROWS = 2; // SUB-TOTAL + TOTAL AMOUNT are the table's final rows (client, 2026-11)
 const DR_BELOW_TABLE = 124; // 20 gap + warranty (heading 12 + 7×12 lines + advance/return, ≈ 104)
@@ -431,6 +430,29 @@ const DR_SIG_CLEARANCE = 20;
 const DR_FIT_TOLERANCE = 1;
 // letter and legal page heights in pt (legal = 8.5in x 14in)
 const PAGE_HEIGHT_PT: Record<DrPaperFormat, number> = { letter: 792, legal: 1008 };
+
+// Box height fits its content (client, 2026-11): name zone + one 12pt per wrapped address
+// line + padding; was a fixed 96pt with a clipped 5-line cap
+function nameBoxHeight(addressLineCount: number): number {
+	return Math.max(50, 36 + addressLineCount * 12 + 10);
+}
+
+// Address lines at render size (9pt) — the one wrap rule shared by the PDF's Name/Address
+// box and the preview's spacer math, so the two can't drift apart
+function measureAddressLines(doc: jsPDF, address: string | null | undefined): string[] {
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(9);
+	return address ? doc.splitTextToSize(address, DR_NAME_BOX_W - 12) : [];
+}
+
+// Items-table top for a customer address: the same math drawNameAddress draws, so the
+// on-screen preview computes its spacer rows from the PDF's real table top (a multi-line
+// address used to desync the two — the preview assumed DR_ITEMS_TOP and over-stretched)
+export function drItemsTop(address: string | null | undefined): number {
+	const doc = new jsPDF({ unit: 'pt' });
+	const lines = measureAddressLines(doc, address).length;
+	return DR_HEADER_H + nameBoxHeight(lines) + DR_NAME_BOX_GAP;
+}
 
 /**
  * Client 2026-10-30: "extend the table and push the warranty text and the signatures
@@ -467,7 +489,7 @@ export async function buildDrPdf(
 	const pageHeight = doc.internal.pageSize.getHeight();
 	const logoData = await loadLogoDataUrl();
 
-	let y = 132;
+	let y = DR_HEADER_H;
 	drawHeader(doc, order, logoData);
 	y = drawNameAddress(doc, order, y);
 	// pass the real table top: the Name/Address box is now content-sized, so the

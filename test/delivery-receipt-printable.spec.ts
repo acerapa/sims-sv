@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { REPORT_MARGIN } from '../src/lib/utils/pdf';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { jsPDF } from 'jspdf';
+import { openAndPrint, REPORT_MARGIN } from '../src/lib/utils/pdf';
 import {
 	buildDrPdf,
+	drItemsTop,
 	drSpacerRows,
 	formatDateShort,
 	serialWPercent,
@@ -507,5 +509,71 @@ describe('buildDrPdf — signatures and footer', () => {
 		const text = textIn(await buildDrPdf(makeOrder()));
 		expect(text).toContain('Generated on');
 		expect(text).toContain('Page 1 of 1');
+	});
+});
+
+describe('openAndPrint — no embedded auto-print (house rule: user prints from the browser)', () => {
+	// jsPDF 4's autoPrint() embeds a /Print OpenAction in the PDF itself — viewers fire the
+	// printer on open, with no dialog to confirm paper size / scale / margins (the D.R.
+	// signatures printed clipped when the machine defaults didn't match the page size)
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('opens the PDF tab without embedding a /Print action in the doc', () => {
+		const opened: string[] = [];
+		vi.stubGlobal('window', { open: (uri: string) => opened.push(uri) });
+		const doc = new jsPDF({ unit: 'pt' });
+
+		openAndPrint(doc);
+
+		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
+		expect(opened).toHaveLength(1);
+		expect(opened[0]).toMatch(/^blob:/);
+		expect(raw).not.toContain('/N /Print');
+	});
+
+	it('a doc that autoPrints does carry the action (guard: the assertion above can bite)', () => {
+		const doc = new jsPDF({ unit: 'pt' });
+		doc.autoPrint();
+		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
+		expect(raw).toContain('/N /Print');
+	});
+});
+
+describe('drItemsTop — the preview and the PDF stretch from the same table top', () => {
+	const ONE_LINE = '123 Main St, Calbayog';
+	const TWO_LINES =
+		'12345 Very Long Street, Brgy. Poblacion 1st Purok, Calbayog City, Samar 6100, Philippines';
+
+	it('keeps the historical 204pt top for a one-line address', () => {
+		expect(drItemsTop(ONE_LINE)).toBe(204);
+	});
+
+	it('uses the 50pt minimum box when the address is missing', () => {
+		expect(drItemsTop(undefined)).toBe(196); // 132 header + 50 box + 14 gap
+	});
+
+	it('lowers the table top per wrapped address line, so the preview stops over-stretching', () => {
+		expect(drItemsTop(TWO_LINES)).toBeGreaterThan(204);
+		// the preview's spacer count (same expression) must not exceed the old fixed-top count
+		expect(drSpacerRows(10, drItemsTop(TWO_LINES), 'letter')).toBeLessThanOrEqual(
+			drSpacerRows(10, 204, 'letter')
+		);
+	});
+
+	it('buildDrPdf stretches from drItemsTop: the warranty block lands where the shared math says', async () => {
+		const top = drItemsTop(TWO_LINES);
+		const n = 1;
+		const spacers = drSpacerRows(n, top, 'letter');
+		const expectedTableBottom = top + 20 + n * 13 + 2 * 26 + spacers * 26;
+
+		const doc = await buildDrPdf(
+			makeOrder({
+				customer: { name: 'ACME Corp', address: TWO_LINES },
+				items: (makeOrder().items ?? []).slice(0, n)
+			})
+		);
+		const warrantyTop = startYAt(doc, 'FOR WARRANTY SERVICE:');
+
+		expect(Math.abs(warrantyTop - (expectedTableBottom + 20))).toBeLessThan(4);
 	});
 });

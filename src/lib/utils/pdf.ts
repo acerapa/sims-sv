@@ -21,11 +21,13 @@ export interface ReportDoc {
 }
 
 /**
- * Opens the generated PDF in a new tab with the auto-print action set,
- * so the browser's print dialog opens directly (replaces window.print()).
+ * Opens the generated PDF in a new tab for the user to print from the browser's
+ * PDF viewer (house rule: no auto-print). jsPDF's autoPrint() embeds a /Print action
+ * in the file itself, so viewers fire the printer on open with machine defaults —
+ * paper size, scale, margins — and when those don't match the PDF's page size the
+ * page bottom (e.g. the D.R. signatures) prints clipped.
  */
 export function openAndPrint(doc: jsPDF): void {
-	doc.autoPrint();
 	window.open(doc.output('bloburi'), '_blank');
 }
 

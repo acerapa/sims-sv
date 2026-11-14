@@ -7,6 +7,7 @@
 	import type { PageProps } from './$types';
 	import {
 		buildDrPdf,
+		drItemsTop,
 		drSpacerRows,
 		formatDateShort,
 		serialWPercent,
@@ -29,9 +30,15 @@
 	// UP/Total size to the receipt's widest amount (same fit as the PDF); Item Description absorbs them
 	let upPct = $derived(upWPercent(order.items));
 	let amountPct = $derived(totalWPercent(order.items, subtotal, order.total_cost));
-	// Mirror the PDF: blank rows stretch the items table so the warranty + signatures close the page
+	// Mirror the PDF: blank rows stretch the items table so the warranty + signatures close the
+	// page; drItemsTop follows the content-sized Name/Address box exactly like the PDF does
 	let spacerRows = $derived(
-		Array.from({ length: drSpacerRows(order.items.length, undefined, paperFormat) }, (_, i) => i)
+		Array.from(
+			{
+				length: drSpacerRows(order.items.length, drItemsTop(order.customer?.address), paperFormat)
+			},
+			(_, i) => i
+		)
 	);
 
 	async function handlePrint() {
