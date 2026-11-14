@@ -21,6 +21,9 @@
 		"seed:fake-data": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/fake-sales-data.ts",
 		"seed:fake-data:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/fake-sales-data.ts cleanup",
 		"seed:walk-in-customer": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/walk-in-customer.ts",
+		"seed:stores": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/stores.ts",
+		"seed:str": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/str-data.ts",
+		"seed:str:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/str-data.ts cleanup",
 		"seed:admin-user": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/admin-user.ts"
 	},
 	"devDependencies": {

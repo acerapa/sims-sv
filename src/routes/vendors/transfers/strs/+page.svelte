@@ -28,13 +28,28 @@
 	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
 
 	let { data, form }: PageProps = $props();
 	const str = $derived(data?.str || null);
 	const stores = $derived(data?.stores || []);
 	const products = $derived(data?.products || []);
-	const strs = $derived(data?.strs || []);
+	const strs = $derived(data?.paginated?.data || []);
 	let openStrForm = $state(false);
+
+	// Pagination related variables
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	const onViewStr = async (id: number) => {
 		openStrForm = true;
@@ -106,5 +121,14 @@
 				{/if}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>

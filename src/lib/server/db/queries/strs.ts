@@ -88,6 +88,37 @@ export const getStrs = async () => {
 		.orderBy(desc(strs.created_at));
 };
 
+export const getPaginatedStrs = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(strs);
+
+	const result = await db
+		.select({
+			id: strs.id,
+			store_id: strs.store_id,
+			transfer_date: strs.transfer_date,
+			notes: strs.notes,
+			store_name: stores.name,
+			items_count: count(strItems.id)
+		})
+		.from(strs)
+		.leftJoin(stores, eq(stores.id, strs.store_id))
+		.leftJoin(strItems, eq(strItems.str_id, strs.id))
+		.groupBy(strs.id, strs.store_id, strs.transfer_date, strs.notes, strs.created_at, stores.name)
+		.orderBy(desc(strs.created_at))
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
+};
+
 export const getStrById = async (strId: number) => {
 	const rows = await db
 		.select({
@@ -141,8 +172,8 @@ const groupItemsByProduct = (items: STRItemWithId[]): STRItemWithId[] => {
 		if (itm) {
 			itm.quantity++;
 			itm.total_cost = itm.cost * itm.quantity;
-			if (itm.serial_number) {
-				itm.serial_numbers.push(itm.serial_number);
+			if (item.serial_number) {
+				itm.serial_numbers.push(item.serial_number);
 			}
 		} else {
 			groupedItems.push(item);

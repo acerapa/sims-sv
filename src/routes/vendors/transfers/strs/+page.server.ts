@@ -2,17 +2,21 @@ import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { z } from 'zod';
 import { fail } from '@sveltejs/kit';
-import { createStr, getStrById, getStrs, type CreateSTRData } from '#lib/server/db/queries/strs.ts';
+import { createStr, getPaginatedStrs, getStrById, type CreateSTRData } from '#lib/server/db/queries/strs.ts';
 
 export const load: PageServerLoad = async ({ url, depends }) => {
 	depends('transfers:strs');
 	const strId = url.searchParams.get('id');
-	let str = null;
+	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+  const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+
+  let str = null;
 	if (strId) {
 		str = await getStrById(Number(strId));
-	}
-	const strs = await getStrs();
-	return { strs, str };
+  }
+
+	const paginated = await getPaginatedStrs(page, limit);
+	return { paginated, str };
 };
 
 export const actions: Actions = {
