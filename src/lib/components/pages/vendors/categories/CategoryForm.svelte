@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
 	import Button from '#lib/components/ui/button/button.svelte';
 	import Input from '#lib/components/ui/input/input.svelte';
 	import { Check, Folder, X } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
+	import { toast } from 'svelte-sonner';
+	import { refreshAll } from '$app/navigation';
 
 	interface Props {
 		parent_id?: number | null;
@@ -23,20 +25,30 @@
 			form = null;
 		}
 	};
+
+	const enhanceForm: SubmitFunction = () => {
+		if (submitting) return;
+		submitting = true;
+		return async ({ result }) => {
+			await applyAction(result);
+			if (result.type === 'success') {
+			    open = false
+				await refreshAll();
+				toast.success('Category successfully added!');
+			} else {
+				toast.error('Failed to add category!');
+			}
+
+			submitting = false;
+			if (onSubmitted) onSubmitted();
+		};
+	};
 </script>
 
 <form
 	method="post"
 	action="/vendors/categories"
-	use:enhance={() => {
-		if (submitting) return;
-		submitting = true;
-		return async ({ update }) => {
-			await update();
-			submitting = false;
-			if (onSubmitted) onSubmitted();
-		};
-	}}
+	use:enhance={enhanceForm}
 	class="ml-4 flex items-center gap-3"
 	transition:slide
 >
