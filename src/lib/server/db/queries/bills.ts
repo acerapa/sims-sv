@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import { db } from '..';
 import { bills, purchaseOrders, purchaseOrderItems, products, suppliers } from '../schema';
 
@@ -117,4 +117,37 @@ export const getBills = async () => {
 		.from(bills)
 		.leftJoin(suppliers, eq(suppliers.id, bills.supplier_id))
 		.leftJoin(purchaseOrders, eq(purchaseOrders.id, bills.purchase_order_id));
+};
+
+export const getPaginatedBills = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(bills);
+
+	const result = await db
+		.select({
+			id: bills.id,
+			amount: bills.supplier_id,
+			purchase_order_id: bills.purchase_order_id,
+			bill_date: bills.bill_date,
+			bill_status: bills.bill_status,
+			due_date: bills.due_date,
+			total_amount: bills.total_amount,
+			paid_amount: bills.paid_amount,
+			supplier_name: suppliers.name,
+			po_reference: purchaseOrders.reference
+		})
+		.from(bills)
+		.leftJoin(suppliers, eq(suppliers.id, bills.supplier_id))
+		.leftJoin(purchaseOrders, eq(purchaseOrders.id, bills.purchase_order_id))
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
 };

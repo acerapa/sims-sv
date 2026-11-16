@@ -28,9 +28,26 @@
 	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
 
 	let { data, form }: PageProps = $props();
 	let bill = $derived(data?.bill);
+
+	const bills = $derived(data?.paginated?.data || []);
+
+	// Pagination related variables
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	const suppliers = $derived<Supplier[]>(data?.suppliers);
 	let openBillForm = $state(false);
@@ -72,8 +89,8 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#if data.bills.length}
-					{#each data.bills as bill (bill.id)}
+				{#if bills.length}
+					{#each bills as bill (bill.id)}
 						<TableRow>
 							<TableCell>BILL-00{bill.id}</TableCell>
 							<TableCell>{bill.supplier_name}</TableCell>
@@ -121,5 +138,14 @@
 				{/if}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>

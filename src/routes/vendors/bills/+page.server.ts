@@ -7,23 +7,26 @@ import {
 	createBill,
 	updateBill,
 	getBill,
-	getBills,
 	type CreateBillData,
-	type UpdateBillData
+	type UpdateBillData,
+	getPaginatedBills
 } from '#lib/server/db/queries/bills.ts';
 
 export const load: PageServerLoad = async ({ url, depends }) => {
 	depends('vendors:bills');
 	const billId = url.searchParams.get('id');
+	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+
 	let bill = null;
 
 	if (billId) {
 		bill = await getBill(parseInt(billId));
 	}
 
-	const bills = await getBills();
+	const paginated = await getPaginatedBills(page, limit);
 	return {
-		bills,
+		paginated,
 		bill
 	};
 };
