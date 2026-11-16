@@ -35,7 +35,12 @@
 	let spacerRows = $derived(
 		Array.from(
 			{
-				length: drSpacerRows(order.items.length, drItemsTop(order.customer?.address), paperFormat)
+				length: drSpacerRows(
+					order.items,
+					order.total_cost,
+					drItemsTop(order.customer?.address),
+					paperFormat
+				)
 			},
 			(_, i) => i
 		)

@@ -186,11 +186,13 @@ describe('buildDrPdf — signature bottom clearance (client 2026-11-16: signatur
 
 describe('drSpacerRows — paper format', () => {
 	it('stretches short lists more on legal than on letter', () => {
-		expect(drSpacerRows(3, 204, 'legal')).toBeGreaterThan(drSpacerRows(3, 204, 'letter'));
+		expect(drSpacerRows(items(3), '1.00', 204, 'legal')).toBeGreaterThan(
+			drSpacerRows(items(3), '1.00', 204, 'letter')
+		);
 	});
 
 	it('still returns 0 for genuinely long lists on legal', () => {
-		expect(drSpacerRows(60, 204, 'legal')).toBe(0);
+		expect(drSpacerRows(items(60), '1.00', 204, 'legal')).toBe(0);
 	});
 });
 
@@ -321,7 +323,7 @@ describe('buildDrPdf — items table', () => {
 	it('sizes the UP and Total columns to the receipt amounts, with Item Description absorbing (table stays 531.9pt)', async () => {
 		// the column edges are the vertical border ops in the stream; with the serial at its
 		// 85.1pt floor, UP fits the widest unit price "100.00" (38pt) and Total fits the
-		// "Php 1,999,602.30" totals-row value (81pt) — Item Description absorbs the freed width
+		// BOLD "Php 1,999,602.30" grand-total row (82pt) — Item Description absorbs the freed width
 		const doc = await buildDrPdf(makeOrder());
 		const raw = Buffer.from(doc.output('arraybuffer')).toString('latin1');
 		const verticalEdges = new Set<number>();
@@ -329,9 +331,9 @@ describe('buildDrPdf — items table', () => {
 			verticalEdges.add(Number(m[1]));
 		}
 		const hasEdge = (x: number) => [...verticalEdges].some((v) => Math.abs(v - x) < 0.01);
-		expect(hasEdge(REPORT_MARGIN + 290.6)).toBe(true); // description/serial edge, 19pt wider than the fixed-width era
-		expect(hasEdge(REPORT_MARGIN + 290.6 + 85.1 + 37.2)).toBe(true); // UP left edge
-		expect(hasEdge(REPORT_MARGIN + 290.6 + 85.1 + 37.2 + 38)).toBe(true); // UP/Total edge
+		expect(hasEdge(REPORT_MARGIN + 289.6)).toBe(true); // description/serial edge, 19pt wider than the fixed-width era
+		expect(hasEdge(REPORT_MARGIN + 289.6 + 85.1 + 37.2)).toBe(true); // UP left edge
+		expect(hasEdge(REPORT_MARGIN + 289.6 + 85.1 + 37.2 + 38)).toBe(true); // UP/Total edge
 		expect(hasEdge(REPORT_MARGIN + 531.9)).toBe(true); // table right edge, invariant
 		expect(hasEdge(REPORT_MARGIN + 271.6)).toBe(false); // the fixed-width description edge is gone
 	});
@@ -362,9 +364,9 @@ describe('buildDrPdf — items table', () => {
 		expect(one).not.toBeNaN();
 		expect(Math.abs(one - three)).toBeLessThan(6); // the table absorbs the space, not the warranty block
 		expect(three).toBeGreaterThan(450); // bottom region of a 792pt letter page (was ≈430 un-stretched)
-		expect(drSpacerRows(1)).toBeGreaterThan(0);
-		expect(drSpacerRows(15)).toBe(2); // 2 spacers after the 2026-11 signature-reserve fix (90 → 77pt)
-		expect(drSpacerRows(20)).toBe(0); // longer lists keep their natural multi-page flow
+		expect(drSpacerRows(items(1), '1.00')).toBeGreaterThan(0);
+		expect(drSpacerRows(items(15), '1.00')).toBe(2); // 2 spacers after the 2026-11 signature-reserve fix (90 → 77pt)
+		expect(drSpacerRows(items(20), '1.00')).toBe(0); // longer lists keep their natural multi-page flow
 	});
 });
 
@@ -375,7 +377,7 @@ describe('buildDrPdf — UP/Total column fit', () => {
 
 	it('shrinks UP and Total below the old fixed widths for small amounts (Item Description absorbs)', () => {
 		expect(upWPercent(small)).toBeLessThan(10.5); // 7.1% (38pt) vs the old fixed 56pt
-		expect(totalWPercent(small, 282.95, '1999602.30')).toBeLessThan(15.4); // 15.2% (81pt) vs the old fixed 82pt
+		expect(totalWPercent(small, 282.95, '1999602.30')).toBeLessThan(15.5); // 15.4% (82pt, bold grand-total fit) vs the old fixed 82pt
 	});
 
 	it('grows the columns back for wide amounts so nothing clips', async () => {
@@ -390,7 +392,7 @@ describe('buildDrPdf — UP/Total column fit', () => {
 			}
 		];
 		expect(upWPercent(big)).toBeCloseTo((55 / 531.9) * 100, 1); // "999,999.99" + 10pt padding
-		expect(totalWPercent(big, 999999.99, '999999.99')).toBeCloseTo((73 / 531.9) * 100, 1); // "Php 999,999.99" totals row
+		expect(totalWPercent(big, 999999.99, '999999.99')).toBeCloseTo((75 / 531.9) * 100, 1); // BOLD "Php 999,999.99" totals row
 		const text = textIn(await buildDrPdf(makeOrder({ items: big })));
 		expect(text).toContain('999,999.99');
 		expect(text).toContain('Php 999,999.99');
@@ -399,7 +401,7 @@ describe('buildDrPdf — UP/Total column fit', () => {
 	it('keeps the Total column wide enough for the "Php …" grand-total row when the line items are small', () => {
 		// the Total column must fit "Php <total_cost>" even when the line-item amounts are tiny
 		const items = small.slice(0, 1);
-		expect(totalWPercent(items, 200, '1999602.30')).toBeCloseTo((81 / 531.9) * 100, 1);
+		expect(totalWPercent(items, 200, '1999602.30')).toBeCloseTo((82 / 531.9) * 100, 1); // bold grand-total fit
 		expect(upWPercent(items)).toBeCloseTo((38 / 531.9) * 100, 1); // "100.00" + 10pt padding
 	});
 });
@@ -539,6 +541,45 @@ describe('openAndPrint — no embedded auto-print (house rule: user prints from 
 	});
 });
 
+describe('buildDrPdf — wrapped item names (repro: SO #71 — 2 items printed as 2 pages)', () => {
+	// The 147-char sales description wraps in the description column; each wrapped line
+	// adds a full line of row height. The old fixed-13pt-per-row spacer count understated
+	// the table, so the filler rows pushed the warranty + signatures past the page bottom
+	const WRAPPED_NAME =
+		'Sed maximus sit amet urna vitae aliquam. Sed fringilla, magna non malesuada dignissim, ' +
+		'quam enim mollis tellus, non faucibus purus tellus a ipsum. ';
+	const wrappedItems = (n: number): DeliveryReceiptOrder['items'] =>
+		Array.from({ length: n }, () => ({
+			quantity: 1,
+			unit_price: '27615.50',
+			total_price: '74084.00',
+			serial_number: 'FAKE',
+			product: { sales_description: WRAPPED_NAME },
+			package: undefined
+		}));
+
+	it('keeps a 2-item receipt with wrapping names on one page, signatures included', async () => {
+		const doc = await buildDrPdf(makeOrder({ items: wrappedItems(2), total_cost: '157020' }));
+
+		expect(doc.getNumberOfPages()).toBe(1);
+		expect(startYAt(doc, 'Branch Manager')).toBeLessThan(792 - 48); // signatures stay in page 1's printable area
+	});
+
+	it('stretches wrapped lists with fewer spacers than short-name lists', () => {
+		expect(drSpacerRows(wrappedItems(2), '157020')).toBeLessThan(drSpacerRows(items(2), '1.00'));
+	});
+
+	it('lets a genuinely full wrapped list flow to a second page, losing nothing', async () => {
+		const doc = await buildDrPdf(makeOrder({ items: wrappedItems(12), total_cost: '157020' }));
+		const text = textIn(doc);
+
+		expect((text.match(/Sed maximus sit amet urna vitae/g) ?? []).length).toBeGreaterThanOrEqual(
+			12
+		);
+		expect(text).toContain('Branch Manager');
+	});
+});
+
 describe('drItemsTop — the preview and the PDF stretch from the same table top', () => {
 	const ONE_LINE = '123 Main St, Calbayog';
 	const TWO_LINES =
@@ -555,21 +596,22 @@ describe('drItemsTop — the preview and the PDF stretch from the same table top
 	it('lowers the table top per wrapped address line, so the preview stops over-stretching', () => {
 		expect(drItemsTop(TWO_LINES)).toBeGreaterThan(204);
 		// the preview's spacer count (same expression) must not exceed the old fixed-top count
-		expect(drSpacerRows(10, drItemsTop(TWO_LINES), 'letter')).toBeLessThanOrEqual(
-			drSpacerRows(10, 204, 'letter')
+		expect(drSpacerRows(items(10), '1.00', drItemsTop(TWO_LINES), 'letter')).toBeLessThanOrEqual(
+			drSpacerRows(items(10), '1.00', 204, 'letter')
 		);
 	});
 
 	it('buildDrPdf stretches from drItemsTop: the warranty block lands where the shared math says', async () => {
 		const top = drItemsTop(TWO_LINES);
 		const n = 1;
-		const spacers = drSpacerRows(n, top, 'letter');
+		const one = (makeOrder().items ?? []).slice(0, n);
+		const spacers = drSpacerRows(one, '1999602.30', top, 'letter');
 		const expectedTableBottom = top + 20 + n * 13 + 2 * 26 + spacers * 26;
 
 		const doc = await buildDrPdf(
 			makeOrder({
 				customer: { name: 'ACME Corp', address: TWO_LINES },
-				items: (makeOrder().items ?? []).slice(0, n)
+				items: one
 			})
 		);
 		const warrantyTop = startYAt(doc, 'FOR WARRANTY SERVICE:');

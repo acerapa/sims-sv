@@ -73,6 +73,9 @@ const DATA_ROW_HEIGHT = 26; // 9mm — spacer + totals rows (the preview's 9mm r
 // Client 2026-11-09: compact item rows; 2026-11-16: 13pt (≈4.6mm) — one pt per item buys the
 // signature its bottom clearance on full tables, where no spacer row is left to shave
 const ITEM_ROW_HEIGHT = 13;
+// one wrapped 9pt line inside an item row (9 × jsPDF's 1.15 lineSpacingFactor) —
+// autotable sizes rows to their wrapped content, so the spacer math must too
+const DR_ITEM_LINE_H = 10.35;
 // column widths: Serial No., UP and Total size to this receipt's widest value and Item
 // Description absorbs the rest — client 2026-11: the fixed amount widths left a blank gap
 // before the right-aligned amounts
@@ -104,10 +107,23 @@ export function serialWPercent(serials: string[]): number {
 
 // The UP/Total columns fit this receipt's widest value — headers and the "Php …" totals-row
 // amounts included — and share the preview-fit percents below
-function fitAmountColumn(doc: jsPDF, values: string[], floor: number): number {
+// The SUB-TOTAL / TOTAL AMOUNT rows render bold and bold glyphs are wider than the normal
+// item-row digits — the column must fit both, or the bold amount wraps to two lines
+// and the row grows past DATA_ROW_HEIGHT (SO #71: the 30.7pt grand-total row pushed the
+// signatures to page 2)
+function fitAmountColumn(
+	doc: jsPDF,
+	values: string[],
+	boldValues: string[],
+	floor: number
+): number {
 	doc.setFont('helvetica', 'normal');
 	doc.setFontSize(9);
-	const widest = values.reduce((max, value) => Math.max(max, doc.getTextWidth(value)), 0);
+	let widest = values.reduce((max, value) => Math.max(max, doc.getTextWidth(value)), 0);
+	if (boldValues.length) {
+		doc.setFont('helvetica', 'bold');
+		widest = Math.max(widest, ...boldValues.map((value) => doc.getTextWidth(value)));
+	}
 	return Math.max(floor, Math.ceil(widest) + AMOUNT_PAD);
 }
 
@@ -115,6 +131,7 @@ export function upColumnWidth(doc: jsPDF, items: DeliveryReceiptItem[]): number 
 	return fitAmountColumn(
 		doc,
 		['UP', ...items.map((item) => plainAmount(item.unit_price))],
+		[],
 		UP_FLOOR
 	);
 }
@@ -127,12 +144,8 @@ export function totalColumnWidth(
 ): number {
 	return fitAmountColumn(
 		doc,
-		[
-			'Total',
-			...items.map((item) => plainAmount(item.total_price)),
-			formatCurrencyPdf(subtotal),
-			formatCurrencyPdf(grandTotal)
-		],
+		['Total', ...items.map((item) => plainAmount(item.total_price))],
+		[formatCurrencyPdf(subtotal), formatCurrencyPdf(grandTotal)],
 		TOTAL_FLOOR
 	);
 }
@@ -454,25 +467,52 @@ export function drItemsTop(address: string | null | undefined): number {
 	return DR_HEADER_H + nameBoxHeight(lines) + DR_NAME_BOX_GAP;
 }
 
+// The item rows' real height: each row is the compact 13pt unless its name or serial
+// wraps in its column, where every extra wrapped line adds a full line of height
+// (autotable rows are content-sized — a fixed 13pt-per-row count made long-named
+// receipts overshoot the page and pushed the signatures to page 2, SO #71)
+function drItemRowsHeight(doc: jsPDF, items: DeliveryReceiptItem[], totalCost: Amount): number {
+	const serials = items.map((item) => String(item.serial_number ?? ''));
+	const subtotal = items.reduce((sum, item) => sum + safeNum(item.total_price), 0);
+	const serialW = serialColumnWidth(doc, serials);
+	const upW = upColumnWidth(doc, items);
+	const totalW = totalColumnWidth(doc, items, subtotal, totalCost);
+	const descW = TABLE_WIDTH - serialW - QTY_W - upW - totalW;
+	doc.setFont('helvetica', 'normal');
+	doc.setFontSize(9);
+	const wrapLines = (text: string, width: number): number =>
+		text ? doc.splitTextToSize(text, width).length : 1;
+	return items.reduce((height, item) => {
+		const name = item.package?.name || item.product?.sales_description || '—';
+		const lines = Math.max(
+			wrapLines(name, descW - 10),
+			wrapLines(String(item.serial_number ?? ''), serialW - 10)
+		);
+		return height + Math.max(ITEM_ROW_HEIGHT, lines * DR_ITEM_LINE_H);
+	}, 0);
+}
+
 /**
  * Client 2026-10-30: "extend the table and push the warranty text and the signatures
  * to the bottom" — the blank table rows that absorb the free space for this item
- * count so the warranty paragraph opens right below the table and the signatures
+ * list so the warranty paragraph opens right below the table and the signatures
  * close the page (single-page orders). Shared with the on-screen preview so both
  * show the same layout (parity). Long orders return 0 and keep their natural flow.
  */
 export function drSpacerRows(
-	itemCount: number,
+	items: DeliveryReceiptItem[],
+	totalCost: Amount,
 	itemsTop: number = DR_ITEMS_TOP,
 	format: DrPaperFormat = 'letter'
 ): number {
 	const pageHeight = PAGE_HEIGHT_PT[format];
 	const maxTableBottom =
 		pageHeight - PDF_FOOTER_BAND - DR_SIG_NEED - DR_SIG_CLEARANCE - DR_BELOW_TABLE;
+	const doc = new jsPDF({ unit: 'pt' });
 	const naturalBottom =
 		itemsTop +
 		DR_TABLE_HEAD +
-		Math.max(0, itemCount) * ITEM_ROW_HEIGHT +
+		drItemRowsHeight(doc, items, totalCost) +
 		DR_TOTAL_ROWS * DATA_ROW_HEIGHT;
 	const gap = maxTableBottom - naturalBottom;
 	return gap > 0 ? Math.floor(gap / DATA_ROW_HEIGHT) : 0;
@@ -494,7 +534,9 @@ export async function buildDrPdf(
 	y = drawNameAddress(doc, order, y);
 	// pass the real table top: the Name/Address box is now content-sized, so the
 	// spacer count must follow it to keep the warranty block anchored to the page bottom
-	y = drawItemsTable(doc, order, y, drSpacerRows(order.items?.length ?? 0, y, format)) + 20;
+	y =
+		drawItemsTable(doc, order, y, drSpacerRows(order.items ?? [], order.total_cost, y, format)) +
+		20;
 	y = drawWarranty(doc, y);
 	// the same clearance as the spacer math, so multi-page receipts keep it too
 	y = ensureSpace(doc, y, DR_SIG_NEED + DR_SIG_CLEARANCE - DR_FIT_TOLERANCE, pageHeight);
