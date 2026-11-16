@@ -1,7 +1,7 @@
 import {
 	createFixAsset,
 	getFixAssetById,
-	getFixAssets,
+	getPaginatedFixAssets,
 	type CreateFixAsset
 } from '#lib/server/db/queries/fix-assets.ts';
 import { decode } from 'decode-formdata';
@@ -12,7 +12,10 @@ import { FixAssetUser } from '#lib/const.ts';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 export const load: PageServerLoad = async ({ url }) => {
-	const fixAssets = await getFixAssets();
+	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+
+	const paginated = await getPaginatedFixAssets(page, limit);
 	const search = new SvelteURLSearchParams(url.searchParams);
 
 	let fixAsset = null;
@@ -21,7 +24,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		fixAsset = await getFixAssetById(id);
 	}
 
-	return { fixAssets, fixAsset };
+	return { paginated, fixAsset };
 };
 
 export const actions: Actions = {

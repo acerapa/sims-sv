@@ -27,6 +27,35 @@ export const getFixAssets = async () => {
 		.orderBy(desc(fixAssets.created_at));
 };
 
+export const getPaginatedFixAssets = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(fixAssets);
+
+	const result = await db
+		.select({
+			id: fixAssets.id,
+			date_transfered: fixAssets.date_transfered,
+			notes: fixAssets.notes,
+			user: fixAssets.user,
+			items_count: count(fixAssetItems.id)
+		})
+		.from(fixAssets)
+		.leftJoin(fixAssetItems, eq(fixAssetItems.fix_asset_id, fixAssets.id))
+		.groupBy(fixAssets.id, fixAssets.date_transfered, fixAssets.notes)
+		.orderBy(desc(fixAssets.created_at))
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
+};
+
 export const getFixAssetById = async (fixAssetId: number) => {
 	const rows = await db
 		.select({

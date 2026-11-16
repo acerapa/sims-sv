@@ -28,10 +28,25 @@
 	import { buttonVariants } from '#lib/components/ui/button/index.ts';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
 
 	let { data }: PageProps = $props();
-	let fixAssets = $derived(data?.fixAssets || []);
+	let fixAssets = $derived(data?.paginated?.data || []);
 	let openFixAssetForm = $state(false);
+
+	// Pagination related variables
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	const onViewFixAsset = async (id: number) => {
 		openFixAssetForm = true;
@@ -55,7 +70,7 @@
 	<CardContent class="space-y-4">
 		<div class="relative">
 			<Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-			<Input type="search" placeholder="Search strs..." class="h-10 pl-9" />
+			<Input type="search" placeholder="Search fix assets..." class="h-10 pl-9" />
 		</div>
 		<Table>
 			<TableHeader>
@@ -103,5 +118,14 @@
 				{/each}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>
