@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import { db } from '..';
 import { physicalInventories, physicalInventoryItems } from '../schema';
 
@@ -85,6 +85,35 @@ export const getInventories = async () => {
 			)
 		})
 		.from(physicalInventories);
+};
+
+export const getPaginatedInventories = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(physicalInventories);
+
+	const result = await db
+		.select({
+			id: physicalInventories.id,
+			title: physicalInventories.title,
+			created_at: physicalInventories.created_at,
+			status: physicalInventories.status,
+			items_counted: db.$count(
+				physicalInventoryItems,
+				eq(physicalInventoryItems.physical_inventory_id, physicalInventories.id)
+			)
+		})
+		.from(physicalInventories)
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
 };
 
 export const upsertInventoryItems = async (data: CreateInventoryItems) => {

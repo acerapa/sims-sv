@@ -38,6 +38,8 @@
 		"seed:bills:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/bills-data.ts cleanup",
 		"seed:packages": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/packages.ts",
 		"seed:packages:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/packages.ts cleanup",
+		"seed:physical-inventory": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/physical-inventory-data.ts",
+		"seed:physical-inventory:cleanup": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/physical-inventory-data.ts cleanup",
 		"seed:admin-user": "npx tsx --tsconfig tsconfig.scripts.json --import dotenv/config src/lib/server/db/seeders/admin-user.ts"
 	},
 	"devDependencies": {

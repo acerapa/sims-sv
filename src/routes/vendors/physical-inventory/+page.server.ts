@@ -3,15 +3,18 @@ import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
 import {
-	getInventories,
+	getPaginatedInventories,
 	startInventory,
 	type StartInventory
 } from '#lib/server/db/queries/physical-inventory.ts';
 
-export const load: PageServerLoad = async () => {
-	const physicalInventories = await getInventories();
+export const load: PageServerLoad = async ({ url }) => {
+	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
 
-	return { physicalInventories };
+	const paginated = await getPaginatedInventories(page, limit);
+
+	return { paginated };
 };
 
 export const actions: Actions = {

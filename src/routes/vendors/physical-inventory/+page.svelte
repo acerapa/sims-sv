@@ -28,8 +28,24 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { buttonVariants } from '#lib/components/ui/button/index.ts';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
 
 	let { data, form }: PageProps = $props();
+
+	// Pagination related variables
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+	const physicalInventories = $derived(data?.paginated?.data || []);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	const onViewPhysicalInventory = (id: number) => {
 		goto(
@@ -65,7 +81,7 @@
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{#each data.physicalInventories as inventory (inventory.id)}
+				{#each physicalInventories as inventory (inventory.id)}
 					<TableRow>
 						<TableCell>
 							<p class="font-medium">{inventory.title}</p>
@@ -108,7 +124,7 @@
 						</TableCell>
 					</TableRow>
 				{/each}
-				{#if data.physicalInventories.length === 0}
+				{#if physicalInventories.length === 0}
 					<TableRow>
 						<TableCell colspan={5} class="text-center text-muted-foreground">
 							No physical inventories found!
@@ -117,5 +133,14 @@
 				{/if}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>
