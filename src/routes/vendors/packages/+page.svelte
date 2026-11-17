@@ -28,11 +28,10 @@
 	} from '#lib/components/ui/dropdown-menu/index.ts';
 	import { Ellipsis, Eye, Search, Trash2 } from '@lucide/svelte';
 	import type { PageProps } from './$types';
-	import { goto, invalidate } from '$app/navigation';
-	import { page } from '$app/state';
+	import { invalidate } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { applyAction, enhance, type SubmitFunction } from '$app/forms';
-	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
 
 	let { data, form }: PageProps = $props();
 
@@ -58,25 +57,10 @@
 	let searchValue = $state(data.currentParams.search);
 	let searchTimeout: ReturnType<typeof setTimeout>;
 
-	function updateSearchParams(updates: Record<string, string | number | null>) {
-		const params = new SvelteURLSearchParams(page.url.searchParams);
-		for (const [key, value] of Object.entries(updates)) {
-			if (value === null || value === '') {
-				params.delete(key);
-			} else {
-				params.set(key, String(value));
-			}
-		}
-		if ('search' in updates || 'sort' in updates) {
-			params.set('page', '1');
-		}
-		goto(`?${params.toString()}`, { replaceState: true, keepFocus: true });
-	}
-
 	function handleSort(column: string) {
 		const newOrder =
 			currentParams.sortBy === column && currentParams.sortOrder === 'asc' ? 'desc' : 'asc';
-		updateSearchParams({ sort: column, order: newOrder });
+		paginatedParamsUpdate({ sort: column, order: newOrder });
 	}
 
 	function handleSearch(event: Event) {
@@ -84,17 +68,15 @@
 		searchValue = value;
 		clearTimeout(searchTimeout);
 		searchTimeout = setTimeout(() => {
-			updateSearchParams({ search: value || null });
+			paginatedParamsUpdate({ search: value || null });
 		}, 300);
 	}
 
-	const handlePageChange = (newPage: number) => updateSearchParams({ page: newPage });
-	const handleLimitChange = (newLimit: number) => updateSearchParams({ limit: newLimit, page: 1 });
+	const handlePageChange = (newPage: number) => paginatedParamsUpdate({ page: newPage });
+	const handleLimitChange = (newLimit: number) => paginatedParamsUpdate({ limit: newLimit, page: 1 });
 
 	const onView = async (packageId: number) => {
-		const params = new SvelteURLSearchParams(page.url.searchParams);
-		params.set('id', String(packageId));
-		await goto(`?${params.toString()}`);
+		paginatedParamsUpdate({ id: String(packageId) })
 		openPackageForm = true;
 	};
 
