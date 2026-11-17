@@ -3,15 +3,18 @@ import z from 'zod';
 import { fail } from '@sveltejs/kit';
 import {
 	createSupplier,
-	getSuppliersWithProductCount,
+	getPanigatedSuppliersWithCount,
 	type CreateSupplierData
 } from '#lib/server/db/queries/suppliers.ts';
 import { DrizzleQueryError } from 'drizzle-orm';
 import { type PostgresError } from 'postgres';
 
-export const load: PageServerLoad = async () => {
-	const suppliers = await getSuppliersWithProductCount();
-	return { suppliers };
+export const load: PageServerLoad = async ({ url }) => {
+	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+
+	const paginated = await getPanigatedSuppliersWithCount(page, limit);
+	return { paginated };
 };
 
 export const actions: Actions = {

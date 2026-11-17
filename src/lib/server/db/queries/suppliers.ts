@@ -1,4 +1,4 @@
-import { desc, sql } from 'drizzle-orm';
+import { count, desc, sql } from 'drizzle-orm';
 import { db } from '..';
 import { productsToSupplier, suppliers } from '../schema';
 
@@ -58,4 +58,35 @@ export const getSuppliersWithProductCount = async () => {
 		.from(suppliers)
 		.orderBy(desc(suppliers.created_at))
 		.execute();
+};
+
+export const getPanigatedSuppliersWithCount = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(suppliers);
+
+	const result = await db
+		.select({
+			id: suppliers.id,
+			name: suppliers.name,
+			email: suppliers.email,
+			notes: suppliers.notes,
+			address: suppliers.address,
+			phone_number: suppliers.phone_number,
+			contact_person: suppliers.contact_person,
+			telephone_number: suppliers.telephone_number,
+			product_count: sql<number>`(SELECT COUNT(*)::int FROM ${productsToSupplier} WHERE ${productsToSupplier.supplier_id} = ${suppliers.id})`
+		})
+		.from(suppliers)
+		.orderBy(desc(suppliers.created_at))
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
 };

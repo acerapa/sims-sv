@@ -26,9 +26,24 @@
 	import { Ellipsis, Eye, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import type { Supplier } from '#lib/types/global.ts';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
 
 	let { data }: PageProps = $props();
-	const suppliers = $derived(data.suppliers);
+	const suppliers = $derived(data?.paginated?.data || []);
+
+	// Pagination related variables
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	let viewSupplierOpen = $state(false);
 	let viewedSupplier = $state<Supplier | null>(null);
@@ -100,5 +115,14 @@
 				{/if}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>
