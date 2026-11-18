@@ -1,13 +1,16 @@
-import { createCustomer, getCustomers } from '#lib/server/db/queries/customers.ts';
+import { createCustomer, getPaginatedCustomers } from '#lib/server/db/queries/customers.ts';
 import { decode } from 'decode-formdata';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import z from 'zod';
 import type { Customer } from '#lib/types/global.ts';
 
-export const load: PageServerLoad = async () => {
-	const customers = await getCustomers();
-	return { customers };
+export const load: PageServerLoad = async ({ url }) => {
+	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+
+	const paginated = await getPaginatedCustomers(page, limit);
+	return { paginated };
 };
 
 export const actions: Actions = {

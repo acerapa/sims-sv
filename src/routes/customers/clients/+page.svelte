@@ -19,8 +19,23 @@
 		TableRow
 	} from '#lib/components/ui/table/index.ts';
 	import { Ellipsis, Search } from '@lucide/svelte';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
 
-	const customers = $derived(page.data.customers);
+	const customers = $derived(page.data.paginated.data);
+
+	// Pagination related variables
+	let total = $derived(page.data.paginated.total);
+	let currentPage = $derived(page.data.paginated.page);
+	let limit = $derived(page.data.paginated.limit);
+	let totalPages = $derived(page.data.paginated.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (newLimit: number) => {
+		paginatedParamsUpdate({ limit: newLimit, page: 1 });
+	};
 </script>
 
 <svelte:head>
@@ -62,7 +77,7 @@
 						<TableCell>{client.address || '-'}</TableCell>
 						<TableCell>{client.phone || '-'}</TableCell>
 						<TableCell>{client.viber || '-'}</TableCell>
-						<TableCell>{client.fb || '-'}</TableCell>
+						<TableCell>{client.fb_account || '-'}</TableCell>
 						<TableCell>
 							<Button size="icon-sm" variant="ghost">
 								<Ellipsis />
@@ -77,5 +92,14 @@
 				{/if}
 			</TableBody>
 		</Table>
+
+		<TablePagination
+			page={currentPage}
+			{totalPages}
+			{total}
+			{limit}
+			onPageChange={handlePageChange}
+			onLimitChange={handleLimitChange}
+		/>
 	</CardContent>
 </Card>
