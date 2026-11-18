@@ -2,10 +2,11 @@ import { getCustomers } from '#lib/server/db/queries/customers.ts';
 import {
 	createInvoice,
 	createPayment,
-	getCustomerBills,
 	getInvoice,
+	getPaginatedCustomerBills,
 	getSalesOrderForInvoice,
-	type CreateInvoiceData
+	type CreateInvoiceData,
+	type CustomerBillStatusFilter
 } from '#lib/server/db/queries/invoices.ts';
 import { getSOsByCustomer } from '#lib/server/db/queries/sales-orders.ts';
 import { decode } from 'decode-formdata';
@@ -18,10 +19,25 @@ export const load: PageServerLoad = async ({ url, depends }) => {
 
 	const billId = url.searchParams.get('id');
 	const bill = billId ? await getInvoice(parseInt(billId)) : null;
-	const bills = await getCustomerBills();
+
+	const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1') || 1);
+	const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') ?? '10') || 10));
+	const search = url.searchParams.get('search') ?? '';
+	const statusParam = url.searchParams.get('status');
+	const status: CustomerBillStatusFilter | undefined =
+		statusParam === 'unpaid' || statusParam === 'partially_paid' || statusParam === 'paid'
+			? statusParam
+			: undefined;
+
+	const paginated = await getPaginatedCustomerBills({ page, limit, search, status });
 	const customers = await getCustomers();
 
-	return { bills, customers, bill };
+	return {
+		paginated,
+		customers,
+		bill,
+		currentParams: { search, status: status ?? 'all' }
+	};
 };
 
 /**

@@ -28,37 +28,54 @@
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
 
 	let { data, form }: PageProps = $props();
 
 	let openBillForm = $state(false);
 	let bill = $derived(data.bill ?? null);
 
+	const bills = $derived(data.paginated.data);
+
+	// Pagination related variables
+	let total = $derived(data.paginated.total);
+	let currentPage = $derived(data.paginated.page);
+	let limit = $derived(data.paginated.limit);
+	let totalPages = $derived(data.paginated.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (newLimit: number) => {
+		paginatedParamsUpdate({ limit: newLimit, page: 1 });
+	};
+
 	const onViewBill = (billId: number) => {
 		openBillForm = true;
 		goto(resolve(`/customers/bills?id=${billId}` as '/customers/bills'));
 	};
 
-	type StatusFilter = 'unpaid' | 'partially_paid' | 'paid' | 'all';
+	let searchValue = $state(data.currentParams.search);
+	let searchTimeout: ReturnType<typeof setTimeout>;
+	let statusFilter = $derived(data.currentParams.status ?? 'all');
 
-	let searchValue = $state('');
-	let statusFilter = $state<StatusFilter>('all');
+	const handleSearch = (event: Event) => {
+		const value = (event.target as HTMLInputElement).value;
+		searchValue = value;
+		clearTimeout(searchTimeout);
+		searchTimeout = setTimeout(() => {
+			paginatedParamsUpdate({ search: value || null });
+		}, 300);
+	};
 
-	let bills = $derived.by(() => {
-		return data.bills.filter((bill) => {
-			const matchesSearch = bill.customer_name.toLowerCase().includes(searchValue.toLowerCase());
-			const matchesStatus = statusFilter === 'all' || bill.invoice_status === statusFilter;
-			return matchesSearch && matchesStatus;
-		});
-	});
+	const handleStatusChange = (status: string) => {
+		paginatedParamsUpdate({ status: status === 'all' ? null : status, page: 1 });
+	};
 
-	// Ledger position: what is still receivable on the bills shown
-	let receivableTotal = $derived(
-		data.bills
-			.filter((bill) => bill.invoice_status !== 'paid')
-			.reduce((sum, bill) => sum + bill.balance, 0)
-	);
-	let openCount = $derived(data.bills.filter((bill) => bill.invoice_status !== 'paid').length);
+	// Ledger position: what is still receivable on the whole ledger (server-computed)
+	let receivableTotal = $derived(data.paginated.outstanding.total);
+	let openCount = $derived(data.paginated.outstanding.count);
 
 	const formatMoney = (value: number | string | null) => {
 		if (value == null) value = '0';
@@ -130,7 +147,8 @@
 						type="search"
 						class="h-10 pl-9"
 						placeholder="Search customer..."
-						bind:value={searchValue}
+						value={searchValue}
+						oninput={handleSearch}
 					/>
 					<Search class="absolute top-1/2 left-3 size-4 translate-y-[-50%] text-muted-foreground" />
 				</div>
@@ -139,7 +157,7 @@
 						variant={statusFilter === 'all' ? 'default' : 'outline'}
 						size="sm"
 						class="capitalize"
-						onclick={() => (statusFilter = 'all')}
+						onclick={() => handleStatusChange('all')}
 					>
 						All
 					</Button>
@@ -147,7 +165,7 @@
 						variant={statusFilter === 'unpaid' ? 'default' : 'outline'}
 						size="sm"
 						class="capitalize"
-						onclick={() => (statusFilter = 'unpaid')}
+						onclick={() => handleStatusChange('unpaid')}
 					>
 						Unpaid
 					</Button>
@@ -155,7 +173,7 @@
 						variant={statusFilter === 'partially_paid' ? 'default' : 'outline'}
 						size="sm"
 						class="capitalize"
-						onclick={() => (statusFilter = 'partially_paid')}
+						onclick={() => handleStatusChange('partially_paid')}
 					>
 						Partial
 					</Button>
@@ -163,7 +181,7 @@
 						variant={statusFilter === 'paid' ? 'default' : 'outline'}
 						size="sm"
 						class="capitalize"
-						onclick={() => (statusFilter = 'paid')}
+						onclick={() => handleStatusChange('paid')}
 					>
 						Paid
 					</Button>
@@ -250,6 +268,15 @@
 					{/if}
 				</TableBody>
 			</Table>
+
+			<TablePagination
+				page={currentPage}
+				{totalPages}
+				{total}
+				{limit}
+				onPageChange={handlePageChange}
+				onLimitChange={handleLimitChange}
+			/>
 		</CardContent>
 	</Card>
 </div>
