@@ -20,6 +20,8 @@
 	import { Funnel, Search } from '@lucide/svelte';
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
+	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import TablePagination from '#lib/components/common/TablePagination.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -28,10 +30,23 @@
 	let invoices = $derived.by(() => {
 		const value = searchValue;
 
-		return data.invoices.filter((invoice) =>
+		return (data?.paginated?.data || []).filter((invoice) =>
 			invoice.customer_name.toLowerCase().includes(value.toLowerCase())
 		);
 	});
+
+	// Pagination related variables
+	let total = $derived(data?.paginated?.total);
+	let currentPage = $derived(data?.paginated?.page);
+	let limit = $derived(data?.paginated?.limit);
+	let totalPages = $derived(data?.paginated?.totalPages);
+
+	const handlePageChange = (page: number) => {
+		paginatedParamsUpdate({ page });
+	};
+	const handleLimitChange = (limit: number) => {
+		paginatedParamsUpdate({ limit });
+	};
 
 	const getStatusVariant = (status: string) => {
 		switch (status) {
@@ -170,6 +185,15 @@
 					{/if}
 				</TableBody>
 			</Table>
+
+			<TablePagination
+				page={currentPage}
+				{totalPages}
+				{total}
+				{limit}
+				onPageChange={handlePageChange}
+				onLimitChange={handleLimitChange}
+			/>
 		</CardContent>
 	</Card>
 </div>

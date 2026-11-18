@@ -1,4 +1,4 @@
-import { asc, desc, eq, ne, sql, sum } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, ne, sql, sum } from 'drizzle-orm';
 import { db } from '..';
 import {
 	customers,
@@ -188,6 +188,40 @@ export const getInvoices = async () => {
 	return result;
 };
 
+export const getPaginatedInvoices = async (page: number, limit: number) => {
+	const offset = (page - 1) * limit;
+
+	const [{ total }] = await db.select({ total: count() }).from(invoices);
+
+	const result = await db
+		.select({
+			id: invoices.id,
+			sales_order_id: invoices.sales_order_id,
+			customer_name: customers.name,
+			invoice_date: invoices.invoice_date,
+			due_date: invoices.due_date,
+			invoice_status: invoices.invoice_status,
+			notes: invoices.notes,
+			total_amount: invoices.total_amount,
+			paid_amount: invoices.paid_amount,
+			created_at: invoices.created_at
+		})
+		.from(invoices)
+		.innerJoin(salesOrders, eq(invoices.sales_order_id, salesOrders.id))
+		.innerJoin(customers, eq(salesOrders.customer_id, customers.id))
+		.orderBy(desc(invoices.created_at))
+		.offset(offset)
+		.limit(limit);
+
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
+	};
+};
+
 export const getInvoice = async (invoiceId: number) => {
 	const [invoice] = await db
 		.select({
@@ -258,7 +292,47 @@ export interface CustomerBillRow {
 	balance: number;
 }
 
-export const getCustomerBills = async (): Promise<CustomerBillRow[]> => {
+export type CustomerBillStatusFilter = 'unpaid' | 'partially_paid' | 'paid';
+
+export interface GetPaginatedCustomerBillsParams {
+	page: number;
+	limit: number;
+	search?: string;
+	status?: CustomerBillStatusFilter;
+}
+
+/**
+ * Customer Bills ledger: every non-cancelled bill (invoice) with its outstanding balance,
+ * paginated with an optional customer-name search and status filter. The outstanding
+ * summary always covers the full ledger (all open bills), so the header badge does not
+ * change with the current page or filters.
+ */
+export const getPaginatedCustomerBills = async (
+	params: GetPaginatedCustomerBillsParams
+): Promise<{
+	data: CustomerBillRow[];
+	total: number;
+	page: number;
+	limit: number;
+	totalPages: number;
+	outstanding: { count: number; total: number };
+}> => {
+	const { page, limit, search = '', status } = params;
+	const offset = (page - 1) * limit;
+
+	const where = and(
+		ne(invoices.invoice_status, 'cancelled'),
+		search ? ilike(customers.name, `%${search}%`) : undefined,
+		status ? eq(invoices.invoice_status, status) : undefined
+	);
+
+	const [{ total }] = await db
+		.select({ total: count() })
+		.from(invoices)
+		.innerJoin(salesOrders, eq(invoices.sales_order_id, salesOrders.id))
+		.innerJoin(customers, eq(salesOrders.customer_id, customers.id))
+		.where(where);
+
 	const rows = await db
 		.select({
 			id: invoices.id,
@@ -273,17 +347,36 @@ export const getCustomerBills = async (): Promise<CustomerBillRow[]> => {
 		.from(invoices)
 		.innerJoin(salesOrders, eq(invoices.sales_order_id, salesOrders.id))
 		.innerJoin(customers, eq(salesOrders.customer_id, customers.id))
-		.where(ne(invoices.invoice_status, 'cancelled'))
-		.orderBy(asc(invoices.due_date), asc(invoices.id));
+		.where(where)
+		.orderBy(asc(invoices.due_date), asc(invoices.id))
+		.offset(offset)
+		.limit(limit);
 
-	return rows.map((row) => {
-		const total = parseFloat(row.total_amount as string);
-		const paid = parseFloat(row.paid_amount as string);
-		return {
-			...row,
-			balance: Math.max(0, total - paid) // never negative — an overpaid invoice shows 0 due
-		};
-	});
+	const data: CustomerBillRow[] = rows.map((row) => ({
+		...row,
+		balance: Math.max(0, parseFloat(row.total_amount) - parseFloat(row.paid_amount as string))
+	})); // never negative — an overpaid invoice shows 0 due
+
+	// what is still receivable on the whole ledger: open bills, balance clamped to 0
+	const [{ outstandingCount, outstandingTotal }] = await db
+		.select({
+			outstandingCount: sql<number>`count(${invoices.id})::int`,
+			outstandingTotal: sql<number>`coalesce(
+				sum(greatest(${invoices.total_amount}::numeric - coalesce(${invoices.paid_amount}::numeric, 0), 0)),
+				0
+			)`
+		})
+		.from(invoices)
+		.where(and(ne(invoices.invoice_status, 'cancelled'), ne(invoices.invoice_status, 'paid')));
+
+	return {
+		data,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit),
+		outstanding: { count: outstandingCount, total: Number(outstandingTotal) }
+	};
 };
 
 export const getSalesOrderForInvoice = async (salesOrderId: number) => {
