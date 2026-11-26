@@ -6,7 +6,7 @@
 	import { openAndPrint } from '#lib/utils/pdf.ts';
 	import type { PageProps } from './$types';
 	import {
-		buildDrPdf,
+		// buildDrPdf,
 		drItemsTop,
 		drSpacerRows,
 		formatDateShort,
@@ -16,6 +16,7 @@
 		WARRANTY_TEXT
 	} from './pdf';
 	import type { DrPaperFormat } from './pdf';
+	import { buildDrPdf } from './my-pdf'
 
 	let { data }: PageProps = $props();
 	let order = $derived(data.salesOrder);
@@ -47,7 +48,8 @@
 	);
 
 	async function handlePrint() {
-		openAndPrint(await buildDrPdf(order, paperFormat));
+		// openAndPrint(await buildDrPdf(order, paperFormat));
+		openAndPrint(await buildDrPdf());
 	}
 
 	// <style> content is never parsed as a Svelte template, so the @page size can't be
