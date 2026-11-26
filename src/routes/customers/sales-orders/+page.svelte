@@ -44,6 +44,7 @@
 	import { resolve } from '$app/paths';
 	import { SalesOrderStatus } from '#lib/const.ts';
 	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import { debounce } from '#lib/utils/common.ts';
 
 	let { data }: PageProps = $props();
 
@@ -98,7 +99,11 @@
 		}
 	]);
 
-	let searchValue = $state('');
+	let searchValue = $derived(data?.searchText);
+
+	const debounceSearch = debounce(() => {
+	  paginatedParamsUpdate({ search: searchValue });
+	}, 800)
 
 	const getStatusVariant = (status: string) => {
 		switch (status) {
@@ -183,7 +188,8 @@
 					type="search"
 					class="h-10 pl-9"
 					placeholder="Search by description..."
-					value={searchValue}
+					bind:value={searchValue}
+					oninput={debounceSearch}
 				/>
 				<Search class="absolute top-1/2 left-3 size-4 translate-y-[-50%] text-muted-foreground" />
 			</div>

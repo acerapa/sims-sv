@@ -1,4 +1,4 @@
-import { desc, eq, sql, count, sum } from 'drizzle-orm';
+import { desc, eq, sql, count, sum, or, ilike } from 'drizzle-orm';
 import { db } from '..';
 import {
 	customers,
@@ -170,7 +170,7 @@ export const getSalesOrders = async () => {
 	return result;
 };
 
-export const getSalesOrdersPaginated = async (page: number, limit: number) => {
+export const getSalesOrdersPaginated = async (page: number, limit: number, search: string) => {
 	const offset = (page - 1) * limit;
 
 	const [{ total }] = await db.select({ total: count() }).from(salesOrders);
@@ -192,17 +192,27 @@ export const getSalesOrdersPaginated = async (page: number, limit: number) => {
 		})
 		.from(salesOrders)
 		.leftJoin(customers, eq(salesOrders.customer_id, customers.id))
-    .leftJoin(users, eq(salesOrders.staff_user_id, users.id))
-    .orderBy(desc(salesOrders.created_at))
-    .offset(offset)
+		.leftJoin(users, eq(salesOrders.staff_user_id, users.id))
+		.orderBy(desc(salesOrders.created_at))
+		.where(
+			search
+				? or(
+						sql`${salesOrders.id}::text ilike ${`%${search}%`}`,
+						ilike(customers.name, `%${search}%`),
+						ilike(users.name, `%${search}%`),
+						sql`${salesOrders.order_status}::text ilike ${`%${search}%`}`
+					)
+				: undefined
+		)
+		.offset(offset)
 		.limit(limit);
 
-  return {
-    data: result,
-    total,
-    page,
-    limit,
-    totalPages: Math.ceil(total / limit)
+	return {
+		data: result,
+		total,
+		page,
+		limit,
+		totalPages: Math.ceil(total / limit)
 	};
 };
 
