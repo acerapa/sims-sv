@@ -21,6 +21,7 @@
 	import { resolve } from '$app/paths';
 	import TablePagination from '#lib/components/common/TablePagination.svelte';
 	import { paginatedParamsUpdate } from '#lib/utils/pagination.ts';
+	import { debounce } from '#lib/utils/common.ts';
 
 	let { data }: PageProps = $props();
 
@@ -37,18 +38,10 @@
 		paginatedParamsUpdate({ limit });
 	};
 
-	let search = $state('');
-	let purchaseOrders = $derived(
-		data?.paginated?.data?.filter((po) => {
-			if (!search) return true;
-			const term = search.toLowerCase();
+	const debounceSearch = debounce(() => paginatedParamsUpdate({ search }), 800);
 
-			return (
-				po.reference.toLowerCase().includes(term) ||
-				(po.supplier_name && po.supplier_name.toLowerCase().includes(term))
-			);
-		})
-	);
+	let search = $derived(data?.search);
+	let purchaseOrders = $derived(data?.paginated?.data);
 
 	const formatReceiveType = (type: string) => {
 		switch (type) {
@@ -88,6 +81,7 @@
 				placeholder="Search by reference or supplier..."
 				class="h-10 pl-9"
 				bind:value={search}
+				oninput={debounceSearch}
 			/>
 		</div>
 
